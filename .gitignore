@@ -1,3 +1,5 @@
+public/articles/*
+
 .idea/*
 package-lock.json
 
@@ -48,3 +50,7 @@ jspm_packages
 
 # Yarn Integrity file
 .yarn-integrity
+
+*.sublime-project
+
+*.sublime-workspace
