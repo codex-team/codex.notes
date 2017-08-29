@@ -1,0 +1,8 @@
+.editor {
+    flex-grow: 1;
+    padding: 100px;
+    margin-left: 200px;
+    font-size: 17px;
+    color: #1A1A1A;
+    line-height: 1.5em;
+}

@@ -1,0 +1,24 @@
+.aside {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    padding: 40px 15px 30px;
+    background: #292B37;
+    color: #fff;
+    overflow: hidden;
+
+    & .logo {
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 500;
+    }
+}
+
+
+
+
+.title {
+    text-overflow: ellipsis;
+}

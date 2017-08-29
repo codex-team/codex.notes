@@ -1,0 +1,11 @@
+body {
+    padding: 50px;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+}
+
+@import "normalize.css";
+@import "components/aside.css";
+@import "components/editor.css";
+@import "components/notes.css";
