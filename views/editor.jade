@@ -1,0 +1,62 @@
+doctype html
+
+html(lang="en")
+    head
+       title= title
+       script(src="javascripts/app.js")
+       script(src="codex.editor/codex-editor.js")
+       script(src="codex.editor/plugins/header/header.js")
+       script(src="codex.editor/plugins/paragraph/paragraph.js")
+       link(href="codex.editor/codex-editor.css", rel="stylesheet")
+       link(href="codex.editor/plugins/paragraph/paragraph.css", rel="stylesheet")
+       link(href="codex.editor/plugins/header/header.css", rel="stylesheet")
+       link(href="stylesheets/style.css", rel="stylesheet")
+body
+        div.aside
+            div.logo.
+                CodeX Editor
+            a(href="/")
+                button New
+            - if (id)
+                button(onclick="app.saveArticle('" + id + "')") Save
+            - else
+                button(onclick="app.saveArticle()") Publish
+
+            - if (titles.length)
+                ul.notes-list
+                    - each title in titles
+                        li.title
+                            a(href='/'+title.url) !{title.title}
+
+        div#codex-editor.editor
+    script.
+        codex.editor.start({
+            holderId : "codex-editor",
+            initialBlockPlugin : 'paragraph',
+            hideToolbar: false,
+            tools : {
+                paragraph: {
+                    type: 'paragraph',
+                    iconClassname: 'ce-icon-paragraph',
+                    render: paragraph.render,
+                    validate: paragraph.validate,
+                    save: paragraph.save,
+                    destroy: paragraph.destroy,
+                    allowedToPaste: true,
+                    showInlineToolbar: true,
+                    allowRenderOnPaste: true
+                },
+                header: {
+                    type: 'header',
+                    iconClassname: 'ce-icon-header',
+                    appendCallback: header.appendCallback,
+                    makeSettings: header.makeSettings,
+                    render: header.render,
+                    validate: header.validate,
+                    save: header.save,
+                    destroy: header.destroy,
+                    displayInToolbox: true
+                }
+            },
+            data: !{data}})
+

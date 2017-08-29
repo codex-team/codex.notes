@@ -1,0 +1,10 @@
+doctype html
+html(lang="en")
+    head
+        title= title
+    body
+
+        form(method="post", action="/upload", enctype="multipart/form-data")
+            input(type="file", name="file")
+            br
+            input(type="submit")

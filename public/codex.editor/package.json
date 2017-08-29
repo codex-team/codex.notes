@@ -1,0 +1,53 @@
+{
+  "_from": "codex.editor",
+  "_id": "codex.editor@1.6.6",
+  "_inBundle": false,
+  "_integrity": "sha1-0UfdOG0uIAtSLsYiJL6bjNIfrPY=",
+  "_location": "/codex.editor",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "codex.editor",
+    "name": "codex.editor",
+    "escapedName": "codex.editor",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/codex.editor/-/codex.editor-1.6.6.tgz",
+  "_shasum": "d147dd386d2e200b522ec62224be9b8cd21facf6",
+  "_spec": "codex.editor",
+  "_where": "/Users/admin/Codex/editor/electron",
+  "author": {
+    "name": "Codex Team"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Codex Editor. Native JS, based on API and Open Source",
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-runtime": "^6.20.0",
+    "css-loader": "^0.26.1",
+    "eslint": "^3.12.2",
+    "eslint-loader": "^1.6.1",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "html-janitor": "^2.0.2",
+    "path": "^0.12.7",
+    "webpack": "^1.14.0"
+  },
+  "license": "ISC",
+  "main": "index.js",
+  "name": "codex.editor",
+  "scripts": {
+    "build": "webpack"
+  },
+  "version": "1.6.6"
+}

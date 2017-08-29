@@ -1,0 +1,59 @@
+body {
+  padding: 50px;
+  font-family: system-ui;
+  font-size: 13px;
+  -webkit-app-region: drag;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+.aside {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  padding: 40px 15px 30px;
+  background: #292B37;
+  color: #fff;
+  overflow: hidden;
+}
+.aside .logo {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.editor {
+  flex-grow: 1;
+  padding: 100px;
+  margin-left: 200px;
+  font-size: 17px;
+  color: #1A1A1A;
+  line-height: 1.5em;
+}
+
+.title {
+  text-overflow: ellipsis;
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notes-list li {
+  margin-bottom: 0.5em;
+}
+
+.notes-list a {
+  color: #BAC3DB;
+  text-decoration: none;
+  line-height: 1.35em;
+}
+
+.notes-list a:hover {
+  color: #fff;
+}
