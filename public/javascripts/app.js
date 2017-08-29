@@ -1,32 +1,43 @@
-var app = function () {
+module.exports = function () {
 
-  var saveArticle = function (id) {
+    'use strict';
 
-    codex.editor.saver.saveBlocks();
+    let editor = codex.editor;
 
-    setTimeout(sendRequest.bind(null, id), 1000);
+    // load CSS
+    require('../stylesheets/base.css');
 
-  }
+    function saveArticle(id) {
 
-  var sendRequest = function (id) {
+        editor.saver.saveBlocks();
+        window.setTimeout(sendRequest.bind(null, id), 1000);
 
-    var form = new FormData();
+    }
 
-    form.append('json', JSON.stringify({items: codex.editor.state.jsonOutput}));
-    if (id) form.append('id', id);
+    function sendRequest(id) {
 
-    codex.editor.core.ajax({
-      url: '/save',
-      data: form,
-      type: 'POST',
-      success: console.log,
-      error: console.log
-    });
+        let form = new FormData();
 
-  }
+        form.append('json', JSON.stringify( { items: editor.state.jsonOutput } ) );
 
-  return  {
-    saveArticle: saveArticle
-  }
+        if (id) {
+
+            form.append('id', id);
+
+        }
+
+        editor.core.ajax({
+            url: '/save',
+            data: form,
+            type: 'POST',
+            success: function () { },
+            error: function () { }
+        });
+
+    }
+
+    return {
+        saveArticle
+    };
 
 }();

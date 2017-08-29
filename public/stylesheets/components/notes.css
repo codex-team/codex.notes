@@ -1,0 +1,19 @@
+.notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & li {
+        margin-bottom: 0.5em;
+    }
+
+    & a {
+        color: #BAC3DB;
+        text-decoration: none;
+        line-height: 1.35em;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+}
