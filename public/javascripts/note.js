@@ -7,7 +7,6 @@ export default class Note {
    * @constructor
    */
   constructor() {
-    this.saveButton = document.getElementById('save-button');
     window.ipcRenderer.on('note saved', this.addToMenu);
     this.deleteNoteButton = document.getElementById('delete-button');
     this.deleteNoteButton.addEventListener('click', this.delete.bind(this));
