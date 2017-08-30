@@ -33,4 +33,12 @@ export default class DOM {
   static replace(nodeToReplace, replaceWith) {
     return nodeToReplace.parentNode.replaceChild(replaceWith, nodeToReplace);
   }
+
+  /**
+  * getElementById alias
+  * @param {String} elementId
+  */
+  static get(elementId) {
+    return document.getElementById(elementId);
+  }
 }

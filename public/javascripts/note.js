@@ -1,22 +1,16 @@
+const DELETE_BUTTON_ID = 'delete-button';
+
 /**
- * @class Note
+ * Note
  */
 export default class Note {
 
   /**
-   * @constructor
-   */
-  constructor() {
-    window.ipcRenderer.on('note saved', this.addToMenu);
-    this.deleteNoteButton = document.getElementById('delete-button');
-    this.deleteNoteButton.addEventListener('click', this.delete.bind(this));
-  }
-
-  /**
    * Send note data to backend
+   * @static
    */
-  save() {
-    this.deleteNoteButton.classList.remove('hide');
+  static save() {
+    dom.get(DELETE_BUTTON_ID).classList.remove('hide');
 
     codex.editor.saver.save()
       .then(function (noteData) {
@@ -30,7 +24,7 @@ export default class Note {
   autosave() {
     if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-    this.autosaveTimer = window.setTimeout(this.save.bind(this), 200);
+    this.autosaveTimer = window.setTimeout(Note.save, 200);
   }
 
   /**
@@ -53,7 +47,7 @@ export default class Note {
    * @param event
    * @param data
    */
-  addToMenu(event, {note}) {
+  static addToMenu(event, {note}) {
     codex.editor.state.blocks.id = note.id;
 
     Aside.addMenuItem(note);
@@ -63,37 +57,40 @@ export default class Note {
    * Renders note
    * @param  {object} noteData
    */
-  render(noteData) {
+  static render(noteData) {
     codex.editor.content.clear(true);
 
     codex.editor.content.load(noteData);
-    this.deleteNoteButton.classList.remove('hide');
+    dom.get(DELETE_BUTTON_ID).classList.remove('hide');
   }
 
   /**
    * Clears editor
    */
-  clear() {
+  static clear() {
     codex.editor.content.clear(true);
     codex.editor.ui.addInitialBlock();
-    this.deleteNoteButton.classList.add('hide');
+    dom.get(DELETE_BUTTON_ID).classList.add('hide');
   }
 
   /**
    * Delete article
    */
-  delete() {
+  static delete() {
     let id = codex.editor.state.blocks.id;
 
     if (!id) {
       return;
     }
 
-    this.clear();
+    if (!window.ipcRenderer.sendSync('delete note', {id}))
+      return false;
+
+    Note.clear();
     Aside.removeMenuItem(id);
-    window.ipcRenderer.send('delete note', {id});
   }
 
 }
 
 let Aside = require('./aside').default;
+let dom = require('./dom').default;
