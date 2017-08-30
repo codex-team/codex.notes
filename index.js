@@ -41,7 +41,7 @@ app.on('ready', function () {
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -117,7 +117,17 @@ ipcMain.on('get note', (event, {id}) => {
 ipcMain.on('delete note', (event, {id}) => {
   let path = NOTES_DIR + '/' + id + '.json';
 
-  if (fs.existsSync(path)) {
-    fs.unlinkSync(path);
-  }
+  electron.dialog.showMessageBox({
+    type: 'question',
+    message: 'Do you really want to remove this note?',
+    buttons: ['Delete', 'Cancel'],
+    icon: __dirname + '/assets/icons/png/icon-white128.png',
+  }, (response) => {
+    if (response == 0) {
+      if (fs.existsSync(path)) {
+        fs.unlinkSync(path);
+      }
+    }
+    event.returnValue = !response;
+  });
 });

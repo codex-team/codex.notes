@@ -53,7 +53,7 @@ export default class Aside {
    * @this {Aside}
    */
   newNoteButtonClicked() {
-    noteClass.clear();
+    Note.clear();
   }
 
   /**
@@ -106,10 +106,9 @@ export default class Aside {
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 
-    noteClass.render(noteData);
+    Note.render(noteData);
   }
 }
 
 let dom = require('./dom').default;
 let Note = require('./note').default;
-let noteClass = new Note();
