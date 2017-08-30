@@ -83,8 +83,9 @@ export default class Note {
       return;
     }
 
-    if (!window.ipcRenderer.sendSync('delete note', {id}))
+    if (!window.ipcRenderer.sendSync('delete note', {id})) {
       return false;
+    }
 
     Note.clear();
     Aside.removeMenuItem(id);

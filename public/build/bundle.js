@@ -354,7 +354,9 @@ var Note = function () {
         return;
       }
 
-      if (!window.ipcRenderer.sendSync('delete note', { id: id })) return false;
+      if (!window.ipcRenderer.sendSync('delete note', { id: id })) {
+        return false;
+      }
 
       Note.clear();
       Aside.removeMenuItem(id);

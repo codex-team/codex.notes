@@ -41,7 +41,7 @@ app.on('ready', function () {
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -119,7 +119,7 @@ ipcMain.on('delete note', (event, {id}) => {
 
   electron.dialog.showMessageBox({
     type: 'question',
-    message: 'Delete note?',
+    message: 'Do you really want to remove this note?',
     buttons: ['Delete', 'Cancel'],
     icon: __dirname + '/assets/icons/png/icon-white128.png',
   }, (response) => {
