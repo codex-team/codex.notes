@@ -11,6 +11,12 @@ let mainWindow;
 
 let fs = require('fs');
 
+/**
+ * Notes list directory
+ * @type {String}
+ */
+const NOTES_DIR = __dirname + '/public/notes';
+
 
 /**
  * Inter Process Communication - Main proccess
@@ -31,7 +37,7 @@ app.on('ready', function () {
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 });
 
 var sanitizeHtml = require('sanitize-html');
@@ -65,7 +71,6 @@ ipcMain.on('load notes list', (event, arg) => {
  * Save note to json file
  */
 ipcMain.on('save note', (event, {noteData}) => {
-  const NOTES_DIR = __dirname + '/public/notes';
 
   if (!noteData.items.length && !noteData.id) return;
 
@@ -85,4 +90,18 @@ ipcMain.on('save note', (event, {noteData}) => {
   };
 
   event.sender.send('note saved', {note});
+});
+
+/**
+ * Return note data by id
+ * @param {object}
+ * @param {number} options.id
+ */
+ipcMain.on('get note', (event, {id}) => {
+
+  let noteFileData = fs.readFileSync(NOTES_DIR + '/' + id + '.json');
+  let parsedNoteData = JSON.parse(noteFileData);
+
+  event.returnValue = parsedNoteData;
+
 });

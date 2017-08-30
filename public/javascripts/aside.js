@@ -1,10 +1,10 @@
 let dom = require('./dom').default;
+var Note = require('./note').default;
 
 /**
  * Aside column module
  */
 export default class Aside {
-
 
   /**
   * @constructor
@@ -50,21 +50,21 @@ export default class Aside {
    *
    * @param note
    */
-  static addMenuItem(note) {
+  static addMenuItem(noteData) {
     let notesMenu = document.querySelector('[name="js-notes-menu"]');
 
-    let existingNote = notesMenu.querySelector('[data-id="' + note.id + '"]');
+    let existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
     if (existingNote) {
-      existingNote.textContent = note.title;
+      existingNote.textContent = noteData.title;
       return;
     }
 
     let menuItem = dom.make('li', null, {
-      textContent: note.title
+      textContent: noteData.title
     });
 
-    menuItem.dataset.id = note.id;
+    menuItem.dataset.id = noteData.id;
 
     notesMenu.appendChild(menuItem);
 
@@ -73,10 +73,16 @@ export default class Aside {
 
   /**
    * Note in aside menu click listener
-   * @param {MouseEvent}
    * @this {Element}
    */
-  static menuItemClicked(event) {
-    console.log('menu item clicked: %o', this, event);
+  static menuItemClicked() {
+    let menuItem = this,
+        id = menuItem.dataset.id;
+
+    let noteData = window.ipcRenderer.sendSync('get note', {id});
+
+    let noteClass = new Note();
+
+    noteClass.render(noteData);
   }
 }
