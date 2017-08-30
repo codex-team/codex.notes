@@ -3,6 +3,8 @@ let electron = require('electron');
 let app = electron.app;
 let BrowserWindow = electron.BrowserWindow;
 
+let fs = require('fs');
+
 let backend = require('./bin/www');
 
 let mainWindow;
@@ -45,3 +47,24 @@ ipcMain.on('synchronous-message', (event, arg) => {
    event.returnValue = 'sync pong';
 });
 
+ipcMain.on('save article', (event, articleData) => {
+
+  const ARTICLES_DIR = __dirname + '/public/articles';
+  articleData = JSON.parse(articleData);
+
+  if (!fs.existsSync(ARTICLES_DIR)) {
+    fs.mkdirSync(ARTICLES_DIR);
+  }
+
+  if (!articleData.id) {
+    articleData.id = +new Date();
+  }
+
+  fs.writeFileSync(ARTICLES_DIR + '/' + articleData.id + '.json', JSON.stringify(articleData));
+
+  event.sender.send('article saved', {
+    'title': articleData.items[0].data.text,
+    'id': articleData.id
+  });
+
+});

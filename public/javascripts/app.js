@@ -1,6 +1,8 @@
 'use strict';
 
-var electron = require('electron');
+const electron = require('electron');
+
+window.ipcRenderer = electron.ipcRenderer;
 
 /**
  * Disable zoom
@@ -22,6 +24,10 @@ let documentReady = () => {
   let Aside = require('./aside').default;
 
   new Aside();
+
+  let Article = require('./article').default;
+
+  new Article();
 };
 
 /**

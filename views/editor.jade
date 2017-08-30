@@ -20,9 +20,9 @@ body
             a(href="/")
                 button New
             - if (id)
-                button(onclick="app.saveArticle('" + id + "')") Save
+                button#save-button Save
             - else
-                button(onclick="app.saveArticle()") Publish
+                button#save-button Publish
 
             ul.notes-list(name="js-notes-menu")
 
