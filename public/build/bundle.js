@@ -149,6 +149,14 @@ var Aside = function () {
   _createClass(Aside, [{
     key: 'newNoteButtonClicked',
     value: function newNoteButtonClicked() {
+      /**
+       * Set focus to the Editor
+       */
+      window.setTimeout(function () {
+        var editor = document.querySelector('.ce-redactor');
+
+        editor.click();
+      }, 10);
       Note.clear();
     }
 
@@ -156,14 +164,20 @@ var Aside = function () {
      *
      * Add note to left menu
      *
-     * @param note
+     * @param {object} noteData
+     * @param {string} noteData.title
      */
 
   }], [{
     key: 'addMenuItem',
     value: function addMenuItem(noteData) {
-      var notesMenu = document.querySelector('[name="js-notes-menu"]');
+      /**
+       * Maximum chars at the node title
+       * @type {Number}
+       */
+      var titleMaxLength = 68;
 
+      var notesMenu = document.querySelector('[name="js-notes-menu"]');
       var existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
       if (existingNote) {
@@ -171,8 +185,14 @@ var Aside = function () {
         return;
       }
 
+      var noteTitle = noteData.title;
+
+      if (noteTitle.length > titleMaxLength) {
+        noteTitle = noteTitle.substring(0, titleMaxLength) + '…';
+      }
+
       var menuItem = dom.make('li', null, {
-        textContent: noteData.title
+        textContent: noteTitle
       });
 
       menuItem.dataset.id = noteData.id;
@@ -212,6 +232,13 @@ var Aside = function () {
       var noteData = window.ipcRenderer.sendSync('get note', { id: id });
 
       Note.render(noteData);
+
+      /**
+       * Scroll to top
+       */
+      var editorView = document.querySelector('[name="editor-view"]');
+
+      editorView.scrollIntoView();
     }
   }]);
 

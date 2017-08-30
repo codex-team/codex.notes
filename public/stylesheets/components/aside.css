@@ -11,9 +11,9 @@
     user-select: none;
 
     & .logo {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 18px;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     .new-note-button {
@@ -24,6 +24,28 @@
 
         &:hover svg {
             fill: #fff;
+        }
+    }
+
+    .add-note-button {
+        display: block;
+        padding: 10px 13px;
+        border: 1.3px dashed rgba(130, 156, 176, 0.42);
+        border-radius: 3px;
+        color: #63758c;
+        line-height: 1em;
+        margin-bottom: 15px;
+        font-size: 14px;
+        cursor: pointer;
+
+        svg {
+            margin-top: -1px;
+            float: right;
+        }
+
+        &:hover {
+            border-color: rgba(77,120,190,0.72);
+            color: #5ba2ff;
         }
     }
 }
