@@ -53,8 +53,6 @@ export default class Aside {
    * @this {Aside}
    */
   newNoteButtonClicked() {
-    noteClass.clear();
-
     /**
      * Set focus to the Editor
      */
@@ -63,6 +61,7 @@ export default class Aside {
 
       editor.click();
     }, 10);
+    Note.clear();
   }
 
   /**
@@ -127,7 +126,7 @@ export default class Aside {
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 
-    noteClass.render(noteData);
+    Note.render(noteData);
 
     /**
      * Scroll to top
@@ -140,4 +139,3 @@ export default class Aside {
 
 let dom = require('./dom').default;
 let Note = require('./note').default;
-let noteClass = new Note();

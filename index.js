@@ -17,6 +17,8 @@ let fs = require('fs');
  */
 const NOTES_DIR = __dirname + '/public/notes';
 
+const DEFAULT_TITLE = 'Untitled';
+
 
 /**
  * Inter Process Communication - Main proccess
@@ -41,7 +43,7 @@ app.on('ready', function () {
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -58,7 +60,7 @@ ipcMain.on('load notes list', (event, arg) => {
   let notes = noteBlanks.map( note => {
     let content = fs.readFileSync(__dirname + '/public/notes/' + note);
     let json = JSON.parse(content);
-    let firstBlock = json.items[0].data.text;
+    let firstBlock = !!json.items.length ? json.items[0].data.text : DEFAULT_TITLE;
 
     /**
      * Clean all HTML tags from first block to use it as title
@@ -92,7 +94,7 @@ ipcMain.on('save note', (event, {noteData}) => {
   fs.writeFileSync(NOTES_DIR + '/' + noteData.id + '.json', JSON.stringify(noteData));
 
   let note = {
-    'title': noteData.items.length ? sanitizeHtml(noteData.items[0].data.text, {allowedTags: []}) : 'Untitled',
+    'title': noteData.items.length ? sanitizeHtml(noteData.items[0].data.text, {allowedTags: []}) : DEFAULT_TITLE,
     'id': noteData.id
   };
 
@@ -117,7 +119,17 @@ ipcMain.on('get note', (event, {id}) => {
 ipcMain.on('delete note', (event, {id}) => {
   let path = NOTES_DIR + '/' + id + '.json';
 
-  if (fs.existsSync(path)) {
-    fs.unlinkSync(path);
-  }
+  electron.dialog.showMessageBox({
+    type: 'question',
+    message: 'Do you really want to remove this note?',
+    buttons: ['Delete', 'Cancel'],
+    icon: __dirname + '/assets/icons/png/icon-white128.png',
+  }, (response) => {
+    if (response == 0) {
+      if (fs.existsSync(path)) {
+        fs.unlinkSync(path);
+      }
+    }
+    event.returnValue = !response;
+  });
 });

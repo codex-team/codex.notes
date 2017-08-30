@@ -32,7 +32,7 @@ body
 
         div.content(name="editor-view")
             div.header
-                div#delete-button.delete-note-button.hide
+                div#delete-button.delete-note-button.hide(onclick="app.Note.delete()")
                     |Delete
                 div.share-button
                     include ../public/svg/share.svg
@@ -69,4 +69,3 @@ body
                 }
             },
             data: !{data}})
-

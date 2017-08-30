@@ -18,7 +18,7 @@ router.get('/:id?', function (req, res, next) {
   articles = articles.map(function (article) {
     let content = fs.readFileSync(__dirname + '/' + uploadsDir + '/' + article);
     let json = JSON.parse(content);
-    let firstBlock = json.items[0].data.text;
+    let firstBlock = !!json.items.length ? json.items[0].data.text : null;
 
     if (id && article.split('.')[0] === id) {
       data = content;

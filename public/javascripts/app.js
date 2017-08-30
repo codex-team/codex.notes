@@ -21,11 +21,12 @@ let documentReady = () => {
   /**
    * Init aside module
    */
+  let Note = require('./note').default;
   let Aside = require('./aside').default;
 
   new Aside();
 
-  let Note = require('./note').default;
+  window.ipcRenderer.on('note saved', Note.addToMenu);
 
   let note = new Note();
 
@@ -37,45 +38,11 @@ let documentReady = () => {
  */
 module.exports = function () {
   document.addEventListener('DOMContentLoaded', documentReady, false);
+  let Note = require('./note').default;
+  let Aside = require('./aside').default;
 
-
-    /**
-
-    let editor = codex.editor;
-
-
-    function saveArticle(id) {
-
-        editor.saver.saveBlocks();
-        window.setTimeout(sendRequest.bind(null, id), 1000);
-
-    }
-
-    function sendRequest(id) {
-
-        let form = new FormData();
-
-        form.append('json', JSON.stringify( { items: editor.state.jsonOutput } ) );
-
-        if (id) {
-
-            form.append('id', id);
-
-        }
-
-        editor.core.ajax({
-            url: '/save',
-            data: form,
-            type: 'POST',
-            success: function () { },
-            error: function () { }
-        });
-
-    }
-
-    return {
-        saveArticle
-    };
-
-    */
+  return {
+    Note: Note,
+    Aside: Aside
+  };;
 }();
