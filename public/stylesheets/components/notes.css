@@ -51,6 +51,7 @@
         text-decoration: none;
         line-height: 1.45em;
         cursor: pointer;
+        word-wrap: break-word;
 
         &:hover {
             color: #fff;
