@@ -1,4 +1,5 @@
 public/articles/*
+dist/*
 
 .idea/*
 package-lock.json

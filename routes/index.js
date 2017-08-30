@@ -3,17 +3,20 @@ let router = express.Router();
 
 let fs = require('fs');
 
+let uploadsDir = '../public/articles';
+
 /* GET home page. */
-router.get('/:id?', function(req, res, next) {
+router.get('/:id?', function (req, res, next) {
+  if (!fs.existsSync(__dirname + '/' + uploadsDir)) {
+    fs.mkdirSync(__dirname + '/' + uploadsDir);
+  }
 
   let id = req.params.id;
-  let articles = fs.readdirSync(__dirname + '/../public/articles');
+  let articles = fs.readdirSync(__dirname + '/' + uploadsDir);
   let data = JSON.stringify({items: []});
 
   articles = articles.map(function (article) {
-
-
-    let content = fs.readFileSync(__dirname + '/../public/articles/' + article);
+    let content = fs.readFileSync(__dirname + '/' + uploadsDir + '/' + article);
     let json = JSON.parse(content);
     let firstBlock = json.items[0].data.text;
 
@@ -22,11 +25,9 @@ router.get('/:id?', function(req, res, next) {
     }
 
     return {title: firstBlock, url: article.split('.')[0]};
-
   });
 
   res.render('editor', { title: 'Codex Editor', data: data, titles: articles, id: id  });
-
 });
 
 module.exports = router;
