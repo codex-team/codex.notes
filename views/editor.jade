@@ -17,14 +17,14 @@ body
         div.aside
             div.logo.
                 CodeX Editor
+            ul.notes-list(name="js-notes-menu")
+
             a(href="/")
                 button New
             - if (id)
                 button(onclick="app.saveArticle('" + id + "')") Save
             - else
                 button(onclick="app.saveArticle()") Publish
-
-            ul.notes-list(name="js-notes-menu")
 
         div#codex-editor.editor
     script.
