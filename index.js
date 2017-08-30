@@ -1,3 +1,5 @@
+'use strict';
+
 let electron = require('electron');
 
 let app = electron.app;
@@ -6,6 +8,8 @@ let BrowserWindow = electron.BrowserWindow;
 let backend = require('./bin/www');
 
 let mainWindow;
+
+let fs = require('fs');
 
 
 /**
@@ -29,19 +33,32 @@ app.on('ready', function () {
 
 });
 
-// Event handler for asynchronous incoming messages
-ipcMain.on('asynchronous-message', (event, arg) => {
-   console.log(arg);
+var sanitizeHtml = require('sanitize-html');
+
+/**
+ * Notes List module
+ */
+ipcMain.on('load notes list', (event, arg) => {
+
+  let noteBlanks = fs.readdirSync(__dirname + '/public/articles');
+  let notes = noteBlanks.map( article => {
+
+    let content = fs.readFileSync(__dirname + '/public/articles/' + article);
+    let json = JSON.parse(content);
+    let firstBlock = json.items[0].data.text;
+
+    /**
+     * Clean all HTML tags from first block to use it as title
+     */
+    let title = sanitizeHtml(firstBlock, {allowedTags: []});
+
+    return {
+      title,
+      url: article.split('.')[0]
+    };
+
+  });
 
    // Event emitter for sending asynchronous messages
-   event.sender.send('asynchronous-reply', 'async pong');
+   event.sender.send('update notes list', {notes});
 });
-
-// Event handler for synchronous incoming messages
-ipcMain.on('synchronous-message', (event, arg) => {
-   console.log(arg);
-
-   // Synchronous event emmision
-   event.returnValue = 'sync pong';
-});
-
