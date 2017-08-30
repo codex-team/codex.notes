@@ -1,11 +1,13 @@
 {
   "name": "codex.editor.desktop",
   "version": "0.0.0",
+  "publishName": "CodeX Editor",
+  "publishIcon": "assets/icons/mac/icon-white1024.icns",
   "private": true,
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack": "electron-packager . --app-version=$npm_package_version --overwrite --out=dist"
+    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist --prune=true"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -17,6 +19,7 @@
     "express-fileupload": "^0.2.0",
     "jade": "~1.11.0",
     "morgan": "~1.8.1",
+    "sanitize-html": "^1.14.1",
     "serve-favicon": "~2.4.2"
   },
   "devDependencies": {
@@ -44,7 +47,6 @@
     "postcss-nested-ancestors": "^1.0.0",
     "postcss-nesting": "^4.0.1",
     "postcss-smart-import": "^0.7.4",
-    "sanitize-html": "^1.14.1",
     "stylelint-webpack-plugin": "^0.4.2",
     "webpack": "^2.6.1"
   }

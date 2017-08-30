@@ -31,7 +31,7 @@ app.on('ready', function () {
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 });
 
 var sanitizeHtml = require('sanitize-html');
