@@ -46,7 +46,6 @@ app.on('ready', function () {
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
-
 });
 
 var sanitizeHtml = require('sanitize-html');
@@ -80,7 +79,6 @@ ipcMain.on('load notes list', (event, arg) => {
  * Save note to json file
  */
 ipcMain.on('save note', (event, {noteData}) => {
-
   if (!noteData.items.length && !noteData.id) return;
 
   if (!fs.existsSync(NOTES_DIR)) {
@@ -107,10 +105,19 @@ ipcMain.on('save note', (event, {noteData}) => {
  * @param {number} options.id
  */
 ipcMain.on('get note', (event, {id}) => {
-
   let noteFileData = fs.readFileSync(NOTES_DIR + '/' + id + '.json');
   let parsedNoteData = JSON.parse(noteFileData);
 
   event.returnValue = parsedNoteData;
+});
 
+/**
+ * Delete note
+ */
+ipcMain.on('delete note', (event, {id}) => {
+  let path = NOTES_DIR + '/' + id + '.json';
+
+  if (fs.existsSync(path)) {
+    fs.unlinkSync(path);
+  }
 });

@@ -1,7 +1,10 @@
-.editor {
+.content {
     flex-grow: 1;
+}
+
+.editor {
     padding: 100px;
-    margin-left: 200px;
+    margin-left: 230px;
     font-size: 17px;
     color: #1A1A1A;
     line-height: 1.5em;

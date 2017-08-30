@@ -27,7 +27,9 @@ let documentReady = () => {
 
   let Note = require('./note').default;
 
-  new Note();
+  let note = new Note();
+
+  note.enableAutosave();
 };
 
 /**
