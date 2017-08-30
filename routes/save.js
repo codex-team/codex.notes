@@ -49,7 +49,7 @@ let save = function (req, res) {
 
   return res.status(200).json({
     'success': 1,
-    'message': 'Article was saved',
+    'message': 'Note was saved',
     'name': newName
   });
 };

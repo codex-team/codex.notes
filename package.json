@@ -44,6 +44,7 @@
     "postcss-nested-ancestors": "^1.0.0",
     "postcss-nesting": "^4.0.1",
     "postcss-smart-import": "^0.7.4",
+    "sanitize-html": "^1.14.1",
     "stylelint-webpack-plugin": "^0.4.2",
     "webpack": "^2.6.1"
   }

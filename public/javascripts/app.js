@@ -25,9 +25,9 @@ let documentReady = () => {
 
   new Aside();
 
-  let Article = require('./article').default;
+  let Note = require('./note').default;
 
-  new Article();
+  new Note();
 };
 
 /**

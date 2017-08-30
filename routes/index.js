@@ -3,7 +3,7 @@ let router = express.Router();
 
 let fs = require('fs');
 
-let uploadsDir = '../public/articles';
+let uploadsDir = '../public/notes';
 
 /* GET home page. */
 router.get('/:id?', function (req, res, next) {

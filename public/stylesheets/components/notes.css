@@ -1,19 +1,30 @@
 .notes-list {
     list-style: none;
-    margin: 0;
+    margin: 0 0 50px;
     padding: 0;
 
-    & li {
+    li {
         margin-bottom: 0.5em;
-    }
-
-    & a {
-        color: #BAC3DB;
+        color: #bac3db;
         text-decoration: none;
         line-height: 1.35em;
+        cursor: pointer;
 
         &:hover {
             color: #fff;
+        }
+    }
+
+    &--loading {
+        &::before,
+        &::after {
+            content: '';
+            background: color(#bac3db alpha(20%));
+            height: 6px;
+            display: block;
+            border-radius: 5px;
+            margin: 7px 0 15px;
+            width: 65%;
         }
     }
 }
