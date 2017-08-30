@@ -20,7 +20,10 @@ let ipcMain = electron.ipcMain;
 app.on('ready', function () {
   mainWindow = new BrowserWindow({
     width: 1200,
+    minWidth: 900,
+    minHeight: 600,
     height: 700,
+    vibrancy: 'ultra-dark',
     backgroundColor: '#fff',
     titleBarStyle: 'hiddenInset'
   });

@@ -8,6 +8,7 @@
     background: #292B37;
     color: #fff;
     overflow: hidden;
+    user-select: none;
 
     & .logo {
         margin-bottom: 20px;
