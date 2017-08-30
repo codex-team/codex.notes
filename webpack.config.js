@@ -15,6 +15,8 @@ module.exports = {
         library: 'app'
     },
 
+    target: 'electron',
+
     module: {
         rules: [
             {
@@ -88,7 +90,7 @@ module.exports = {
 
         modules: [
             "node_modules",
-            path.resolve(__dirname, "app")
+            path.resolve(__dirname, "public/")
         ],
         // directories where to look for modules
 

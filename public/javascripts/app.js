@@ -1,3 +1,11 @@
+var electron = require('electron');
+
+/**
+ * Disable zoom
+ */
+electron.webFrame.setZoomLevelLimits(1, 1);
+
+
 module.exports = function () {
 
     'use strict';

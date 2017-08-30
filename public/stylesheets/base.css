@@ -1,3 +1,8 @@
+@import "normalize.css";
+@import "components/aside.css";
+@import "components/editor.css";
+@import "components/notes.css";
+
 body {
     padding: 50px;
     height: 100vh;
@@ -5,7 +10,3 @@ body {
     display: flex;
 }
 
-@import "normalize.css";
-@import "components/aside.css";
-@import "components/editor.css";
-@import "components/notes.css";

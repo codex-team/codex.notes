@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build": "webpack"
+    "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -19,6 +19,9 @@
     "serve-favicon": "~2.4.2"
   },
   "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.0",
+    "babel-preset-env": "^1.5.2",
     "css-loader": "^0.26.1",
     "eslint": "^3.12.2",
     "eslint-loader": "^1.6.1",
@@ -40,9 +43,6 @@
     "postcss-nesting": "^4.0.1",
     "postcss-smart-import": "^0.7.4",
     "stylelint-webpack-plugin": "^0.4.2",
-    "webpack": "^2.6.1",
-    "babel-core": "^6.25.0",
-    "babel-loader": "^7.1.0",
-    "babel-preset-env": "^1.5.2"
+    "webpack": "^2.6.1"
   }
 }
