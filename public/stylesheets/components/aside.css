@@ -15,11 +15,15 @@
         font-size: 18px;
         font-weight: 500;
     }
-}
 
+    .new-note-button {
+        position: absolute;
+        top: 40px;
+        right: 20px;
+        color: #008fff;
 
-
-
-.title {
-    text-overflow: ellipsis;
+        &:hover svg {
+            fill: #fff;
+        }
+    }
 }

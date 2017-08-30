@@ -19,12 +19,8 @@ body
                 CodeX Editor
             ul.notes-list(name="js-notes-menu")
 
-            a(href="/")
-                button New
-            - if (id)
-                button#save-button Save
-            - else
-                button#save-button Publish
+            span.new-note-button(name="js-new-note-button")
+                include ../public/svg/new-note.svg
 
         div#codex-editor.editor
     script.

@@ -11,3 +11,13 @@ body {
     -webkit-app-region: drag;
 }
 
+/**
+* SVG icons styles
+*/
+svg {
+    fill: currentColor;
+    vertical-align: middle;
+    max-height: 100%;
+}
+
+
