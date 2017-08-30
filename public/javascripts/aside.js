@@ -54,17 +54,32 @@ export default class Aside {
    */
   newNoteButtonClicked() {
     noteClass.clear();
+
+    /**
+     * Set focus to the Editor
+     */
+    window.setTimeout(function () {
+      let editor = document.querySelector('.ce-redactor');
+
+      editor.click();
+    }, 10);
   }
 
   /**
    *
    * Add note to left menu
    *
-   * @param note
+   * @param {object} noteData
+   * @param {string} noteData.title
    */
   static addMenuItem(noteData) {
-    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+    /**
+     * Maximum chars at the node title
+     * @type {Number}
+     */
+    const titleMaxLength = 68;
 
+    let notesMenu = document.querySelector('[name="js-notes-menu"]');
     let existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
     if (existingNote) {
@@ -72,8 +87,14 @@ export default class Aside {
       return;
     }
 
+    let noteTitle = noteData.title;
+
+    if ( noteTitle.length > titleMaxLength ) {
+      noteTitle = noteTitle.substring(0, titleMaxLength) + '…';
+    }
+
     let menuItem = dom.make('li', null, {
-      textContent: noteData.title
+      textContent: noteTitle
     });
 
     menuItem.dataset.id = noteData.id;
@@ -107,6 +128,13 @@ export default class Aside {
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 
     noteClass.render(noteData);
+
+    /**
+     * Scroll to top
+     */
+    let editorView = document.querySelector('[name="editor-view"]');
+
+    editorView.scrollIntoView();
   }
 }
 

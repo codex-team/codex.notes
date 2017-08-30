@@ -9,6 +9,8 @@ body {
     margin: 0;
     display: flex;
     -webkit-app-region: drag;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /**

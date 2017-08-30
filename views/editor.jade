@@ -17,13 +17,21 @@ body
         div.aside
             div.logo.
                 CodeX Editor
-            ul.notes-list(name="js-notes-menu")
 
-            span.new-note-button(name="js-new-note-button")
-                include ../public/svg/new-note.svg
+            span.add-note-button(name="js-new-note-button")
+                include ../public/svg/pencil.svg
+                |New note
 
-        div.content
-            div.header.clearfix
+            div.notes-list
+                div.notes-list__scroll
+                    ul.notes-list__content(name="js-notes-menu")
+
+            //- span.new-note-button(name="js-new-note-button")
+            //-     include ../public/svg/new-note.svg
+
+
+        div.content(name="editor-view")
+            div.header
                 div#delete-button.delete-note-button.hide
                     |Delete
                 div.share-button
