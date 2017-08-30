@@ -22,7 +22,14 @@ body
             span.new-note-button(name="js-new-note-button")
                 include ../public/svg/new-note.svg
 
-        div#codex-editor.editor
+        div.content
+            div.header.clearfix
+                div#delete-button.delete-note-button.hide
+                    |Delete
+                div.share-button
+                    include ../public/svg/share.svg
+                    |Share
+            div#codex-editor.editor
     script.
         codex.editor.start({
             holderId : "codex-editor",

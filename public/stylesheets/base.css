@@ -1,10 +1,10 @@
 @import "normalize.css";
 @import "components/aside.css";
 @import "components/editor.css";
+@import "components/header.css";
 @import "components/notes.css";
 
 body {
-    padding: 50px;
     height: 100vh;
     margin: 0;
     display: flex;
@@ -20,4 +20,12 @@ svg {
     max-height: 100%;
 }
 
+.clearfix::after {
+    content: '';
+    display: table;
+    clear: 'both';
+}
 
+.hide {
+    display: none !important;
+}

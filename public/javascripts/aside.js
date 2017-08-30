@@ -1,7 +1,3 @@
-let dom = require('./dom').default;
-let Note = require('./note').default;
-let noteClass = new Note();
-
 /**
  * Aside column module
  */
@@ -82,9 +78,22 @@ export default class Aside {
 
     menuItem.dataset.id = noteData.id;
 
-    notesMenu.appendChild(menuItem);
+    notesMenu.insertAdjacentElement('afterbegin', menuItem);
 
     menuItem.addEventListener('click', Aside.menuItemClicked);
+  }
+
+  /**
+   * Remove item from menu
+   *
+   * @param itemId
+   */
+  static removeMenuItem(itemId) {
+    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+
+    let existingNote = notesMenu.querySelector('[data-id="' + itemId + '"]');
+
+    if (existingNote) existingNote.remove();
   }
 
   /**
@@ -100,3 +109,7 @@ export default class Aside {
     noteClass.render(noteData);
   }
 }
+
+let dom = require('./dom').default;
+let Note = require('./note').default;
+let noteClass = new Note();
