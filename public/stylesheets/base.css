@@ -8,5 +8,6 @@ body {
     height: 100vh;
     margin: 0;
     display: flex;
+    -webkit-app-region: drag;
 }
 

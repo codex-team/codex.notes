@@ -1,3 +1,5 @@
+'use strict';
+
 var electron = require('electron');
 
 /**
@@ -5,15 +7,34 @@ var electron = require('electron');
  */
 electron.webFrame.setZoomLevelLimits(1, 1);
 
+/**
+ * Load CSS
+ */
+require('../stylesheets/base.css');
 
+/**
+ * Document ready callback
+ */
+let documentReady = () => {
+  /**
+   * Init aside module
+   */
+  let Aside = require('./aside').default;
+
+  new Aside();
+};
+
+/**
+ * Application
+ */
 module.exports = function () {
+  document.addEventListener('DOMContentLoaded', documentReady, false);
 
-    'use strict';
+
+    /**
 
     let editor = codex.editor;
 
-    // load CSS
-    require('../stylesheets/base.css');
 
     function saveArticle(id) {
 
@@ -48,4 +69,5 @@ module.exports = function () {
         saveArticle
     };
 
+    */
 }();

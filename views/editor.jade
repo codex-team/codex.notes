@@ -24,11 +24,7 @@ body
             - else
                 button(onclick="app.saveArticle()") Publish
 
-            - if (titles.length)
-                ul.notes-list
-                    - each title in titles
-                        li.title
-                            a(href='/'+title.url) !{title.title}
+            ul.notes-list(name="js-notes-menu")
 
         div#codex-editor.editor
     script.
