@@ -1,5 +1,6 @@
 let dom = require('./dom').default;
-var Note = require('./note').default;
+let Note = require('./note').default;
+let noteClass = new Note();
 
 /**
  * Aside column module
@@ -56,7 +57,7 @@ export default class Aside {
    * @this {Aside}
    */
   newNoteButtonClicked() {
-    console.log('newNoteButtonClicked this: %o', this);
+    noteClass.clear();
   }
 
   /**
@@ -95,8 +96,6 @@ export default class Aside {
         id = menuItem.dataset.id;
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
-
-    let noteClass = new Note();
 
     noteClass.render(noteData);
   }

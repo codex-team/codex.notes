@@ -51,41 +51,17 @@ export default class Note {
    * @param  {object} noteData
    */
   render(noteData) {
-    // codex.editor.destroyer.destroy({
-    //   ui: true
-    // });
+    codex.editor.content.clear(true);
 
-    codex.editor.start({
-      holderId : 'codex-editor',
-      initialBlockPlugin : 'paragraph',
-      hideToolbar: false,
-      placeholder: 'Your story',
-      tools : {
-        paragraph: {
-          type: 'paragraph',
-          iconClassname: 'ce-icon-paragraph',
-          render: window.paragraph.render,
-          validate: window.paragraph.validate,
-          save: window.paragraph.save,
-          destroy: window.paragraph.destroy,
-          allowedToPaste: true,
-          showInlineToolbar: true,
-          allowRenderOnPaste: true
-        },
-        header: {
-          type: 'header',
-          iconClassname: 'ce-icon-header',
-          appendCallback: window.header.appendCallback,
-          makeSettings: window.header.makeSettings,
-          render: window.header.render,
-          validate: window.header.validate,
-          save: window.header.save,
-          destroy: window.header.destroy,
-          displayInToolbox: true
-        }
-      },
-      data: noteData
-    });
+    codex.editor.content.load(noteData);
+  }
+
+  /**
+   * Clears editor
+   */
+  clear() {
+    codex.editor.content.clear(true);
+    codex.editor.ui.addInitialBlock();
   }
 
 }
