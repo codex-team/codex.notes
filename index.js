@@ -7,7 +7,7 @@ let BrowserWindow = electron.BrowserWindow;
 
 let backend = require('./bin/www');
 
-let mainWindow;
+let mainWindow = null;
 
 let fs = require('fs');
 
@@ -22,6 +22,10 @@ const NOTES_DIR = __dirname + '/public/notes';
  * Inter Process Communication - Main proccess
  */
 let ipcMain = electron.ipcMain;
+
+app.on('window-all-closed', function () {
+  app.quit();
+});
 
 app.on('ready', function () {
   mainWindow = new BrowserWindow({
@@ -38,6 +42,11 @@ app.on('ready', function () {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.on('closed', function () {
+    mainWindow = null;
+  });
+
 });
 
 var sanitizeHtml = require('sanitize-html');
