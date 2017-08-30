@@ -17,6 +17,8 @@ let fs = require('fs');
  */
 const NOTES_DIR = __dirname + '/public/notes';
 
+const DEFAULT_TITLE = 'Untitled';
+
 
 /**
  * Inter Process Communication - Main proccess
@@ -58,7 +60,7 @@ ipcMain.on('load notes list', (event, arg) => {
   let notes = noteBlanks.map( note => {
     let content = fs.readFileSync(__dirname + '/public/notes/' + note);
     let json = JSON.parse(content);
-    let firstBlock = json.items[0].data.text;
+    let firstBlock = !!json.items.length ? json.items[0].data.text : DEFAULT_TITLE;
 
     /**
      * Clean all HTML tags from first block to use it as title
@@ -92,7 +94,7 @@ ipcMain.on('save note', (event, {noteData}) => {
   fs.writeFileSync(NOTES_DIR + '/' + noteData.id + '.json', JSON.stringify(noteData));
 
   let note = {
-    'title': noteData.items.length ? sanitizeHtml(noteData.items[0].data.text, {allowedTags: []}) : 'Untitled',
+    'title': noteData.items.length ? sanitizeHtml(noteData.items[0].data.text, {allowedTags: []}) : DEFAULT_TITLE,
     'id': noteData.id
   };
 
