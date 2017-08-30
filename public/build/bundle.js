@@ -180,15 +180,15 @@ var Aside = function () {
       var notesMenu = document.querySelector('[name="js-notes-menu"]');
       var existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
-      if (existingNote) {
-        existingNote.textContent = noteData.title;
-        return;
-      }
-
       var noteTitle = noteData.title;
 
       if (noteTitle.length > titleMaxLength) {
         noteTitle = noteTitle.substring(0, titleMaxLength) + '…';
+      }
+
+      if (existingNote) {
+        existingNote.textContent = noteTitle;
+        return;
       }
 
       var menuItem = dom.make('li', null, {

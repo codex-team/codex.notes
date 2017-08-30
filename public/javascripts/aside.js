@@ -81,15 +81,15 @@ export default class Aside {
     let notesMenu = document.querySelector('[name="js-notes-menu"]');
     let existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
-    if (existingNote) {
-      existingNote.textContent = noteData.title;
-      return;
-    }
-
     let noteTitle = noteData.title;
 
     if ( noteTitle.length > titleMaxLength ) {
       noteTitle = noteTitle.substring(0, titleMaxLength) + '…';
+    }
+
+    if (existingNote) {
+      existingNote.textContent = noteTitle;
+      return;
     }
 
     let menuItem = dom.make('li', null, {
