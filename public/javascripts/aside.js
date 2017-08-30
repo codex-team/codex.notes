@@ -42,6 +42,21 @@ export default class Aside {
       notesMenu.classList.remove(this.CSS.notesMenuLoading);
       notes.forEach(Aside.addMenuItem);
     });
+
+    /**
+     * Activate new note button
+     */
+    let newNoteButton = document.querySelector('[name="js-new-note-button"]');
+
+    newNoteButton.addEventListener('click', () => this.newNoteButtonClicked.call(this) );
+  }
+
+  /**
+   * New note button click handler
+   * @this {Aside}
+   */
+  newNoteButtonClicked() {
+    console.log('newNoteButtonClicked this: %o', this);
   }
 
   /**
