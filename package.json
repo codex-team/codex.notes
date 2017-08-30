@@ -1,10 +1,11 @@
 {
-  "name": "backend",
+  "name": "codex.editor.desktop",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons"
+    "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
+    "pack": "electron-packager . --app-version=$npm_package_version --overwrite --out=dist"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
@@ -23,6 +24,7 @@
     "babel-loader": "^7.1.0",
     "babel-preset-env": "^1.5.2",
     "css-loader": "^0.26.1",
+    "electron-packager": "^9.0.0",
     "eslint": "^3.12.2",
     "eslint-loader": "^1.6.1",
     "extract-text-webpack-plugin": "^2.1.2",
