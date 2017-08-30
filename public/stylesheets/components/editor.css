@@ -5,4 +5,10 @@
     font-size: 17px;
     color: #1A1A1A;
     line-height: 1.5em;
+
+    .ce-block[data-tool="paragraph"]:first-of-type {
+        font-size: 49px;
+        font-weight: 800;
+        font-family: 'PT Serif';
+    }
 }
