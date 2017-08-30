@@ -31,7 +31,7 @@ export default class Note {
   autosave() {
     if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-    this.autosaveTimer = window.setTimeout(this.save, 1000);
+    this.autosaveTimer = window.setTimeout(this.save, 500);
   }
 
   /**

@@ -53,13 +53,11 @@ export default class Aside {
   static addMenuItem(note) {
     let notesMenu = document.querySelector('[name="js-notes-menu"]');
 
-    let notes = notesMenu.childNodes;
+    let existingNote = notesMenu.querySelector('[data-id="' + note.id + '"]');
 
-    for (let i = 0; i < notes.length; i++) {
-      if (notes[i].dataset.id == note.id) {
-        notes[i].textContent = note.title;
-        return;
-      }
+    if (existingNote) {
+      existingNote.textContent = note.title;
+      return;
     }
 
     let menuItem = dom.make('li', null, {

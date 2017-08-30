@@ -64,7 +64,7 @@ ipcMain.on('load notes list', (event, arg) => {
 ipcMain.on('save note', (event, {noteData}) => {
   const NOTES_DIR = __dirname + '/public/notes';
 
-  if (!noteData.items.length) return;
+  if (!noteData.items.length && !noteData.id) return;
 
   if (!fs.existsSync(NOTES_DIR)) {
     fs.mkdirSync(NOTES_DIR);
