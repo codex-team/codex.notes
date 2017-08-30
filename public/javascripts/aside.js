@@ -1,5 +1,3 @@
-const {ipcRenderer} = require('electron');
-
 let dom = require('./dom').default;
 
 /**
@@ -35,24 +33,42 @@ export default class Aside {
     /**
      * Emit message to load list
      */
-    ipcRenderer.send('load notes list');
+    window.ipcRenderer.send('load notes list');
 
     /**
      * Update notes list
      */
-    ipcRenderer.on('update notes list', (event, {notes}) => {
+    window.ipcRenderer.on('update notes list', (event, {notes}) => {
       notesMenu.classList.remove(this.CSS.notesMenuLoading);
-
-      notes.forEach( note => {
-        let menuItem = dom.make('li', null, {
-          textContent: note.title
-        });
-
-        notesMenu.appendChild(menuItem);
-
-        menuItem.addEventListener('click', this.menuItemClicked);
-      });
+      notes.forEach(Aside.addMenuItem);
     });
+  }
+
+  /**
+   *
+   * Add note to left menu
+   *
+   * @param note
+   */
+  static addMenuItem(note) {
+    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+
+    let existingNote = notesMenu.querySelector('[data-id="' + note.id + '"]');
+
+    if (existingNote) {
+      existingNote.textContent = note.title;
+      return;
+    }
+
+    let menuItem = dom.make('li', null, {
+      textContent: note.title
+    });
+
+    menuItem.dataset.id = note.id;
+
+    notesMenu.appendChild(menuItem);
+
+    menuItem.addEventListener('click', Aside.menuItemClicked);
   }
 
   /**
@@ -60,7 +76,7 @@ export default class Aside {
    * @param {MouseEvent}
    * @this {Element}
    */
-  menuItemClicked(event) {
+  static menuItemClicked(event) {
     console.log('menu item clicked: %o', this, event);
   }
 }
