@@ -35,11 +35,15 @@ body
             div.header
                 div#delete-button.delete-note-button.hide(onclick="app.Note.delete()")
                     |Delete
-                div#note-date.note-date
+
+                span#note-date.note-date
                     //include ../public/svg/share.svg
                     //|Share
+                span#save-indicator.save-indicator
+                    |Saved
             div#codex-editor.editor
                 input#note-title.note-title(placeholder="Add title")
+
     script.
         codex.editor.start({
             holderId : "codex-editor",

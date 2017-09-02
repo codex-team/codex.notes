@@ -287,7 +287,7 @@ var Note = function () {
     value: function autosave() {
       if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-      this.autosaveTimer = window.setTimeout(Note.save, 200);
+      this.autosaveTimer = window.setTimeout(Note.save, 500);
     }
 
     /**
@@ -334,6 +334,12 @@ var Note = function () {
           title: window.NOTE_TITLE.value
         };
 
+        var saveIndicator = document.getElementById('save-indicator');
+
+        saveIndicator.classList.add('saved');
+        window.setTimeout(function () {
+          saveIndicator.classList.remove('saved');
+        }, 500);
         window.ipcRenderer.send('save note', { note: note });
       });
     }
