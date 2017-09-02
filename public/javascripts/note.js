@@ -21,9 +21,6 @@ export default class Note {
 
         window.ipcRenderer.send('save note', {note});
       });
-
-      window.ipcRenderer.send('save note', {note});
-    }
   }
 
   /**
@@ -68,6 +65,16 @@ export default class Note {
   static render(note) {
     codex.editor.content.clear(true);
     window.NOTE_TITLE.value = note.title;
+
+    let saveDate = new Date(note.data.time);
+
+    window.NOTE_DATE.textContent = saveDate.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false
+    });
     codex.editor.content.load(note.data);
     dom.get(DELETE_BUTTON_ID).classList.remove('hide');
   }
@@ -78,6 +85,7 @@ export default class Note {
   static clear() {
     codex.editor.content.clear(true);
     window.NOTE_TITLE.value = '';
+    window.NOTE_DATE.textContent = '';
     codex.editor.ui.addInitialBlock();
     dom.get(DELETE_BUTTON_ID).classList.add('hide');
   }

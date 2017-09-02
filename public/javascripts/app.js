@@ -28,6 +28,7 @@ let documentReady = () => {
 
   window.ipcRenderer.on('note saved', Note.addToMenu);
   window.NOTE_TITLE = document.getElementById('note-title');
+  window.NOTE_DATE = document.getElementById('note-date');
 
   let note = new Note();
 

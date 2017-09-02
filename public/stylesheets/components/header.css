@@ -3,18 +3,20 @@
     left: 0;
     right: 0;
     top: 0;
+    height: 25px;
     z-index: 3;
     background: #fff;
     margin-left: 230px;
     padding: 10px 30px;
     border-bottom: 1px solid #f3f3f4;
     font-size: 14px;
+    line-height: 25px;
     color: #828698;
 }
 
+.note-date,
 .share-button {
     cursor: pointer;
-    padding: 5px;
 
     svg {
         margin-right: 0.8em;
@@ -26,5 +28,10 @@
 .delete-note-button {
     float: right;
     cursor: pointer;
-    padding: 5px;
+    z-index: 10;
+
+    &:hover {
+       color: color(#828698 lightness(-15%));
+    }
+
 }

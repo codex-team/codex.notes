@@ -298,7 +298,6 @@ var Note = function () {
     key: 'enableAutosave',
     value: function enableAutosave() {
       codex.editor.nodes.redactor.addEventListener('keyup', this.autosave.bind(this));
-      window.NOTE_TITLE.addEventListener('keyup', this.autosave.bind(this));
     }
 
     /**
@@ -309,7 +308,6 @@ var Note = function () {
     key: 'disableAutosave',
     value: function disableAutosave() {
       codex.editor.nodes.redactor.removeEventListener('keyup', this.autosave.bind(this));
-      window.NOTE_TITLE.removeEventListener('keyup', this.autosave.bind(this));
     }
 
     /**
@@ -330,23 +328,14 @@ var Note = function () {
     value: function save() {
       dom.get(DELETE_BUTTON_ID).classList.remove('hide');
 
-      try {
-        codex.editor.saver.save().then(function (noteData) {
-          var note = {
-            data: noteData,
-            title: window.NOTE_TITLE.value
-          };
-
-          window.ipcRenderer.send('save note', { note: note });
-        });
-      } catch (e) {
+      codex.editor.saver.save().then(function (noteData) {
         var note = {
-          data: { items: [], id: codex.editor.state.blocks.id },
+          data: noteData,
           title: window.NOTE_TITLE.value
         };
 
         window.ipcRenderer.send('save note', { note: note });
-      }
+      });
     }
   }, {
     key: 'addToMenu',
@@ -368,6 +357,16 @@ var Note = function () {
     value: function render(note) {
       codex.editor.content.clear(true);
       window.NOTE_TITLE.value = note.title;
+
+      var saveDate = new Date(note.data.time);
+
+      window.NOTE_DATE.textContent = saveDate.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
       codex.editor.content.load(note.data);
       dom.get(DELETE_BUTTON_ID).classList.remove('hide');
     }
@@ -381,6 +380,7 @@ var Note = function () {
     value: function clear() {
       codex.editor.content.clear(true);
       window.NOTE_TITLE.value = '';
+      window.NOTE_DATE.textContent = '';
       codex.editor.ui.addInitialBlock();
       dom.get(DELETE_BUTTON_ID).classList.add('hide');
     }
@@ -545,6 +545,7 @@ var documentReady = function documentReady() {
 
   window.ipcRenderer.on('note saved', Note.addToMenu);
   window.NOTE_TITLE = document.getElementById('note-title');
+  window.NOTE_DATE = document.getElementById('note-date');
 
   var note = new Note();
 
