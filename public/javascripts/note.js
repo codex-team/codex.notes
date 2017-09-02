@@ -19,6 +19,12 @@ export default class Note {
           title: window.NOTE_TITLE.value
         };
 
+        let saveIndicator = document.getElementById('save-indicator');
+
+        saveIndicator.classList.add('saved');
+        window.setTimeout(() => {
+          saveIndicator.classList.remove('saved');
+        }, 500);
         window.ipcRenderer.send('save note', {note});
       });
   }
@@ -29,7 +35,7 @@ export default class Note {
   autosave() {
     if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-    this.autosaveTimer = window.setTimeout(Note.save, 200);
+    this.autosaveTimer = window.setTimeout(Note.save, 500);
   }
 
   /**

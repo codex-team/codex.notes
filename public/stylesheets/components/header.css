@@ -16,7 +16,8 @@
 
 .note-date,
 .share-button {
-    cursor: pointer;
+    margin-right: 15px;
+    /*cursor: pointer;*/
 
     svg {
         margin-right: 0.8em;
@@ -34,4 +35,14 @@
        color: color(#828698 lightness(-15%));
     }
 
+}
+
+.save-indicator {
+    opacity: 0;
+    color: #adb3ce;
+    transition: opacity .3s ease;
+
+    &.saved {
+       opacity: 1;
+    }
 }
