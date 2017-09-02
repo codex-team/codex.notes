@@ -1,13 +1,13 @@
 {
   "name": "codex.editor.desktop",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "publishName": "CodeX Editor",
   "publishIcon": "assets/icons/mac/icon-white1024.icns",
   "private": true,
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist --prune=true"
+    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist"
   },
   "dependencies": {
     "body-parser": "~1.17.1",

@@ -1,6 +1,7 @@
 'use strict';
 
 let electron = require('electron');
+const { Menu } = require('electron');
 
 let app = electron.app;
 let BrowserWindow = electron.BrowserWindow;
@@ -41,6 +42,14 @@ app.on('ready', function () {
     titleBarStyle: 'hiddenInset'
   });
 
+  if (process.platform === 'darwin') {
+    let createMenuTemplate = require('./menu'),
+        menuTemplate = createMenuTemplate(app),
+        osxMenu = Menu.buildFromTemplate(menuTemplate);
+
+    Menu.setApplicationMenu(osxMenu);
+  }
+
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
@@ -55,10 +64,14 @@ app.on('ready', function () {
  * Notes List module
  */
 ipcMain.on('load notes list', (event, arg) => {
-  let noteBlanks = fs.readdirSync(__dirname + '/public/notes');
+  if (!fs.existsSync(NOTES_DIR)) {
+    fs.mkdirSync(NOTES_DIR);
+  }
+
+  let noteBlanks = fs.readdirSync(NOTES_DIR);
 
   let notes = noteBlanks.map( note => {
-    let content = fs.readFileSync(__dirname + '/public/notes/' + note);
+    let content = fs.readFileSync(NOTES_DIR+ '/' + note);
     let json = JSON.parse(content);
     let titleFromText = !!json.data.items.length ? json.data.items[0].data.text : DEFAULT_TITLE;
     let title = json.title ? json.title : false;
