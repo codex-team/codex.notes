@@ -35,16 +35,32 @@ let documentReady = () => {
   note.enableAutosave();
 };
 
+let openExternalLink = function (event) {
+  if (event.target.tagName !== 'A' || !event.target.href) {
+    return;
+  }
+
+  if (!event.target.closest('.editor')) {
+    electron.shell.openExternal(event.target.href);
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey) {
+    electron.shell.openExternal(event.target.href);
+  }
+};
+
 /**
  * Application
  */
 module.exports = function () {
   document.addEventListener('DOMContentLoaded', documentReady, false);
+  document.addEventListener('click', openExternalLink);
   let Note = require('./note').default;
   let Aside = require('./aside').default;
 
   return {
     Note: Note,
     Aside: Aside
-  };;
+  };
 }();

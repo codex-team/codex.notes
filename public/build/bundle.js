@@ -558,18 +558,34 @@ var documentReady = function documentReady() {
   note.enableAutosave();
 };
 
+var openExternalLink = function openExternalLink(event) {
+  if (event.target.tagName !== 'A' || !event.target.href) {
+    return;
+  }
+
+  if (!event.target.closest('.editor')) {
+    electron.shell.openExternal(event.target.href);
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey) {
+    electron.shell.openExternal(event.target.href);
+  }
+};
+
 /**
  * Application
  */
 module.exports = function () {
   document.addEventListener('DOMContentLoaded', documentReady, false);
+  document.addEventListener('click', openExternalLink);
   var Note = __webpack_require__(1).default;
   var Aside = __webpack_require__(0).default;
 
   return {
     Note: Note,
     Aside: Aside
-  };;
+  };
 }();
 
 /***/ })
