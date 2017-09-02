@@ -14,9 +14,10 @@ html(lang="en")
        meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
 
 body
+        div.drag-bar
         div.aside
             div.logo.
-                CodeX Editor
+                CodeX Notes
 
             span.add-note-button(name="js-new-note-button")
                 include ../public/svg/pencil.svg
@@ -34,9 +35,9 @@ body
             div.header
                 div#delete-button.delete-note-button.hide(onclick="app.Note.delete()")
                     |Delete
-                div.share-button
-                    include ../public/svg/share.svg
-                    |Share
+                div#note-date.note-date
+                    //include ../public/svg/share.svg
+                    //|Share
             div#codex-editor.editor
                 input#note-title.note-title(placeholder="Add title")
     script.

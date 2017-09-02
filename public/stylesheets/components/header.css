@@ -12,6 +12,7 @@
     color: #828698;
 }
 
+.note-date,
 .share-button {
     cursor: pointer;
     padding: 5px;
