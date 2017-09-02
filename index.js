@@ -50,22 +50,20 @@ app.on('ready', function () {
   });
 });
 
-var sanitizeHtml = require('sanitize-html');
-
 /**
  * Notes List module
  */
 ipcMain.on('load notes list', (event, arg) => {
   let noteBlanks = fs.readdirSync(__dirname + '/public/notes');
+
   let notes = noteBlanks.map( note => {
     let content = fs.readFileSync(__dirname + '/public/notes/' + note);
     let json = JSON.parse(content);
-    let firstBlock = !!json.items.length ? json.items[0].data.text : DEFAULT_TITLE;
+    let title = json.title ? json.title : DEFAULT_TITLE;
 
     /**
      * Clean all HTML tags from first block to use it as title
      */
-    let title = sanitizeHtml(firstBlock, {allowedTags: []});
 
     return {
       title,
@@ -80,25 +78,25 @@ ipcMain.on('load notes list', (event, arg) => {
 /**
  * Save note to json file
  */
-ipcMain.on('save note', (event, {noteData}) => {
-  if (!noteData.items.length && !noteData.id) return;
+ipcMain.on('save note', (event, {note}) => {
+  if (!note.data.items.length && !note.data.id) return;
 
   if (!fs.existsSync(NOTES_DIR)) {
     fs.mkdirSync(NOTES_DIR);
   }
 
-  if (!noteData.id) {
-    noteData.id = +new Date();
+  if (!note.data.id) {
+    note.data.id = +new Date();
   }
 
-  fs.writeFileSync(NOTES_DIR + '/' + noteData.id + '.json', JSON.stringify(noteData));
+  fs.writeFileSync(NOTES_DIR + '/' + note.data.id + '.json', JSON.stringify(note));
 
-  let note = {
-    'title': noteData.items.length ? sanitizeHtml(noteData.items[0].data.text, {allowedTags: []}) : DEFAULT_TITLE,
-    'id': noteData.id
+  let menuItem = {
+    'title': note.title ? note.title : DEFAULT_TITLE,
+    'id': note.data.id
   };
 
-  event.sender.send('note saved', {note});
+  event.sender.send('note saved', {note: menuItem});
 });
 
 /**

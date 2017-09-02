@@ -329,7 +329,12 @@ var Note = function () {
       dom.get(DELETE_BUTTON_ID).classList.remove('hide');
 
       codex.editor.saver.save().then(function (noteData) {
-        window.ipcRenderer.send('save note', { noteData: noteData });
+        var note = {
+          data: noteData,
+          title: window.NOTE_TITLE.value
+        };
+
+        window.ipcRenderer.send('save note', { note: note });
       });
     }
   }, {
@@ -349,10 +354,10 @@ var Note = function () {
 
   }, {
     key: 'render',
-    value: function render(noteData) {
+    value: function render(note) {
       codex.editor.content.clear(true);
-
-      codex.editor.content.load(noteData);
+      window.NOTE_TITLE.value = note.title;
+      codex.editor.content.load(note.data);
       dom.get(DELETE_BUTTON_ID).classList.remove('hide');
     }
 
@@ -364,6 +369,7 @@ var Note = function () {
     key: 'clear',
     value: function clear() {
       codex.editor.content.clear(true);
+      window.NOTE_TITLE.value = '';
       codex.editor.ui.addInitialBlock();
       dom.get(DELETE_BUTTON_ID).classList.add('hide');
     }
@@ -527,6 +533,7 @@ var documentReady = function documentReady() {
   new Aside();
 
   window.ipcRenderer.on('note saved', Note.addToMenu);
+  window.NOTE_TITLE = document.getElementById('note-title');
 
   var note = new Note();
 

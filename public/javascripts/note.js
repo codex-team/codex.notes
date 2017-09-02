@@ -14,7 +14,12 @@ export default class Note {
 
     codex.editor.saver.save()
       .then(function (noteData) {
-        window.ipcRenderer.send('save note', {noteData});
+        let note = {
+          data: noteData,
+          title: window.NOTE_TITLE.value
+        };
+
+        window.ipcRenderer.send('save note', {note});
       });
   }
 
@@ -57,10 +62,10 @@ export default class Note {
    * Renders note
    * @param  {object} noteData
    */
-  static render(noteData) {
+  static render(note) {
     codex.editor.content.clear(true);
-
-    codex.editor.content.load(noteData);
+    window.NOTE_TITLE.value = note.title;
+    codex.editor.content.load(note.data);
     dom.get(DELETE_BUTTON_ID).classList.remove('hide');
   }
 
@@ -69,6 +74,7 @@ export default class Note {
    */
   static clear() {
     codex.editor.content.clear(true);
+    window.NOTE_TITLE.value = '';
     codex.editor.ui.addInitialBlock();
     dom.get(DELETE_BUTTON_ID).classList.add('hide');
   }

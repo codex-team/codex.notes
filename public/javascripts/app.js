@@ -27,6 +27,7 @@ let documentReady = () => {
   new Aside();
 
   window.ipcRenderer.on('note saved', Note.addToMenu);
+  window.NOTE_TITLE = document.getElementById('note-title');
 
   let note = new Note();
 
