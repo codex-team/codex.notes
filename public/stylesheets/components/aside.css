@@ -9,6 +9,7 @@
     color: #fff;
     overflow: hidden;
     user-select: none;
+    -webkit-app-region: drag;
 
     & .logo {
         margin-bottom: 15px;
