@@ -21,6 +21,9 @@ export default class Note {
 
         window.ipcRenderer.send('save note', {note});
       });
+
+      window.ipcRenderer.send('save note', {note});
+    }
   }
 
   /**

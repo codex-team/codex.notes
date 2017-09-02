@@ -7,7 +7,7 @@
     width: 600px;
     margin: 0 auto 10px;
     border: 0;
-    font-size: 1.8em;
+    font-size: 48px;
     font-weight: 800;
     outline: none;
     font-family: 'PT Serif';
@@ -16,6 +16,7 @@
         color: #818BA1;
         opacity: .7;
         transition: opacity 200ms ease;
+        font-size: 0.6em;
     }
 
      &:focus::placeholder {

@@ -298,6 +298,7 @@ var Note = function () {
     key: 'enableAutosave',
     value: function enableAutosave() {
       codex.editor.nodes.redactor.addEventListener('keyup', this.autosave.bind(this));
+      window.NOTE_TITLE.addEventListener('keyup', this.autosave.bind(this));
     }
 
     /**
@@ -308,6 +309,7 @@ var Note = function () {
     key: 'disableAutosave',
     value: function disableAutosave() {
       codex.editor.nodes.redactor.removeEventListener('keyup', this.autosave.bind(this));
+      window.NOTE_TITLE.removeEventListener('keyup', this.autosave.bind(this));
     }
 
     /**
@@ -328,14 +330,23 @@ var Note = function () {
     value: function save() {
       dom.get(DELETE_BUTTON_ID).classList.remove('hide');
 
-      codex.editor.saver.save().then(function (noteData) {
+      try {
+        codex.editor.saver.save().then(function (noteData) {
+          var note = {
+            data: noteData,
+            title: window.NOTE_TITLE.value
+          };
+
+          window.ipcRenderer.send('save note', { note: note });
+        });
+      } catch (e) {
         var note = {
-          data: noteData,
+          data: { items: [], id: codex.editor.state.blocks.id },
           title: window.NOTE_TITLE.value
         };
 
         window.ipcRenderer.send('save note', { note: note });
-      });
+      }
     }
   }, {
     key: 'addToMenu',

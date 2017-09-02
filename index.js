@@ -24,6 +24,7 @@ const DEFAULT_TITLE = 'Untitled';
  * Inter Process Communication - Main proccess
  */
 let ipcMain = electron.ipcMain;
+let sanitizeHtml = require('sanitize-html');
 
 app.on('window-all-closed', function () {
   app.quit();
@@ -59,7 +60,12 @@ ipcMain.on('load notes list', (event, arg) => {
   let notes = noteBlanks.map( note => {
     let content = fs.readFileSync(__dirname + '/public/notes/' + note);
     let json = JSON.parse(content);
-    let title = json.title ? json.title : DEFAULT_TITLE;
+    let titleFromText = !!json.data.items.length ? json.data.items[0].data.text : DEFAULT_TITLE;
+    let title = json.title ? json.title : false;
+
+    if (!title) {
+      title = sanitizeHtml(titleFromText, {allowedTags: []});
+    }
 
     /**
      * Clean all HTML tags from first block to use it as title
@@ -91,8 +97,17 @@ ipcMain.on('save note', (event, {note}) => {
 
   fs.writeFileSync(NOTES_DIR + '/' + note.data.id + '.json', JSON.stringify(note));
 
+
+  let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
+  let title = note.title ? note.title : false;
+
+  if (!title) {
+    title = sanitizeHtml(titleFromText, {allowedTags: []});
+  }
+
+
   let menuItem = {
-    'title': note.title ? note.title : DEFAULT_TITLE,
+    'title': title,
     'id': note.data.id
   };
 
@@ -123,7 +138,7 @@ ipcMain.on('delete note', (event, {id}) => {
     buttons: ['Delete', 'Cancel'],
     icon: __dirname + '/assets/icons/png/icon-white128.png',
   }, (response) => {
-    if (response == 0) {
+    if (response === 0) {
       if (fs.existsSync(path)) {
         fs.unlinkSync(path);
       }
