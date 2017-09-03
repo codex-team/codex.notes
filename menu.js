@@ -1,27 +1,18 @@
 module.exports = function (app) {
-  const openAboutWindow = require('about-window').default;
+  const pkg = require('./package');
 
   let info = {
-    bugReportUrl: 'https://github.com/codex-team/codex.notes/issues/new',
-    landingPage: 'https://ifmo.su/notes',
-    githubRepo: 'https://github.com/codex-team/codex.notes',
+    bugReportUrl: pkg.bugs,
+    landingPage: pkg.homepage,
+    githubRepo: pkg.repository.url,
     iconPath: __dirname + '/assets/icons/png/icon-white1024.png',
-    description: 'TODO write description',
-    name: 'CodeX Notes'
+    description: pkg.description,
+    name: pkg.publishName
   };
 
   let menuBar = [ {
     label: 'CodeX Notes',
     submenu: [ {
-      // label: 'About ' + info.name,
-      // click: () => openAboutWindow({
-      //   icon_path: info.iconPath,
-      //   copyright: 'Copyright (c) 2017 CodeX',
-      //   bug_report_url: info.bugReportUrl,
-      //   homepage: info.landingPage,
-      //   description: info.description,
-      //   license: 'MIT License'
-      // })
       label: 'About ' + info.name,
       role: 'about'
     }, {

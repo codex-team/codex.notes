@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "publishName": "CodeX Notes",
   "publishIcon": "assets/icons/mac/icon-white1024.icns",
+  "description": "Simple, fast and useful crossplatform notes application based on CodeX Editor and Electron.",
   "private": true,
   "scripts": {
     "start": "electron .",
