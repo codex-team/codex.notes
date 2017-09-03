@@ -1,16 +1,28 @@
 {
-  "name": "codex.editor.desktop",
-  "version": "0.0.0",
-  "publishName": "CodeX Editor",
+  "name": "codex.notes",
+  "version": "0.1.0",
+  "publishName": "CodeX Notes",
   "publishIcon": "assets/icons/mac/icon-white1024.icns",
+  "description": "Simple, fast and useful crossplatform notes application based on CodeX Editor and Electron.",
   "private": true,
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist --prune=true"
+    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist",
+    "dmg": "mkdir dmg; electron-installer-dmg \"./dist/CodeX Notes-darwin-x64/CodeX Notes.app\" \"CodeX Notes\" --out=dmg --debug=true --overwrite --icon=$npm_package_publishIcon"
   },
+  "author": {
+    "name": "CodeX Team",
+    "email": "team@ifmo.su"
+  },
+  "license": "MIT",
+  "homepage": "https://ifmo.su/notes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codex-team/codex.notes"
+  },
+  "bugs": "https://github.com/codex-team/codex.notes/issues/new",
   "dependencies": {
-    "codex.editor": "^1.6.6",
     "electron": "^1.7.5",
     "electron-pug": "^1.5.1",
     "sanitize-html": "^1.14.1"

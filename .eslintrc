@@ -91,6 +91,7 @@
         "logger": true,
         "global": true,
         "app": true,
-        "process": true
+        "process": true,
+        "__dirname": true
     }
 }
