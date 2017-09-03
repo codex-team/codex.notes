@@ -34,3 +34,7 @@
     color: #1A1A1A;
     line-height: 1.5em;
 }
+
+.ce-redactor {
+  min-height: 150px !important;
+}

@@ -1,5 +1,5 @@
 module.exports = function (app) {
-  let menuTemplate = [ {
+  let menuBar = [ {
     label: 'CodeX Notes',
     submenu: [ {
       label: 'Quit',
@@ -60,5 +60,25 @@ module.exports = function (app) {
     } ]
   } ];
 
-  return menuTemplate;
+  let menuDock = [ {
+    role: 'help',
+    submenu: [ {
+      label: 'Report a bug',
+      click() {
+        require('electron').shell.openExternal('https://github.com/codex-team/codex.notes/issues/new');
+      }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'Learn more about CodeX Notes',
+      click() {
+        require('electron').shell.openExternal('https://ifmo.su/notes');
+      }
+    } ]
+  } ];
+
+  return {
+    menuBar,
+    menuDock
+  };
 };

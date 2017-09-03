@@ -1,7 +1,6 @@
 'use strict';
 
 let electron = require('electron');
-const { Menu } = require('electron');
 
 let app = electron.app;
 let BrowserWindow = electron.BrowserWindow;
@@ -34,7 +33,7 @@ app.on('window-all-closed', function () {
 app.on('ready', function () {
   mainWindow = new BrowserWindow({
     width: 1200,
-    minWidth: 900,
+    minWidth: 1070,
     minHeight: 600,
     height: 700,
     vibrancy: 'ultra-dark',
@@ -43,17 +42,23 @@ app.on('ready', function () {
   });
 
   if (process.platform === 'darwin') {
-    let createMenuTemplate = require('./menu'),
-        menuTemplate = createMenuTemplate(app),
-        osxMenu = Menu.buildFromTemplate(menuTemplate);
+    const { Menu } = require('electron');
 
-    Menu.setApplicationMenu(osxMenu);
+    let createMenuTemplate = require('./menu'),
+        menues = createMenuTemplate(app),
+        menuBar = Menu.buildFromTemplate(menues.menuBar),
+        menuDock = Menu.buildFromTemplate(menues.menuDock);
+
+
+    Menu.setApplicationMenu(menuBar);
+
+    app.dock.setMenu(menuDock);
   }
 
   mainWindow.loadURL('http://localhost:3030');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
