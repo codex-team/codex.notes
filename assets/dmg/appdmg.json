@@ -4,13 +4,13 @@
   "icon-size": 128,
   "window": {
     "size": {
-      "width": 640,
+      "width": 600,
       "height": 360
     }
   },
-  "background": "background.png",
+  "background": "dmg-bg.png",
   "contents": [
-    { "x": 448, "y": 180, "type": "link", "path": "/Applications" },
-    { "x": 192, "y": 180, "type": "file", "path": "../../dist/CodeX Notes-darwin-x64/CodeX Notes.app" }
+    { "x": 172, "y": 180, "type": "file", "path": "../../dist/CodeX Notes-darwin-x64/CodeX Notes.app" },
+    { "x": 428, "y": 180, "type": "link", "path": "/Applications" }
   ]
 }
