@@ -14,6 +14,10 @@ const DEFAULT_TITLE = 'Untitled';
  * Notes List module
  */
 ipcMain.on('load notes list', (event, arg) => {
+  if (!fs.existsSync(NOTES_DIR)) {
+    fs.mkdirSync(NOTES_DIR);
+  }
+
   let noteBlanks = fs.readdirSync(NOTES_DIR);
 
   let notes = noteBlanks.map( note => {
@@ -80,6 +84,7 @@ ipcMain.on('save note', (event, {note}) => {
  */
 ipcMain.on('get note', (event, {id}) => {
   let noteFileData = fs.readFileSync(NOTES_DIR + '/' + id + '.json');
+
   event.returnValue = JSON.parse(noteFileData);
 });
 
