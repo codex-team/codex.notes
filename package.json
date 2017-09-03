@@ -8,7 +8,8 @@
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist"
+    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist",
+    "dmg": "mkdir dmg; electron-installer-dmg \"./dist/CodeX Notes-darwin-x64/CodeX Notes.app\" \"CodeX Notes\" --out=dmg --debug=true --overwrite"
   },
   "author": {
     "name": "CodeX Team",
