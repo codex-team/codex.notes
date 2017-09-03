@@ -3,9 +3,9 @@
 let electron = require('electron');
 
 let app = electron.app;
+let locals = {title: 'CodeX Notes'};
+let pug = require('electron-pug')({pretty:true}, locals);
 let BrowserWindow = electron.BrowserWindow;
-
-let backend = require('./bin/www');
 
 let mainWindow = null;
 
@@ -21,7 +21,7 @@ const DEFAULT_TITLE = 'Untitled';
 
 
 /**
- * Inter Process Communication - Main proccess
+ * Inter Process Communication - Main process
  */
 let ipcMain = electron.ipcMain;
 let sanitizeHtml = require('sanitize-html');
@@ -41,6 +41,7 @@ app.on('ready', function () {
     titleBarStyle: 'hiddenInset'
   });
 
+<<<<<<< HEAD
   if (process.platform === 'darwin') {
     const { Menu } = require('electron');
 
@@ -56,6 +57,9 @@ app.on('ready', function () {
   }
 
   mainWindow.loadURL('http://localhost:3030');
+=======
+  mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
+>>>>>>> master
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -139,9 +143,7 @@ ipcMain.on('save note', (event, {note}) => {
  */
 ipcMain.on('get note', (event, {id}) => {
   let noteFileData = fs.readFileSync(NOTES_DIR + '/' + id + '.json');
-  let parsedNoteData = JSON.parse(noteFileData);
-
-  event.returnValue = parsedNoteData;
+  event.returnValue = JSON.parse(noteFileData);
 });
 
 /**
@@ -164,3 +166,4 @@ ipcMain.on('delete note', (event, {id}) => {
     event.returnValue = !response;
   });
 });
+
