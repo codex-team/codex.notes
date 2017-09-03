@@ -9,7 +9,7 @@
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
     "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist",
-    "dmg": "mkdir dmg; electron-installer-dmg \"./dist/CodeX Notes-darwin-x64/CodeX Notes.app\" \"CodeX Notes\" --out=dmg --debug=true --overwrite --icon=$npm_package_publishIcon"
+    "dmg": "mkdir ./dmg; rm \"./dmg/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./dmg/CodeX Notes.dmg\""
   },
   "author": {
     "name": "CodeX Team",
@@ -28,6 +28,7 @@
     "sanitize-html": "^1.14.1"
   },
   "devDependencies": {
+    "appdmg": "^0.4.5",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.1.0",
     "babel-preset-env": "^1.5.2",

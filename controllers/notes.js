@@ -1,6 +1,7 @@
 
 let fs = require('fs');
 let {ipcMain} = require('electron');
+let {dialog} = require('electron');
 let sanitizeHtml = require('sanitize-html');
 
 const NOTES_DIR = __dirname + '/../public/notes';
@@ -94,7 +95,7 @@ ipcMain.on('get note', (event, {id}) => {
 ipcMain.on('delete note', (event, {id}) => {
   let path = NOTES_DIR + '/' + id + '.json';
 
-  electron.dialog.showMessageBox({
+  dialog.showMessageBox({
     type: 'question',
     message: 'Do you really want to remove this note?',
     buttons: ['Delete', 'Cancel'],
