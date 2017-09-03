@@ -287,7 +287,7 @@ var Note = function () {
     value: function autosave() {
       if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-      this.autosaveTimer = window.setTimeout(Note.save, 200);
+      this.autosaveTimer = window.setTimeout(Note.save, 500);
     }
 
     /**
@@ -334,6 +334,12 @@ var Note = function () {
           title: window.NOTE_TITLE.value
         };
 
+        var saveIndicator = document.getElementById('save-indicator');
+
+        saveIndicator.classList.add('saved');
+        window.setTimeout(function () {
+          saveIndicator.classList.remove('saved');
+        }, 500);
         window.ipcRenderer.send('save note', { note: note });
       });
     }
@@ -552,18 +558,34 @@ var documentReady = function documentReady() {
   note.enableAutosave();
 };
 
+var openExternalLink = function openExternalLink(event) {
+  if (event.target.tagName !== 'A' || !event.target.href) {
+    return;
+  }
+
+  if (!event.target.closest('.editor')) {
+    electron.shell.openExternal(event.target.href);
+    return;
+  }
+
+  if (event.metaKey || event.ctrlKey) {
+    electron.shell.openExternal(event.target.href);
+  }
+};
+
 /**
  * Application
  */
 module.exports = function () {
   document.addEventListener('DOMContentLoaded', documentReady, false);
+  document.addEventListener('click', openExternalLink);
   var Note = __webpack_require__(1).default;
   var Aside = __webpack_require__(0).default;
 
   return {
     Note: Note,
     Aside: Aside
-  };;
+  };
 }();
 
 /***/ })
