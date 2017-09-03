@@ -1,7 +1,7 @@
 {
-  "name": "codex.editor.desktop",
+  "name": "codex.notes",
   "version": "0.1.0",
-  "publishName": "CodeX Editor",
+  "publishName": "CodeX Notes",
   "publishIcon": "assets/icons/mac/icon-white1024.icns",
   "private": true,
   "scripts": {
@@ -9,7 +9,19 @@
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
     "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist"
   },
+  "author": {
+    "name": "CodeX Team",
+    "email": "team@ifmo.su"
+  },
+  "license": "MIT",
+  "homepage": "https://ifmo.su/notes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codex-team/codex.notes"
+  },
+  "bugs": "https://github.com/codex-team/codex.notes/issues/new",
   "dependencies": {
+    "about-window": "^1.7.1",
     "body-parser": "~1.17.1",
     "codex.editor": "^1.6.6",
     "cookie-parser": "~1.4.3",
