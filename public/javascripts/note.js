@@ -114,6 +114,24 @@ export default class Note {
     Aside.removeMenuItem(id);
   }
 
+  /**
+   * autoresizer for textareas
+   * @param el
+   */
+  static autoresize(el) {
+    console.log('here');
+    el.addEventListener('keydown', function (event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+      }
+    }, false);
+
+    el.addEventListener('input', function (event) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }, false);
+  }
+
 }
 
 let Aside = require('./aside').default;

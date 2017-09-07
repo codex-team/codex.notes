@@ -30,7 +30,10 @@ let documentReady = () => {
   window.NOTE_TITLE = document.getElementById('note-title');
   window.NOTE_DATE = document.getElementById('note-date');
 
+  let title = document.querySelector('#note-title');
   let note = new Note();
+
+  Note.autoresize(title);
 
   note.enableAutosave();
 };
