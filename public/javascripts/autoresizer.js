@@ -18,7 +18,7 @@ export default class Autoresizer {
 
     /**
      * autoresizer for textareas
-     * @param el
+     * @param {Element} el - element we want to expand
      */
   addResizer(el) {
     el.addEventListener('keydown', function (event) {
@@ -35,16 +35,16 @@ export default class Autoresizer {
 
   /**
    * removes handlers from element
-   * @param el
+   * @param {Element} el - element we want to clear from resizer
    */
   removeResizer(el) {
     el.removeEventListener('keydown');
     el.removeEventListener('input');
   }
 
-    /**
-     * Destroyer
-     */
+  /**
+   * Destroyer function. Clears all elements
+   */
   destroy() {
     for(let i = 0; i < this.elements.length; i++) {
       this.removeResizer(this.elements[i]);
