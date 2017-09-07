@@ -2,11 +2,18 @@
  * Autoresizer module
  * Expands dynamically height of textareas
  */
+
+/**
+ * @property elements - array of elements
+ * @property {Function} addResizer - adds listeners
+ * @property {Function} removeResizer - removes listeners
+ * @property {Function} destroy - removes all elements and handlers
+ */
 export default class Autoresizer {
 
   /**
    * adds autoresize handler
-   * @param elements
+   * @param elements - elements that needs to expand
    */
   constructor(elements) {
     this.elements = elements || [];
@@ -16,10 +23,10 @@ export default class Autoresizer {
     }
   }
 
-    /**
-     * autoresizer for textareas
-     * @param {Element} el - element we want to expand
-     */
+  /**
+   * autoresizer for textareas
+   * @param {Element} el - element we want to expand
+   */
   addResizer(el) {
     el.addEventListener('keydown', function (event) {
       if (event.keyCode == 13) {
