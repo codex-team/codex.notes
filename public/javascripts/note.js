@@ -1,3 +1,5 @@
+import Folder from './folders';
+
 const DELETE_BUTTON_ID = 'delete-button';
 
 /**
@@ -16,7 +18,8 @@ export default class Note {
       .then(function (noteData) {
         let note = {
           data: noteData,
-          title: window.NOTE_TITLE.value
+          title: window.NOTE_TITLE.value,
+          folderId: Folder.currentFolder
         };
 
         let saveIndicator = document.getElementById('save-indicator');

@@ -23,6 +23,7 @@ let documentReady = () => {
    */
   let Note = require('./note').default;
   let Aside = require('./aside').default;
+  let Folder = require('./folders').default;
 
   new Aside();
 
@@ -33,6 +34,10 @@ let documentReady = () => {
   let note = new Note();
 
   note.enableAutosave();
+
+  let currentFolder = document.getElementById('current-folder');
+
+  currentFolder.addEventListener('click', Folder.backToRoot);
 };
 
 let openExternalLink = function (event) {

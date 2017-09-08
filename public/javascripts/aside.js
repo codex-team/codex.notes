@@ -1,3 +1,6 @@
+import Folder from './folders';
+import Note from './note';
+
 /**
  * Aside column module
  */
@@ -20,17 +23,28 @@ export default class Aside {
      * Find notes list holder
      * @type {Element}
      */
-    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+    let notesMenu = document.querySelector('[name="js-notes-menu"]'),
+        foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
     /**
      * Show preloader
      */
     notesMenu.classList.add(this.CSS.notesMenuLoading);
+    foldersMenu.classList.add(this.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
      */
-    window.ipcRenderer.send('load notes list');
+    window.ipcRenderer.send('load notes list', Folder.currentFolder);
+    window.ipcRenderer.send('load folders list');
+
+    /**
+     * Update folder list
+     */
+    window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
+      foldersMenu.classList.remove(this.CSS.notesMenuLoading);
+      userFolders.forEach(Aside.addFolder);
+    });
 
     /**
      * Update notes list
@@ -44,8 +58,10 @@ export default class Aside {
      * Activate new note button
      */
     let newNoteButton = document.querySelector('[name="js-new-note-button"]');
+    let newFolderButton = document.querySelector('[name="js-new-folder-button"]');
 
     newNoteButton.addEventListener('click', () => this.newNoteButtonClicked.call(this) );
+    newFolderButton.addEventListener('click', Aside.newFolderButtonClicked);
   }
 
   /**
@@ -62,6 +78,22 @@ export default class Aside {
       editor.click();
     }, 10);
     Note.clear();
+  }
+
+  /**
+   * New folder button click handler
+   * @this {Aside}
+   */
+  static newFolderButtonClicked() {
+    let newFolderInput = document.querySelector('[name="js-new-folder-input"]'),
+        input = newFolderInput.querySelector('input');
+
+    input.addEventListener('keydown', Folder.createFolder);
+
+    this.classList.add('hide');
+    newFolderInput.classList.remove('hide');
+
+    input.focus();
   }
 
   /**
@@ -104,6 +136,35 @@ export default class Aside {
   }
 
   /**
+   *  Add new item to folders list
+   *
+   * @param folder
+   */
+  static addFolder(folder) {
+    /**
+     * Maximum chars at the node title
+     * @type {Number}
+     */
+    const titleMaxLength = 68;
+
+    let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+
+    if ( folder.name.length > titleMaxLength ) {
+      folder.name = folder.name.substring(0, titleMaxLength) + '…';
+    }
+
+    let item = dom.make('li', null, {
+      textContent: folder.name
+    });
+
+    item.dataset.folderId = folder.id;
+
+    foldersMenu.insertAdjacentElement('afterbegin', item);
+
+    item.addEventListener('click', Aside.folderClicked);
+  }
+
+  /**
    * Remove item from menu
    *
    * @param itemId
@@ -135,7 +196,23 @@ export default class Aside {
 
     editorView.scrollIntoView();
   }
+
+  /**
+   * Folder menu item clicked handler
+   */
+  static folderClicked() {
+    Folder.moveToFolder(this.dataset.folderId, this.textContent);
+  }
+
+  /**
+   * Remove notes list
+   */
+  static clearNotesList() {
+    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+
+    notesMenu.innerHTML = '';
+  }
+
 }
 
 let dom = require('./dom').default;
-let Note = require('./note').default;

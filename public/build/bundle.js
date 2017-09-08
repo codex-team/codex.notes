@@ -80,6 +80,16 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _folders = __webpack_require__(7);
+
+var _folders2 = _interopRequireDefault(_folders);
+
+var _note = __webpack_require__(1);
+
+var _note2 = _interopRequireDefault(_note);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
@@ -108,23 +118,36 @@ var Aside = function () {
      * Find notes list holder
      * @type {Element}
      */
-    var notesMenu = document.querySelector('[name="js-notes-menu"]');
+    var notesMenu = document.querySelector('[name="js-notes-menu"]'),
+        foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
     /**
      * Show preloader
      */
     notesMenu.classList.add(this.CSS.notesMenuLoading);
+    foldersMenu.classList.add(this.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
      */
-    window.ipcRenderer.send('load notes list');
+    window.ipcRenderer.send('load notes list', _folders2.default.currentFolder);
+    window.ipcRenderer.send('load folders list');
+
+    /**
+     * Update folder list
+     */
+    window.ipcRenderer.on('update folders list', function (event, _ref) {
+      var userFolders = _ref.userFolders;
+
+      foldersMenu.classList.remove(_this.CSS.notesMenuLoading);
+      userFolders.forEach(Aside.addFolder);
+    });
 
     /**
      * Update notes list
      */
-    window.ipcRenderer.on('update notes list', function (event, _ref) {
-      var notes = _ref.notes;
+    window.ipcRenderer.on('update notes list', function (event, _ref2) {
+      var notes = _ref2.notes;
 
       notesMenu.classList.remove(_this.CSS.notesMenuLoading);
       notes.forEach(Aside.addMenuItem);
@@ -134,10 +157,12 @@ var Aside = function () {
      * Activate new note button
      */
     var newNoteButton = document.querySelector('[name="js-new-note-button"]');
+    var newFolderButton = document.querySelector('[name="js-new-folder-button"]');
 
     newNoteButton.addEventListener('click', function () {
       return _this.newNoteButtonClicked.call(_this);
     });
+    newFolderButton.addEventListener('click', Aside.newFolderButtonClicked);
   }
 
   /**
@@ -157,7 +182,26 @@ var Aside = function () {
 
         editor.click();
       }, 10);
-      Note.clear();
+      _note2.default.clear();
+    }
+
+    /**
+     * New folder button click handler
+     * @this {Aside}
+     */
+
+  }], [{
+    key: 'newFolderButtonClicked',
+    value: function newFolderButtonClicked() {
+      var newFolderInput = document.querySelector('[name="js-new-folder-input"]'),
+          input = newFolderInput.querySelector('input');
+
+      input.addEventListener('keydown', _folders2.default.createFolder);
+
+      this.classList.add('hide');
+      newFolderInput.classList.remove('hide');
+
+      input.focus();
     }
 
     /**
@@ -168,7 +212,7 @@ var Aside = function () {
      * @param {string} noteData.title
      */
 
-  }], [{
+  }, {
     key: 'addMenuItem',
     value: function addMenuItem(noteData) {
       /**
@@ -203,6 +247,38 @@ var Aside = function () {
     }
 
     /**
+     *  Add new item to folders list
+     *
+     * @param folder
+     */
+
+  }, {
+    key: 'addFolder',
+    value: function addFolder(folder) {
+      /**
+       * Maximum chars at the node title
+       * @type {Number}
+       */
+      var titleMaxLength = 68;
+
+      var foldersMenu = document.querySelector('[name="js-folders-menu"]');
+
+      if (folder.name.length > titleMaxLength) {
+        folder.name = folder.name.substring(0, titleMaxLength) + '…';
+      }
+
+      var item = dom.make('li', null, {
+        textContent: folder.name
+      });
+
+      item.dataset.folderId = folder.id;
+
+      foldersMenu.insertAdjacentElement('afterbegin', item);
+
+      item.addEventListener('click', Aside.folderClicked);
+    }
+
+    /**
      * Remove item from menu
      *
      * @param itemId
@@ -231,7 +307,7 @@ var Aside = function () {
 
       var noteData = window.ipcRenderer.sendSync('get note', { id: id });
 
-      Note.render(noteData);
+      _note2.default.render(noteData);
 
       /**
        * Scroll to top
@@ -239,6 +315,28 @@ var Aside = function () {
       var editorView = document.querySelector('[name="editor-view"]');
 
       editorView.scrollIntoView();
+    }
+
+    /**
+     * Folder menu item clicked handler
+     */
+
+  }, {
+    key: 'folderClicked',
+    value: function folderClicked() {
+      _folders2.default.moveToFolder(this.dataset.folderId, this.textContent);
+    }
+
+    /**
+     * Remove notes list
+     */
+
+  }, {
+    key: 'clearNotesList',
+    value: function clearNotesList() {
+      var notesMenu = document.querySelector('[name="js-notes-menu"]');
+
+      notesMenu.innerHTML = '';
     }
   }]);
 
@@ -249,7 +347,6 @@ exports.default = Aside;
 
 
 var dom = __webpack_require__(2).default;
-var Note = __webpack_require__(1).default;
 
 /***/ }),
 /* 1 */
@@ -263,6 +360,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _folders = __webpack_require__(7);
+
+var _folders2 = _interopRequireDefault(_folders);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -331,7 +434,8 @@ var Note = function () {
       codex.editor.saver.save().then(function (noteData) {
         var note = {
           data: noteData,
-          title: window.NOTE_TITLE.value
+          title: window.NOTE_TITLE.value,
+          folderId: _folders2.default.currentFolder
         };
 
         var saveIndicator = document.getElementById('save-indicator');
@@ -546,6 +650,7 @@ var documentReady = function documentReady() {
    */
   var Note = __webpack_require__(1).default;
   var Aside = __webpack_require__(0).default;
+  var Folder = __webpack_require__(7).default;
 
   new Aside();
 
@@ -556,6 +661,10 @@ var documentReady = function documentReady() {
   var note = new Note();
 
   note.enableAutosave();
+
+  var currentFolder = document.getElementById('current-folder');
+
+  currentFolder.addEventListener('click', Folder.backToRoot);
 };
 
 var openExternalLink = function openExternalLink(event) {
@@ -587,6 +696,143 @@ module.exports = function () {
     Aside: Aside
   };
 }();
+
+/***/ }),
+/* 6 */,
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _aside = __webpack_require__(0);
+
+var _aside2 = _interopRequireDefault(_aside);
+
+var _note = __webpack_require__(1);
+
+var _note2 = _interopRequireDefault(_note);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Folders methods
+ */
+var Folder = function () {
+  function Folder() {
+    _classCallCheck(this, Folder);
+  }
+
+  _createClass(Folder, null, [{
+    key: 'createFolder',
+
+    /**
+     * Create new folder
+     */
+    value: function createFolder(event) {
+      if (event.keyCode !== 13) {
+        return;
+      }
+
+      var folder = this.value;
+
+      var createdFolder = window.ipcRenderer.sendSync('create folder', folder);
+
+      _aside2.default.addFolder(createdFolder);
+      this.value = '';
+      this.removeEventListener('keydown', Folder.createFolder);
+
+      var newFolderInput = this.parentNode;
+      var newFolderButton = document.querySelector('[name="js-new-folder-button"]');
+
+      newFolderInput.classList.add('hide');
+      newFolderButton.classList.remove('hide');
+    }
+
+    /**
+     * Set up interface for folder
+     *
+     * @param folderId
+     */
+
+  }, {
+    key: 'moveToFolder',
+    value: function moveToFolder(folderId, folderName) {
+      _note2.default.clear();
+
+      Folder.currentFolder = folderId;
+      _aside2.default.clearNotesList();
+      window.ipcRenderer.send('load notes list', folderId);
+
+      var foldersSection = document.getElementById('folders-section'),
+          currentFolder = document.getElementById('current-folder'),
+          currentFolderTitle = document.getElementById('current-folder-title');
+
+      foldersSection.classList.add('hide');
+
+      currentFolderTitle.textContent = folderName;
+      currentFolder.classList.remove('hide');
+    }
+
+    /**
+     * Setup main interface
+     */
+
+  }, {
+    key: 'backToRoot',
+    value: function backToRoot() {
+      _note2.default.clear();
+
+      Folder.currentFolder = 0;
+
+      _aside2.default.clearNotesList();
+      window.ipcRenderer.send('load notes list', Folder.currentFolder);
+
+      var foldersSection = document.getElementById('folders-section'),
+          currentFolder = document.getElementById('current-folder');
+
+      foldersSection.classList.remove('hide');
+      currentFolder.classList.add('hide');
+    }
+
+    /**
+     * Return current folder ID
+     *
+     * @returns {number}
+     */
+
+  }, {
+    key: 'currentFolder',
+    get: function get() {
+      return currentFolder;
+    }
+
+    /**
+     * Set current folder ID
+     *
+     * @param {Number} folderId
+     */
+    ,
+    set: function set(folderId) {
+      currentFolder = folderId;
+    }
+  }]);
+
+  return Folder;
+}();
+
+exports.default = Folder;
+
+
+var currentFolder = 0;
 
 /***/ })
 /******/ ]);

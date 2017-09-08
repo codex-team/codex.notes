@@ -35,4 +35,5 @@ app.on('ready', function () {
 });
 
 let notesCtrl = require('./controllers/notes');
+let foldersCtrl = require('./controllers/folders');
 

@@ -11,7 +11,7 @@
     user-select: none;
     -webkit-app-region: drag;
 
-    & .logo {
+     & .logo {
         margin-bottom: 15px;
         font-size: 18px;
         font-weight: 600;
@@ -49,4 +49,80 @@
             color: #5ba2ff;
         }
     }
+
+    .section-title {
+        color: #63758c;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    .add-folder-button {
+        padding: 5px 0 ;
+        margin: 0 0 30px;
+        color: #63758c;
+        font-size: 13px;
+        cursor: pointer;
+
+        svg {
+            width: 0.9em;
+            height: 0.9em;
+            margin-right: 5px;
+            margin-top: -3px;
+            vertical-align: middle;
+        }
+
+        &:hover {
+            color: #fff
+        }
+    }
+
+    .add-folder-input {
+
+        padding: 5px 0;
+        color: #63758c;
+        border-bottom: 1px #63758c solid;
+        margin: 0 0 30px;
+
+        input {
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #fff;
+            padding-right: 5px;
+            width: 90%;
+
+            &::placeholder {
+                color: #63758c;
+            }
+
+            &:focus + svg {
+                color: #fff;
+            }
+
+        }
+
+        svg {
+            float: right;
+            display: inline-block;
+            height: 0.8em;
+            margin-top: 0.3em;
+            /*margin-top: 3px;*/
+        }
+
+    }
+
+    .current-folder {
+
+        font-size: 18px;
+        padding: 10px 0 15px;
+        cursor: pointer;
+
+        svg {
+            height: 0.8em;
+            margin-top: -0.2em;
+            margin-left: 5px;
+        }
+
+    }
+
 }

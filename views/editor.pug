@@ -19,13 +19,37 @@ body
         div.logo.
             CodeX Notes
 
+        div#current-folder.hide.current-folder
+            include ../public/svg/arrow-left.svg
+            span#current-folder-title
+
         span.add-note-button(name="js-new-note-button")
             include ../public/svg/pencil.svg
             |New note
 
+        div#folders-section
+            div.section-title.
+                Folders
+
+            div.notes-list
+                ul.notes-list__content(name="js-folders-menu")
+
+            div.add-folder-button(name="js-new-folder-button")
+                include ../public/svg/plus.svg
+                |Add folder
+            div.add-folder-input.hide(name="js-new-folder-input")
+                input(placeholder="Enter title", type="text")
+                include ../public/svg/arrow-right.svg
+
+
+
+
+        div.section-title.
+            Notes
+
         div.notes-list
-            div.notes-list__scroll
-                ul.notes-list__content(name="js-notes-menu")
+            //div.notes-list__scroll
+            ul.notes-list__content(name="js-notes-menu")
 
         //- span.new-note-button(name="js-new-note-button")
         //-     include ../public/svg/new-note.svg
