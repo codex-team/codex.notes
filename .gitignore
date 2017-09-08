@@ -1,5 +1,6 @@
 data/
 dist/*
+dmg/*
 
 .idea/*
 package-lock.json

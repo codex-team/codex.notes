@@ -74,10 +74,10 @@ module.exports = {
   plugins: [
 
         /** Минифицируем CSS и JS */
-        // new webpack.optimize.UglifyJsPlugin(),
+    new webpack.optimize.UglifyJsPlugin(),
 
         /** Block build if errors found */
-    new webpack.NoErrorsPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
 
         /** Extract CSS bundle */
     new ExtractTextPlugin('public/build/bundle.css')

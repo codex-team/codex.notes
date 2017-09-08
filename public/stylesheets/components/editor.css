@@ -4,19 +4,25 @@
 
 .note-title {
     display: block;
-    width: 600px;
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+    overflow-y: hidden;
+    max-width: 600px;
     margin: 0 auto 10px;
     border: 0;
     font-size: 48px;
     font-weight: 800;
     outline: none;
+    resize: none;
     font-family: 'PT Serif';
+
 
     &::placeholder {
         color: #818BA1;
         opacity: .7;
         transition: opacity 200ms ease;
-        font-size: 0.6em;
+        font-size: 0.8em;
     }
 
      &:focus::placeholder {
@@ -33,4 +39,8 @@
     font-size: 17px;
     color: #1A1A1A;
     line-height: 1.5em;
+}
+
+.ce-redactor {
+  min-height: 150px !important;
 }
