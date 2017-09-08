@@ -1,6 +1,8 @@
 let fs = require('fs');
 let {ipcMain} = require('electron');
 let sanitizeHtml = require('sanitize-html');
+let electron = require('electron');
+
 
 const NOTES_DIR = __dirname + '/../data/notes';
 const FOLDERS_FILE = __dirname + '/../data/folders.json';
@@ -94,12 +96,8 @@ ipcMain.on('get note', (event, {id, folder}) => {
 /**
  * Delete note
  */
-ipcMain.on('delete note', (event, {id, folder}) => {
+ipcMain.on('delete note', (event, {id, folderId}) => {
   let path = NOTES_DIR;
-
-  if (folder) {
-    path += '/' + folder;
-  }
 
   path = NOTES_DIR + '/' + id + '.json';
 
@@ -111,6 +109,14 @@ ipcMain.on('delete note', (event, {id, folder}) => {
   }, (response) => {
     if (response === 0) {
       if (fs.existsSync(path)) {
+        let folders = fs.readFileSync(FOLDERS_FILE);
+
+        folders = JSON.parse(folders);
+
+        delete folders[folderId].notes[id];
+
+        fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders));
+
         fs.unlinkSync(path);
       }
     }
