@@ -7,7 +7,7 @@ const FOLDERS_FILE = __dirname + '/../data/folders.json';
 if (!fs.existsSync(FOLDERS_FILE)) {
   fs.writeFileSync(FOLDERS_FILE, JSON.stringify({
     0: {
-      name: "root",
+      name: 'root',
       notes: {}
     }}));
 }
@@ -32,10 +32,22 @@ ipcMain.on('create folder', function (event, folderName) {
   event.returnValue = folders[folderId];
 });
 
-ipcMain.on('delete folder', function (event, folder) {
+ipcMain.on('delete folder', function (event, folderId) {
   'use strict';
 
-  fs.rmdirSync(NOTES_DIR + '/' + folder);
+  let folders = fs.readFileSync(FOLDERS_FILE);
+
+  folders = JSON.parse(folders);
+
+  let notes = folders[folderId].notes;
+
+  for (let noteId in notes) {
+    fs.unlinkSync(NOTES_DIR + '/' + noteId + '.json');
+  }
+
+  delete folders[folderId];
+
+  fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders));
 
   event.returnValue = true;
 });
