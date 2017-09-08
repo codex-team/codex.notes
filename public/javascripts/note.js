@@ -113,7 +113,6 @@ export default class Note {
     Note.clear();
     Aside.removeMenuItem(id);
   }
-
 }
 
 let Aside = require('./aside').default;
