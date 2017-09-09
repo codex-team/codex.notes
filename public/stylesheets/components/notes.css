@@ -44,17 +44,18 @@
     &__content {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
 
     li {
-        margin-bottom: 1.15em;
-        font-size: 13.3px;
-        letter-spacing: 0.2px;
-        color: #bac3db;
         text-decoration: none;
         line-height: 1.45em;
         cursor: pointer;
         word-wrap: break-word;
+
+        &:not(:last-of-type){
+            margin-bottom: 0.75em;
+        }
 
         &:hover {
             color: #fff;

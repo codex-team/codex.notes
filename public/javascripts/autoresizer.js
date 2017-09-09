@@ -29,12 +29,12 @@ export default class Autoresizer {
    */
   addResizer(el) {
     el.addEventListener('keydown', function (event) {
-      if (event.keyCode == 13) {
+      if (event.keyCode === 13) {
         event.preventDefault();
       }
     }, false);
 
-    el.addEventListener('input', function (event) {
+    el.addEventListener('input', function () {
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
     }, false);

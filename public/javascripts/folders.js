@@ -7,21 +7,18 @@ import Note from './note';
 export default class Folder {
   /**
    * Create new folder
+   * @param {Element} input  - field with folder title
    */
-  static createFolder(event) {
-    if (event.keyCode !== 13) {
-      return;
-    }
-
-    let folder = this.value;
-
-    let createdFolder = window.ipcRenderer.sendSync('create folder', folder);
+  static createFolder( input ) {
+    let folderTitle = input.value;
+    let createdFolder = window.ipcRenderer.sendSync('create folder', folderTitle);
 
     Aside.addFolder(createdFolder);
-    this.value = '';
-    this.removeEventListener('keydown', Folder.createFolder);
 
-    let newFolderInput = this.parentNode;
+    input.value = '';
+    input.removeEventListener('keydown', Folder.createFolder);
+
+    let newFolderInput = input.parentNode;
     let newFolderButton = document.querySelector('[name="js-new-folder-button"]');
 
     newFolderInput.classList.add('hide');

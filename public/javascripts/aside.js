@@ -82,13 +82,22 @@ export default class Aside {
 
   /**
    * New folder button click handler
-   * @this {Aside}
+   * @this {Element} - New Folder button
    */
   static newFolderButtonClicked() {
     let newFolderInput = document.querySelector('[name="js-new-folder-input"]'),
         input = newFolderInput.querySelector('input');
 
-    input.addEventListener('keydown', Folder.createFolder);
+    /**
+     * Save note by Enter keypress
+     */
+    input.addEventListener('keydown', event => {
+      if (event.keyCode !== 13) {
+        return;
+      }
+
+      Folder.createFolder(event.target);
+    });
 
     this.classList.add('hide');
     newFolderInput.classList.remove('hide');
@@ -138,7 +147,9 @@ export default class Aside {
   /**
    *  Add new item to folders list
    *
-   * @param folder
+   * @param {object} folder
+   * @param {string} folder.name
+   * @param {number} folder.id
    */
   static addFolder(folder) {
     /**

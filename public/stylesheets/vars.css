@@ -1,0 +1,6 @@
+:root {
+    /** Aside */
+    --aside-color: #bac3db;
+    --label-color: color(var(--aside-color) alpha(50%));
+    --aside-bg: #292b37;
+}
