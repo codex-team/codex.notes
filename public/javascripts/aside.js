@@ -16,6 +16,8 @@ export default class Aside {
       notesMenuLoading: 'notes-list--loading'
     };
 
+    this.autoresizer = null;
+
     /**
      * Find notes list holder
      * @type {Element}
@@ -45,7 +47,16 @@ export default class Aside {
      */
     let newNoteButton = document.querySelector('[name="js-new-note-button"]');
 
-    newNoteButton.addEventListener('click', () => this.newNoteButtonClicked.call(this) );
+    newNoteButton.addEventListener('click', () => {
+      let autoResizableElements = document.getElementsByClassName('js-autoresizable');
+
+      if (autoResizableElements.length > 0) {
+        for(let i = 0; i < autoResizableElements.length; i++) {
+          autoResizableElements[i].style.height = 'auto';
+        }
+      }
+      this.newNoteButtonClicked.call(this);
+    });
   }
 
   /**
@@ -127,6 +138,16 @@ export default class Aside {
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 
     Note.render(noteData);
+
+    let Autoresizer = require('./autoresizer').default;
+    let autoResizableElements = document.getElementsByClassName('js-autoresizable');
+
+    if (this.autoresizer) {
+      this.autoresizer.destroy();
+      this.autoresizer = null;
+    }
+
+    this.autoresizer = new Autoresizer(autoResizableElements);
 
     /**
      * Scroll to top
