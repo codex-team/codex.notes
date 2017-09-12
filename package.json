@@ -9,7 +9,7 @@
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
     "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist",
-    "dmg": "mkdir ./dmg; rm \"./dmg/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./dmg/CodeX Notes.dmg\""
+    "dmg": "mkdir -p ./out/dmg; rm \"./out/dmg/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./out/dmg/CodeX Notes.dmg\""
   },
   "author": {
     "name": "CodeX Team",
