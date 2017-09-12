@@ -1,6 +1,5 @@
 public/notes/*
-dist/*
-dmg/*
+out/*
 
 .idea/*
 package-lock.json
