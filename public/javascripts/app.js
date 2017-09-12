@@ -23,6 +23,7 @@ let documentReady = () => {
    */
   let Note = require('./note').default;
   let Aside = require('./aside').default;
+  let Autoresizer = require('./autoresizer').default;
 
   new Aside();
 
@@ -30,7 +31,10 @@ let documentReady = () => {
   window.NOTE_TITLE = document.getElementById('note-title');
   window.NOTE_DATE = document.getElementById('note-date');
 
+  let autoResizableElements = document.getElementsByClassName('js-autoresizable');
   let note = new Note();
+
+  let autoresizer = new Autoresizer(autoResizableElements);
 
   note.enableAutosave();
 };
