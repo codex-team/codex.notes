@@ -1,31 +1,37 @@
 .aside
     .aside__logo CodeX Notes
 
-    .aside__folder-header.hide#current-folder
-        include ../public/svg/arrow-left.svg
-        span#current-folder-title
+    .aside-swiper
 
-    span.add-note-button(name="js-new-note-button")
-        include ../public/svg/pencil.svg
-        | New note
+        .aside-swiper__left
 
-    .aside__section-title Folders
+            span.add-note-button(name="js-new-note-button")
+                include ../public/svg/pencil.svg
+                | New note
 
-    section#folders-section
+            .aside__section-title Folders
 
-        .notes-list
-            ul.notes-list__content(name="js-folders-menu")
+            section#folders-section
 
-        .aside__add-button(name="js-new-folder-button")
-            include ../public/svg/plus.svg
-            | Add folder
+                .notes-list
+                    ul.notes-list__content(name="js-folders-menu")
 
-        .aside__input.hide(name="js-new-folder-input")
-            input(placeholder="Enter title", type="text")
-            include ../public/svg/arrow-right.svg
+                .aside__add-button(name="js-new-folder-button")
+                    include ../public/svg/plus.svg
+                    | Add folder
 
-    .aside__section-title Notes
+                .aside__input.hide(name="js-new-folder-input")
+                    input(placeholder="Enter title", type="text")
+                    include ../public/svg/arrow-right.svg
 
-    .notes-list
-        //div.notes-list__scroll
-        ul.notes-list__content(name="js-notes-menu")
+            .aside__section-title Notes
+
+            .notes-list
+                //div.notes-list__scroll
+                ul.notes-list__content(name="js-notes-menu")
+
+        .aside-swiper__right
+
+            .aside__folder-header#folder-header
+                include ../public/svg/arrow-left.svg
+                span#current-folder-title Folder Name

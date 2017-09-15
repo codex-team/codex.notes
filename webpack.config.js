@@ -12,7 +12,7 @@ module.exports = {
 
   output: {
     filename: './public/build/bundle.js',
-    library: 'app'
+    library: ['codex', 'notes']
   },
 
   target: 'electron',

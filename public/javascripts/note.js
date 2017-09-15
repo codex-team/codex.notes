@@ -1,6 +1,6 @@
-import Folder from './folders';
-
 const DELETE_BUTTON_ID = 'delete-button';
+
+const dom = require('./dom').default;
 
 /**
  * Note
@@ -19,7 +19,7 @@ export default class Note {
         let note = {
           data: noteData,
           title: window.NOTE_TITLE.value,
-          folderId: Folder.currentFolder
+          folderId: codex.notes.aside.currentFolderId
         };
 
         let saveIndicator = document.getElementById('save-indicator');
@@ -33,30 +33,7 @@ export default class Note {
   }
 
   /**
-   *  Keyup event on editor zone fires timeout to autosave note
-   */
-  autosave() {
-    if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
-
-    this.autosaveTimer = window.setTimeout(Note.save, 500);
-  }
-
-  /**
-   * Add keyup listener to editor zone
-   */
-  enableAutosave() {
-    codex.editor.nodes.redactor.addEventListener('keyup', this.autosave.bind(this));
-  }
-
-  /**
-   * Remove keyup listener to editor zone
-   */
-  disableAutosave() {
-    codex.editor.nodes.redactor.removeEventListener('keyup', this.autosave.bind(this));
-  }
-
-  /**
-   *  Add note to menu by Aside.addMenuItem method
+   * Add note to the menu by Aside.addMenuItem method
    *
    * @param event
    * @param data
@@ -64,7 +41,7 @@ export default class Note {
   static addToMenu(event, {note}) {
     codex.editor.state.blocks.id = note.id;
 
-    Aside.addMenuItem(note);
+    codex.notes.aside.addMenuItem(note);
   }
 
   /**
@@ -109,14 +86,11 @@ export default class Note {
       return;
     }
 
-    if (!window.ipcRenderer.sendSync('delete note', {id, folderId: Folder.currentFolder})) {
+    if (!window.ipcRenderer.sendSync('delete note', {id, folderId: codex.notes.aside.currentFolderId})) {
       return false;
     }
 
     Note.clear();
-    Aside.removeMenuItem(id);
+    codex.notes.aside.removeMenuItem(id);
   }
 }
-
-let Aside = require('./aside').default;
-let dom = require('./dom').default;

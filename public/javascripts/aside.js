@@ -1,6 +1,15 @@
 import Folder from './folders';
 import Note from './note';
 
+const AsideSwiper = require('./aside-swiper').default;
+const dom = require('./dom').default;
+
+/**
+ * Maximum chars at the menu title
+ * @type {Number}
+ */
+const menuItemTitleMaxLength = 68;
+
 /**
  * Aside column module
  */
@@ -8,7 +17,9 @@ export default class Aside {
 
   /**
   * @constructor
-  * @property {object} CSS dictionary
+  * @property {object}      this.CSS               classnames dictionary
+  * @property {AsideSwiper} this.swiper            AsideSwiper instance
+  * @property {number|null} this.currentFolderId   Opened folder id
   */
   constructor() {
     /**
@@ -27,6 +38,18 @@ export default class Aside {
         foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
     /**
+     * Module for hide/show folder sections
+     * @type {AsideSwiper}
+     */
+    this.swiper = new AsideSwiper();
+
+    /**
+     * Current opened folder.
+     * @type {Number|null}
+     */
+    this.currentFolderId = null;
+
+    /**
      * Show preloader
      */
     notesMenu.classList.add(this.CSS.notesMenuLoading);
@@ -35,23 +58,24 @@ export default class Aside {
     /**
      * Emit message to load list
      */
-    window.ipcRenderer.send('load notes list', Folder.currentFolder);
-    window.ipcRenderer.send('load folders list');
+    this.loadNotes();
+    this.loadFolders();
 
     /**
      * Update folder list
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
       foldersMenu.classList.remove(this.CSS.notesMenuLoading);
-      userFolders.forEach(Aside.addFolder);
+      userFolders.forEach( folder => this.addFolder(folder) );
     });
 
     /**
      * Update notes list
      */
-    window.ipcRenderer.on('update notes list', (event, {notes}) => {
+    window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {
+      console.log('update notes list: notes,folder: %o', notes, folder);
       notesMenu.classList.remove(this.CSS.notesMenuLoading);
-      notes.forEach(Aside.addMenuItem);
+      notes.forEach( note => this.addMenuItem(note) );
     });
 
     /**
@@ -63,6 +87,40 @@ export default class Aside {
     newNoteButton.addEventListener('click', () => this.newNoteButtonClicked.call(this) );
     newFolderButton.addEventListener('click', Aside.newFolderButtonClicked);
   }
+
+  /**
+   * Return current folder ID
+   *
+   * @returns {number}
+   */
+  get currentFolder() {
+    return this.currentFolderId;
+  }
+
+  /**
+   * Set current folder ID
+   *
+   * @param {Number} folderId
+   */
+  set currentFolder(folderId) {
+    this.currentFolderId = folderId;
+  }
+
+  /**
+   * Loads notes list from the server
+   * @param  {Number|null} folderId
+   */
+  loadNotes( folderId = 0 ) {
+    window.ipcRenderer.send('load notes list', folderId);
+  }
+
+  /**
+   * Loads folders list
+   */
+  loadFolders() {
+    window.ipcRenderer.send('load folders list');
+  }
+
 
   /**
    * New note button click handler
@@ -112,67 +170,72 @@ export default class Aside {
    * @param {object} noteData
    * @param {string} noteData.title
    */
-  static addMenuItem(noteData) {
-    /**
-     * Maximum chars at the node title
-     * @type {Number}
-     */
-    const titleMaxLength = 68;
-
+  addMenuItem(noteData) {
     let notesMenu = document.querySelector('[name="js-notes-menu"]');
+
+    /**
+     * If we already have this item, update title
+     */
     let existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
 
-    let noteTitle = noteData.title;
-
-    if ( noteTitle.length > titleMaxLength ) {
-      noteTitle = noteTitle.substring(0, titleMaxLength) + '…';
-    }
-
     if (existingNote) {
-      existingNote.textContent = noteTitle;
+      existingNote.textContent = this.createMenuItemTitle(noteData.title);
       return;
     }
 
-    let menuItem = dom.make('li', null, {
-      textContent: noteTitle
-    });
+    let item = this.makeMenuItem(noteData.title, noteData.id);
 
-    menuItem.dataset.id = noteData.id;
+    notesMenu.insertAdjacentElement('afterbegin', item);
 
-    notesMenu.insertAdjacentElement('afterbegin', menuItem);
-
-    menuItem.addEventListener('click', Aside.menuItemClicked);
+    item.addEventListener('click', Aside.menuItemClicked);
   }
 
   /**
-   *  Add new item to folders list
+   * Add new item to the folders list
    *
    * @param {object} folder
    * @param {string} folder.name
    * @param {number} folder.id
    */
-  static addFolder(folder) {
-    /**
-     * Maximum chars at the node title
-     * @type {Number}
-     */
-    const titleMaxLength = 68;
-
+  addFolder(folder) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+    let item = this.makeMenuItem(folder.name, folder.id);
 
-    if ( folder.name.length > titleMaxLength ) {
-      folder.name = folder.name.substring(0, titleMaxLength) + '…';
-    }
-
-    let item = dom.make('li', null, {
-      textContent: folder.name
-    });
-
-    item.dataset.folderId = folder.id;
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 
-    item.addEventListener('click', Aside.folderClicked);
+    item.addEventListener('click', event => this.folderClicked(event.target) );
+  }
+
+  /**
+   * Makes aside menu item
+   * @param  {String} title  - item title
+   * @param  {Number} id     - item unique id
+   * @return {Element}
+   */
+  makeMenuItem(title, id) {
+    title = this.createMenuItemTitle(title);
+
+    let item = dom.make('li', null, {
+      textContent: title
+    });
+
+    item.dataset.folderId = id;
+
+    return item;
+  }
+
+  /**
+   * Creates aside menu item title
+   * @param {String} title
+   * @return {String}
+   */
+  createMenuItemTitle(title) {
+    if ( title.length > menuItemTitleMaxLength ) {
+      title = title.substring(0, menuItemTitleMaxLength) + '…';
+    }
+
+    return title;
   }
 
   /**
@@ -210,9 +273,15 @@ export default class Aside {
 
   /**
    * Folder menu item clicked handler
+   * @param {Element} item - clicked folder button
    */
-  static folderClicked() {
-    Folder.moveToFolder(this.dataset.folderId, this.textContent);
+  folderClicked( item ) {
+    console.log('this.swiper: %o', this.swiper);
+    this.swiper.open();
+
+    let folder = new Folder(item.dataset.folderId, item.textContent);
+
+    folder.open();
   }
 
   /**
@@ -225,5 +294,3 @@ export default class Aside {
   }
 
 }
-
-let dom = require('./dom').default;

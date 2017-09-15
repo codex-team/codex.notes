@@ -131,5 +131,37 @@
         }
 
     }
-
 }
+
+/**
+ * Swiper with 2 sections
+ */
+.aside-swiper {
+    display: flex;
+    width: calc(200% + 15px);
+    transition: transform 200ms ease-in;
+    will-change: transform;
+
+    &__left,
+    &__right {
+        width: 100%;
+    }
+
+    &__left {
+        transition: opacity 250ms ease;
+        will-change: opacity;
+    }
+
+    &__right {
+        margin-left: 15px;
+    }
+
+    &--toggled {
+        transform: translateX(-215px);
+
+        ^&__left {
+            opacity: 0.2;
+        }
+    }
+}
+

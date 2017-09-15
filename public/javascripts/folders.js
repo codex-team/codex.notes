@@ -5,6 +5,15 @@ import Note from './note';
  * Folders methods
  */
 export default class Folder {
+
+  /**
+   * Folder methods
+   */
+  constructor() {
+
+  }
+
+
   /**
    * Create new folder
    * @param {Element} input  - field with folder title
@@ -30,12 +39,12 @@ export default class Folder {
    *
    * @param folderId
    */
-  static moveToFolder(folderId, folderName) {
+  open(folderId, folderName) {
     Note.clear();
 
-    Folder.currentFolder = folderId;
+    codex.notes.aside.currentFolderId = folderId;
     Aside.clearNotesList();
-    window.ipcRenderer.send('load notes list', folderId);
+    codex.notes.aside.loadNotes(folderId);
 
     let foldersSection = document.getElementById('folders-section'),
         currentFolder = document.getElementById('current-folder'),
@@ -53,10 +62,10 @@ export default class Folder {
   static backToRoot() {
     Note.clear();
 
-    Folder.currentFolder = 0;
+    codex.notes.aside.currentFolderId = null;
 
     Aside.clearNotesList();
-    window.ipcRenderer.send('load notes list', Folder.currentFolder);
+    codex.notes.aside.loadNotes();
 
     let foldersSection = document.getElementById('folders-section'),
         currentFolder = document.getElementById('current-folder');
@@ -65,24 +74,4 @@ export default class Folder {
     currentFolder.classList.add('hide');
   }
 
-  /**
-   * Return current folder ID
-   *
-   * @returns {number}
-   */
-  static get currentFolder() {
-    return currentFolder;
-  }
-
-  /**
-   * Set current folder ID
-   *
-   * @param {Number} folderId
-   */
-  static set currentFolder(folderId) {
-    currentFolder = folderId;
-  }
-
 }
-
-let currentFolder = 0;

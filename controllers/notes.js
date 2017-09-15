@@ -35,7 +35,7 @@ ipcMain.on('load notes list', (event, folderId) => {
   }
 
   // Event emitter for sending asynchronous messages
-  event.sender.send('update notes list', {notes});
+  event.sender.send('update notes list', {notes, folder});
 });
 
 /**
