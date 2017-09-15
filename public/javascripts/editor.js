@@ -63,16 +63,7 @@ export default class Editor {
       initialBlockPlugin : 'paragraph',
       hideToolbar: false,
       placeholder: 'Your story',
-      tools : {
-        paragraph: {
-          allowedToPaste: true,
-          showInlineToolbar: true,
-          allowRenderOnPaste: true
-        },
-        header: {
-          displayInToolbox: true
-        }
-      }
+      tools : {}
     };
 
     this.plugins.forEach( name => {
