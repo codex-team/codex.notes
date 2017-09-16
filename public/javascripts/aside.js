@@ -81,10 +81,11 @@ export default class Aside {
     /**
      * Activate new note button
      */
-    let newNoteButtons = document.querySelectorAll('[name="js-new-note-button"]');
+    let newNoteButtons = document.querySelectorAll(`[name="js-new-note-button"],
+                                                    [name="js-new-note-button-in-folder"]`);
 
     newNoteButtons.forEach( button => {
-      button.addEventListener('click', () => this.newNoteButtonClicked() );
+      button.addEventListener('click', () => this.newNoteButtonClicked(button) );
     });
 
     /**
@@ -162,12 +163,19 @@ export default class Aside {
 
   /**
    * New note button click handler
+   * @param {Element} button
    * @this {Aside}
    */
-  newNoteButtonClicked() {
+  newNoteButtonClicked(button) {
+    let folderId = button.dataset.folderId;
+
+    console.log('folderId: %o', folderId);
+
+    this.currentFolderId = folderId || null;
     /**
      * Set focus to the Editor
      */
+
     window.setTimeout(function () {
       let editor = document.querySelector('.ce-redactor');
 
@@ -321,11 +329,13 @@ export default class Aside {
    * @param itemId
    */
   removeMenuItem(itemId) {
-    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+    let notesMenu = document.querySelectorAll('[name="js-notes-menu"], [name="js-folder-notes-menu"]');
 
-    let existingNote = notesMenu.querySelector('[data-id="' + itemId + '"]');
+    notesMenu.forEach( menu => {
+      let existingNote = menu.querySelector('[data-id="' + itemId + '"]');
 
-    if (existingNote) existingNote.remove();
+      if (existingNote) existingNote.remove();
+    });
   }
 
   /**

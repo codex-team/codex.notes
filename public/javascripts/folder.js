@@ -15,6 +15,7 @@ export default class Folder {
    * @property {string}    name         - folder name
    * @property {Array}     notes        - notes list
    * @property {Element}   notesListWrapper  - notes list holder
+   * @property {Element}   newNoteButton
    */
   constructor(id, name) {
     this.id = id;
@@ -29,6 +30,9 @@ export default class Folder {
       .then( () => this.updateNotesList() );
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
+    this.newNoteButton = document.querySelector('[name="js-new-note-button-in-folder"]');
+
+    this.newNoteButton.dataset.folderId = this.id;
   }
 
   /**
