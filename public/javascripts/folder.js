@@ -48,7 +48,7 @@ export default class Folder {
    * Clear list if there is no one note
    */
   updateNotesList() {
-    if (!this.notes.lenght) {
+    if (!this.notes.length) {
       this.notesListWrapper.innerHTML = '';
     }
   }
