@@ -7,7 +7,7 @@ export default class SwipeDetector {
   * @constructor
   *
   * @param {Element} el          - Element to handle swipe
-  * @param {Function} callback   - Callback for swipe event. Accepts {Boolean} isRight parameter
+  * @param {Function} callback   - Callback for swipe event. Accepts {Boolean} directionRight parameter
   *
   *
   * @property {Element} el
@@ -22,15 +22,16 @@ export default class SwipeDetector {
     this.wheelTimeout = null;
 
     this.el.addEventListener('mousewheel', event => {
-      this.detectSwipeLeft(event);
+      this.detectSwipe(event);
     });
   }
 
   /**
-   * Allow to toggle off menu by two-fingers Mac swiep
+   * Detects two-fingers swipe and fires callback
+   * @fires this.callback
    * @param {WheelEvent} event - mouse wheel
    */
-  detectSwipeLeft(event) {
+  detectSwipe(event) {
     /**
      * Detect horisontal scroll
      */
@@ -39,7 +40,7 @@ export default class SwipeDetector {
         this.swiped = true;
 
         /**
-         * Pass isRight parameter. True for right swipe, false for left swipe
+         * Pass directionRight parameter. True for right swipe, false for left swipe
          */
         this.callback(event.deltaX > 0);
 

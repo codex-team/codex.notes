@@ -130,7 +130,7 @@ export default class Aside {
   /**
    * Loads notes list from the server
    *
-   * Can be user async with subscribtion
+   * Can be used async with subscribtion
    * on window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {})
    *
    * or synchronously like loadNotes().then( notes => {})
