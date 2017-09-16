@@ -8,8 +8,8 @@
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=dist",
-    "dmg": "mkdir -p ./out/dmg; rm \"./out/dmg/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./out/dmg/CodeX Notes.dmg\""
+    "pack": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=out --prune --ignore=assets --ignore=data",
+    "dmg": "mkdir -p ./out/dmg; rm \"./out/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./out/CodeX Notes.dmg\""
   },
   "author": {
     "name": "CodeX Team",

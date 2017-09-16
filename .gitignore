@@ -1,5 +1,6 @@
 public/notes/*
 out/*
+data/*
 
 .idea/*
 package-lock.json
