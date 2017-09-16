@@ -169,8 +169,6 @@ export default class Aside {
   newNoteButtonClicked(button) {
     let folderId = button.dataset.folderId;
 
-    console.log('folderId: %o', folderId);
-
     this.currentFolderId = folderId || null;
     /**
      * Set focus to the Editor
