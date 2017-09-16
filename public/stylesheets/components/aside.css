@@ -5,27 +5,31 @@
     bottom: 0;
     width: 200px;
     padding: 40px 15px 30px;
-    background: #292B37;
-    color: #fff;
+    background: var(--aside-bg);
     overflow: hidden;
     user-select: none;
     -webkit-app-region: drag;
+    color: var(--aside-color);
+    font-size: 13.7px;
+    letter-spacing: 0.3px;
 
-    & .logo {
+    &__logo {
         margin-bottom: 15px;
         font-size: 18px;
         font-weight: 600;
+        color: #fff;
     }
 
-    .new-note-button {
-        position: absolute;
-        top: 40px;
-        right: 20px;
-        color: #008fff;
-
-        &:hover svg {
-            fill: #fff;
-        }
+    /**
+     * Section title such as Folders or Notes
+     * ============================
+     */
+    &__section-title {
+        margin-bottom: 10px;
+        color: var(--label-color);
+        font-size: 11.7px;
+        letter-spacing: 0.72px;
+        text-transform: uppercase;
     }
 
     .add-note-button {
@@ -36,7 +40,7 @@
         color: #63758c;
         line-height: 1em;
         margin-bottom: 15px;
-        font-size: 14px;
+        font-size: 15px;
         cursor: pointer;
 
         svg {
@@ -49,4 +53,117 @@
             color: #5ba2ff;
         }
     }
+
+    /**
+     * Add folder button and input
+     * ============================
+     */
+    &__input,
+    &__add-button {
+        padding: 5px 0;
+        margin: 10px 0 30px;
+        color: var(--label-color);
+    }
+
+    /**
+     * Aside input field
+     * Such as New Folder or Invite collaborator
+     */
+    &__input {
+        border: 0;
+        border-bottom: 2px #4c525a solid;
+
+        input {
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #fff;
+            padding-right: 5px;
+            width: 90%;
+            letter-spacing: inherit;
+
+            &::placeholder {
+                color: var(--label-color);
+            }
+
+            &:focus + svg {
+                color: #fff;
+            }
+        }
+
+        svg {
+            float: right;
+            display: inline-block;
+            height: 0.8em;
+            margin-top: 0.3em;
+        }
+    }
+
+    /**
+     * Add something button
+     */
+    &__add-button {
+        cursor: pointer;
+
+        svg {
+            width: 0.9em;
+            height: 0.9em;
+            margin-right: 0.5em;
+            margin-top: -3px;
+            vertical-align: middle;
+        }
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    &__folder-header {
+        margin-bottom: 17px;
+        font-size: 14.8px;
+        cursor: pointer;
+        color: #dee6fc;
+
+        svg {
+            height: 15px;
+            fill: #dee6fc;
+            margin-top: -0.15em;
+            margin-right: 0.5em;
+        }
+
+    }
 }
+
+/**
+ * Swiper with 2 sections
+ */
+.aside-swiper {
+    display: flex;
+    width: calc(200% + 15px);
+    transition: transform 150ms ease-in;
+    will-change: transform;
+
+    &__left,
+    &__right {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    &__left {
+        transition: opacity 200ms ease;
+        will-change: opacity;
+    }
+
+    &__right {
+        margin-left: 15px;
+    }
+
+    &--toggled {
+        transform: translateX(-215px);
+
+        ^&__left {
+            opacity: 0.2;
+        }
+    }
+}
+

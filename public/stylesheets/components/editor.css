@@ -5,7 +5,7 @@
 .note-title {
     display: block;
     width: 100%;
-    min-height: 60px;
+    min-height: 50px;
     box-sizing: border-box;
     overflow-y: hidden;
     max-width: 600px;
@@ -16,18 +16,17 @@
     outline: none;
     resize: none;
     font-family: 'PT Serif';
-
+    padding: 0;
 
     &::placeholder {
         color: #818BA1;
-        opacity: .7;
+        opacity: 0.7;
         transition: opacity 200ms ease;
-        font-size: 0.8em;
     }
 
-     &:focus::placeholder {
-        opacity: .1;
-     }
+    &:focus::placeholder {
+        opacity: 0.1;
+    }
 
 }
 
@@ -42,5 +41,12 @@
 }
 
 .ce-redactor {
-  min-height: 150px !important;
+    min-height: 150px !important;
+}
+
+@media (max-width: 1000px){
+    .ce-block__content,
+    .ce-toolbar__content {
+        padding: 0;
+    }
 }

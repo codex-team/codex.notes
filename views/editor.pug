@@ -4,73 +4,21 @@ html(lang="en")
     head
        title= title
        script(src="../public/build/bundle.js")
-       script(src="../public/codex.editor/codex-editor.js")
-       script(src="../public/codex.editor/plugins/header/header.js")
-       script(src="../public/codex.editor/plugins/paragraph/paragraph.js")
-       link(href="../public/codex.editor/codex-editor.css", rel="stylesheet")
-       link(href="../public/codex.editor/plugins/paragraph/paragraph.css", rel="stylesheet")
-       link(href="../public/codex.editor/plugins/header/header.css", rel="stylesheet")
        link(href="../public/build/bundle.css", rel="stylesheet")
        meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
 
 body
     div.drag-bar
-    div.aside
-        div.logo.
-            CodeX Notes
 
-        span.add-note-button(name="js-new-note-button")
-            include ../public/svg/pencil.svg
-            |New note
-
-        div.notes-list
-            div.notes-list__scroll
-                ul.notes-list__content(name="js-notes-menu")
-
-        //- span.new-note-button(name="js-new-note-button")
-        //-     include ../public/svg/new-note.svg
-
+    include aside.pug
 
     div.content(name="editor-view")
         div.header
-            div#delete-button.delete-note-button.hide(onclick="app.Note.delete()")
-                |Delete
+            div#delete-button.delete-note-button.hide(onclick="codex.notes.note.delete()") Delete
 
             span#note-date.note-date
                 //include ../public/svg/share.svg
                 //|Share
-            span#save-indicator.save-indicator
-                |Saved
+            span#save-indicator.save-indicator Saved
         div#codex-editor.editor
-            textarea#note-title.note-title.js-autoresizable(placeholder="Add title")(rows="1")
-
-    script.
-        codex.editor.start({
-            holderId : "codex-editor",
-            initialBlockPlugin : 'paragraph',
-            hideToolbar: false,
-            placeholder: 'Your story',
-            tools : {
-              paragraph: {
-                type: 'paragraph',
-                iconClassname: 'ce-icon-paragraph',
-                render: paragraph.render,
-                validate: paragraph.validate,
-                save: paragraph.save,
-                destroy: paragraph.destroy,
-                allowedToPaste: true,
-                showInlineToolbar: true,
-                allowRenderOnPaste: true
-              },
-              header: {
-                type: 'header',
-                iconClassname: 'ce-icon-header',
-                appendCallback: header.appendCallback,
-                makeSettings: header.makeSettings,
-                render: header.render,
-                validate: header.validate,
-                save: header.save,
-                destroy: header.destroy,
-                displayInToolbox: true
-              }
-            }})
+            textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1")

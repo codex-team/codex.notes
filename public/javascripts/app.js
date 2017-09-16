@@ -1,7 +1,17 @@
 'use strict';
 
-const electron = require('electron');
 
+/**
+ * Load libraries
+ */
+const electron = require('electron');
+const Editor = require('./editor').default;
+const Aside = require('./aside').default;
+const Note = require('./note').default;
+
+/**
+ * Save render proccess to the ipdRender global propery
+ */
 window.ipcRenderer = electron.ipcRenderer;
 
 /**
@@ -19,24 +29,19 @@ require('../stylesheets/base.css');
  */
 let documentReady = () => {
   /**
-   * Init aside module
+  * Initiate modules
+  * @type {Aside}
+  */
+  codex.notes.editor = new Editor();
+  codex.notes.aside = new Aside();
+  codex.notes.note = new Note();
+
+  /**
+   * New note saving handler
    */
-  let Note = require('./note').default;
-  let Aside = require('./aside').default;
-  let Autoresizer = require('./autoresizer').default;
-
-  new Aside();
-
-  window.ipcRenderer.on('note saved', Note.addToMenu);
-  window.NOTE_TITLE = document.getElementById('note-title');
-  window.NOTE_DATE = document.getElementById('note-date');
-
-  let autoResizableElements = document.getElementsByClassName('js-autoresizable');
-  let note = new Note();
-
-  let autoresizer = new Autoresizer(autoResizableElements);
-
-  note.enableAutosave();
+  window.ipcRenderer.on('note saved', (event, response) => {
+    codex.notes.note.addToMenu(response);
+  });
 };
 
 let openExternalLink = function (event) {
@@ -60,11 +65,9 @@ let openExternalLink = function (event) {
 module.exports = function () {
   document.addEventListener('DOMContentLoaded', documentReady, false);
   document.addEventListener('click', openExternalLink);
-  let Note = require('./note').default;
-  let Aside = require('./aside').default;
 
-  return {
-    Note: Note,
-    Aside: Aside
-  };
+  /**
+   * Allow access modules with codex.notes[module]
+   */
+  return {};
 }();
