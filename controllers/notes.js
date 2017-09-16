@@ -1,3 +1,5 @@
+'use strict';
+
 let fs = require('fs');
 let {ipcMain} = require('electron');
 let sanitizeHtml = require('sanitize-html');
@@ -17,12 +19,16 @@ if (!fs.existsSync(NOTES_DIR)) {
 }
 
 /**
- * Notes List module
+ * Load notes list
+ * Can be called synchronously or async-aware
+ * @param  {Number} folderId
  */
 ipcMain.on('load notes list', (event, folderId) => {
   let folders = fs.readFileSync(FOLDERS_FILE);
 
   folders = JSON.parse(folders);
+
+  console.assert(folders[folderId], 'Folder not found by id: ' + folderId);
 
   let folder = folders[folderId];
   let notes = [];
@@ -30,12 +36,20 @@ ipcMain.on('load notes list', (event, folderId) => {
   for (let noteId in folder.notes) {
     notes.push({
       title: folder.notes[noteId].title,
-      id: noteId
+      id: noteId,
+      folderId: folderId
     });
   }
 
-  // Event emitter for sending asynchronous messages
-  event.sender.send('update notes list', {notes, folder});
+  /**
+   * Dont dublicate notes field (folder.notes and notes)
+   */
+  delete folder.notes;
+
+  let returnValue = {notes, folder};
+  event.returnValue = returnValue;
+  event.sender.send('update notes list', returnValue);
+
 });
 
 /**
@@ -61,20 +75,26 @@ ipcMain.on('save note', (event, {note}) => {
     title = sanitizeHtml(titleFromText, {allowedTags: []});
   }
 
-  folders[note.folderId].notes[note.data.id] = {
+  let folderId = note.folderId || 0;
+
+  if (!folders[folderId]) {
+    console.log('Folder not found by id', folderId);
+  }
+
+  folders[folderId].notes[note.data.id] = {
     title: title,
     id: note.data.id
   };
 
   fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders));
 
-  let menuItem = {
+  let newNote = {
     title: title,
-    folderId: note.folderId,
+    folderId: folderId,
     id: note.data.id
   };
 
-  event.sender.send('note saved', {note: menuItem});
+  event.sender.send('note saved', {note: newNote});
 });
 
 /**
@@ -113,7 +133,7 @@ ipcMain.on('delete note', (event, {id, folderId}) => {
 
         folders = JSON.parse(folders);
 
-        delete folders[folderId].notes[id];
+        delete folders[folderId || 0].notes[id];
 
         fs.writeFileSync(FOLDERS_FILE, JSON.stringify(folders));
 

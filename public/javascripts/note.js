@@ -1,44 +1,69 @@
-const DELETE_BUTTON_ID = 'delete-button';
-
-const dom = require('./dom').default;
+const $ = require('./dom').default;
 
 /**
- * Note
+ * Note section module
  */
 export default class Note {
+
+  /**
+   * @constructor
+   *
+   * @property {Element} deleteButton
+   * @property {Element} titleEl
+   * @property {Element} dateEl
+   * @property {Timer} showSavedIndicatorTimer
+   */
+  constructor() {
+    this.deleteButton = $.get('delete-button');
+
+    this.titleEl = document.getElementById('note-title');
+    this.dateEl  = document.getElementById('note-date');
+
+    this.showSavedIndicatorTimer = null;
+  }
 
   /**
    * Send note data to backend
    * @static
    */
-  static save() {
-    dom.get(DELETE_BUTTON_ID).classList.remove('hide');
+  save() {
+    this.deleteButton.classList.remove('hide');
 
     codex.editor.saver.save()
-      .then(function (noteData) {
+      .then( noteData => {
         let note = {
           data: noteData,
-          title: window.NOTE_TITLE.value,
+          title: this.titleEl.value.trim(),
           folderId: codex.notes.aside.currentFolderId
         };
 
         let saveIndicator = document.getElementById('save-indicator');
 
+        if (this.showSavedIndicatorTimer) {
+          window.clearTimeout(this.showSavedIndicatorTimer);
+        }
+
         saveIndicator.classList.add('saved');
-        window.setTimeout(() => {
+
+        this.showSavedIndicatorTimer = window.setTimeout( () => {
           saveIndicator.classList.remove('saved');
         }, 500);
+
         window.ipcRenderer.send('save note', {note});
-      });
+      })
+      .catch( err => console.log('Error while saving note: ', err) );
   }
 
   /**
    * Add note to the menu by Aside.addMenuItem method
    *
-   * @param event
-   * @param data
+   * @param {object} data
+   * @param {object} data.note
+   * @param {number} data.note.folderId
+   * @param {number} data.note.id
+   * @param {string} data.note.title
    */
-  static addToMenu(event, {note}) {
+  addToMenu({note}) {
     codex.editor.state.blocks.id = note.id;
 
     codex.notes.aside.addMenuItem(note);
@@ -48,13 +73,13 @@ export default class Note {
    * Renders note
    * @param  {object} noteData
    */
-  static render(note) {
+  render(note) {
     codex.editor.content.clear(true);
-    window.NOTE_TITLE.value = note.title;
+    this.titleEl.value = note.title;
 
     let saveDate = new Date(note.data.time);
 
-    window.NOTE_DATE.textContent = saveDate.toLocaleDateString('en-US', {
+    this.dateEl.textContent = saveDate.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
       hour: 'numeric',
@@ -62,24 +87,24 @@ export default class Note {
       hour12: false
     });
     codex.editor.content.load(note.data);
-    dom.get(DELETE_BUTTON_ID).classList.remove('hide');
+    this.deleteButton.classList.remove('hide');
   }
 
   /**
    * Clears editor
    */
-  static clear() {
+  clear() {
     codex.editor.content.clear(true);
-    window.NOTE_TITLE.value = '';
-    window.NOTE_DATE.textContent = '';
+    this.titleEl.value = '';
+    this.dateEl.textContent = '';
     codex.editor.ui.addInitialBlock();
-    dom.get(DELETE_BUTTON_ID).classList.add('hide');
+    this.deleteButton.classList.add('hide');
   }
 
   /**
    * Delete article
    */
-  static delete() {
+  delete() {
     let id = codex.editor.state.blocks.id;
 
     if (!id) {
@@ -90,7 +115,7 @@ export default class Note {
       return false;
     }
 
-    Note.clear();
     codex.notes.aside.removeMenuItem(id);
+    this.clear();
   }
 }

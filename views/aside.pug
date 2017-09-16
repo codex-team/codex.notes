@@ -20,7 +20,7 @@
                     include ../public/svg/plus.svg
                     | Add folder
 
-                .aside__input.hide(name="js-new-folder-input")
+                fieldset.aside__input.hide(name="js-new-folder-field")
                     input(placeholder="Enter title", type="text")
                     include ../public/svg/arrow-right.svg
 
@@ -32,6 +32,14 @@
 
         .aside-swiper__right
 
-            .aside__folder-header#folder-header
+            .aside__folder-header(id="folder-header")
                 include ../public/svg/arrow-left.svg
-                span#current-folder-title Folder Name
+                span(id="js-folder-name") Folder Name
+
+            span.add-note-button(name="js-new-note-button")
+                include ../public/svg/pencil.svg
+                | New note
+
+            .aside__section-title Notes
+            .notes-list
+                ul.notes-list__content(name="js-folder-notes-menu")

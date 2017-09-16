@@ -106,7 +106,9 @@ export default class Editor {
   autosave() {
     if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
 
-    this.autosaveTimer = window.setTimeout(codex.notes.note.save, 500);
+    this.autosaveTimer = window.setTimeout( () => {
+      codex.notes.note.save();
+    }, 500);
   }
 
   /**

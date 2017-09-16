@@ -32,17 +32,17 @@
     z-index: 10;
 
     &:hover {
-       color: color(#828698 lightness(-15%));
+        color: color(#828698 lightness(-15%));
     }
 
 }
 
 .save-indicator {
     opacity: 0;
-    color: #adb3ce;
-    transition: opacity .3s ease;
+    color: #587bbf;
+    transition: opacity 0.3s ease;
 
     &.saved {
-       opacity: 1;
+        opacity: 1;
     }
 }

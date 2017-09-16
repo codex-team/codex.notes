@@ -14,13 +14,11 @@ body
 
     div.content(name="editor-view")
         div.header
-            div#delete-button.delete-note-button.hide(onclick="app.Note.delete()")
-                |Delete
+            div#delete-button.delete-note-button.hide(onclick="codex.notes.note.delete()") Delete
 
             span#note-date.note-date
                 //include ../public/svg/share.svg
                 //|Share
-            span#save-indicator.save-indicator
-                |Saved
+            span#save-indicator.save-indicator Saved
         div#codex-editor.editor
             textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1")

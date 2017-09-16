@@ -1,8 +1,7 @@
-import Folder from './folders';
-import Note from './note';
+import Folder from './folder';
 
 const AsideSwiper = require('./aside-swiper').default;
-const dom = require('./dom').default;
+const $ = require('./dom').default;
 
 /**
  * Maximum chars at the menu title
@@ -20,6 +19,8 @@ export default class Aside {
   * @property {object}      this.CSS               classnames dictionary
   * @property {AsideSwiper} this.swiper            AsideSwiper instance
   * @property {number|null} this.currentFolderId   Opened folder id
+  * @property {Element}     this.newFolderButton   New folder button
+  * @property {Element}     this.newFolderField    New folder form field
   */
   constructor() {
     /**
@@ -72,8 +73,7 @@ export default class Aside {
     /**
      * Update notes list
      */
-    window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {
-      console.log('update notes list: notes,folder: %o', notes, folder);
+    window.ipcRenderer.on('update notes list', (event, {notes}) => {
       notesMenu.classList.remove(this.CSS.notesMenuLoading);
       notes.forEach( note => this.addMenuItem(note) );
     });
@@ -81,11 +81,31 @@ export default class Aside {
     /**
      * Activate new note button
      */
-    let newNoteButton = document.querySelector('[name="js-new-note-button"]');
-    let newFolderButton = document.querySelector('[name="js-new-folder-button"]');
+    let newNoteButtons = document.querySelectorAll('[name="js-new-note-button"]');
 
-    newNoteButton.addEventListener('click', () => this.newNoteButtonClicked.call(this) );
-    newFolderButton.addEventListener('click', Aside.newFolderButtonClicked);
+    newNoteButtons.forEach( button => {
+      button.addEventListener('click', () => this.newNoteButtonClicked() );
+    });
+
+    /**
+     * Activate new folder button
+     */
+    this.newFolderButton = document.querySelector('[name="js-new-folder-button"]');
+    this.newFolderField = document.querySelector('[name="js-new-folder-field"]');
+
+    let newFolderInput  = this.newFolderField.querySelector('input');
+
+    this.newFolderButton.addEventListener('click',  event => this.newFolderButtonClicked(event) );
+    newFolderInput.addEventListener('keydown', event => this.newFolderInputFilled(event) );
+
+    /**
+     * Activate folders Back button
+     */
+    let folderHeader = $.get('folder-header');
+
+    folderHeader.addEventListener('click', () => {
+      this.closeFolder();
+    });
   }
 
   /**
@@ -108,10 +128,28 @@ export default class Aside {
 
   /**
    * Loads notes list from the server
+   *
+   * Can be user async with subscribtion
+   * on window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {})
+   *
+   * or synchronously like loadNotes().then( notes => {})
+   *
    * @param  {Number|null} folderId
+   * @returns {<Promise>.[]}
    */
   loadNotes( folderId = 0 ) {
-    window.ipcRenderer.send('load notes list', folderId);
+    return new Promise(resolve => {
+      let response = window.ipcRenderer.sendSync('load notes list', folderId);
+
+      /**
+       * @var {object} response
+       * @var {array}  response.notes
+       * @var {object} response.folder
+       * @var {number} response.folder.id
+       * @var {string} response.folder.name
+       */
+      resolve(response);
+    });
   }
 
   /**
@@ -135,43 +173,80 @@ export default class Aside {
 
       editor.click();
     }, 10);
-    Note.clear();
+
+    codex.notes.note.clear();
   }
 
   /**
    * New folder button click handler
-   * @this {Element} - New Folder button
+   * @param {MouseEvent} event
    */
-  static newFolderButtonClicked() {
-    let newFolderInput = document.querySelector('[name="js-new-folder-input"]'),
-        input = newFolderInput.querySelector('input');
+  newFolderButtonClicked(event) {
+    let button = event.target,
+        input = this.newFolderField.querySelector('input');
 
-    /**
-     * Save note by Enter keypress
-     */
-    input.addEventListener('keydown', event => {
-      if (event.keyCode !== 13) {
-        return;
-      }
-
-      Folder.createFolder(event.target);
-    });
-
-    this.classList.add('hide');
-    newFolderInput.classList.remove('hide');
+    button.classList.add('hide');
+    this.newFolderField.classList.remove('hide');
 
     input.focus();
   }
+
+   /**
+   * New folder input keydown handler
+   * @param {KeyboardEvent} event
+   */
+  newFolderInputFilled(event) {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    let input = event.target,
+        folderName = input.value.trim();
+
+    if (!folderName) {
+      return;
+    }
+
+    /**
+     * Save folder
+     * @type {object}
+     */
+    let createdFolder = window.ipcRenderer.sendSync('create folder', folderName);
+
+    /**
+     * Add saved folder to the menu
+     */
+    this.addFolder(createdFolder);
+
+    input.value = '';
+
+    this.newFolderField.classList.add('hide');
+    this.newFolderButton.classList.remove('hide');
+  }
+
+
+
 
   /**
    *
    * Add note to left menu
    *
    * @param {object} noteData
+   * @param {number} noteData.id
    * @param {string} noteData.title
+   * @param {number} noteData.folderId
    */
   addMenuItem(noteData) {
-    let notesMenu = document.querySelector('[name="js-notes-menu"]');
+    let notesMenu;
+
+    if (!noteData.folderId) {
+      notesMenu = document.querySelector('[name="js-notes-menu"]');
+    } else if (noteData.folderId === this.currentFolderId) {
+      notesMenu = document.querySelector('[name="js-folder-notes-menu"]');
+    } else {
+      console.log('Note added to closed folder: %o', noteData.folderId);
+      return;
+    }
 
     /**
      * If we already have this item, update title
@@ -183,11 +258,11 @@ export default class Aside {
       return;
     }
 
-    let item = this.makeMenuItem(noteData.title, noteData.id);
+    let item = this.makeMenuItem(noteData.title, {id: noteData.id});
 
     notesMenu.insertAdjacentElement('afterbegin', item);
 
-    item.addEventListener('click', Aside.menuItemClicked);
+    item.addEventListener('click', event => this.menuItemClicked(event) );
   }
 
   /**
@@ -199,7 +274,7 @@ export default class Aside {
    */
   addFolder(folder) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
-    let item = this.makeMenuItem(folder.name, folder.id);
+    let item = this.makeMenuItem(folder.name, {folderId: folder.id});
 
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
@@ -209,18 +284,20 @@ export default class Aside {
 
   /**
    * Makes aside menu item
-   * @param  {String} title  - item title
-   * @param  {Number} id     - item unique id
+   * @param  {String} title   - item title
+   * @param  {object} dataset - data to store in dataset
    * @return {Element}
    */
-  makeMenuItem(title, id) {
+  makeMenuItem(title, dataset) {
     title = this.createMenuItemTitle(title);
 
-    let item = dom.make('li', null, {
+    let item = $.make('li', null, {
       textContent: title
     });
 
-    item.dataset.folderId = id;
+    for (let key in dataset) {
+      item.dataset[key] = dataset[key];
+    }
 
     return item;
   }
@@ -243,7 +320,7 @@ export default class Aside {
    *
    * @param itemId
    */
-  static removeMenuItem(itemId) {
+  removeMenuItem(itemId) {
     let notesMenu = document.querySelector('[name="js-notes-menu"]');
 
     let existingNote = notesMenu.querySelector('[data-id="' + itemId + '"]');
@@ -253,15 +330,15 @@ export default class Aside {
 
   /**
    * Note in aside menu click listener
-   * @this {Element}
+   * @param {MouseEvent} event
    */
-  static menuItemClicked() {
-    let menuItem = this,
+  menuItemClicked(event) {
+    let menuItem = event.target,
         id = menuItem.dataset.id;
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 
-    Note.render(noteData);
+    codex.notes.note.render(noteData);
 
     /**
      * Scroll to top
@@ -276,21 +353,27 @@ export default class Aside {
    * @param {Element} item - clicked folder button
    */
   folderClicked( item ) {
-    console.log('this.swiper: %o', this.swiper);
+    let folderId = item.dataset.folderId;
+
+    /**
+     * Load folder
+     */
+    new Folder(folderId, item.textContent);
+
+    this.currentFolderId = folderId;
+
+    /**
+     * Open folder section
+     */
     this.swiper.open();
-
-    let folder = new Folder(item.dataset.folderId, item.textContent);
-
-    folder.open();
   }
 
   /**
-   * Remove notes list
+   * Closes opened folder
    */
-  static clearNotesList() {
-    let notesMenu = document.querySelector('[name="js-notes-menu"]');
-
-    notesMenu.innerHTML = '';
+  closeFolder() {
+    // this.currentFolderId = null;
+    this.swiper.close();
   }
 
 }

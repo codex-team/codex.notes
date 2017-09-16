@@ -29,32 +29,19 @@ require('../stylesheets/base.css');
  */
 let documentReady = () => {
   /**
-   * Init aside module
-   */
-
-  let Folder = require('./folders').default;
-  let Autoresizer = require('./autoresizer').default;
-
-  window.ipcRenderer.on('note saved', Note.addToMenu);
-  window.NOTE_TITLE = document.getElementById('note-title');
-  window.NOTE_DATE = document.getElementById('note-date');
-
-  let autoResizableElements = document.getElementsByClassName('js-autoresizable');
-
-  let autoresizer = new Autoresizer(autoResizableElements);
-
-   /**
-   * Initiate modules
-   * @type {Aside}
-   */
+  * Initiate modules
+  * @type {Aside}
+  */
   codex.notes.editor = new Editor();
   codex.notes.aside = new Aside();
   codex.notes.note = new Note();
 
-
-  let folderHeader = document.getElementById('folder-header');
-
-  folderHeader.addEventListener('click', Folder.backToRoot);
+  /**
+   * New note saving handler
+   */
+  window.ipcRenderer.on('note saved', (event, response) => {
+    codex.notes.note.addToMenu(response);
+  });
 };
 
 let openExternalLink = function (event) {

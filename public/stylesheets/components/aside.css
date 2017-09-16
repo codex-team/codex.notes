@@ -70,6 +70,7 @@
      * Such as New Folder or Invite collaborator
      */
     &__input {
+        border: 0;
         border-bottom: 2px #4c525a solid;
 
         input {
@@ -139,7 +140,7 @@
 .aside-swiper {
     display: flex;
     width: calc(200% + 15px);
-    transition: transform 200ms ease-in;
+    transition: transform 150ms ease-in;
     will-change: transform;
 
     &__left,
@@ -148,7 +149,7 @@
     }
 
     &__left {
-        transition: opacity 250ms ease;
+        transition: opacity 200ms ease;
         will-change: opacity;
     }
 
