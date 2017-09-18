@@ -1,4 +1,5 @@
 const $ = require('./dom').default;
+const AutoResizer = require('./autoresizer').default;
 
 /**
  * Note section module
@@ -20,6 +21,11 @@ export default class Note {
     this.dateEl  = document.getElementById('note-date');
 
     this.showSavedIndicatorTimer = null;
+
+    // when we are creating new note
+    if (!this.autoresizedTitle) {
+      this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+    }
   }
 
   /**
@@ -88,6 +94,16 @@ export default class Note {
     });
     codex.editor.content.load(note.data);
     this.deleteButton.classList.remove('hide');
+
+    /**
+     * if we are trying to render new note but we have an autoresizer instance
+     * then we need to clear it before we create new one
+     */
+    if (this.autoresizedTitle) {
+      this.autoresizedTitle.destroy();
+    }
+
+    this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
   }
 
   /**
@@ -99,6 +115,9 @@ export default class Note {
     this.dateEl.textContent = '';
     codex.editor.ui.addInitialBlock();
     this.deleteButton.classList.add('hide');
+
+    // destroy autoresizer
+    this.autoresizedTitle.destroy();
   }
 
   /**
