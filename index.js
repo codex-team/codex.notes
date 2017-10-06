@@ -6,6 +6,7 @@ let app = electron.app;
 let locals = {title: 'CodeX Notes'};
 let pug = require('electron-pug')({pretty:true}, locals);
 let BrowserWindow = electron.BrowserWindow;
+let pkg = require('./package.json');
 
 let mainWindow = null;
 
@@ -15,6 +16,7 @@ app.on('window-all-closed', function () {
 
 app.on('ready', function () {
   mainWindow = new BrowserWindow({
+    title: pkg.publishName,
     width: 1200,
     minWidth: 1070,
     minHeight: 600,
@@ -40,8 +42,8 @@ app.on('ready', function () {
 
   mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  /** Open the DevTools. */
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;

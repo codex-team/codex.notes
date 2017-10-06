@@ -10,7 +10,7 @@
   },
   "background": "dmg-bg.png",
   "contents": [
-    { "x": 172, "y": 180, "type": "file", "path": "../../out/CodeX Notes-darwin-x64/CodeX Notes.app" },
+    { "x": 172, "y": 180, "type": "file", "path": "../../release-builds/CodeX Notes-darwin-x64/CodeX Notes.app" },
     { "x": 428, "y": 180, "type": "link", "path": "/Applications" }
   ]
 }

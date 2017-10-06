@@ -1,5 +1,5 @@
 public/notes/*
-out/*
+release-builds/*
 data/*
 
 .idea/*

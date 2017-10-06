@@ -2,14 +2,19 @@
   "name": "codex.notes",
   "version": "0.1.0",
   "publishName": "CodeX Notes",
-  "publishIcon": "assets/icons/mac/icon-white1024.icns",
+  "publishIconICNS": "assets/icons/mac/icon-white1024.icns",
+  "publishIconICO": "assets/icons/ico/icon-white1024.ico",
+  "publishIconPNG": "assets/icons/png/icon-white1024.png",
   "description": "Simple, fast and useful crossplatform notes application based on CodeX Editor and Electron.",
   "private": true,
   "scripts": {
     "start": "electron .",
     "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
-    "pack-mac": "electron-packager . \"$npm_package_publishName\" --app-version=$npm_package_version --icon=$npm_package_publishIcon --overwrite --out=out --prune",
-    "dmg": "mkdir -p ./out/dmg; rm \"./out/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./out/CodeX Notes.dmg\""
+    "package-all": "npm run package-mac; npm run package-linux; npm run package-win",
+    "package-mac": "electron-packager . \"$npm_package_publishName\" --platform=darwin --arch=x64 --app-version=$npm_package_version --icon=$npm_package_publishIconICNS --overwrite --prune --out=release-builds",
+    "package-linux": "electron-packager . \"$npm_package_publishName\" --platform=linux --arch=x64 --app-version=$npm_package_version --icon=$npm_package_publishIconPNG --overwrite --prune --out=release-builds",
+    "package-win": "electron-packager . \"$npm_package_publishName\" --platform=win32 --arch=x64 --app-version=$npm_package_version --icon=$npm_package_publishIconICO --overwrite --prune --out=release-builds --version-string.FileDescription=\"$npm_package_publishName\" --version-string.ProductName=\"$npm_package_publishName\"",
+    "create-installer-mac": "rm \"./release-builds/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./release-builds/CodeX Notes.dmg\""
   },
   "author": {
     "name": "CodeX Team",
