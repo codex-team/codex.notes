@@ -1,13 +1,15 @@
 'use strict';
 
-let electron = require('electron');
+const electron = require('electron');
+const app = electron.app;
+const locals = {title: 'CodeX Notes'};
+const pug = require('electron-pug')({pretty:true}, locals);
+const BrowserWindow = electron.BrowserWindow;
+const Database = require('./api/database');
 
-let app = electron.app;
-let locals = {title: 'CodeX Notes'};
-let pug = require('electron-pug')({pretty:true}, locals);
-let BrowserWindow = electron.BrowserWindow;
-let Database = require('./api/database');
 let DB = new Database(app.getPath('userData'));
+let notesCtrl = require('./controllers/notes');
+let foldersCtrl = require('./controllers/folders');
 
 let mainWindow = null;
 
@@ -50,5 +52,3 @@ app.on('ready', function () {
   });
 });
 
-let notesCtrl = require('./controllers/notes');
-let foldersCtrl = require('./controllers/folders');
