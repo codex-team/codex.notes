@@ -24,7 +24,7 @@ app.on('ready', function () {
     titleBarStyle: 'hiddenInset'
   });
 
-  database.connect();
+  database.connect(app.getPath('appData'));
 
   if (process.platform === 'darwin') {
     const { Menu } = require('electron');

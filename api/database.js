@@ -2,20 +2,18 @@
 
 const fs = require('fs');
 const Datastore = require('nedb');
-const osHomedir = require('os-homedir');
-
 
 module.exports = function () {
 
-    const codexFolder = osHomedir() + '/.codex-notes/';
+    let connect = function (path) {
 
-    let connect = function () {
+        this.appFolder = path + "/codex.notes/";
 
-        if (!fs.existsSync(codexFolder)) {
-            fs.mkdirSync(codexFolder);
+        if (!fs.existsSync(this.appFolder)) {
+            fs.mkdirSync(this.appFolder);
         }
 
-        this.db = new Datastore({ filename: codexFolder + 'storage.db', autoload: true });
+        this.db = new Datastore({ filename: this.appFolder + 'storage.db', autoload: true });
     };
 
     return {
