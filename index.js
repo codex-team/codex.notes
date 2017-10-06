@@ -16,8 +16,8 @@ app.on('window-all-closed', function () {
 
 app.on('ready', function () {
   mainWindow = new BrowserWindow({
-    title: pkg.publishName,
-    icon: __dirname + '/' + pkg.publishIconPNG,
+    title: pkg.productName,
+    icon: __dirname + '/' + pkg.productIconPNG,
     width: 1200,
     minWidth: 1070,
     minHeight: 600,

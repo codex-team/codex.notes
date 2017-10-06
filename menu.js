@@ -7,7 +7,7 @@ module.exports = function (app) {
     githubRepo: pkg.repository.url,
     iconPath: __dirname + '/assets/icons/png/icon-white1024.png',
     description: pkg.description,
-    name: pkg.publishName
+    name: pkg.productName
   };
 
   let menuBar = [ {
