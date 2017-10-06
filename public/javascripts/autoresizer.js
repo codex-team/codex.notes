@@ -28,16 +28,33 @@ export default class Autoresizer {
    * @param {Element} el - element we want to expand
    */
   addResizer(el) {
-    el.addEventListener('keydown', function (event) {
-      if (event.keyCode == 13) {
-        event.preventDefault();
-      }
-    }, false);
-
-    el.addEventListener('input', function (event) {
-      el.style.height = 'auto';
+    if (el.value.trim()) {
       el.style.height = el.scrollHeight + 'px';
-    }, false);
+    } else {
+      el.style.height = 'auto';
+    }
+
+    el.addEventListener('keydown', this.enterKeyPressed, false);
+    el.addEventListener('input', this.resize.bind(this, el), false);
+  }
+
+  /**
+   * Prevent enter key pressing
+   * @param event
+   */
+  enterKeyPressed(event) {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Resize input
+   * @param el
+   */
+  resize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
   }
 
   /**
@@ -45,8 +62,8 @@ export default class Autoresizer {
    * @param {Element} el - element we want to clear from resizer
    */
   removeResizer(el) {
-    el.removeEventListener('keydown');
-    el.removeEventListener('input');
+    el.removeEventListener('keydown', this.enterKeyPressed);
+    el.removeEventListener('input', this.resize);
   }
 
   /**
@@ -55,6 +72,7 @@ export default class Autoresizer {
   destroy() {
     for(let i = 0; i < this.elements.length; i++) {
       this.removeResizer(this.elements[i]);
+      this.elements[i].style.height = 'auto';
     }
 
     this.elements = [];

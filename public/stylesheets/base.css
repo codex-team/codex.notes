@@ -1,4 +1,5 @@
 @import "normalize.css";
+@import "vars.css";
 @import "components/aside.css";
 @import "components/editor.css";
 @import "components/header.css";

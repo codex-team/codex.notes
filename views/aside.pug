@@ -1,0 +1,45 @@
+.aside
+    .aside__logo CodeX Notes
+
+    .aside-swiper
+
+        .aside-swiper__left
+
+            span.add-note-button(name="js-new-note-button")
+                include ../public/svg/pencil.svg
+                | New note
+
+            .aside__section-title Folders
+
+            section#folders-section
+
+                .notes-list
+                    ul.notes-list__content(name="js-folders-menu")
+
+                .aside__add-button(name="js-new-folder-button")
+                    include ../public/svg/plus.svg
+                    | Add folder
+
+                fieldset.aside__input.hide(name="js-new-folder-field")
+                    input(placeholder="Enter title", type="text")
+                    include ../public/svg/arrow-right.svg
+
+            .aside__section-title Notes
+
+            .notes-list
+                //div.notes-list__scroll
+                ul.notes-list__content(name="js-notes-menu")
+
+        .aside-swiper__right
+
+            .aside__folder-header(id="folder-header")
+                include ../public/svg/arrow-left.svg
+                span(id="js-folder-name") Folder Name
+
+            span.add-note-button(name="js-new-note-button-in-folder")
+                include ../public/svg/pencil.svg
+                | New note
+
+            .aside__section-title Notes
+            .notes-list
+                ul.notes-list__content(name="js-folder-notes-menu")
