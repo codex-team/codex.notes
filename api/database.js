@@ -1,20 +1,23 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const Datastore = require('nedb');
 
-module.exports = function () {
-  let connect = function (path) {
-    this.appFolder = path + '/codex.notes/';
+class Database {
+  constructor(appFolder) {
+    this.appFolder = appFolder;
 
     if (!fs.existsSync(this.appFolder)) {
       fs.mkdirSync(this.appFolder);
     }
 
-    this.db = new Datastore({ filename: this.appFolder + 'storage.db', autoload: true });
-  };
+    let filename = path.join(this.appFolder, 'storage.db');
 
-  let find = function (query) {
+    this.db = new Datastore({ filename: filename, autoload: true });
+  }
+
+  find(query) {
     return new Promise((resolve, reject) => {
       this.db.find(query, function (err, docs) {
         if (err) {
@@ -24,9 +27,9 @@ module.exports = function () {
         resolve(docs);
       });
     });
-  };
+  }
 
-  let findOne = function (query) {
+  findOne(query) {
     return new Promise((resolve, reject) => {
       this.db.findOne(query, function (err, doc) {
         if (err) {
@@ -36,9 +39,9 @@ module.exports = function () {
         resolve(doc);
       });
     });
-  };
+  }
 
-  let insert = function (data) {
+  insert(data) {
     return new Promise((resolve, reject) => {
       this.db.insert(data, function (err, insertedData) {
         if (err) {
@@ -48,11 +51,11 @@ module.exports = function () {
         resolve(insertedData);
       });
     });
-  };
+  }
 
-  let update = function (query, data, options) {
+  update(query, data, options) {
     return new Promise((resolve, reject) => {
-      this.db.insert(query, data, options, function (err, numReplaced) {
+      this.db.update(query, data, options, function (err, numReplaced) {
         if (err) {
           reject(err);
         }
@@ -60,11 +63,11 @@ module.exports = function () {
         resolve(numReplaced);
       });
     });
-  };
+  }
 
-  let remove = function (query, options) {
+  remove(query, options) {
     return new Promise((resolve, reject) => {
-      this.db.insert(query, options, function (err, numDeleted) {
+      this.db.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
         }
@@ -72,7 +75,7 @@ module.exports = function () {
         resolve(numDeleted);
       });
     });
-  };
+  }
+}
 
-  return {connect, find, findOne, insert, update, remove};
-}();
+module.exports = Database;

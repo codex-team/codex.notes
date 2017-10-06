@@ -6,6 +6,8 @@ let app = electron.app;
 let locals = {title: 'CodeX Notes'};
 let pug = require('electron-pug')({pretty:true}, locals);
 let BrowserWindow = electron.BrowserWindow;
+let Database = require('./api/database');
+let DB = new Database(app.getPath('userData'));
 
 let mainWindow = null;
 
@@ -23,8 +25,6 @@ app.on('ready', function () {
     backgroundColor: '#fff',
     titleBarStyle: 'hiddenInset'
   });
-
-  database.connect(app.getPath('appData'));
 
   if (process.platform === 'darwin') {
     const { Menu } = require('electron');
@@ -52,4 +52,3 @@ app.on('ready', function () {
 
 let notesCtrl = require('./controllers/notes');
 let foldersCtrl = require('./controllers/folders');
-let database = require('./api/database');
