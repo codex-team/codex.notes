@@ -1,6 +1,6 @@
 {
   "name": "codex.notes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishName": "CodeX Notes",
   "publishIconICNS": "assets/icons/mac/icon-white1024.icns",
   "publishIconICO": "assets/icons/ico/icon-white1024.ico",
@@ -16,7 +16,10 @@
     "package-win": "electron-packager . \"$npm_package_publishName\" --platform=win32 --arch=x64 --app-version=$npm_package_version --icon=$npm_package_publishIconICO --overwrite --prune --out=release-builds --version-string.FileDescription=\"$npm_package_publishName\" --version-string.ProductName=\"$npm_package_publishName\"",
     "create-installer-all": "npm run create-installer-mac; npm run create-installer-linux",
     "create-installer-mac": "rm \"./release-builds/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./release-builds/CodeX Notes.dmg\"",
-    "create-installer-linux": "electron-installer-debian --config ./assets/deb/config.json"
+    "create-installer-linux": "electron-installer-debian --config ./assets/deb/config.json",
+    "release-all": "npm run release-mac; npm run release-linux",
+    "release-mac": "npm run package-mac; npm run create-installer-mac",
+    "release-linux": "npm run package-linux; npm run create-installer-linux"
   },
   "author": {
     "name": "CodeX Team",
