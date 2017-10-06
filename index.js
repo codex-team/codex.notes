@@ -24,6 +24,8 @@ app.on('ready', function () {
     titleBarStyle: 'hiddenInset'
   });
 
+  database.connect(app.getPath('appData'));
+
   if (process.platform === 'darwin') {
     const { Menu } = require('electron');
 
@@ -50,3 +52,4 @@ app.on('ready', function () {
 
 let notesCtrl = require('./controllers/notes');
 let foldersCtrl = require('./controllers/folders');
+let database = require('./api/database');
