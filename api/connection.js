@@ -14,6 +14,7 @@ class Connection {
         if (err) {
           return reject(err);
         } else {
+          this.online = true;
           return resolve();
         }
       });
