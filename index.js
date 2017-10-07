@@ -6,8 +6,10 @@ const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 const Database = require('./api/database');
+const Conn = require('./api/connection');
 
 let DB = new Database(app.getPath('userData'));
+let Connection = new Conn();
 let notesCtrl = require('./controllers/notes');
 let foldersCtrl = require('./controllers/folders');
 
@@ -52,3 +54,10 @@ app.on('ready', function () {
   });
 });
 
+Connection.isOnline()
+.then( () => {
+  console.log("Connected!");
+})
+.catch(() => {
+  console.log("No connection");
+});
