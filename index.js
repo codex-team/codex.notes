@@ -6,8 +6,12 @@ const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 const Database = require('./api/database');
+const Conn = require('./api/connection');
+const APICall = require('./api/call');
 
 let DB = new Database(app.getPath('userData'));
+let Connection = new Conn();
+let API = new APICall();
 let notesCtrl = require('./controllers/notes');
 let foldersCtrl = require('./controllers/folders');
 
@@ -46,9 +50,9 @@ app.on('ready', function () {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+  API.userRegistration();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
 });
-
