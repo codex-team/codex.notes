@@ -56,8 +56,6 @@ ipcMain.on('load notes list', (event, folderId) => {
  * Save note to json file
  */
 ipcMain.on('save note', (event, {note}) => {
-  if (!note.data.items.length && !note.data.id) return;
-
   let folders = fs.readFileSync(FOLDERS_FILE);
 
   folders = JSON.parse(folders);
