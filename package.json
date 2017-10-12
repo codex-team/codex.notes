@@ -33,7 +33,7 @@
   },
   "bugs": "https://github.com/codex-team/codex.notes/issues/new",
   "dependencies": {
-    "electron": "^1.7.5",
+    "electron": "^1.8.1",
     "electron-pug": "^1.5.1",
     "nedb": "^1.8.0",
     "sanitize-html": "^1.14.1"

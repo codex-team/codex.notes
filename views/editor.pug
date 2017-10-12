@@ -2,6 +2,7 @@ doctype html
 
 html(lang="en")
     head
+       meta(charset="utf-8")
        title= title
        script(src="../public/build/bundle.js")
        link(href="../public/build/bundle.css", rel="stylesheet")
@@ -21,4 +22,4 @@ body
                 //|Share
             span#save-indicator.save-indicator Saved
         div#codex-editor.editor
-            textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1")
+            textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1", onkeydown="codex.notes.note.titleKeydownHandler(this, event)")
