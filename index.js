@@ -6,6 +6,7 @@ const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 const Database = require('./api/database');
+let pkg = require('./package.json');
 
 let DB = new Database(app.getPath('userData'));
 let notesCtrl = require('./controllers/notes');
@@ -53,10 +54,3 @@ app.on('ready', function () {
     mainWindow = null;
   });
 });
-<<<<<<< HEAD
-
-let notesCtrl = require('./controllers/notes');
-let foldersCtrl = require('./controllers/folders');
-let database = require('./api/database');
-=======
->>>>>>> master
