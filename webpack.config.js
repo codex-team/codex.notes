@@ -126,9 +126,9 @@ module.exports = {
   devtool: 'source-map',
 
   /** Пересборка при изменениях */
-  // watch: true,
-  // watchOptions: {
-  //   /** Таймаут перед пересборкой */
-  //   aggragateTimeout: 50
-  // }
+  watch: true,
+  watchOptions: {
+    /** Таймаут перед пересборкой */
+    aggragateTimeout: 50
+  }
 };
