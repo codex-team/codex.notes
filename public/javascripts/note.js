@@ -34,7 +34,6 @@ export default class Note {
    */
   save() {
     this.deleteButton.classList.remove('hide');
-
     codex.editor.saver.save()
       .then( noteData => {
         let note = {
