@@ -21,4 +21,4 @@ body
                 //|Share
             span#save-indicator.save-indicator Saved
         div#codex-editor.editor
-            textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1")
+            textarea#note-title.note-title.js-autoresizable(placeholder="Add title", rows="1", onkeydown="codex.notes.note.titleKeydownHandler(this, event)")
