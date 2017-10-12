@@ -5,17 +5,25 @@ const app = electron.app;
 const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
-const Database = require('./api/database');
-const Conn = require('./api/connection');
-const APICall = require('./api/call');
 
-let DB = new Database(app.getPath('userData'));
-let Connection = new Conn();
-let API = new APICall();
+const DatabaseClass = require('./api/database');
+const UserClass = require('./models/user');
+const DirectoryClass = require('./models/directory');
+const DirectoryControllerClass = require('./controllers/directory');
+const NotesControllerClass = require('./controllers/note');
+
+let DB = new DatabaseClass(app.getPath('userData'));
+let User = new UserClass(DB);
+let Directory = new DirectoryClass(DB);
+
 let notesCtrl = require('./controllers/notes');
-let foldersCtrl = require('./controllers/folders');
+
+let directoryCtrl = new DirectoryControllerClass(DB, User);
+let notesCtrl2 = new NotesControllerClass(DB, User);
 
 let mainWindow = null;
+
+User.register().then((result) => {global.sharedObj = {user: result};}).catch((err) => {console.log(err)});
 
 app.on('window-all-closed', function () {
   app.quit();
@@ -50,7 +58,6 @@ app.on('ready', function () {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-  API.userRegistration();
 
   mainWindow.on('closed', function () {
     mainWindow = null;

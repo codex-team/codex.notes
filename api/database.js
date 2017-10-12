@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
+const auth = require('./auth');
 
 class Database {
   constructor(appFolder) {
@@ -12,14 +13,29 @@ class Database {
       fs.mkdirSync(this.appFolder);
     }
 
-    let filename = path.join(this.appFolder, 'storage.db');
+    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
+    this.DIRECTORY = new Datastore({ filename: path.join(this.appFolder, 'dir.db'), autoload: true });
 
-    this.db = new Datastore({ filename: filename, autoload: true });
+    // this.DIRECTORY.persistence.setAutocompactionInterval(5000);
+
+    this.makeInitialSettings();
   }
 
-  find(query) {
+  async makeInitialSettings() {
+    let rootDirectory = await this.find(this.DIRECTORY, {'root': true });
+    if (rootDirectory.length === 0) {
+      await this.insert(this.DIRECTORY, {
+        'root': true,
+        'name': 'root',
+        '_id': 0, //auth.generatePassword(),
+        'notes': []
+      });
+    }
+  }
+
+  find(collection, query) {
     return new Promise((resolve, reject) => {
-      this.db.find(query, function (err, docs) {
+      collection.find(query, function (err, docs) {
         if (err) {
           reject(err);
         }
@@ -29,9 +45,9 @@ class Database {
     });
   }
 
-  findOne(query) {
+  findOne(collection, query) {
     return new Promise((resolve, reject) => {
-      this.db.findOne(query, function (err, doc) {
+      collection.findOne(query, function (err, doc) {
         if (err) {
           reject(err);
         }
@@ -41,9 +57,9 @@ class Database {
     });
   }
 
-  insert(data) {
+  insert(collection, data) {
     return new Promise((resolve, reject) => {
-      this.db.insert(data, function (err, insertedData) {
+      collection.insert(data, function (err, insertedData) {
         if (err) {
           reject(err);
         }
@@ -53,9 +69,9 @@ class Database {
     });
   }
 
-  update(query, data, options) {
+  update(collection, query, data, options) {
     return new Promise((resolve, reject) => {
-      this.db.update(query, data, options, function (err, numReplaced) {
+      collection.update(query, data, options, function (err, numReplaced) {
         if (err) {
           reject(err);
         }
@@ -65,9 +81,9 @@ class Database {
     });
   }
 
-  remove(query, options) {
+  remove(collection, query, options) {
     return new Promise((resolve, reject) => {
-      this.db.remove(query, options, function (err, numDeleted) {
+      collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
         }

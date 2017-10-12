@@ -2,40 +2,52 @@
 
 const http = require('http');
 const https = require('https');
+const auth = require('./auth');
 
 class APICall {
 
-  constructor() {
+  constructor(storage) {
     this.Methods = {
       userCreate: '/user/create'
     };
+    this.storage = storage;
     this.apiURL = 'http://localhost:3000';
   }
 
-  userRegistration() {
-    console.log("User registration event");
+  userRegister () {
+
     let userData = {
-      'password': 'random-todo'
+      'password': auth.generatePassword()
     };
 
-    this.request(this.Methods.userCreate, userData)
-    .then((response) => {
-      if (response.result != "success") {
-        console.log("User registration error: ", response);
-        return false;
-      }
+    return this.request(this.Methods.userCreate, userData)
+      .then((response) => {
+        if (response.result !== "success") {
+          console.log("User registration error: ", response);
+          return false;
+        }
 
-      if (!response.data.user_id) {
-        console.log("User ID not found in answer from API: ", response);
-        return false;
-      }
+        if (!response.data.user_id) {
+          console.log("User ID not found in answer from API: ", response);
+          return false;
+        }
 
-      console.log("User successfully registered: " + response.data.user_id);
-      return response.data.user_id;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+        console.log("User successfully registered: " + response.data.user_id);
+        return {"user_id": response.data.user_id, "password": userData.password};
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+
+  }
+
+  directoryCreate (user, directoryName) {
+
+    let directoryData = {
+
+    }
+
   }
 
   request(method, data) {
