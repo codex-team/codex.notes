@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
-const auth = require('./auth');
 
 class Database {
   constructor(appFolder) {
@@ -16,8 +15,7 @@ class Database {
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
     this.DIRECTORY = new Datastore({ filename: path.join(this.appFolder, 'dir.db'), autoload: true });
 
-    // this.DIRECTORY.persistence.setAutocompactionInterval(5000);
-
+    // create root directory
     this.makeInitialSettings();
   }
 
@@ -27,7 +25,7 @@ class Database {
       await this.insert(this.DIRECTORY, {
         'root': true,
         'name': 'root',
-        '_id': 0, //auth.generatePassword(),
+        '_id': 0,
         'notes': []
       });
     }

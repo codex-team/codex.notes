@@ -49,7 +49,6 @@ class DirectoryController {
 
   async deleteFolder(directory, event, folderId) {
     try {
-      // delete notes from folder
       await directory.remove(folderId);
       event.returnValue = true;
     }

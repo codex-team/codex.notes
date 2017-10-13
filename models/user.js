@@ -2,22 +2,11 @@
 
 const API = require('../api/call');
 
-let userData = null;
-
 class User {
-
-  static get userID() {
-    return userData;
-  }
 
   constructor(db) {
     this.db = db;
     this.api = new API();
-
-    this.get()
-      .then((user) =>{
-        userData = user;
-      });
   }
 
   async register() {
