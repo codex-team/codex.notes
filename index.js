@@ -16,12 +16,18 @@ let DB = new DatabaseClass(app.getPath('userData'));
 let User = new UserClass(DB);
 let Directory = new DirectoryClass(DB);
 
-let directoryCtrl = new DirectoryControllerClass(DB, User);
-let notesCtrl = new NotesControllerClass(DB, User);
+// User initialization (register if not exists)
+User.register().then(function() {
+
+  // run controllers
+  let directoryCtrl = new DirectoryControllerClass(DB, User);
+  let notesCtrl = new NotesControllerClass(DB, User);
+
+}).catch(function (err) {
+  console.log("Initialization error", err);
+});
 
 let mainWindow = null;
-
-User.register().then((result) => {global.sharedObj = {user: result};}).catch((err) => {console.log(err)});
 
 app.on('window-all-closed', function () {
   app.quit();

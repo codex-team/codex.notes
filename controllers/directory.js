@@ -3,39 +3,70 @@ let {ipcMain} = require('electron');
 
 const Directory = require('../models/directory');
 
+/**
+ * Directory controller.
+ * Works with events:
+ *  - create folder
+ *  - load folders list
+ *  - delete folder
+ */
 class DirectoryController {
 
+  // Setup event handlers
   constructor(db, user) {
     this.db = db;
     this.user = user;
-    let directory = new Directory(db, user);
+    this.directory = new Directory(db, user);
 
     ipcMain.on('create folder', (event, folderName) => {
-      this.createFolder(directory, event, folderName);
+      this.createFolder(event, folderName);
     });
 
     ipcMain.on('load folders list', (event) => {
-      this.loadFolders(directory, event);
+      this.loadFolders(event);
     });
 
     ipcMain.on('delete folder', (event, folderId) => {
-      this.deleteFolder(directory, event, folderId);
+      this.deleteFolder(event, folderId);
     });
   }
 
-  async loadFolders(directory, event) {
+  /**
+   * Load list of folders. Send event 'update folders list' with the following params:
+   *  {
+   *    userFolders: [{
+   *      id - unique folder ID
+   *      name - folder name (visible)
+   *      notes: [] - array of notes
+   *    }]
+   *  }
+   * @param event
+   * @returns {Promise.<void>}
+   */
+  async loadFolders(event) {
     try {
-      let userFolders = await directory.list();
-      event.sender.send('update folders list', {userFolders}); // name userFolders matters
+      let userFolders = await this.directory.list();
+      event.sender.send('update folders list', {userFolders});
     }
     catch (err) {
       console.log(err);
     }
   }
 
-  async createFolder(directory, event, folderName) {
+  /**
+   * Create new folder. Return the following value to the event emitter:
+   * {
+   *  id - generated folder ID
+   *  name - folder name (got from event emitter)
+   *  notes - empty array of notes
+   * }
+   * @param event
+   * @param folderName - new folder name
+   * @returns {Promise.<void>}
+   */
+  async createFolder(event, folderName) {
     try {
-      let dir = await directory.create(folderName);
+      let dir = await this.directory.create(folderName);
       event.returnValue = {
         'id': dir._id,
         'name': dir.name,
@@ -47,9 +78,15 @@ class DirectoryController {
     }
   }
 
-  async deleteFolder(directory, event, folderId) {
+  /**
+   * Delete folder. Return bool result to the event emitter
+   * @param event
+   * @param folderId - folder to delete ID
+   * @returns {Promise.<void>}
+   */
+  async deleteFolder(event, folderId) {
     try {
-      await directory.remove(folderId);
+      await this.directory.remove(folderId);
       event.returnValue = true;
     }
     catch (err) {
