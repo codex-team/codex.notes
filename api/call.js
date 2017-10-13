@@ -6,6 +6,10 @@ const auth = require('./auth');
 
 class APICall {
 
+  /**
+   * Initialization params.
+   * @param storage
+   */
   constructor(storage) {
     this.Methods = {
       userCreate: '/user/create'
@@ -14,6 +18,10 @@ class APICall {
     this.apiURL = 'http://localhost:3000';
   }
 
+  /**
+   * User registration method.
+   * @returns {Promise.<T>}
+   */
   userRegister () {
 
     let userData = {
@@ -42,6 +50,11 @@ class APICall {
 
   }
 
+  /**
+   * Directory create method.
+   * @param user
+   * @param directoryName
+   */
   directoryCreate (user, directoryName) {
 
     let directoryData = {
@@ -50,6 +63,12 @@ class APICall {
 
   }
 
+  /**
+   * HTTPS? request to the API.
+   * @param method - GET, POST, ...
+   * @param data - raw data
+   * @returns {Promise}
+   */
   request(method, data) {
     return new Promise((resolve, reject) => {
 

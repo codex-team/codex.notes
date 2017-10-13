@@ -4,7 +4,15 @@ const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
 
+/**
+ * Database class. neDB - https://github.com/louischatriot/nedb.
+ */
 class Database {
+
+  /**
+   * Create directory in user application folder and initialize collections USER and DIRECTORY.
+   * @param appFolder
+   */
   constructor(appFolder) {
     this.appFolder = appFolder;
 
@@ -19,6 +27,10 @@ class Database {
     this.makeInitialSettings();
   }
 
+  /**
+   * Create root directory if not exists.
+   * @returns {Promise.<void>}
+   */
   async makeInitialSettings() {
     let rootDirectory = await this.find(this.DIRECTORY, {'root': true });
     if (rootDirectory.length === 0) {
@@ -30,7 +42,7 @@ class Database {
       });
     }
   }
-
+  
   find(collection, query) {
     return new Promise((resolve, reject) => {
       collection.find(query, function (err, docs) {

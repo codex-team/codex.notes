@@ -79,11 +79,11 @@ class NoteController {
    * Send 'update notes list' action to the event emitter with the following structure. This structure also will be
    * returned to the event emitter as the result.
    * {
-   *   notes: [
+   *   notes: [{
    *     id - note ID
    *     title - note title
    *     folderId - directory ID
-   *   ],
+   *   }],
    *   folder: {
    *     name - forder visible name
    *     id - folder ID
