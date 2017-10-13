@@ -62,7 +62,6 @@ class NoteController {
    */
   async saveNote(note, event) {
     try {
-      console.log(note);
       let folderId = note.folderId;
       let newNote = await this.notes.save(folderId, note);
       if (newNote) {

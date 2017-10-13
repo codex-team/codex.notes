@@ -48,7 +48,6 @@ class Directory {
    */
   async get(id) {
     try {
-      console.log(id);
       let dir = await this.db.findOne(this.db.DIRECTORY, {'_id': id});
       if (dir) {
         return this.format(dir);
