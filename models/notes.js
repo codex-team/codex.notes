@@ -61,8 +61,6 @@ class NotesModel {
       }
       let result = await this.db.update(this.db.DIRECTORY, {'_id': directoryId }, { $addToSet: { 'notes': note } }, {});
 
-      console.log(directoryId, result);
-
       if (result) {
         return {
           id: note.data.id,
