@@ -17,9 +17,11 @@
     "create-installer-all": "npm run create-installer-mac; npm run create-installer-linux",
     "create-installer-mac": "rm \"./release-builds/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./release-builds/CodeX Notes.dmg\"",
     "create-installer-linux": "electron-installer-debian --config ./assets/deb/config.json",
+    "create-installer-win": "node assets/exe/create-installer.js",
     "release-all": "npm run release-mac; npm run release-linux",
     "release-mac": "npm run package-mac; npm run create-installer-mac",
-    "release-linux": "npm run package-linux; npm run create-installer-linux"
+    "release-linux": "npm run package-linux; npm run create-installer-linux",
+    "release-win": "npm run package-win; npm run create-installer-win"
   },
   "author": {
     "name": "CodeX Team",
@@ -46,6 +48,7 @@
     "css-loader": "^0.26.1",
     "electron-installer-debian": "^0.6.0",
     "electron-packager": "^9.0.0",
+    "electron-winstaller": "^2.6.3",
     "eslint": "^3.12.2",
     "eslint-loader": "^1.6.1",
     "extract-text-webpack-plugin": "^2.1.2",
