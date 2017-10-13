@@ -71,6 +71,11 @@ module.exports = function (app) {
       selector: 'selectAll:'
     } ]
   }, {
+    label: 'View',
+    submenu: [ {
+      role: 'togglefullscreen'
+    } ]
+  }, {
     label: 'Window',
     role: 'window',
     submenu: [
