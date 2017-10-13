@@ -16,10 +16,8 @@ let DB = new DatabaseClass(app.getPath('userData'));
 let User = new UserClass(DB);
 let Directory = new DirectoryClass(DB);
 
-let notesCtrl = require('./controllers/notes');
-
 let directoryCtrl = new DirectoryControllerClass(DB, User);
-let notesCtrl2 = new NotesControllerClass(DB, User);
+let notesCtrl = new NotesControllerClass(DB, User);
 
 let mainWindow = null;
 
