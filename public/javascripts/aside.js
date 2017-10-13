@@ -1,4 +1,5 @@
 import Folder from './folder';
+import Note from './note';
 
 const AsideSwiper = require('./aside-swiper').default;
 const $ = require('./dom').default;
@@ -170,15 +171,8 @@ export default class Aside {
     let folderId = button.dataset.folderId;
 
     this.currentFolderId = folderId || null;
-    /**
-     * Set focus to the Editor
-     */
 
-    window.setTimeout(function () {
-      let editor = document.querySelector('.ce-redactor');
-
-      editor.click();
-    }, 10);
+    Note.focusEditor();
 
     codex.notes.note.clear();
   }
