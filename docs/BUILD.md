@@ -3,7 +3,7 @@
 Build apps on macOS.
 
 For Win:
-brew install xquarts
+brew cask install xquartz
 brew install wine
 
 For Linux:
