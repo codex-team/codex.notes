@@ -9,18 +9,17 @@ class DirectoryController {
     this.db = db;
     this.user = user;
     let directory = new Directory(db, user);
-    let self = this;
 
-    ipcMain.on('create folder', function (event, folderName) {
-      self.createFolder(directory, event, folderName);
+    ipcMain.on('create folder', (event, folderName) => {
+      this.createFolder(directory, event, folderName);
     });
 
-    ipcMain.on('load folders list', function (event) {
-      self.loadFolders(directory, event);
+    ipcMain.on('load folders list', (event) => {
+      this.loadFolders(directory, event);
     });
 
-    ipcMain.on('delete folder', function (event, folderId) {
-      self.deleteFolder(directory, event, folderId);
+    ipcMain.on('delete folder', (event, folderId) => {
+      this.deleteFolder(directory, event, folderId);
     });
   }
 

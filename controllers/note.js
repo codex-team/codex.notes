@@ -9,20 +9,19 @@ class NoteController {
   constructor(db, user) {
     this.db = db;
     this.user = user;
-    let self = this;
     let notes = new Notes(db, user);
     this.directory = new Directory(db, user);
 
     ipcMain.on('save note', (event, {note}) => {
-      self.saveNote(notes, note, event);
+      this.saveNote(notes, note, event);
     });
 
     ipcMain.on('load notes list', (event, folderId) => {
-      self.loadNotesList(notes, folderId, event);
+      this.loadNotesList(notes, folderId, event);
     });
 
     ipcMain.on('get note', (event, {id, folder}) => {
-      self.getNote(notes, id, event);
+      this.getNote(notes, id, event);
     });
   }
 
