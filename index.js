@@ -28,7 +28,8 @@ app.on('ready', function () {
     height: 700,
     vibrancy: 'ultra-dark',
     backgroundColor: '#fff',
-    titleBarStyle: 'hiddenInset'
+    titleBarStyle: 'hiddenInset',
+    show: false
   });
 
   if (process.platform === 'darwin') {
@@ -39,13 +40,15 @@ app.on('ready', function () {
         menuBar = Menu.buildFromTemplate(menues.menuBar),
         menuDock = Menu.buildFromTemplate(menues.menuDock);
 
-
     Menu.setApplicationMenu(menuBar);
-
     app.dock.setMenu(menuDock);
   }
 
   mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   /** Open the DevTools. */
   // mainWindow.webContents.openDevTools();
