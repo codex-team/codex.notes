@@ -12,7 +12,11 @@ const Directory = require('../models/directory');
  */
 class DirectoryController {
 
-  // Setup event handlers
+  /**
+   * Setup event handlers
+   * @param db - database model
+   * @param user - user model
+   */
   constructor(db, user) {
     this.db = db;
     this.user = user;
