@@ -1,10 +1,8 @@
 'use strict';
 
 let fs = require('fs');
-let {ipcMain} = require('electron');
-let {dialog} = require('electron');
+let {ipcMain, dialog} = require('electron');
 let sanitizeHtml = require('sanitize-html');
-let electron = require('electron');
 
 
 const NOTES_DIR = __dirname + '/../data/notes';
@@ -48,9 +46,9 @@ ipcMain.on('load notes list', (event, folderId) => {
   delete folder.notes;
 
   let returnValue = {notes, folder};
+
   event.returnValue = returnValue;
   event.sender.send('update notes list', returnValue);
-
 });
 
 /**
@@ -109,6 +107,7 @@ ipcMain.on('get note', (event, {id, folder}) => {
   }
 
   let noteFileData = fs.readFileSync(path + '/' + id + '.json');
+
   event.returnValue = JSON.parse(noteFileData);
 });
 
