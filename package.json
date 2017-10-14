@@ -38,6 +38,7 @@
     "eslint-loader": "^1.6.1",
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
+    "nedb": "^1.8.0",
     "path": "^0.12.7",
     "postcss-color-function": "^4.0.0",
     "postcss-color-hex-alpha": "^3.0.0",
