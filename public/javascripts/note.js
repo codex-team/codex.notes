@@ -34,7 +34,6 @@ export default class Note {
    */
   save() {
     this.deleteButton.classList.remove('hide');
-
     codex.editor.saver.save()
       .then( noteData => {
         let note = {
@@ -121,6 +120,17 @@ export default class Note {
   }
 
   /**
+   * Set focus to the Editor
+   */
+  static focusEditor() {
+    window.setTimeout(function () {
+      let editor = document.querySelector('.ce-redactor');
+
+      editor.click();
+    }, 10);
+  }
+
+  /**
    * Delete article
    */
   delete() {
@@ -136,5 +146,19 @@ export default class Note {
 
     codex.notes.aside.removeMenuItem(id);
     this.clear();
+  }
+
+  /**
+   * Title input keydowns
+   * @description  By ENTER, sets focus on editor
+   * @param  {Element} titleElement - title block
+   * @param  {Event} event - keydown event
+   */
+  titleKeydownHandler(titleElement, event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+
+      Note.focusEditor();
+    }
   }
 }

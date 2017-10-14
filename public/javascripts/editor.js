@@ -115,6 +115,9 @@ export default class Editor {
    * Add keyup listener to editor zone
    */
   enableAutosave() {
+    let noteTitle = document.getElementById('note-title');
+
+    noteTitle.addEventListener('keyup', this.autosave.bind(this));
     codex.editor.nodes.redactor.addEventListener('keyup', this.autosave.bind(this));
   }
 
