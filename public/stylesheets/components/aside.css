@@ -209,6 +209,12 @@
         overflow-y: auto;
         margin-right: -12px;
         padding-right: 12px;
+
+        &::after{
+            display: block;
+            content: '';
+            height: 15px;
+        }
     }
 }
 
