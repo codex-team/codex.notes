@@ -42,7 +42,8 @@ export default class SwipeDetector {
      * Dont fire swipe event on small scrolls
      * @type {Boolean}
      */
-    let swipeEnoughLong = event.wheelDeltaX > 30 || event.wheelDeltaX < -30;
+    const minimumDistance = 30;
+    let swipeEnoughLong = event.wheelDeltaX > minimumDistance || event.wheelDeltaX < -1 * minimumDistance;
 
     if ( isHorisontal && swipeEnoughLong ) {
       if (!this.swiped) {
