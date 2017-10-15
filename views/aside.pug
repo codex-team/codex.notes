@@ -5,33 +5,45 @@
 
         .aside-swiper__left
 
+            //-
+            //- Header
+            //-
             span.add-note-button(name="js-new-note-button")
                 include ../public/svg/pencil.svg
                 | New note
 
-            .aside__section-title Folders
+            //-
+            //- Scrollable zone
+            //-
+            .aside__scrollable
+                .aside__scrollable-content(name="js-scrollable")
 
-            section#folders-section
+                    .aside__section-title Folders
 
-                .notes-list
-                    ul.notes-list__content(name="js-folders-menu")
+                    section#folders-section
 
-                .aside__add-button(name="js-new-folder-button")
-                    include ../public/svg/plus.svg
-                    | Add folder
+                        .notes-list
+                            ul.notes-list__content(name="js-folders-menu")
 
-                fieldset.aside__input.hide(name="js-new-folder-field")
-                    input(placeholder="Enter title", type="text")
-                    include ../public/svg/arrow-right.svg
+                        .aside__add-button(name="js-new-folder-button")
+                            include ../public/svg/plus.svg
+                            | Add folder
 
-            .aside__section-title Notes
+                        fieldset.aside__input.hide(name="js-new-folder-field")
+                            input(placeholder="Enter title", type="text")
+                            include ../public/svg/arrow-right.svg
 
-            .notes-list
-                //div.notes-list__scroll
-                ul.notes-list__content(name="js-notes-menu")
+                    .aside__section-title Notes
+
+                    .notes-list
+                        //div.notes-list__scroll
+                        ul.notes-list__content(name="js-notes-menu")
 
         .aside-swiper__right
 
+            //-
+            //- Folder header
+            //-
             .aside__folder-header(id="folder-header")
                 include ../public/svg/arrow-left.svg
                 span(id="js-folder-name") Folder Name
@@ -40,6 +52,12 @@
                 include ../public/svg/pencil.svg
                 | New note
 
-            .aside__section-title Notes
-            .notes-list
-                ul.notes-list__content(name="js-folder-notes-menu")
+            //-
+            //- Scrollable zone
+            //-
+            .aside__scrollable
+                .aside__scrollable-content(name="js-scrollable")
+
+                    .aside__section-title Notes
+                    .notes-list
+                        ul.notes-list__content(name="js-folder-notes-menu")

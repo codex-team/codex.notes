@@ -108,6 +108,8 @@ export default class Aside {
     folderHeader.addEventListener('click', () => {
       this.closeFolder();
     });
+
+    this.activateScrollableGradient();
   }
 
   /**
@@ -376,6 +378,45 @@ export default class Aside {
   closeFolder() {
     // this.currentFolderId = null;
     this.swiper.close();
+  }
+
+  /**
+   * Shows fade-out gradient at the top of scrollable zone
+   * Uses by scroll to prevent overlaying first block (NOTES, FOLDERS headings) with gradient when block is not scrolled
+   */
+  activateScrollableGradient() {
+    /**
+     * Scroll top offset to show gradient
+     * @type {Number}
+     */
+    const minimumDistance = 5;
+
+    /**
+     * Modificatior that will be added to the wrapper on scroll
+     * @type {String}
+     */
+    const scrolledModificator = 'aside__scrollable--scrolled';
+
+    /**
+     * Scrollable zoners
+     * @type {Element[]}
+     */
+    let scrollableZones = document.querySelectorAll('[name="js-scrollable"]');
+
+    let addClassOnScroll = event => {
+      let scrollableContent = event.target,
+          scrollableWrapper = event.target.parentNode;
+
+      if (scrollableContent.scrollTop > minimumDistance) {
+        scrollableWrapper.classList.add(scrolledModificator);
+      } else {
+        scrollableWrapper.classList.remove(scrolledModificator);
+      }
+    };
+
+    scrollableZones.forEach( zone => {
+      zone.addEventListener('scroll', addClassOnScroll);
+    });
   }
 
 }
