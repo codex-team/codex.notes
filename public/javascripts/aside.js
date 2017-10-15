@@ -385,16 +385,17 @@ export default class Aside {
    * Uses by scroll to prevent overlaying first block (NOTES, FOLDERS headings) with gradient when block is not scrolled
    */
   activateScrollableGradient() {
-    let scrollableZones = document.querySelectorAll('.aside__scrollable-content');
+    const scrolledModificator = 'aside__scrollable--scrolled';
+    let scrollableZones = document.querySelectorAll('[name="js-scrollable"]');
 
     let addClassOnScroll = event => {
       let scrollableContent = event.target,
           scrollableWrapper = event.target.parentNode;
 
       if (scrollableContent.scrollTop > 5) {
-        scrollableWrapper.classList.add('aside__scrollable--scrolled');
+        scrollableWrapper.classList.add(scrolledModificator);
       } else {
-        scrollableWrapper.classList.remove('aside__scrollable--scrolled');
+        scrollableWrapper.classList.remove(scrolledModificator);
       }
     };
 
