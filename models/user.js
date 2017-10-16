@@ -1,7 +1,5 @@
 'use strict';
 
-const API = require('../api/call');
-
 /**
  * Model for current user representation.
  */
@@ -13,7 +11,6 @@ class User {
    */
   constructor(db) {
     this.db = db;
-    this.api = new API();
   }
 
   /**
@@ -34,12 +31,7 @@ class User {
         return user;
       }
 
-      let newUser = await this.api.userRegister();
-      if (!newUser) {
-        console.log("API error: userRegister() action");
-        return false;
-      }
-
+      let newUser = {"user_id": 0, "name": "user"};
       await this.db.insert(this.db.USER, {'user': newUser});
       return newUser;
     }

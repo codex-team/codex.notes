@@ -22,6 +22,7 @@ class Database {
 
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
     this.DIRECTORY = new Datastore({ filename: path.join(this.appFolder, 'dir.db'), autoload: true });
+    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
     // create root directory
     this.makeInitialSettings();

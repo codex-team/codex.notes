@@ -1,7 +1,6 @@
 'use strict';
 
 const auth = require('../api/auth');
-const API = require('../api/call');
 
 /**
  * Notes model.
@@ -15,7 +14,6 @@ class NotesModel {
    */
   constructor(db, user) {
     this.db = db;
-    this.api = new API(db);
     this.user = user;
   }
 
@@ -36,14 +34,13 @@ class NotesModel {
    */
   async get(noteId) {
     try {
-      let directoryWithNote = await this.db.findOne(this.db.DIRECTORY, {'notes.data.id': noteId});
-      if (!directoryWithNote) {
+      let note = await this.db.findOne(this.db.NOTES, {'_id': noteId});
+      if (!note) {
+        console.log("Note is not found", noteId);
         return false;
       }
       else {
-        return directoryWithNote.notes.filter(function (element) {
-          return element.data.id == noteId;
-        })[0];
+        return note;
       }
     }
     catch (err) {
@@ -65,11 +62,14 @@ class NotesModel {
     try {
       let directory = await this.db.findOne(this.db.DIRECTORY, {'_id': directoryId});
 
+      // Additional check to perform clever logging
       if (!directory) {
         return [];
       }
 
-      return directory.notes.map(function (element) {
+      let notes = await this.db.find(this.db.NOTES, {'folderId': directoryId});
+
+      return notes.map(function (element) {
         return {
           'id': element.data.id,
           'title': element.title,
@@ -108,14 +108,16 @@ class NotesModel {
       if (!directoryId) {
         let directory = await this.db.findOne(this.db.DIRECTORY, {'root': true});
         directoryId = directory._id;
+        note.folderId = directoryId; // make sure that null or false is 0
       }
       if (!note.data.id) {
         // create new note
         note.data.id = auth.generatePassword();
       }
-      let result = await this.db.update(this.db.DIRECTORY, {'_id': directoryId }, { $addToSet: { 'notes': note } }, {});
+      note._id = note.data.id;
 
-      if (result) {
+      let newNote = await this.db.update(this.db.NOTES, {'_id': note._id }, note, {'upsert': true});
+      if (newNote) {
         return {
           id: note.data.id,
           title: note.title,

@@ -1,7 +1,6 @@
 'use strict';
 
 const auth = require('../api/auth');
-const API = require('../api/call');
 
 /**
  * Directory model
@@ -15,7 +14,6 @@ class Directory {
    */
   constructor(db, user) {
     this.db = db;
-    this.api = new API(db);
     this.user = user;
   }
 
@@ -73,7 +71,7 @@ class Directory {
    */
   async list() {
     try {
-      let list = await this.db.find(this.db.DIRECTORY, {});
+      let list = await this.db.find(this.db.DIRECTORY, {'_id': { $ne: 0 }});
       return list.map(this.format);
     }
     catch (err) {
