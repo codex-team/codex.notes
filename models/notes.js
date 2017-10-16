@@ -1,6 +1,6 @@
 'use strict';
 
-const auth = require('../api/auth');
+const random = require('../utils/random');
 
 /**
  * Notes model.
@@ -10,11 +10,9 @@ class NotesModel {
   /**
    * Initialize parameters for API.
    * @param db - DB model object
-   * @param user - user model object
    */
-  constructor(db, user) {
+  constructor(db) {
     this.db = db;
-    this.user = user;
   }
 
   /**
@@ -112,7 +110,7 @@ class NotesModel {
       }
       if (!note.data.id) {
         // create new note
-        note.data.id = auth.generatePassword();
+        note.data.id = random.generatePassword();
       }
       note._id = note.data.id;
 

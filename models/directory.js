@@ -1,6 +1,6 @@
 'use strict';
 
-const auth = require('../api/auth');
+const random = require('../utils/random');
 
 /**
  * Directory model
@@ -10,11 +10,9 @@ class Directory {
   /**
    * Initialize params for the API
    * @param db - DB model object
-   * @param user - user model object
    */
-  constructor(db, user) {
+  constructor(db) {
     this.db = db;
-    this.user = user;
   }
 
   /**
@@ -24,7 +22,7 @@ class Directory {
    */
   async create(name) {
     try {
-      let dirId = auth.generatePassword();
+      let dirId = random.generatePassword();
       let dir = await this.db.insert(this.db.DIRECTORY, { 'name': name, 'notes': [] } );
       return dir;
     }

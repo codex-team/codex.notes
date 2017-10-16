@@ -6,26 +6,17 @@ const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 
-const DatabaseClass = require('./api/database');
-const UserClass = require('./models/user');
+const DatabaseClass = require('./utils/database');
 const DirectoryClass = require('./models/directory');
 const DirectoryControllerClass = require('./controllers/directory');
 const NotesControllerClass = require('./controllers/note');
 
 let DB = new DatabaseClass(app.getPath('userData'));
-let User = new UserClass(DB);
 let Directory = new DirectoryClass(DB);
 
-// User initialization (register if not exists)
-User.register().then(function() {
-
-  // run controllers
-  let directoryCtrl = new DirectoryControllerClass(DB, User);
-  let notesCtrl = new NotesControllerClass(DB, User);
-
-}).catch(function (err) {
-  console.log("Initialization error", err);
-});
+// run controllers
+let directoryCtrl = new DirectoryControllerClass(DB);
+let notesCtrl = new NotesControllerClass(DB);
 
 let mainWindow = null;
 
