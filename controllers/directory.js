@@ -14,11 +14,9 @@ class DirectoryController {
 
   /**
    * Setup event handlers
-   * @param db - database model
    */
-  constructor(db) {
-    this.db = db;
-    this.directory = new Directory(db);
+  constructor() {
+    this.directory = new Directory();
 
     ipcMain.on('create folder', (event, folderName) => {
       this.createFolder(event, folderName);

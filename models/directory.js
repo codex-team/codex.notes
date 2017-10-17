@@ -1,6 +1,7 @@
 'use strict';
 
 const random = require('../utils/random');
+const db = require('../utils/database');
 
 /**
  * Directory model
@@ -9,10 +10,8 @@ class Directory {
 
   /**
    * Initialize params for the API
-   * @param db - DB model object
    */
-  constructor(db) {
-    this.db = db;
+  constructor() {
   }
 
   /**
@@ -23,7 +22,7 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await this.db.insert(this.db.DIRECTORY, { 'name': name, 'notes': [] } );
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [] } );
       return dir;
     }
     catch (err) {
@@ -44,7 +43,7 @@ class Directory {
    */
   async get(id) {
     try {
-      let dir = await this.db.findOne(this.db.DIRECTORY, {'_id': id});
+      let dir = await db.findOne(db.DIRECTORY, {'_id': id});
       if (dir) {
         return this.format(dir);
       }
@@ -69,7 +68,7 @@ class Directory {
    */
   async list() {
     try {
-      let list = await this.db.find(this.db.DIRECTORY, {'_id': { $ne: 0 }});
+      let list = await db.find(db.DIRECTORY, {'_id': { $ne: 0 }});
       return list.map(this.format);
     }
     catch (err) {
@@ -85,7 +84,7 @@ class Directory {
    */
   async delete(directoryId) {
     try {
-      return await this.db.remove(this.db.DIRECTORY, {'_id': directoryId});
+      return await db.remove(db.DIRECTORY, {'_id': directoryId});
     }
     catch (err) {
       console.log("Directory delete error: ", err);

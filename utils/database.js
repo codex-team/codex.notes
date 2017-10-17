@@ -9,11 +9,16 @@ const Datastore = require('nedb');
  */
 class Database {
 
+  constructor() {
+  }
+
   /**
    * Create directory in user application folder and initialize collections USER and DIRECTORY.
-   * @param appFolder
+   * Create root directory if not exists.
+   * @returns {Promise.<void>}
    */
-  constructor(appFolder) {
+  async makeInitialSettings(appFolder) {
+
     this.appFolder = appFolder;
 
     if (!fs.existsSync(this.appFolder)) {
@@ -24,15 +29,6 @@ class Database {
     this.DIRECTORY = new Datastore({ filename: path.join(this.appFolder, 'dir.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
-    // create root directory
-    this.makeInitialSettings();
-  }
-
-  /**
-   * Create root directory if not exists.
-   * @returns {Promise.<void>}
-   */
-  async makeInitialSettings() {
     let rootDirectory = await this.find(this.DIRECTORY, {'root': true });
     if (rootDirectory.length === 0) {
       await this.insert(this.DIRECTORY, {
@@ -105,4 +101,4 @@ class Database {
   }
 }
 
-module.exports = Database;
+module.exports = new Database();

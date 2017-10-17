@@ -1,6 +1,7 @@
 'use strict';
 
 const random = require('../utils/random');
+const db = require('../utils/database');
 
 /**
  * Notes model.
@@ -9,10 +10,8 @@ class NotesModel {
 
   /**
    * Initialize parameters for API.
-   * @param db - DB model object
    */
-  constructor(db) {
-    this.db = db;
+  constructor() {
   }
 
   /**
@@ -32,7 +31,7 @@ class NotesModel {
    */
   async get(noteId) {
     try {
-      let note = await this.db.findOne(this.db.NOTES, {'_id': noteId});
+      let note = await db.findOne(db.NOTES, {'_id': noteId});
       if (!note) {
         console.log("Note is not found", noteId);
         return false;
@@ -58,14 +57,14 @@ class NotesModel {
    */
   async list(directoryId) {
     try {
-      let directory = await this.db.findOne(this.db.DIRECTORY, {'_id': directoryId});
+      let directory = await db.findOne(db.DIRECTORY, {'_id': directoryId});
 
       // Additional check to perform clever logging
       if (!directory) {
         return [];
       }
 
-      let notes = await this.db.find(this.db.NOTES, {'folderId': directoryId});
+      let notes = await db.find(db.NOTES, {'folderId': directoryId});
 
       return notes.map(function (element) {
         return {
@@ -104,7 +103,7 @@ class NotesModel {
   async save(directoryId, note) {
     try {
       if (!directoryId) {
-        let directory = await this.db.findOne(this.db.DIRECTORY, {'root': true});
+        let directory = await db.findOne(db.DIRECTORY, {'root': true});
         directoryId = directory._id;
         note.folderId = directoryId; // make sure that null or false is 0
       }
@@ -114,7 +113,7 @@ class NotesModel {
       }
       note._id = note.data.id;
 
-      let newNote = await this.db.update(this.db.NOTES, {'_id': note._id }, note, {'upsert': true});
+      let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
         return {
           id: note.data.id,

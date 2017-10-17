@@ -6,17 +6,18 @@ const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 
-const DatabaseClass = require('./utils/database');
 const DirectoryClass = require('./models/directory');
 const DirectoryControllerClass = require('./controllers/directory');
 const NotesControllerClass = require('./controllers/note');
 
-let DB = new DatabaseClass(app.getPath('userData'));
-let Directory = new DirectoryClass(DB);
+const db = require('./utils/database');
+
+db.makeInitialSettings(app.getPath('userData'));
+let Directory = new DirectoryClass();
 
 // run controllers
-let directoryCtrl = new DirectoryControllerClass(DB);
-let notesCtrl = new NotesControllerClass(DB);
+let directoryCtrl = new DirectoryControllerClass();
+let notesCtrl = new NotesControllerClass();
 
 let mainWindow = null;
 

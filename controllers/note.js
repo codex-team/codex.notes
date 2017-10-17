@@ -15,12 +15,10 @@ class NoteController {
 
   /**
    * Setup event handlers
-   * @param db - database model
    */
-  constructor(db) {
-    this.db = db;
-    this.notes = new Notes(db);
-    this.directory = new Directory(db);
+  constructor() {
+    this.notes = new Notes();
+    this.directory = new Directory();
 
     ipcMain.on('save note', (event, {note}) => {
       this.saveNote(note, event);
