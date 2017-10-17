@@ -5,11 +5,19 @@ const app = electron.app;
 const locals = {title: 'CodeX Notes'};
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
-const Database = require('./api/database');
 
-let DB = new Database(app.getPath('userData'));
-let notesCtrl = require('./controllers/notes');
-let foldersCtrl = require('./controllers/folders');
+const DirectoryClass = require('./models/directory');
+const DirectoryControllerClass = require('./controllers/directory');
+const NotesControllerClass = require('./controllers/note');
+
+const db = require('./utils/database');
+
+db.makeInitialSettings(app.getPath('userData'));
+let Directory = new DirectoryClass();
+
+// run controllers
+let directoryCtrl = new DirectoryControllerClass();
+let notesCtrl = new NotesControllerClass();
 
 let mainWindow = null;
 
@@ -50,4 +58,5 @@ app.on('ready', function () {
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
+
 });
