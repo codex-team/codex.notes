@@ -31,6 +31,10 @@ class NoteController {
     ipcMain.on('get note', (event, {id, folder}) => {
       this.getNote(id, event);
     });
+
+    ipcMain.on('delete note', (event, {id, folder}) => {
+      this.deleteNote(id, event);
+    });
   }
 
   /**
@@ -129,6 +133,23 @@ class NoteController {
     }
     catch (err) {
       console.log(err);
+    }
+  }
+
+  /**
+   * Delete note with specified ID. Return boolean result.
+   * @param noteId
+   * @param event
+   * @returns {Promise.<boolean>}
+   */
+  async deleteNote(noteId, event) {
+    try {
+      let result = await this.notes.delete(noteId);
+      event.returnValue = true;
+    }
+    catch (err) {
+      console.log(err);
+      event.returnValue = false;
     }
   }
 
