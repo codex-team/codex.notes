@@ -1,7 +1,9 @@
 'use strict';
 
+let sanitizeHtml = require('sanitize-html');
 const random = require('../utils/random');
 const db = require('../utils/database');
+const DEFAULT_TITLE = 'Untitled';
 
 /**
  * Notes model.
@@ -112,6 +114,11 @@ class NotesModel {
         note.data.id = random.generatePassword();
       }
       note._id = note.data.id;
+
+      if (!note.title) {
+        let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
+        note.title = sanitizeHtml(titleFromText, {allowedTags: []});
+      }
 
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
