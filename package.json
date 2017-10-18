@@ -18,7 +18,7 @@
     "create-installer-mac": "rm \"./release-builds/CodeX Notes.dmg\"; appdmg ./assets/dmg/appdmg.json \"./release-builds/CodeX Notes.dmg\"",
     "create-installer-linux": "electron-installer-debian --config ./assets/deb/config.json",
     "create-installer-win": "node assets/exe/create-installer.js",
-    "release-all": "npm run release-mac; npm run release-linux",
+    "release-all": "npm run release-mac; npm run release-linux; npm run release-win",
     "release-mac": "npm run package-mac; npm run create-installer-mac",
     "release-linux": "npm run package-linux; npm run create-installer-linux",
     "release-win": "npm run package-win; npm run create-installer-win"
