@@ -53,4 +53,16 @@ export default class Folder {
     }
   }
 
+  /**
+   * Delete folder
+   */
+  static delete(folderId) {
+    if (!window.ipcRenderer.sendSync('delete folder', folderId)) {
+      return false;
+    }
+
+    codex.notes.aside.removeFolderMenu(folderId);
+    codex.notes.note.clear();
+  }
+
 }

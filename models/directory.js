@@ -84,7 +84,10 @@ class Directory {
    */
   async delete(directoryId) {
     try {
-      return await db.remove(db.DIRECTORY, {'_id': directoryId});
+      let deleteNotesResult = await db.remove(db.NOTES, {'folderId': directoryId}, {});
+      let deleteDirectoryResult = await db.remove(db.DIRECTORY, {'_id': directoryId}, {});
+
+      return deleteDirectoryResult & deleteNotesResult;
     }
     catch (err) {
       console.log("Directory delete error: ", err);

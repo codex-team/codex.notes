@@ -277,7 +277,9 @@ export default class Aside {
   addFolder(folder) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.name, {folderId: folder.id});
+    let deleteFolderButton = this.makeToolButton();
 
+    item.appendChild(deleteFolderButton);
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 
@@ -302,6 +304,24 @@ export default class Aside {
     }
 
     return item;
+  }
+
+  /**
+   * Makes tool button for menu element
+   * @returns {Element|*}
+   */
+  makeToolButton() {
+    let button = $.make('span', null, {
+      textContent: 'x'
+    });
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.folderDelete(event.target.parentNode);
+    });
+
+    return button;
   }
 
   /**
@@ -330,6 +350,16 @@ export default class Aside {
 
       if (existingNote) existingNote.remove();
     });
+  }
+
+  /**
+   *
+   * @param folderId
+   */
+  removeFolderMenu(folderId) {
+    let folderItem = document.querySelector('[name="js-folders-menu"]').querySelector('[data-folder-id="' + folderId + '"]');
+
+    if (folderItem) folderItem.remove();
   }
 
   /**
@@ -370,6 +400,18 @@ export default class Aside {
      * Open folder section
      */
     this.swiper.open();
+  }
+
+  /**
+   * Delete folder action
+   * @param item
+   */
+  folderDelete( item ) {
+    let folderId = item.dataset.folderId;
+
+    if (folderId) {
+      Folder.delete(folderId);
+    }
   }
 
   /**

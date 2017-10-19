@@ -60,6 +60,7 @@
         &:hover {
             color: #fff;
         }
+
     }
 
     &--loading {
@@ -74,4 +75,8 @@
             width: 65%;
         }
     }
+}
+
+#folders-section li span {
+    float: right;
 }
