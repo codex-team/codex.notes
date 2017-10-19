@@ -131,6 +131,22 @@ class NotesModel {
     }
   }
 
+  /**
+   * Delete note by specified ID.
+   * @param noteId
+   * @returns {Promise.<boolean>}
+   */
+  async delete(noteId) {
+    try {
+      let result = await db.remove(db.NOTES, {'_id': noteId}, {});
+      return true;
+    }
+    catch (err) {
+      console.log("Note delete error: ", err);
+      return false;
+    }
+  }
+
 }
 
 module.exports = NotesModel;
