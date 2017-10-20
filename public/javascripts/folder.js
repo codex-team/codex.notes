@@ -31,8 +31,10 @@ export default class Folder {
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
     this.newNoteButton = document.querySelector('[name="js-new-note-button-in-folder"]');
+    this.folderDeleteButton = document.querySelector('[name="js-delete-folder-button"]');
 
     this.newNoteButton.dataset.folderId = this.id;
+    this.folderDeleteButton.dataset.folderId = this.id;
   }
 
   /**

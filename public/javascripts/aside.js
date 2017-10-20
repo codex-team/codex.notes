@@ -89,6 +89,10 @@ export default class Aside {
       button.addEventListener('click', () => this.newNoteButtonClicked(button) );
     });
 
+    let folderDeleteButton = document.querySelector('[name="js-delete-folder-button"]');
+
+    folderDeleteButton.addEventListener('click', () => this.folderDelete(folderDeleteButton));
+
     /**
      * Activate new folder button
      */
@@ -277,9 +281,6 @@ export default class Aside {
   addFolder(folder) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.name, {folderId: folder.id});
-    let deleteFolderButton = this.makeToolButton();
-
-    item.appendChild(deleteFolderButton);
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 
@@ -411,6 +412,7 @@ export default class Aside {
 
     if (folderId) {
       Folder.delete(folderId);
+      this.closeFolder();
     }
   }
 
