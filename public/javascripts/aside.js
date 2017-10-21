@@ -411,8 +411,11 @@ export default class Aside {
     let folderId = item.dataset.folderId;
 
     if (folderId) {
-      Folder.delete(folderId);
-      this.closeFolder();
+      let result = Folder.delete(folderId);
+
+      if (result) {
+        this.closeFolder();
+      }
     }
   }
 

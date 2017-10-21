@@ -1,4 +1,5 @@
 const $ = require('./dom').default;
+const remote = require('electron').remote;
 
 /**
  * Folders methods
@@ -59,12 +60,24 @@ export default class Folder {
    * Delete folder
    */
   static delete(folderId) {
-    if (!window.ipcRenderer.sendSync('delete folder', folderId)) {
-      return false;
-    }
+    let choice = remote.dialog.showMessageBox(remote.getCurrentWindow(),
+      {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this folder?'
+      });
 
-    codex.notes.aside.removeFolderMenu(folderId);
-    codex.notes.note.clear();
+    if (choice === 0) {
+      if (!window.ipcRenderer.sendSync('delete folder', folderId)) {
+        return false;
+      }
+
+      codex.notes.aside.removeFolderMenu(folderId);
+      codex.notes.note.clear();
+      return true;
+    }
+    return false;
   }
 
 }
