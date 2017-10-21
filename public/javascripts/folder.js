@@ -60,7 +60,11 @@ export default class Folder {
    * Delete folder
    */
   static delete(folderId) {
-    let choice = remote.dialog.showMessageBox(remote.getCurrentWindow(),
+    const browserWindow = remote.getCurrentWindow();
+
+    browserWindow.setSheetOffset(30, browserWindow.width / 2);
+
+    let choice = remote.dialog.showMessageBox(browserWindow,
       {
         type: 'question',
         buttons: ['Yes', 'No'],
