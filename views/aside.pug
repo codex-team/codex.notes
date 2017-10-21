@@ -52,10 +52,6 @@
                 include ../public/svg/pencil.svg
                 | New note
 
-            span.add-note-button(name="js-delete-folder-button")
-                include ../public/svg/trash.svg
-                | Delete folder
-
 
             //-
             //- Scrollable zone
@@ -66,3 +62,9 @@
                     .aside__section-title Notes
                     .notes-list
                         ul.notes-list__content(name="js-folder-notes-menu")
+
+            .aside__section-settings
+
+                span.js-delete-folder-button(name="js-delete-folder-button")
+                    include ../public/svg/trash.svg
+                    span(id="delete-folder-text") Delete folder

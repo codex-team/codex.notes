@@ -32,6 +32,10 @@
         text-transform: uppercase;
     }
 
+    &__section-settings {
+        margin: 24px 0;
+     }
+
     .add-note-button {
         display: block;
         padding: 10px 13px;
@@ -52,6 +56,20 @@
             border-color: rgba(77,120,190,0.72);
             color: #5ba2ff;
         }
+    }
+
+    .js-delete-folder-button {
+        cursor: pointer;
+        color: #63758c;
+
+        svg {
+            margin: -3px 5px 0 -2px;
+        }
+
+        &:hover {
+             border-color: rgba(77,120,190,0.72);
+             color: #5ba2ff;
+         }
     }
 
     /**
