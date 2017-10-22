@@ -1,5 +1,6 @@
 const $ = require('./dom').default;
 const remote = require('electron').remote;
+const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
@@ -60,19 +61,7 @@ export default class Folder {
    * Delete folder
    */
   static delete(folderId) {
-    const browserWindow = remote.getCurrentWindow();
-
-    browserWindow.setSheetOffset(30, browserWindow.width / 2);
-
-    let choice = remote.dialog.showMessageBox(browserWindow,
-      {
-        type: 'question',
-        buttons: ['Yes', 'No'],
-        title: 'Confirm',
-        message: 'Are you sure you want to delete this folder?'
-      });
-
-    if (choice === 0) {
+    if (Dialog.confirm('Are you sure you want to delete this folder?')) {
       if (!window.ipcRenderer.sendSync('delete folder', folderId)) {
         return false;
       }
