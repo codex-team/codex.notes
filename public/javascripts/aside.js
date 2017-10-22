@@ -358,9 +358,17 @@ export default class Aside {
    * @param folderId - folder ID
    */
   removeFolderMenu(folderId) {
-    let folderItem = document.querySelector('[name="js-folders-menu"]').querySelector('[data-folder-id="' + folderId + '"]');
+    let foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
-    if (folderItem) folderItem.remove();
+    if (!foldersMenu) {
+      return false;
+    }
+
+    let folderItem = foldersMenu.querySelector('[data-folder-id="' + folderId + '"]');
+
+    if (folderItem) {
+      folderItem.remove();
+    }
   }
 
   /**
