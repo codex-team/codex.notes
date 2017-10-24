@@ -1,7 +1,9 @@
 'use strict';
 
+let sanitizeHtml = require('sanitize-html');
 const random = require('../utils/random');
 const db = require('../utils/database');
+const DEFAULT_TITLE = 'Untitled';
 
 /**
  * Notes model.
@@ -113,6 +115,11 @@ class NotesModel {
       }
       note._id = note.data.id;
 
+      if (!note.title) {
+        let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
+        note.title = sanitizeHtml(titleFromText, {allowedTags: []});
+      }
+
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
         return {
@@ -127,6 +134,22 @@ class NotesModel {
     }
     catch (err) {
       console.log("Note save error: ", err);
+      return false;
+    }
+  }
+
+  /**
+   * Delete note by specified ID.
+   * @param noteId
+   * @returns {Promise.<boolean>}
+   */
+  async delete(noteId) {
+    try {
+      let result = await db.remove(db.NOTES, {'_id': noteId}, {});
+      return true;
+    }
+    catch (err) {
+      console.log("Note delete error: ", err);
       return false;
     }
   }
