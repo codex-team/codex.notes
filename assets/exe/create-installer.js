@@ -1,11 +1,11 @@
 var electronInstaller = require('electron-winstaller');
 
 let resultPromise = electronInstaller.createWindowsInstaller({
-  appDirectory: 'release-builds/CodeX Notes-win32-x64',
+  appDirectory: 'release-builds/codex.notes-win32-x64',
   outputDirectory: 'release-builds/win-installer',
   authors: 'CodeX Team',
-  exe: 'CodeX Notes.exe',
-  setupExe: 'CodeX Notes Installer.exe',
+  exe: 'codex.notes.exe',
+  setupExe: 'Installer.exe',
   setupIcon: 'assets/icons/ico/icon-white128.ico'
 });
 
