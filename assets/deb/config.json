@@ -1,5 +1,5 @@
 {
-  "src": "./release-builds/CodeX Notes-linux-x64/",
+  "src": "./release-builds/codex.notes-linux-x64/",
   "dest": "./release-builds/",
   "arch": "amd64",
   "icon": "./assets/icons/png/icon-white1024.png",
