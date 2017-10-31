@@ -1,6 +1,6 @@
-data/
-dist/*
-dmg/*
+public/notes/*
+release-builds/*
+data/*
 
 .idea/*
 package-lock.json

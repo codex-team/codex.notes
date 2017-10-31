@@ -1,7 +1,6 @@
 /**
  * Bundle config
  */
-
 let webpack           = require('webpack');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let path              = require('path');
@@ -88,14 +87,14 @@ module.exports = {
     // options for resolving module requests
     // (does not apply to resolving to loaders)
 
-    // directories where to look for modules
     modules: [
       'node_modules',
       path.resolve(__dirname, 'public/')
     ],
+    // directories where to look for modules
 
-    // extensions that are used
     extensions: ['.js', '.json', '.jsx', '.css'],
+    // extensions that are used
 
     alias: {
       // a list of module name aliases
@@ -105,6 +104,7 @@ module.exports = {
 
       'only-module$': 'new-module',
       // alias "only-module" -> "new-module", but not "module/path/file" -> "new-module/path/file"
+
       // alias "module" -> "./app/third/module.js" and "module/file" results in error
       // modules aliases are imported relative to the current context
     },
@@ -128,6 +128,7 @@ module.exports = {
   /** Пересборка при изменениях */
   watch: true,
   watchOptions: {
+
     /** Таймаут перед пересборкой */
     aggragateTimeout: 50
   }
