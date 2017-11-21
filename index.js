@@ -61,7 +61,7 @@ app.on('ready', function () {
   });
 
   /** Open the DevTools. */
-  if (process.env.CONSOLE_DEBUG == 'true') {
+  if (process.env.OPEN_DEV_TOOLS == 'true') {
     mainWindow.webContents.openDevTools();
   }
 
