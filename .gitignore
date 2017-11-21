@@ -58,3 +58,5 @@ jspm_packages
 *.sublime-workspace
 
 .DS_Store
+
+.env
