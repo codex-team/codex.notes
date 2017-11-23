@@ -3,6 +3,8 @@
 const electron = require('electron');
 const app = electron.app;
 const locals = {title: 'CodeX Notes'};
+require('dotenv').config()
+
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./package.json');
@@ -59,7 +61,9 @@ app.on('ready', function () {
   });
 
   /** Open the DevTools. */
-  //mainWindow.webContents.openDevTools();
+  if (process.env.OPEN_DEV_TOOLS == 'true') {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.on('closed', function () {
     mainWindow = null;
