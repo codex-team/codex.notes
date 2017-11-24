@@ -12,7 +12,7 @@ CodeX Notes is a crossplatform text editor, build on [Electron](https://github.c
 
 ### Interface
 
-
+![Notes](https://capella.ifmo.su/56141a85-19d0-48bc-aa8b-dde33a562826)
 
 ### Latest versions
 
