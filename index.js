@@ -3,7 +3,7 @@
 const electron = require('electron');
 const app = electron.app;
 const locals = {title: 'CodeX Notes'};
-require('dotenv').config()
+require('dotenv').config();
 
 const pug = require('electron-pug')({pretty:true}, locals);
 const BrowserWindow = electron.BrowserWindow;

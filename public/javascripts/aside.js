@@ -89,10 +89,6 @@ export default class Aside {
       button.addEventListener('click', () => this.newNoteButtonClicked(button) );
     });
 
-    let folderDeleteButton = document.querySelector('[name="js-delete-folder-button"]');
-
-    folderDeleteButton.addEventListener('click', () => this.folderDelete(folderDeleteButton));
-
     /**
      * Activate new folder button
      */
