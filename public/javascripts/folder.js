@@ -1,5 +1,4 @@
 const $ = require('./dom').default;
-const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
@@ -52,22 +51,6 @@ export default class Folder {
     if (!this.notes.length) {
       this.notesListWrapper.innerHTML = '';
     }
-  }
-
-  /**
-   * Delete folder
-   */
-  static delete(folderId) {
-    if (Dialog.confirm('Are you sure you want to delete this folder?')) {
-      if (!window.ipcRenderer.sendSync('delete folder', folderId)) {
-        return false;
-      }
-
-      codex.notes.aside.removeFolderMenu(folderId);
-      codex.notes.note.clear();
-      return true;
-    }
-    return false;
   }
 
 }

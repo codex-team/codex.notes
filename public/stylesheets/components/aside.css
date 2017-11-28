@@ -58,20 +58,6 @@
         }
     }
 
-    .js-delete-folder-button {
-        cursor: pointer;
-        color: #63758c;
-
-        svg {
-            margin: -3px 5px 0 -2px;
-        }
-
-        &:hover {
-             border-color: rgba(77,120,190,0.72);
-             color: #5ba2ff;
-         }
-    }
-
     /**
      * Add folder button and input
      * ============================

@@ -304,24 +304,6 @@ export default class Aside {
   }
 
   /**
-   * Makes tool button for menu element
-   * @returns {Element|*}
-   */
-  makeToolButton() {
-    let button = $.make('span', null, {
-      textContent: 'x'
-    });
-
-    button.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.folderDelete(event.target.parentNode);
-    });
-
-    return button;
-  }
-
-  /**
    * Creates aside menu item title
    * @param {String} title
    * @return {String}
@@ -405,22 +387,6 @@ export default class Aside {
      * Open folder section
      */
     this.swiper.open();
-  }
-
-  /**
-   * Delete folder action
-   * @param item
-   */
-  folderDelete( item ) {
-    let folderId = item.dataset.folderId;
-
-    if (folderId) {
-      let result = Folder.delete(folderId);
-
-      if (result) {
-        this.closeFolder();
-      }
-    }
   }
 
   /**
