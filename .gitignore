@@ -1,6 +1,6 @@
-data/
-dist/*
-dmg/*
+public/notes/*
+release-builds/*
+data/*
 
 .idea/*
 package-lock.json
@@ -58,3 +58,5 @@ jspm_packages
 *.sublime-workspace
 
 .DS_Store
+
+.env

@@ -7,7 +7,7 @@ module.exports = function (app) {
     githubRepo: pkg.repository.url,
     iconPath: __dirname + '/assets/icons/png/icon-white1024.png',
     description: pkg.description,
-    name: pkg.publishName
+    name: pkg.productName
   };
 
   let menuBar = [ {
@@ -69,6 +69,11 @@ module.exports = function (app) {
       label: 'Select All',
       accelerator: 'CmdOrCtrl+A',
       selector: 'selectAll:'
+    } ]
+  }, {
+    label: 'View',
+    submenu: [ {
+      role: 'togglefullscreen'
     } ]
   }, {
     label: 'Window',
