@@ -1,5 +1,6 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
+const Dialog = require('./dialog').default;
 
 /**
  * Note section module
@@ -140,12 +141,14 @@ export default class Note {
       return;
     }
 
-    if (!window.ipcRenderer.sendSync('delete note', {id, folderId: codex.notes.aside.currentFolderId})) {
-      return false;
-    }
+    if (Dialog.confirm('Are you sure you want to delete this note?')) {
+      if (!window.ipcRenderer.sendSync('delete note', {id, folderId: codex.notes.aside.currentFolderId})) {
+        return false;
+      }
 
-    codex.notes.aside.removeMenuItem(id);
-    this.clear();
+      codex.notes.aside.removeMenuItem(id);
+      this.clear();
+    }
   }
 
   /**

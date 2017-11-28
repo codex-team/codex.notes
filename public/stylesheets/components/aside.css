@@ -32,6 +32,10 @@
         text-transform: uppercase;
     }
 
+    &__section-settings {
+        margin: 24px 0;
+     }
+
     .add-note-button {
         display: block;
         padding: 10px 13px;

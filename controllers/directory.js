@@ -86,7 +86,7 @@ class DirectoryController {
    */
   async deleteFolder(event, folderId) {
     try {
-      await this.directory.remove(folderId);
+      await this.directory.delete(folderId);
       event.returnValue = true;
     }
     catch (err) {

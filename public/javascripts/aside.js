@@ -278,7 +278,6 @@ export default class Aside {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.name, {folderId: folder.id});
 
-
     foldersMenu.insertAdjacentElement('afterbegin', item);
 
     item.addEventListener('click', event => this.folderClicked(event.target) );
@@ -330,6 +329,24 @@ export default class Aside {
 
       if (existingNote) existingNote.remove();
     });
+  }
+
+  /**
+   * Remove folder from menu by ID
+   * @param folderId - folder ID
+   */
+  removeFolderMenu(folderId) {
+    let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+
+    if (!foldersMenu) {
+      return false;
+    }
+
+    let folderItem = foldersMenu.querySelector('[data-folder-id="' + folderId + '"]');
+
+    if (folderItem) {
+      folderItem.remove();
+    }
   }
 
   /**
