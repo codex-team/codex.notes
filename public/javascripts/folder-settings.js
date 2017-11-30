@@ -1,5 +1,5 @@
 /**
- * Folder Setting panel module
+ * Folder Settings panel module
  *
  * @property {Boolean} opened - state
  */

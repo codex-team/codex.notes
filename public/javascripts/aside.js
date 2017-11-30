@@ -18,12 +18,12 @@ export default class Aside {
 
   /**
   * @constructor
-  * @property {object}      this.CSS               classnames dictionary
-  * @property {AsideSwiper} this.swiper            AsideSwiper instance
-  * @property {number|null} this.currentFolderId   Opened folder id
-  * @property {Element}     this.newFolderButton   New folder button
-  * @property {Element}     this.newFolderField    New folder form field
-  * @property {FolderSettings}     this.folderSettings    Folder Settings Panel instance
+  * @property {object}          this.CSS               classnames dictionary
+  * @property {AsideSwiper}     this.swiper            AsideSwiper instance
+  * @property {number|null}     this.currentFolderId   Opened folder id
+  * @property {Element}         this.newFolderButton   New folder button
+  * @property {Element}         this.newFolderField    New folder form field
+  * @property {FolderSettings}  this.folderSettings    Folder Settings Panel instance
   */
   constructor() {
     /**
@@ -116,7 +116,7 @@ export default class Aside {
     /**
      * Active 'Folder Settings' panel
      */
-    this.activateSettingsPanel();
+    this.folderSettings = new FolderSettings();
   }
 
   /**
@@ -441,12 +441,5 @@ export default class Aside {
     scrollableZones.forEach( zone => {
       zone.addEventListener('scroll', addClassOnScroll);
     });
-  }
-
-  /**
-   * Activate Folder Settings panel
-   */
-  activateSettingsPanel() {
-    this.folderSettings = new FolderSettings();
   }
 }
