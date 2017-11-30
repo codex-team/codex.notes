@@ -1,0 +1,32 @@
+ .folder-header {
+    margin-bottom: 17px;
+    font-size: 14.8px;
+    cursor: pointer;
+    color: #dee6fc;
+    display: flex;
+
+    svg {
+        height: 15px;
+        fill: #dee6fc;
+        margin: auto 10px auto 0 ;
+    }
+
+    &__right {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__name {
+        color: var(--aside-color-light);
+    }
+
+    &__settings {
+        color: var(--label-color);
+        margin-top: 3px;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--aside-color);
+        }
+    }
+}

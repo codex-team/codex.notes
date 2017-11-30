@@ -44,9 +44,27 @@
             //-
             //- Folder header
             //-
-            .aside__folder-header(id="folder-header")
-                include ../public/svg/arrow-left.svg
-                span(id="js-folder-name") Folder Name
+            .folder-header(id="folder-header")
+                #folder-close-zone
+                    include ../public/svg/arrow-left.svg
+                .folder-header__right
+                    .folder-header__name(id="js-folder-name") Folder Name
+                    .folder-header__settings(id="js-folder-settings-toggler") Settings
+
+            .folder-settings(id="js-folder-settings")
+                .aside__section-title Folder Settings
+                .folder-settings__close(id="js-close-folder")
+                    include ../public/svg/close-folder.svg
+
+                | [ Change name ]
+                br
+                | [ Delete folder ]
+                br
+                br
+                br
+                br
+
+                .aside__section-title Collaborators
 
             span.add-note-button(name="js-new-note-button-in-folder")
                 include ../public/svg/pencil.svg

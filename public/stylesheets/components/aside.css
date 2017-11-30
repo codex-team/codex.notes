@@ -122,19 +122,7 @@
         }
     }
 
-    &__folder-header {
-        margin-bottom: 17px;
-        font-size: 14.8px;
-        cursor: pointer;
-        color: #dee6fc;
 
-        svg {
-            height: 15px;
-            fill: #dee6fc;
-            margin-top: -0.15em;
-            margin-right: 0.5em;
-        }
-    }
 }
 
 /**
@@ -153,6 +141,7 @@
         flex-direction: column;
         width: 100%;
         max-width: 200px;
+        position: relative;
     }
 
     &__left {

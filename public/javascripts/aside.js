@@ -1,5 +1,6 @@
 import Folder from './folder';
 import Note from './note';
+import FolderSettings from './folder-settings';
 
 const AsideSwiper = require('./aside-swiper').default;
 const $ = require('./dom').default;
@@ -22,6 +23,7 @@ export default class Aside {
   * @property {number|null} this.currentFolderId   Opened folder id
   * @property {Element}     this.newFolderButton   New folder button
   * @property {Element}     this.newFolderField    New folder form field
+  * @property {FolderSettings}     this.folderSettings    Folder Settings Panel instance
   */
   constructor() {
     /**
@@ -103,13 +105,18 @@ export default class Aside {
     /**
      * Activate folders Back button
      */
-    let folderHeader = $.get('folder-header');
+    let folderCloseToggler = $.get('folder-close-zone');
 
-    folderHeader.addEventListener('click', () => {
+    folderCloseToggler.addEventListener('click', () => {
       this.closeFolder();
     });
 
     this.activateScrollableGradient();
+
+    /**
+     * Active 'Folder Settings' panel
+     */
+    this.activateSettingsPanel();
   }
 
   /**
@@ -436,4 +443,10 @@ export default class Aside {
     });
   }
 
+  /**
+   * Activate Folder Settings panel
+   */
+  activateSettingsPanel() {
+    this.folderSettings = new FolderSettings();
+  }
 }

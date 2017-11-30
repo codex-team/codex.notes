@@ -1,0 +1,31 @@
+.folder-settings {
+    background: var(--aside-bg);
+    position: absolute;
+    top: 45px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: none;
+    padding: 10px 0;
+
+    &--opened {
+        display: block;
+    }
+
+    &__close {
+        position: absolute;
+        right: 0;
+        top: 3px;
+        cursor: pointer;
+
+        svg {
+            opacity: 0.2;
+        }
+
+        &:hover {
+            svg {
+                opacity: 1
+            }
+        }
+    }
+}
