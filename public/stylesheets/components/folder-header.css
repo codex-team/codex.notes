@@ -2,7 +2,7 @@
     margin-bottom: 17px;
     font-size: 14.8px;
     cursor: pointer;
-    color: #dee6fc;
+    color: var(--aside-color);
     display: flex;
 
     svg {
