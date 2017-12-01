@@ -127,7 +127,7 @@ class NotesModel {
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
 
-        await db.update(db.DIRECTORY, {'_id': directoryId}, {'timestamp': + new Date()}, {}, function () {});
+        await db.update(db.DIRECTORY, {'_id': directoryId}, {'timestamp': newNote.timestamp}, {}, function () {});
 
         return {
           id: note.data.id,
