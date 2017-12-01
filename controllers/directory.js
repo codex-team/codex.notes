@@ -102,7 +102,7 @@ class DirectoryController {
   /**
    * Change folder name
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {MongoId} id  - folder id
+   * @param {ObjectId} id  - folder id
    * @param {string} name - new name
    * @returns {Promise.<void>}
    */

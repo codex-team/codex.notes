@@ -97,7 +97,7 @@ class Directory {
 
   /**
    * Renames directory by id.
-   * @param {MongoId} id  - directory ID
+   * @param {ObjectId} id  - directory ID
    * @param {String} name - new name
    * @returns {Boolean}
    */

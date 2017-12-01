@@ -1,4 +1,5 @@
 const Dialog = require('./dialog').default;
+const $ = require('./dom').default;
 
 /**
  * Folder Settings panel module
@@ -11,9 +12,9 @@ export default class FolderSettings {
    * @constructor
    */
   constructor() {
-    this.toggler = document.getElementById('js-folder-settings-toggler');
-    this.closeButton = document.getElementById('js-close-folder');
-    this.removeFolderButton = document.getElementById('js-delete-folder');
+    this.toggler = $.get('js-folder-settings-toggler');
+    this.closeButton = $.get('js-close-folder');
+    this.removeFolderButton = $.get('js-delete-folder');
     this.folderNameInput  = document.getElementsByName('folder-name')[0];
 
     this.toggler.addEventListener('click', () => {
@@ -104,7 +105,7 @@ export default class FolderSettings {
     }
 
     /**
-     * Save folder
+     * Send request for renaming
      * @type {object}
      */
     let result = window.ipcRenderer.sendSync('folder - change name', { id, name });
