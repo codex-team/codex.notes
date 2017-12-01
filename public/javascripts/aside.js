@@ -348,6 +348,27 @@ export default class Aside {
   }
 
   /**
+   * Updates folder name in menu
+   *
+   * @param {MongoId} folderId - folder ID
+   * @param {Strign} anme      - new name
+   */
+  updateFolderNameInMenu(folderId, name) {
+    let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+
+    if (!foldersMenu) {
+      return false;
+    }
+
+    let folderItem = foldersMenu.querySelector('[data-folder-id="' + folderId + '"]');
+
+    if (folderItem) {
+      folderItem.textContent = name;
+    }
+  }
+
+
+  /**
    * Note in aside menu click listener
    * @param {MouseEvent} event
    */
