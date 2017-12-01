@@ -66,7 +66,14 @@ export default class FolderSettings {
    * Handler for Remove Folder Button
    */
   removeFolderClicked() {
-    console.log('removeFolderClicked');
+    console.assert(codex.notes.aside.currentFolder, 'Cannot remove folder because it is not open');
+
+    let result = codex.notes.aside.currentFolder.delete();
+
+    if (result) {
+      this.close();
+      codex.notes.aside.closeFolder();
+    }
   }
 
 }

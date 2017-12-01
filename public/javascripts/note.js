@@ -35,12 +35,18 @@ export default class Note {
    */
   save() {
     this.deleteButton.classList.remove('hide');
+
+    /**
+     * If folder is opened, pass id. Otherwise pass false
+     */
+    let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+
     codex.editor.saver.save()
       .then( noteData => {
         let note = {
           data: noteData,
           title: this.titleEl.value.trim(),
-          folderId: codex.notes.aside.currentFolderId
+          folderId
         };
 
         let saveIndicator = document.getElementById('save-indicator');
@@ -142,7 +148,7 @@ export default class Note {
     }
 
     if (Dialog.confirm('Are you sure you want to delete this note?')) {
-      if (!window.ipcRenderer.sendSync('delete note', {id, folderId: codex.notes.aside.currentFolderId})) {
+      if (!window.ipcRenderer.sendSync('delete note', {id})) {
         return false;
       }
 

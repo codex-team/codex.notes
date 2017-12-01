@@ -13,17 +13,19 @@ const menuItemTitleMaxLength = 68;
 
 /**
  * Aside column module
+ *
+ * @property {object}          this.CSS                     classnames dictionary
+ * @property {AsideSwiper}     this.swiper                  AsideSwiper instance
+ * @property {Folder}          this.currentFolder           Opened folder instance
+ * @property {Folder}          this.previouslyOpenedFolder  See docs in {@link Aside#constructor}
+ * @property {Element}         this.newFolderButton         New folder button
+ * @property {Element}         this.newFolderField          New folder form field
+ * @property {FolderSettings}  this.folderSettings          Folder Settings Panel instance
  */
 export default class Aside {
 
   /**
   * @constructor
-  * @property {object}          this.CSS               classnames dictionary
-  * @property {AsideSwiper}     this.swiper            AsideSwiper instance
-  * @property {number|null}     this.currentFolderId   Opened folder id
-  * @property {Element}         this.newFolderButton   New folder button
-  * @property {Element}         this.newFolderField    New folder form field
-  * @property {FolderSettings}  this.folderSettings    Folder Settings Panel instance
   */
   constructor() {
     /**
@@ -45,13 +47,26 @@ export default class Aside {
      * Module for hide/show folder sections
      * @type {AsideSwiper}
      */
-    this.swiper = new AsideSwiper();
+    this.swiper = new AsideSwiper({
+      opened: () => this.folderOpened(),
+      closed: () => this.folderClosed()
+    });
 
     /**
      * Current opened folder.
-     * @type {Number|null}
+     * @type {Folder}
      */
-    this.currentFolderId = null;
+    this.currentFolder = null;
+
+    /**
+     * Save previously opened folder id.
+     * Usecase:
+     *   - Folder opened by click in menu (and saved in {@link Aside#currentFolder})
+     *   - Folder closed by swipe-left on Aside (this.currentFolder = null)
+     *   - User makes swipe-right to open Folder back, but we have not its ID
+     *   - So we use previouslyOpenedFolder to construct this.currentFolder again
+     */
+    this.previouslyOpenedFolder = null;
 
     /**
      * Show preloader
@@ -84,8 +99,7 @@ export default class Aside {
     /**
      * Activate new note button
      */
-    let newNoteButtons = document.querySelectorAll(`[name="js-new-note-button"],
-                                                    [name="js-new-note-button-in-folder"]`);
+    let newNoteButtons = document.querySelectorAll('[name="js-new-note-button"]');
 
     newNoteButtons.forEach( button => {
       button.addEventListener('click', () => this.newNoteButtonClicked(button) );
@@ -117,24 +131,6 @@ export default class Aside {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new FolderSettings();
-  }
-
-  /**
-   * Return current folder ID
-   *
-   * @returns {number}
-   */
-  get currentFolder() {
-    return this.currentFolderId;
-  }
-
-  /**
-   * Set current folder ID
-   *
-   * @param {Number} folderId
-   */
-  set currentFolder(folderId) {
-    this.currentFolderId = folderId;
   }
 
   /**
@@ -173,14 +169,9 @@ export default class Aside {
 
   /**
    * New note button click handler
-   * @param {Element} button
    * @this {Aside}
    */
-  newNoteButtonClicked(button) {
-    let folderId = button.dataset.folderId;
-
-    this.currentFolderId = folderId || null;
-
+  newNoteButtonClicked() {
     Note.focusEditor();
 
     codex.notes.note.clear();
@@ -250,7 +241,7 @@ export default class Aside {
 
     if (!noteData.folderId) {
       notesMenu = document.querySelector('[name="js-notes-menu"]');
-    } else if (noteData.folderId === this.currentFolderId) {
+    } else if (this.currentFolder && noteData.folderId === this.currentFolder.id) {
       notesMenu = document.querySelector('[name="js-folder-notes-menu"]');
     } else {
       console.log('Note added to closed folder: %o', noteData.folderId);
@@ -342,7 +333,7 @@ export default class Aside {
    * Remove folder from menu by ID
    * @param folderId - folder ID
    */
-  removeFolderMenu(folderId) {
+  removeFolderFromMenu(folderId) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
     if (!foldersMenu) {
@@ -377,6 +368,33 @@ export default class Aside {
   }
 
   /**
+   * Fired after swipe-right
+   */
+  folderOpened() {
+    /**
+     * Restore current folder after closing
+     */
+    if (!this.currentFolder && this.previouslyOpenedFolder) {
+      this.currentFolder = new Folder(this.previouslyOpenedFolder);
+    }
+
+    console.assert(this.currentFolder, 'Folder opened but does not initialized');
+
+    codex.notes.note.clear();
+  }
+
+  /**
+   * Fired after swipe-left
+   */
+  folderClosed() {
+    if (this.currentFolder) {
+      this.previouslyOpenedFolder = this.currentFolder.id;
+    }
+
+    this.currentFolder = null;
+  }
+
+  /**
    * Folder menu item clicked handler
    * @param {Element} item - clicked folder button
    */
@@ -386,9 +404,7 @@ export default class Aside {
     /**
      * Load folder
      */
-    new Folder(folderId, item.textContent);
-
-    this.currentFolderId = folderId;
+    this.currentFolder = new Folder(folderId, item.textContent);
 
     /**
      * Open folder section
@@ -400,7 +416,6 @@ export default class Aside {
    * Closes opened folder
    */
   closeFolder() {
-    // this.currentFolderId = null;
     this.swiper.close();
   }
 

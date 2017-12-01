@@ -1,4 +1,5 @@
 const $ = require('./dom').default;
+const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
@@ -15,10 +16,9 @@ export default class Folder {
    * @property {string}    name         - folder name
    * @property {Array}     notes        - notes list
    * @property {Element}   notesListWrapper  - notes list holder
-   * @property {Element}   newNoteButton
    */
   constructor(id, name) {
-    this.id = id;
+    this._id = id;
     this.name = name;
 
     codex.notes.aside.loadNotes(id)
@@ -30,9 +30,13 @@ export default class Folder {
       .then( () => this.updateNotesList() );
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
-    this.newNoteButton = document.querySelector('[name="js-new-note-button-in-folder"]');
+  }
 
-    this.newNoteButton.dataset.folderId = this.id;
+  /**
+   * Folder id getter
+   */
+  get id() {
+    return this._id;
   }
 
   /**
@@ -51,6 +55,23 @@ export default class Folder {
     if (!this.notes.length) {
       this.notesListWrapper.innerHTML = '';
     }
+  }
+
+
+  /**
+   * Delete folder
+   */
+  delete() {
+    if (Dialog.confirm('Are you sure you want to delete this folder?')) {
+      if (window.ipcRenderer.sendSync('delete folder', this._id)) {
+        codex.notes.aside.removeFolderFromMenu(this._id);
+        codex.notes.note.clear();
+        return true;
+      }
+    }
+
+    Dialog.error('Folder removing failed');
+    return false;
   }
 
 }
