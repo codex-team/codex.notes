@@ -22,7 +22,7 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [] } );
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': + new Date() } );
       return dir;
     }
     catch (err) {
