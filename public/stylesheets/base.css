@@ -4,6 +4,8 @@
 @import "components/editor.css";
 @import "components/header.css";
 @import "components/notes.css";
+@import "components/folder-header.css";
+@import "components/folder-settings.css";
 
 body {
     height: 100vh;

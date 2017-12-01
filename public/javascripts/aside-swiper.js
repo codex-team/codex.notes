@@ -2,14 +2,16 @@ const SwipeDetector = require('./swipe-detector').default;
 
 /**
  * Aside swiper class
+ * @property {object} CSS dictionary
  */
 export default class AsideSwiper {
 
   /**
-  * @constructor
-  * @property {object} CSS dictionary
-  */
-  constructor() {
+   * @constructor
+   * @param {Function} opened  - opening callback
+   * @param {Function} closed  - closing callback
+   */
+  constructor({opened, closed}) {
     this.CSS = {
       wrapper : 'aside-swiper',
       toggled : 'aside-swiper--toggled',
@@ -20,6 +22,9 @@ export default class AsideSwiper {
     this.wrapper = document.querySelector(`.${this.CSS.wrapper}`);
     this.left = this.wrapper.querySelector(`.${this.CSS.left}`);
     this.right = this.wrapper.querySelector(`.${this.CSS.right}`);
+
+    this.opened = opened || function () {};
+    this.closed = closed || function () {};
 
     /**
      * Allow to open/close by two-fingers swipe left/right
@@ -38,6 +43,7 @@ export default class AsideSwiper {
    */
   open() {
     this.wrapper.classList.add(this.CSS.toggled);
+    this.opened();
   }
 
   /**
@@ -45,5 +51,6 @@ export default class AsideSwiper {
    */
   close() {
     this.wrapper.classList.remove(this.CSS.toggled);
+    this.closed();
   }
 }
