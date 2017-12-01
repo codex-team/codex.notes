@@ -10,8 +10,8 @@ export default class FolderSettings {
    */
   constructor() {
     this.toggler = document.getElementById('js-folder-settings-toggler');
-    this.panel = document.getElementById('js-folder-settings');
     this.closeButton = document.getElementById('js-close-folder');
+    this.removeFolderButton = document.getElementById('js-delete-folder');
 
     this.toggler.addEventListener('click', () => {
       this.toggle();
@@ -20,6 +20,10 @@ export default class FolderSettings {
     this.closeButton.addEventListener('click', () => {
       this.close();
     });
+
+    this.removeFolderButton.addEventListener('click', () => {
+      this.removeFolderClicked();
+    });
   }
 
   /**
@@ -27,7 +31,7 @@ export default class FolderSettings {
    */
   static get CSS() {
     return {
-      panelOpened: 'folder-settings--opened'
+      panelOpenedModifier: 'folder-settings-opened'
     };
   }
 
@@ -35,7 +39,7 @@ export default class FolderSettings {
    * Open panel and change state
    */
   open() {
-    this.panel.classList.add(FolderSettings.CSS.panelOpened);
+    document.body.classList.add(FolderSettings.CSS.panelOpenedModifier);
     this.opened = true;
   }
 
@@ -43,7 +47,7 @@ export default class FolderSettings {
    * Close panel and change state
    */
   close() {
-    this.panel.classList.remove(FolderSettings.CSS.panelOpened);
+    document.body.classList.remove(FolderSettings.CSS.panelOpenedModifier);
     this.opened = false;
   }
 
@@ -56,6 +60,13 @@ export default class FolderSettings {
     } else {
       this.open();
     }
+  }
+
+  /**
+   * Handler for Remove Folder Button
+   */
+  removeFolderClicked() {
+    console.log('removeFolderClicked');
   }
 
 }

@@ -4,4 +4,17 @@
     --aside-color-light: #dee6fc;
     --label-color: color(var(--aside-color) alpha(50%));
     --aside-bg: #292b37;
+
+    /**
+     * Clearfix
+     *
+     * usage: @apply --clearfix;
+     */
+    --clearfix: {
+        &::after {
+            content: " ";
+            display: table;
+            clear: both;
+        }
+    };
 }

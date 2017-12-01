@@ -30,11 +30,15 @@
         font-size: 11.7px;
         letter-spacing: 0.72px;
         text-transform: uppercase;
+
+        &:not(:first-of-type){
+            margin-top: 30px;
+        }
     }
 
     &__section-settings {
         margin: 24px 0;
-     }
+    }
 
     .add-note-button {
         display: block;
@@ -64,8 +68,8 @@
      */
     &__input,
     &__add-button {
-        padding: 5px 0;
-        margin: 10px 0 30px;
+        padding: 8px 0;
+        margin: 10px 0 0;
         color: var(--label-color);
     }
 

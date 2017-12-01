@@ -1,19 +1,23 @@
- .folder-header {
+.folder-header {
+    @apply --clearfix;
+
+    position: relative;
     margin-bottom: 17px;
     font-size: 14.8px;
     cursor: pointer;
     color: var(--aside-color);
-    display: flex;
+    padding-left: 25px;
 
-    svg {
-        height: 15px;
-        fill: #dee6fc;
-        margin: auto 10px auto 0 ;
-    }
+    &__close {
+        position: absolute;
+        left: 0;
+        top: 43%;
+        transform: translateY(-50%);
 
-    &__right {
-        display: flex;
-        flex-direction: column;
+        svg {
+            height: 15px;
+            fill: #dee6fc;
+        }
     }
 
     &__name {
