@@ -96,6 +96,21 @@ class Directory {
   }
 
   /**
+   * Renames directory by id.
+   * @param {MongoId} id  - directory ID
+   * @param {String} name - new name
+   * @returns {Boolean}
+   */
+  async rename(id, name) {
+    try {
+      return await db.update(db.DIRECTORY, {'_id': id}, { name });
+    } catch (err) {
+      console.log("Directory renaming error: ", err);
+      return false;
+    }
+  }
+
+  /**
    * Transform DB element into structure for frontend module.
    * @param element - DB structure: {{name, _id, notes: (Array|*|Notes)}}
    * @returns {{name, id, notes: (Array|*|Notes)}}

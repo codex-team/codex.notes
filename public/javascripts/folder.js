@@ -19,12 +19,14 @@ export default class Folder {
    */
   constructor(id, name) {
     this._id = id;
-    this.name = name;
+    this._name = name;
+
+    this.folderNameElement = $.get('js-folder-name');
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
         this.notes = notes;
-        this.name = folder.name;
+        this._name = folder.name;
       })
       .then( () => this.fillHeader() )
       .then( () => this.updateNotesList() );
@@ -40,12 +42,34 @@ export default class Folder {
   }
 
   /**
+   * Folder name getter
+   */
+  get name() {
+    return this._name;
+  }
+
+  /**
+   * Folder name setter
+   */
+  set name(newName) {
+    this._name = newName;
+
+    /**
+     * Update in the header
+     */
+    this.fillHeader();
+
+    /**
+     * Update in the aside menu
+     */
+    codex.notes.aside.updateFolderNameInMenu(this._id, this._name);
+  }
+
+  /**
    * Fills folder header block
    */
   fillHeader() {
-    let folderNameElement = $.get('js-folder-name');
-
-    folderNameElement.textContent = this.name;
+    this.folderNameElement.textContent = this._name;
   }
 
   /**
@@ -56,7 +80,6 @@ export default class Folder {
       this.notesListWrapper.innerHTML = '';
     }
   }
-
 
   /**
    * Delete folder

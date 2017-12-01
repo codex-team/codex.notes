@@ -1,3 +1,5 @@
+const Dialog = require('./dialog').default;
+
 /**
  * Folder Settings panel module
  *
@@ -12,6 +14,7 @@ export default class FolderSettings {
     this.toggler = document.getElementById('js-folder-settings-toggler');
     this.closeButton = document.getElementById('js-close-folder');
     this.removeFolderButton = document.getElementById('js-delete-folder');
+    this.folderNameInput  = document.getElementsByName('folder-name')[0];
 
     this.toggler.addEventListener('click', () => {
       this.toggle();
@@ -24,6 +27,8 @@ export default class FolderSettings {
     this.removeFolderButton.addEventListener('click', () => {
       this.removeFolderClicked();
     });
+
+    this.folderNameInput.addEventListener('keydown', event => this.changeNameKeydown(event) );
   }
 
   /**
@@ -41,6 +46,11 @@ export default class FolderSettings {
   open() {
     document.body.classList.add(FolderSettings.CSS.panelOpenedModifier);
     this.opened = true;
+
+    /**
+     * Fill folder name input
+     */
+    this.folderNameInput.value = codex.notes.aside.currentFolder.name || '';
   }
 
   /**
@@ -74,6 +84,47 @@ export default class FolderSettings {
       this.close();
       codex.notes.aside.closeFolder();
     }
+  }
+
+  /**
+   * Handler for Change Name input
+   * @param  {KeyboardEvent} event - keydowns
+   */
+  changeNameKeydown(event) {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    let input = event.target,
+        name = input.value.trim(),
+        id = codex.notes.aside.currentFolder.id;
+
+    if (!name) {
+      return;
+    }
+
+    /**
+     * Save folder
+     * @type {object}
+     */
+    let result = window.ipcRenderer.sendSync('folder - change name', { id, name });
+
+    if (!result) {
+      Dialog.error('Folder renaming failed. Please, try again.');
+      return false;
+    }
+
+    /**
+     * Update name in the:
+     *  - folder header
+     *  - aside menu
+     */
+    codex.notes.aside.currentFolder.name = name;
+
+    /**
+     * Close folder settings
+     */
+    this.close();
   }
 
 }
