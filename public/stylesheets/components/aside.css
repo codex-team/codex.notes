@@ -14,11 +14,29 @@
     letter-spacing: 0.3px;
 
     &__logo {
+        float: left;
+        display: flex;
+        flex-direction: column;
         margin-bottom: 15px;
         font-size: 18px;
         font-weight: 600;
         color: #fff;
+
+        .status-panel {
+            margin-top: 5px;
+            color: color(var(--aside-color-light) alpha(50%));
+            font-size: 11.5px;
+        }
+
+    }    
+
+    &__avatar {
+        float: right;
+        margin-left: 30px;
+        width: 37px;
+        height: 37px;
     }
+
 
     /**
      * Section title such as Folders or Notes
