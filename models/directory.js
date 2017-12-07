@@ -111,6 +111,24 @@ class Directory {
   }
 
   /**
+   * Invite a new member to the folder.
+   * @param {ObjectId} id  - directory ID
+   * @param {String} email - member's email
+   * @returns {Boolean}
+   */
+  async addMember(id, email) {
+    try {
+      // TODO send API request
+      // return ...api_request_function()...
+      console.log('addMember API request with params {id:\'' + id + '\', email:\'' + email + '\'}');
+      return true;
+    } catch (err) {
+      console.log("Error while invitng a new member to the folder: ", err);
+      return false;
+    }
+  }
+
+  /**
    * Transform DB element into structure for frontend module.
    * @param element - DB structure: {{name, _id, notes: (Array|*|Notes)}}
    * @returns {{name, id, notes: (Array|*|Notes)}}

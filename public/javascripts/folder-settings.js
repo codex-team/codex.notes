@@ -15,7 +15,9 @@ export default class FolderSettings {
     this.toggler = $.get('js-folder-settings-toggler');
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
-    this.folderNameInput  = document.getElementsByName('folder-name')[0];
+    this.folderNameInput = document.getElementsByName('folder-name')[0];
+    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', () => {
       this.toggle();
@@ -30,6 +32,7 @@ export default class FolderSettings {
     });
 
     this.folderNameInput.addEventListener('keydown', event => this.changeNameKeydown(event) );
+    this.newMemberInput.addEventListener('keydown', event => this.inviteMemberKeydown(event) );
   }
 
   /**
@@ -126,6 +129,46 @@ export default class FolderSettings {
      * Close folder settings
      */
     this.close();
+  }
+
+  /**
+   * Handler for New Member input
+   * @param {KeyboardEvent} event - keydowns
+   */
+  inviteMemberKeydown(event) {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    let input = event.target,
+        email = input.value.trim(),
+        id = codex.notes.aside.currentFolder.id;
+
+    if (!email) {
+      return;
+    }
+
+    // TODO check if email is valid
+
+    /**
+     * Send request for adding new collaborator
+     * @type {object}
+     */
+    let result = window.ipcRenderer.sendSync('folder - collaborator add', { id, email });
+
+    if (!result) {
+      Dialog.error('Error while adding a new member to the folder');
+      return false;
+    }
+
+    // Clear input field
+    input.value = '';
+
+    // Add item to list of Collaborators
+    let newMemberItem = document.createElement('P');
+
+    newMemberItem.innerHTML = email;
+    this.membersList.appendChild(newMemberItem);
   }
 
 }

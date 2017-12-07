@@ -33,6 +33,10 @@ class DirectoryController {
     ipcMain.on('folder - change name', (event, {id, name}) => {
       this.changeName(event, id, name);
     });
+
+    ipcMain.on('folder - collaborator add', (event, {id, email}) => {
+      this.addMember(event, id, email);
+    });
   }
 
   /**
@@ -112,6 +116,22 @@ class DirectoryController {
       event.returnValue = true;
     }
     catch (err) {
+      console.log(err);
+      event.returnValue = false;
+    }
+  }
+
+  /**
+   * Add new member to the folder as a collaborator
+   * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {ObjectId} id  - folder id
+   * @param {string} email - invited user
+   * @returns {Promise.<void>}
+   */
+  async addMember(event, id, email) {
+    try {
+      event.returnValue = await this.directory.addMember(id, email);
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
