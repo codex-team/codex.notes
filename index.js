@@ -12,6 +12,7 @@ let pkg = require('./package.json');
 const DirectoryClass = require('./models/directory');
 const DirectoryControllerClass = require('./controllers/directory');
 const NotesControllerClass = require('./controllers/note');
+const AuthControllerClass = require('./controllers/auth');
 
 const db = require('./utils/database');
 
@@ -21,6 +22,7 @@ let Directory = new DirectoryClass();
 // run controllers
 let directoryCtrl = new DirectoryControllerClass();
 let notesCtrl = new NotesControllerClass();
+let authCtrl = new AuthControllerClass();
 
 let mainWindow = null;
 
