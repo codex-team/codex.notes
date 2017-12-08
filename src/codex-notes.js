@@ -37,6 +37,11 @@ const NotesControllerClass = require('./controllers/note');
 const AuthControllerClass = require('./controllers/auth');
 
 /**
+ * User model
+ */
+const UserModelClass = require('./models/users');
+
+/**
  * Database setup
  */
 const db = require('./utils/database');
@@ -110,12 +115,16 @@ class CodexNotes {
    * Activate controller
    */
   initComponents(){
-    // this.Directory = new DirectoryClass();
-    this.syncObserver = new SyncObserver();
-    this.directory = new DirectoryControllerClass();
-    this.notes = new NotesControllerClass();
-    this.auth = new AuthControllerClass();
+    this.user = new UserModelClass();
 
+    this.user.init().then(() => {
+      this.directory = new DirectoryControllerClass();
+      this.notes = new NotesControllerClass();
+      this.auth = new AuthControllerClass();
+      this.syncObserver = new SyncObserver();
+    }).catch(function (err) {
+      console.log("Initialization error", err);
+    });
   }
 
 
