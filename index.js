@@ -10,17 +10,26 @@ const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./package.json');
 
 const DirectoryClass = require('./models/directory');
+const UsersClass = require('./models/users');
 const DirectoryControllerClass = require('./controllers/directory');
 const NotesControllerClass = require('./controllers/note');
+
 
 const db = require('./utils/database');
 
 db.makeInitialSettings(app.getPath('userData'));
 let Directory = new DirectoryClass();
+let Users = new UsersClass();
 
-// run controllers
-let directoryCtrl = new DirectoryControllerClass();
-let notesCtrl = new NotesControllerClass();
+Users.register().then(function() {
+
+  let directoryCtrl = new DirectoryControllerClass();
+  let notesCtrl = new NotesControllerClass();
+
+}).catch(function (err) {
+  console.log("Initialization error", err);
+});
+
 
 let mainWindow = null;
 
