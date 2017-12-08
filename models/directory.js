@@ -13,7 +13,7 @@ class Directory {
    * Initialize params for the API
    */
   constructor() {
-      this.api = new Api();
+    this.api = new Api();
   }
 
   /**
@@ -34,12 +34,11 @@ class Directory {
         user: 'admin'
       };
 
-      await this.api.sendRequest('folder/create', data);
+      console.log(await this.api.sendRequest('folder/create', data));
 
       return dir;
-    }
-    catch (err) {
-      console.log("Directory create error: ", err);
+    }    catch (err) {
+      console.log('Directory create error: ', err);
       return false;
     }
   }
@@ -57,15 +56,14 @@ class Directory {
   async get(id) {
     try {
       let dir = await db.findOne(db.DIRECTORY, {'_id': id});
+
       if (dir) {
         return this.format(dir);
-      }
-      else {
+      }      else {
         return false;
       }
-    }
-    catch (err) {
-      console.log("Directory get error: ", err);
+    }    catch (err) {
+      console.log('Directory get error: ', err);
       return false;
     }
   }
@@ -82,10 +80,10 @@ class Directory {
   async list() {
     try {
       let list = await db.find(db.DIRECTORY, {'_id': { $ne: 0 }});
+
       return list.map(this.format);
-    }
-    catch (err) {
-      console.log("Directory list error: ", err);
+    }    catch (err) {
+      console.log('Directory list error: ', err);
       return false;
     }
   }
@@ -101,9 +99,8 @@ class Directory {
       let deleteDirectoryResult = await db.remove(db.DIRECTORY, {'_id': directoryId}, {});
 
       return deleteDirectoryResult & deleteNotesResult;
-    }
-    catch (err) {
-      console.log("Directory delete error: ", err);
+    }    catch (err) {
+      console.log('Directory delete error: ', err);
       return false;
     }
   }
@@ -118,7 +115,7 @@ class Directory {
     try {
       return await db.update(db.DIRECTORY, {'_id': id}, { name });
     } catch (err) {
-      console.log("Directory renaming error: ", err);
+      console.log('Directory renaming error: ', err);
       return false;
     }
   }
@@ -136,7 +133,7 @@ class Directory {
       console.log('addMember API request with params {id:\'' + id + '\', email:\'' + email + '\'}');
       return true;
     } catch (err) {
-      console.log("Error while invitng a new member to the folder: ", err);
+      console.log('Error while invitng a new member to the folder: ', err);
       return false;
     }
   }
@@ -146,7 +143,7 @@ class Directory {
    * @param element - DB structure: {{name, _id, notes: (Array|*|Notes)}}
    * @returns {{name, id, notes: (Array|*|Notes)}}
    */
-  format (element) {
+  format(element) {
     return {
       'name': element.name,
       'id': element._id,

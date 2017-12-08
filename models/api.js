@@ -1,12 +1,6 @@
 'use strict';
-// let {ipcMain} = require('electron');
 
-/**
- * curlrequest is a node wrapper for the command line curl(1)
- *
- * @see https://www.npmjs.com/package/curlrequest
- */
-const curl = require('curlrequest');
+const request = require('request-promise');
 
 class ApiController {
 
@@ -19,16 +13,12 @@ class ApiController {
   }
 
   async sendRequest(action, data) {
-    let options = {
+    return await request({
       url: this.url + action,
       method: 'POST',
-      data: data
-    };
-
-    curl.request(options, function (err, stdout, meta) {
-      return stdout;
+      body: data,
+      json: true
     });
-    return false;
   }
 }
 
