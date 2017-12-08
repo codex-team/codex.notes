@@ -7,9 +7,17 @@ const db = require('../utils/database');
  */
 class User {
 
+  /**
+   * User model {
+   *  'id' – unique user ID
+   *  'name' – user name
+   *  'avatar' – avatar string URL
+   * }
+   */
   constructor() {
     this.id = null;
     this.name = null;
+    this.avatar = null;
   }
 
   /**
@@ -28,11 +36,13 @@ class User {
       if (user) {
         this.id = user.id;
         this.name = user.name;
+        this.avatar = user.avatar;
       }
       else {
         this.id = random.generatePassword();
         this.name = null;
-        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name}});
+        this.avatar = null;
+        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name, 'avatar': this.avatar}});
       }
     }
     catch (err) {
