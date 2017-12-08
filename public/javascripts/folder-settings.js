@@ -157,7 +157,7 @@ export default class FolderSettings {
     let result = window.ipcRenderer.sendSync('folder - collaborator add', { id, email });
 
     if (!result) {
-      Dialog.error('Error while adding a new member to the folder');
+      Dialog.error('Error while adding a collaborator to the folder');
       return false;
     }
 
