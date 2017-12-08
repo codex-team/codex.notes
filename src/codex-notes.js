@@ -37,6 +37,11 @@ const NotesControllerClass = require('./controllers/note');
 const AuthControllerClass = require('./controllers/auth');
 
 /**
+ * User model
+ */
+const UserModelClass = require('./models/users');
+
+/**
  * Database setup
  */
 const db = require('./utils/database');
@@ -115,7 +120,8 @@ class CodexNotes {
     this.directory = new DirectoryControllerClass();
     this.notes = new NotesControllerClass();
     this.auth = new AuthControllerClass();
-
+    this.user = new UserModelClass();
+    this.user.init()
   }
 
 
