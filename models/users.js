@@ -28,7 +28,7 @@ class User {
       }
 
       let userId = random.generatePassword();
-      let newUser = {"user_id": userId, "name": "user"};
+      let newUser = {"user_id": userId, "name": null};
       await db.insert(db.USER, {'user': newUser});
       return newUser;
     }
