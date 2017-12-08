@@ -3,6 +3,7 @@
 let sanitizeHtml = require('sanitize-html');
 const random = require('../utils/random');
 const db = require('../utils/database');
+const api = require('./api');
 const DEFAULT_TITLE = 'Untitled';
 
 /**

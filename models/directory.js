@@ -2,6 +2,7 @@
 
 const random = require('../utils/random');
 const db = require('../utils/database');
+const Api = require('./api');
 
 /**
  * Directory model
@@ -12,6 +13,7 @@ class Directory {
    * Initialize params for the API
    */
   constructor() {
+      this.api = new Api();
   }
 
   /**
@@ -22,7 +24,18 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': + new Date() } );
+      let timestamp = + new Date();
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': timestamp } );
+
+      let data = {
+        id: dirId,
+        name: name,
+        timestamp: timestamp,
+        user: 'admin'
+      };
+
+      await this.api.sendRequest('folder/create', data);
+
       return dir;
     }
     catch (err) {
