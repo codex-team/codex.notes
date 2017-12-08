@@ -67,8 +67,7 @@ class CodexNotes {
   /**
    * Initializes an application
    */
-  constructor(){
-
+  constructor() {
     this.mainWindow = new BrowserWindow({
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
@@ -108,13 +107,12 @@ class CodexNotes {
      * Init controllers
      */
     this.initComponents();
-
   }
 
   /**
    * Activate controller
    */
-  initComponents(){
+  initComponents() {
     this.user = new UserModelClass();
 
     this.user.init().then(() => {
@@ -123,7 +121,7 @@ class CodexNotes {
       this.auth = new AuthControllerClass();
       this.syncObserver = new SyncObserver();
     }).catch(function (err) {
-      console.log("Initialization error", err);
+      console.log('Initialization error', err);
     });
   }
 
@@ -133,7 +131,6 @@ class CodexNotes {
    * @author @guryn
    */
   makeMenu() {
-
     const menu = electron.Menu;
 
     let createMenuTemplate = require('./menu'),
@@ -148,7 +145,7 @@ class CodexNotes {
   /**
    * Destroyes an application
    */
-  destroy(){
+  destroy() {
     this.mainWindow = null;
   }
 
@@ -160,10 +157,7 @@ class CodexNotes {
 app.on('ready', function () {
   try {
     new CodexNotes();
-  } catch(error){
+  } catch(error) {
     console.log(error);
   }
 });
-
-
-
