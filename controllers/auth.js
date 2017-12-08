@@ -25,8 +25,10 @@ class AuthController {
    *
    */
   async googleAuth(event) {
-    // const profileApiUrl =
 
+    /**
+     * Google OAuth credentials
+     */
     const googleOAuthConfig = {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -35,6 +37,9 @@ class AuthController {
       redirectUri: 'http://localhost'
     };
 
+    /**
+     * OAuth window params
+     */
     const windowParams = {
       alwaysOnTop: true,
       autoHideMenuBar: true,
@@ -43,11 +48,17 @@ class AuthController {
       }
     };
 
+    /**
+     * Google access token information {@link https://developers.google.com/identity/protocols/OAuth2InstalledApp}
+     */
     const options = {
       scope: 'profile',
       accessType: 'offline'
     };
 
+    /**
+     * {@link https://www.npmjs.com/package/electron-oauth2}
+     */
     const Oauth = electronOAuth(googleOAuthConfig, windowParams);
 
     try {
