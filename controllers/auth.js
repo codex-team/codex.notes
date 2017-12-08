@@ -15,19 +15,16 @@ class AuthController {
    * Bind events
    */
   constructor() {
-    ipcMain.on('auth - google auth', () => {
-      this.googleAuth();
-    });
+    ipcMain.on('auth - google auth', this.googleAuth);
   }
 
   /**
    * Send auth request to Google api and get user`s profile information
    *
-   * @returns {Object} profileInfo
-   *          {String} profileInfo.name — user name
-   *          {String} profileInfo.avatar — user avatar
+   * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   *
    */
-  async googleAuth() {
+  async googleAuth(event) {
     // const profileApiUrl =
 
     const googleOAuthConfig = {
@@ -64,12 +61,13 @@ class AuthController {
         json: true
       });
 
-      return {
+      event.returnValue = {
         name: profileInfo.name,
         avatar: profileInfo.picture
       };
     } catch (e) {
       console.log('Can`t sign in to Google account because of', e);
+      return false;
     }
   }
 
