@@ -7,30 +7,33 @@ const db = require('../utils/database');
  */
 class User {
 
-  constructor() {}
+  constructor() {
+    this.id = null;
+    this.name = null;
+  }
 
   /**
-   * Return current user if exists, otherwise create new identity.
+   * Initialize current model if user exists, otherwise create a new identity.
    * {
    *   user: {
    *     user_id - User unique ID
    *     password - User unique password
    *   }
    * }
-   * @returns user identity
    */
   async init() {
 
     try {
       let user = await this.get();
       if (user) {
-        return user;
+        this.id = user.id;
+        this.name = user.name;
       }
-
-      let userId = random.generatePassword();
-      let newUser = {"user_id": userId, "name": null};
-      await db.insert(db.USER, {'user': newUser});
-      return newUser;
+      else {
+        this.id = random.generatePassword();
+        this.name = null;
+        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name}});
+      }
     }
     catch (err) {
       console.log("User register error: ", err);
