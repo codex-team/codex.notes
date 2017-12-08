@@ -1,5 +1,5 @@
 module.exports = function (app) {
-  const pkg = require('./package');
+  const pkg = require('./../package');
 
   let info = {
     bugReportUrl: pkg.bugs,
