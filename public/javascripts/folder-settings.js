@@ -1,5 +1,6 @@
 const Dialog = require('./dialog').default;
 const $ = require('./dom').default;
+const Validate = require('./utils/validate').default;
 
 /**
  * Folder Settings panel module
@@ -144,11 +145,9 @@ export default class FolderSettings {
         email = input.value.trim(),
         id = codex.notes.aside.currentFolder.id;
 
-    if (!email) {
+    if (!email || !Validate.email(email)) {
       return;
     }
-
-    // TODO check if email is valid
 
     /**
      * Send request for adding new collaborator

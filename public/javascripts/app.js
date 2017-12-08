@@ -8,10 +8,10 @@ const electron = require('electron');
 const Editor = require('./editor').default;
 const Aside = require('./aside').default;
 const Note = require('./note').default;
-
 /**
  * Save render proccess to the ipdRender global propery
  */
+
 window.ipcRenderer = electron.ipcRenderer;
 
 /**
