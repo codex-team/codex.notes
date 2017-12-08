@@ -1,4 +1,4 @@
-/**
+ /**
  * DOM manipulations methods
  */
 export default class DOM {
@@ -24,6 +24,22 @@ export default class DOM {
 
     return el;
   }
+
+  /**
+   * Append one or several elements to the parent
+   *
+   * @param  {Element} parent    - where to append
+   * @param  {Element|Element[]} - element ore elements list
+   */
+  static append(parent, elements) {
+    if ( Array.isArray(elements) ) {
+      elements.forEach( el => parent.appendChild(el) );
+    } else {
+      parent.appendChild(elements);
+    }
+  }
+
+  /**
 
   /**
   * Replaces node with
@@ -104,5 +120,14 @@ export default class DOM {
 
       document.head.appendChild(node);
     });
+  }
+
+  /**
+   * Inserts one element after another
+   * @param  {Element} newNode
+   * @param  {Element} referenceNode
+   */
+  static after(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 }

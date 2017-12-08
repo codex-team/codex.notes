@@ -74,11 +74,12 @@ class AuthController {
 
       event.returnValue = {
         name: profileInfo.name,
-        avatar: profileInfo.picture
+        photo: profileInfo.picture,
+        id: profileInfo.id
       };
     } catch (e) {
       console.log('Can`t sign in to Google account because of', e);
-      return false;
+      event.returnValue = false;
     }
   }
 
