@@ -13,6 +13,7 @@ const DirectoryClass = require('./models/directory');
 const UsersClass = require('./models/users');
 const DirectoryControllerClass = require('./controllers/directory');
 const NotesControllerClass = require('./controllers/note');
+const AuthControllerClass = require('./controllers/auth');
 
 
 const db = require('./utils/database');
@@ -25,11 +26,11 @@ Users.register().then(function() {
 
   let directoryCtrl = new DirectoryControllerClass();
   let notesCtrl = new NotesControllerClass();
+  let authCtrl = new AuthControllerClass();
 
 }).catch(function (err) {
   console.log("Initialization error", err);
 });
-
 
 let mainWindow = null;
 
