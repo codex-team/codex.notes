@@ -1,4 +1,5 @@
 const $ = require('./dom').default;
+const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
@@ -15,33 +16,60 @@ export default class Folder {
    * @property {string}    name         - folder name
    * @property {Array}     notes        - notes list
    * @property {Element}   notesListWrapper  - notes list holder
-   * @property {Element}   newNoteButton
    */
   constructor(id, name) {
-    this.id = id;
-    this.name = name;
+    this._id = id;
+    this._name = name;
+
+    this.folderNameElement = $.get('js-folder-name');
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
         this.notes = notes;
-        this.name = folder.name;
+        this._name = folder.name;
       })
       .then( () => this.fillHeader() )
       .then( () => this.updateNotesList() );
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
-    this.newNoteButton = document.querySelector('[name="js-new-note-button-in-folder"]');
+  }
 
-    this.newNoteButton.dataset.folderId = this.id;
+  /**
+   * Folder id getter
+   */
+  get id() {
+    return this._id;
+  }
+
+  /**
+   * Folder name getter
+   */
+  get name() {
+    return this._name;
+  }
+
+  /**
+   * Folder name setter
+   */
+  set name(newName) {
+    this._name = newName;
+
+    /**
+     * Update in the header
+     */
+    this.fillHeader();
+
+    /**
+     * Update in the aside menu
+     */
+    codex.notes.aside.updateFolderNameInMenu(this._id, this._name);
   }
 
   /**
    * Fills folder header block
    */
   fillHeader() {
-    let folderNameElement = $.get('js-folder-name');
-
-    folderNameElement.textContent = this.name;
+    this.folderNameElement.textContent = this._name;
   }
 
   /**
@@ -51,6 +79,22 @@ export default class Folder {
     if (!this.notes.length) {
       this.notesListWrapper.innerHTML = '';
     }
+  }
+
+  /**
+   * Delete folder
+   */
+  delete() {
+    if (Dialog.confirm('Are you sure you want to delete this folder?')) {
+      if (window.ipcRenderer.sendSync('delete folder', this._id)) {
+        codex.notes.aside.removeFolderFromMenu(this._id);
+        codex.notes.note.clear();
+        return true;
+      }
+    }
+
+    Dialog.error('Folder removing failed');
+    return false;
   }
 
 }

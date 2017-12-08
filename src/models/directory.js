@@ -22,7 +22,7 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [] } );
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': + new Date() } );
       return dir;
     }
     catch (err) {
@@ -91,6 +91,21 @@ class Directory {
     }
     catch (err) {
       console.log("Directory delete error: ", err);
+      return false;
+    }
+  }
+
+  /**
+   * Renames directory by id.
+   * @param {ObjectId} id  - directory ID
+   * @param {String} name - new name
+   * @returns {Boolean}
+   */
+  async rename(id, name) {
+    try {
+      return await db.update(db.DIRECTORY, {'_id': id}, { name });
+    } catch (err) {
+      console.log("Directory renaming error: ", err);
       return false;
     }
   }

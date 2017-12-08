@@ -1,0 +1,36 @@
+.folder-header {
+    @apply --clearfix;
+
+    position: relative;
+    margin-bottom: 17px;
+    font-size: 14.8px;
+    cursor: pointer;
+    color: var(--aside-color);
+    padding-left: 25px;
+
+    &__close {
+        position: absolute;
+        left: 0;
+        top: 43%;
+        transform: translateY(-50%);
+
+        svg {
+            height: 15px;
+            fill: #dee6fc;
+        }
+    }
+
+    &__name {
+        color: var(--aside-color-light);
+    }
+
+    &__settings {
+        color: var(--label-color);
+        margin-top: 3px;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--aside-color);
+        }
+    }
+}

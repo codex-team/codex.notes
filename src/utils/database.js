@@ -39,7 +39,7 @@ class Database {
       });
     }
   }
-  
+
   find(collection, query) {
     return new Promise((resolve, reject) => {
       collection.find(query, function (err, docs) {
@@ -76,7 +76,17 @@ class Database {
     });
   }
 
-  update(collection, query, data, options) {
+  /**
+   * Update query
+   *
+   * @param  {Obejct} query       - is a query object to find records that need to be updated (see Queries)
+   * @param  {Object} data        - update is the replacement object
+   * @param  {Object} options
+   * @param  {Boolean} options.multi   - update all records that match the query object, default is false (only the first one found is updated)
+   * @param  {Boolean} options.upsert  - if true and no records match the query, insert update as a new record
+   * @param  {Boolean} options.raw     - driver returns updated document as bson binary Buffer, default:false
+   */
+  update(collection, query, data, options = {}) {
     return new Promise((resolve, reject) => {
       collection.update(query, data, options, function (err, numReplaced) {
         if (err) {

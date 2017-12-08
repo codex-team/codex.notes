@@ -1,7 +1,7 @@
 {
-    /** Enable ES6 features */
+    /** Enable ES8 features */
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 8,
         "sourceType": "module",
         "ecmaFeatures": {
             "classes": true,

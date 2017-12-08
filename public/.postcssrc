@@ -1,5 +1,6 @@
 plugins:
     postcss-smart-import: {}
+    postcss-apply: {}
     postcss-custom-properties: {}
     postcss-custom-media: {}
     postcss-media-minmax: {}

@@ -29,6 +29,10 @@ class DirectoryController {
     ipcMain.on('delete folder', (event, folderId) => {
       this.deleteFolder(event, folderId);
     });
+
+    ipcMain.on('folder - change name', (event, {id, name}) => {
+      this.changeName(event, id, name);
+    });
   }
 
   /**
@@ -87,6 +91,24 @@ class DirectoryController {
   async deleteFolder(event, folderId) {
     try {
       await this.directory.delete(folderId);
+      event.returnValue = true;
+    }
+    catch (err) {
+      console.log(err);
+      event.returnValue = false;
+    }
+  }
+
+  /**
+   * Change folder name
+   * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {ObjectId} id  - folder id
+   * @param {string} name - new name
+   * @returns {Promise.<void>}
+   */
+  async changeName(event, id, name) {
+    try {
+      await this.directory.rename(id, name);
       event.returnValue = true;
     }
     catch (err) {

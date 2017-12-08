@@ -113,15 +113,22 @@ class NotesModel {
         // create new note
         note.data.id = random.generatePassword();
       }
+      // change note meta-data during create or update
       note._id = note.data.id;
+      note.timestamp = + new Date();
 
+      // set title from first paragraph in the case it is not presented
       if (!note.title) {
         let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
         note.title = sanitizeHtml(titleFromText, {allowedTags: []});
       }
 
+      // update note in DB
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
+
+        await db.update(db.DIRECTORY, {'_id': directoryId}, {'timestamp': newNote.timestamp}, {}, function () {});
+
         return {
           id: note.data.id,
           title: note.title,

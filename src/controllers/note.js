@@ -28,11 +28,11 @@ class NoteController {
       this.loadNotesList(folderId, event);
     });
 
-    ipcMain.on('get note', (event, {id, folder}) => {
+    ipcMain.on('get note', (event, {id}) => {
       this.getNote(id, event);
     });
 
-    ipcMain.on('delete note', (event, {id, folder}) => {
+    ipcMain.on('delete note', (event, {id}) => {
       this.deleteNote(id, event);
     });
   }
