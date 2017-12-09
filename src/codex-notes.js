@@ -117,14 +117,19 @@ class CodexNotes {
   initComponents(){
     this.user = new UserModelClass();
 
-    this.user.init().then(() => {
-      this.directory = new DirectoryControllerClass();
-      this.notes = new NotesControllerClass();
-      this.auth = new AuthControllerClass();
-      this.syncObserver = new SyncObserver();
-    }).catch(function (err) {
-      console.log("Initialization error", err);
-    });
+    this.user.init()
+      .then(() => {
+        this.directory = new DirectoryControllerClass();
+        this.notes = new NotesControllerClass();
+        this.auth = new AuthControllerClass();
+        this.syncObserver = new SyncObserver();
+      })
+      .then(() =>{
+        return this.syncObserver.sync(this.user.last_sync);
+      })
+      .catch(function (err) {
+        console.log("Initialization error", err);
+      });
   }
 
 

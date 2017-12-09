@@ -111,6 +111,20 @@ class Directory {
   }
 
   /**
+   * Get updates action. Make a packet of data changed from timestamp specified.
+   */
+  async getUpdates(timestamp) {
+    try {
+      let newFolders = await db.find(db.DIRECTORY, {'timestamp': { $gt: timestamp }});
+      return newFolders;
+    }
+    catch (err) {
+      console.log("getUpdates folders error: ", err);
+      return false;
+    }
+  }
+
+  /**
    * Transform DB element into structure for frontend module.
    * @param element - DB structure: {{name, _id, notes: (Array|*|Notes)}}
    * @returns {{name, id, notes: (Array|*|Notes)}}
