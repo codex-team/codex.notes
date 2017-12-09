@@ -166,6 +166,40 @@
     }
 }
 
+.auth-button {
+    display: inline-block;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    cursor: pointer;
+
+    svg {
+        margin-right: 8px;
+    }
+
+    &:hover {
+        color: #fff;
+    }
+}
+
+.profile-panel {
+    margin-bottom: 10px;
+
+    &__photo {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+        background-size: cover;
+    }
+
+    &__name {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 40px;
+    }
+}
 
 /**
  * Scrollable zone
