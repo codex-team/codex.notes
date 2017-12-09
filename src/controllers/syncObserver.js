@@ -14,7 +14,7 @@ module.exports = class SyncObserver {
   /**
    * Prepare updates for API during synchronization
    * @param {string} dt_sync – last synchronization timestamp
-   * @returns {dict} {
+   * @returns {object} {
    *    {object} dt_sync – last synchronization timestamp,
    *    {object} updates {
    *      {string} folders - list of fresh folders,
