@@ -124,6 +124,7 @@ class CodexNotes {
 
     this.user.init()
       .then(() => {
+        global.user = this.user;
         this.directory = new DirectoryControllerClass();
         this.notes = new NotesControllerClass();
         this.auth = new AuthControllerClass();
