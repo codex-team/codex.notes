@@ -129,12 +129,16 @@ class Directory {
    */
   async addMember(id, email) {
     try {
-      // TODO send API request
-      // return ...api_request_function()...
-      console.log('addMember API request with params {id:\'' + id + '\', email:\'' + email + '\'}');
+      await this.api.sendRequest('folder/addCollaborator', {
+        user: global.user.id,
+        collaborator: email,
+        folder: id
+      });
+
+      console.log(`addMember API request with params {user: ${global.user.id}, collaborator: '${email}', folder: ${id}`);
       return true;
     } catch (err) {
-      console.log('Error while invitng a new member to the folder: ', err);
+      console.log('Error while inviting a new member to the folder: ', err);
       return false;
     }
   }

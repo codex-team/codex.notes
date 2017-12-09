@@ -119,7 +119,7 @@ class DirectoryController {
   /**
    * Add new member to the folder as a collaborator
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {ObjectId} id  - folder id
+   * @param {ObjectID} id  - folder id
    * @param {string} email - invited user
    */
   async addMember(event, id, email) {
