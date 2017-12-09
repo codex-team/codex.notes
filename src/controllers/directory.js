@@ -33,6 +33,10 @@ class DirectoryController {
     ipcMain.on('folder - change name', (event, {id, name}) => {
       this.changeName(event, id, name);
     });
+
+    ipcMain.on('folder - collaborator add', (event, {id, email}) => {
+      this.addMember(event, id, email);
+    });
   }
 
   /**
@@ -50,9 +54,9 @@ class DirectoryController {
   async loadFolders(event) {
     try {
       let userFolders = await this.directory.list();
+
       event.sender.send('update folders list', {userFolders});
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -66,18 +70,17 @@ class DirectoryController {
    * }
    * @param event
    * @param folderName - new folder name
-   * @returns {Promise.<void>}
    */
   async createFolder(event, folderName) {
     try {
       let dir = await this.directory.create(folderName);
+
       event.returnValue = {
         'id': dir._id,
         'name': dir.name,
         'notes': dir.notes
       };
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -86,14 +89,12 @@ class DirectoryController {
    * Delete folder. Return bool result to the event emitter
    * @param event
    * @param folderId - folder to delete ID
-   * @returns {Promise.<void>}
    */
   async deleteFolder(event, folderId) {
     try {
       await this.directory.delete(folderId);
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
@@ -104,19 +105,31 @@ class DirectoryController {
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
    * @param {ObjectId} id  - folder id
    * @param {string} name - new name
-   * @returns {Promise.<void>}
    */
   async changeName(event, id, name) {
     try {
       await this.directory.rename(id, name);
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
   }
 
+  /**
+   * Add new member to the folder as a collaborator
+   * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {ObjectId} id  - folder id
+   * @param {string} email - invited user
+   */
+  async addMember(event, id, email) {
+    try {
+      event.returnValue = await this.directory.addMember(id, email);
+    } catch (err) {
+      console.log(err);
+      event.returnValue = false;
+    }
+  }
 }
 
 module.exports = DirectoryController;

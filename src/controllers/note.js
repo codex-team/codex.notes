@@ -64,11 +64,11 @@ class NoteController {
     try {
       let folderId = note.folderId;
       let newNote = await this.notes.save(folderId, note);
+
       if (newNote) {
         event.sender.send('note saved', {note: newNote});
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -98,11 +98,11 @@ class NoteController {
       let notesList = await this.notes.list(folderId);
 
       let returnValue = {'notes': notesList, 'folder': folder};
+
       event.returnValue = returnValue;
       event.sender.send('update notes list', returnValue);
-    }
-    catch (err) {
-      console.log("Load notes list error: ", err);
+    } catch (err) {
+      console.log('Load notes list error: ', err);
       event.returnValue = false;
     }
   }
@@ -126,12 +126,12 @@ class NoteController {
   async getNote(noteId, event) {
     try {
       let note = await this.notes.get(noteId);
+
       if (!note) {
         return false;
       }
       event.returnValue = note;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -145,9 +145,9 @@ class NoteController {
   async deleteNote(noteId, event) {
     try {
       let result = await this.notes.delete(noteId);
+
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }

@@ -26,6 +26,7 @@ module.exports = class SyncObserver {
     try {
       let newFolders = await this.folders.getUpdates(dt_sync);
       let newNotes = await this.notes.getUpdates(dt_sync);
+
       return {
         'dt_sync': dt_sync,
         'updates': {
@@ -33,9 +34,8 @@ module.exports = class SyncObserver {
           'notes': newNotes
         }
       };
-    }
-    catch (err) {
-      console.log("Error during synchronization getUpdates: ", err);
+    } catch (err) {
+      console.log('Error during synchronization getUpdates: ', err);
       return false;
     }
   }
@@ -46,6 +46,7 @@ module.exports = class SyncObserver {
    */
   async sync(dt_sync) {
     let updates = await this.prepareUpdates(dt_sync);
+
     console.log(JSON.stringify(updates));
     // @TODO: Send updates to API server
     // @TODO: Receive updates from API server

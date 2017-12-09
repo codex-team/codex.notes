@@ -12,8 +12,14 @@ let pkg = require('./../package.json');
 /**
  * Enable Pug
  */
-const locals = {title: 'CodeX Notes'};
-const pug = require('electron-pug')({pretty:true}, locals);
+const locals = {
+  title: 'CodeX Notes',
+};
+const pug = require('electron-pug')({
+  cache: false,
+  debug: true,
+  compileDebug: true
+}, locals);
 
 
 /**
@@ -67,8 +73,7 @@ class CodexNotes {
   /**
    * Initializes an application
    */
-  constructor(){
-
+  constructor() {
     this.mainWindow = new BrowserWindow({
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
@@ -89,9 +94,10 @@ class CodexNotes {
       this.makeMenu();
     }
 
-    this.mainWindow.loadURL(`file://${__dirname}/views/editor.pug`);
+    this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
+      console.log('window is ready.');
       this.mainWindow.show();
     });
 
@@ -108,13 +114,12 @@ class CodexNotes {
      * Init controllers
      */
     this.initComponents();
-
   }
 
   /**
    * Activate controller
    */
-  initComponents(){
+  initComponents() {
     this.user = new UserModelClass();
 
     this.user.init()
@@ -124,11 +129,11 @@ class CodexNotes {
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
       })
-      .then(() =>{
+      .then(() => {
         return this.syncObserver.sync(this.user.dt_sync);
       })
       .catch(function (err) {
-        console.log("Initialization error", err);
+        console.log('Initialization error', err);
       });
   }
 
@@ -138,13 +143,12 @@ class CodexNotes {
    * @author @guryn
    */
   makeMenu() {
-
     const menu = electron.Menu;
 
     let createMenuTemplate = require('./menu'),
-      menues = createMenuTemplate(app),
-      menuBar = menu.buildFromTemplate(menues.menuBar),
-      menuDock = menu.buildFromTemplate(menues.menuDock);
+        menues = createMenuTemplate(app),
+        menuBar = menu.buildFromTemplate(menues.menuBar),
+        menuDock = menu.buildFromTemplate(menues.menuDock);
 
     menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
@@ -153,7 +157,7 @@ class CodexNotes {
   /**
    * Destroyes an application
    */
-  destroy(){
+  destroy() {
     this.mainWindow = null;
   }
 
@@ -165,10 +169,7 @@ class CodexNotes {
 app.on('ready', function () {
   try {
     new CodexNotes();
-  } catch(error){
+  } catch(error) {
     console.log(error);
   }
 });
-
-
-

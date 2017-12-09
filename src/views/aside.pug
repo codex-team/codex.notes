@@ -40,8 +40,11 @@
                     .aside__section-title Notes
 
                     .notes-list
-                        //div.notes-list__scroll
                         ul.notes-list__content(name="js-notes-menu")
+                        //- 
+                        //- div.notes-list__scroll
+                        //-
+                        
 
         .aside-swiper__right
 
@@ -60,18 +63,21 @@
                         include ../../public/svg/close-folder.svg
 
                     fieldset.aside__input
-                            input(placeholder="Change name", type="text", name="folder-name")
-                            include ../../public/svg/arrow-right.svg
+                        input(placeholder="Change name", type="text", name="folder-name")
+                        include ../../public/svg/arrow-right.svg
 
                     .folder-settings__delete(id='js-delete-folder')
                         include ../../public/svg/trash.svg
                         | Delete folder
 
                     .aside__section-title Collaborators
-                    br
-                    br
-                    br
-                    br
+
+                    .members-list(id="js-members-list")
+
+                    fieldset.aside__input
+                        input(placeholder="Invite member", type="text", name="new-member")
+                        include ../../public/svg/arrow-right.svg
+
 
             span.add-note-button(name="js-new-note-button")
                 include ../../public/svg/pencil.svg
