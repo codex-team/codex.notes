@@ -22,7 +22,7 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': + new Date() } );
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'dt_update': + new Date() } );
       return dir;
     }
     catch (err) {
@@ -111,11 +111,11 @@ class Directory {
   }
 
   /**
-   * Get updates action. Make a packet of data changed from timestamp specified.
+   * Get updates action. Make a packet of data changed from last sync date specified.
    */
-  async getUpdates(timestamp) {
+  async getUpdates(dt_update) {
     try {
-      let newFolders = await db.find(db.DIRECTORY, {'timestamp': { $gt: timestamp }});
+      let newFolders = await db.find(db.DIRECTORY, {'dt_update': { $gt: dt_update }});
       return newFolders;
     }
     catch (err) {

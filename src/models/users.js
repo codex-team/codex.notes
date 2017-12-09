@@ -18,6 +18,7 @@ class User {
     this.id = null;
     this.name = null;
     this.avatar = null;
+    this.last_sync = 0;
   }
 
   /**
@@ -34,15 +35,17 @@ class User {
     try {
       let user = await this.get();
       if (user) {
-        this.id = user.id;
-        this.name = user.name;
-        this.avatar = user.avatar;
+        this.id = user.user.id;
+        this.name = user.user.name;
+        this.avatar = user.user.avatar;
+        this.last_sync = user.user.last_sync;
       }
       else {
         this.id = random.generatePassword();
         this.name = null;
         this.avatar = null;
-        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name, 'avatar': this.avatar}});
+        this.last_sync = 0;
+        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name, 'avatar': this.avatar, 'last_sync': this.last_sync}});
       }
     }
     catch (err) {

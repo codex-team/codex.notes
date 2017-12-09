@@ -22,7 +22,7 @@ class NotesModel {
    *   data: {
    *     id: unique note ID
    *     items: Codex Editor object
-   *     time: timestamp
+   *     dt_update: last update
    *     version - current editor version
    *   }
    *   folderId - folder ID
@@ -89,7 +89,7 @@ class NotesModel {
    *   data: {
    *     id - unique note ID
    *     items - Codex Editor object
-   *     time - timestamp
+   *     dt_update - last update
    *     version - current editor version
    *   }
    *   folderId - folder ID
@@ -115,7 +115,7 @@ class NotesModel {
       }
       // change note meta-data during create or update
       note._id = note.data.id;
-      note.timestamp = + new Date();
+      note.dt_update = + new Date();
 
       // set title from first paragraph in the case it is not presented
       if (!note.title) {
@@ -127,7 +127,7 @@ class NotesModel {
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
       if (newNote) {
 
-        await db.update(db.DIRECTORY, {'_id': directoryId}, {'timestamp': newNote.timestamp}, {}, function () {});
+        await db.update(db.DIRECTORY, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
 
         return {
           id: note.data.id,
@@ -146,11 +146,11 @@ class NotesModel {
   }
 
   /**
-   * Get updates action. Make a packet of data changed from timestamp specified.
+   * Get updates action. Make a packet of data changed from last sync date specified.
    */
-  async getUpdates(timestamp) {
+  async getUpdates(dt_update) {
     try {
-      let newNotes = await db.find(db.NOTES, {'timestamp': { $gt: timestamp }});
+      let newNotes = await db.find(db.NOTES, {'dt_update': { $gt: dt_update }});
       return newNotes;
     }
     catch (err) {
