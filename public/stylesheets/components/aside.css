@@ -37,6 +37,7 @@
         color: #3D3F4D;
         width: 37px;
         height: 37px;
+        padding-bottom: 20px;
 
         &-inner {
             color: #A2A8BD;
@@ -45,9 +46,51 @@
         &:hover {
             color: #3C93F7;
 
+            .aside__authorization {
+                display: inline-flex;
+            }
+
             .aside__avatar-inner {
                 color: #FFF;
             }
+
+        }
+    }
+
+    &__authorization {
+        position: relative;
+        left: -163px;
+        top: 10px;
+        display: none;
+        flex-flow: column wrap;
+        justify-content: space-around;
+        margin-left: 3px;
+        width: 192px;
+        height: 114px;
+        color: #000;
+        font-family: Helvetica;
+        font-size: 13.1px;
+        border: 1px solid #F5F9FE;
+        text-align: center;
+        border-radius: 3px;
+        background-color: #F5F9FE;
+        z-index: 10;
+
+        .intro_auth {
+            width: 151px;
+            margin: 0 auto 0;
+        }
+
+        &::before {
+            content:'';
+            position: absolute;
+            top: -7px;
+            left: 169px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 8px 8px 8px;
+            border-color: transparent transparent #F5F9FE transparent;
         }
     }
 
@@ -200,16 +243,15 @@
 
 .auth-button {
     display: inline-block;
-    padding: 10px 0;
-    margin-bottom: 10px;
     cursor: pointer;
+    color: #496A84;
 
     svg {
         margin-right: 8px;
     }
 
     &:hover {
-        color: #fff;
+        color: #3D3F4D;
     }
 }
 
