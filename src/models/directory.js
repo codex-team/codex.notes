@@ -26,7 +26,7 @@ class Directory {
     try {
       let dirId = random.generatePassword();
       let dt_update = + new Date();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'dt_update': dt_update } );
+      let dir = await db.insert(db.DIRECTORY, { name: name, notes: [], dt_update: dt_update } );
 
       let data = {
         id: dirId,
@@ -56,7 +56,7 @@ class Directory {
    */
   async get(id) {
     try {
-      let dir = await db.findOne(db.DIRECTORY, {'_id': id});
+      let dir = await db.findOne(db.DIRECTORY, {_id: id});
 
       if (dir) {
         return this.format(dir);
@@ -80,7 +80,7 @@ class Directory {
    */
   async list() {
     try {
-      let list = await db.find(db.DIRECTORY, {'_id': { $ne: 0 }});
+      let list = await db.find(db.DIRECTORY, {_id: { $ne: 0 }});
 
       return list.map(this.format);
     } catch (err) {
@@ -96,8 +96,8 @@ class Directory {
    */
   async delete(directoryId) {
     try {
-      let deleteNotesResult = await db.remove(db.NOTES, {'folderId': directoryId}, {});
-      let deleteDirectoryResult = await db.remove(db.DIRECTORY, {'_id': directoryId}, {});
+      let deleteNotesResult = await db.remove(db.NOTES, {folderId: directoryId}, {});
+      let deleteDirectoryResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
 
       return deleteDirectoryResult & deleteNotesResult;
     } catch (err) {
@@ -114,7 +114,7 @@ class Directory {
    */
   async rename(id, name) {
     try {
-      return await db.update(db.DIRECTORY, {'_id': id}, { name, 'dt_update': + new Date() });
+      return await db.update(db.DIRECTORY, {_id: id}, { name, dt_update: + new Date() });
     } catch (err) {
       console.log('Directory renaming error: ', err);
       return false;
@@ -144,7 +144,7 @@ class Directory {
    */
   async getUpdates(dt_update) {
     try {
-      let newFolders = await db.find(db.DIRECTORY, {'dt_update': { $gt: dt_update }});
+      let newFolders = await db.find(db.DIRECTORY, {dt_update: { $gt: dt_update }});
 
       return newFolders;
     } catch (err) {
@@ -160,9 +160,9 @@ class Directory {
    */
   format(element) {
     return {
-      'name': element.name,
-      'id': element._id,
-      'notes': element.notes
+      name: element.name,
+      id: element._id,
+      notes: element.notes
     };
   }
 

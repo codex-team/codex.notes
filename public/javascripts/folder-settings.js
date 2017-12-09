@@ -164,10 +164,11 @@ export default class FolderSettings {
     input.value = '';
 
     // Add item to list of Collaborators
-    let newMemberItem = document.createElement('P');
+    let newMemberItem = $.make('P', [], {
+      innerHTML: email
+    });
 
-    newMemberItem.innerHTML = email;
-    this.membersList.appendChild(newMemberItem);
+    $.append(this.membersList, newMemberItem);
   }
 
 }

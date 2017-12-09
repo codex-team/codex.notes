@@ -70,7 +70,6 @@ class DirectoryController {
    * }
    * @param event
    * @param folderName - new folder name
-   * @returns {Promise.<void>}
    */
   async createFolder(event, folderName) {
     try {
@@ -90,7 +89,6 @@ class DirectoryController {
    * Delete folder. Return bool result to the event emitter
    * @param event
    * @param folderId - folder to delete ID
-   * @returns {Promise.<void>}
    */
   async deleteFolder(event, folderId) {
     try {
@@ -107,7 +105,6 @@ class DirectoryController {
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
    * @param {ObjectId} id  - folder id
    * @param {string} name - new name
-   * @returns {Promise.<void>}
    */
   async changeName(event, id, name) {
     try {
@@ -124,7 +121,6 @@ class DirectoryController {
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
    * @param {ObjectId} id  - folder id
    * @param {string} email - invited user
-   * @returns {Promise.<void>}
    */
   async addMember(event, id, email) {
     try {

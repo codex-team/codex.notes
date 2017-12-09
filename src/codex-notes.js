@@ -16,7 +16,7 @@ const locals = {
   title: 'CodeX Notes',
 };
 const pug = require('electron-pug')({
-  // cache: false,
+  cache: false,
   debug: true,
   compileDebug: true
 }, locals);
