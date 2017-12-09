@@ -6,6 +6,7 @@ const Api = require('./api');
 
 /**
  * Directory model
+ * @class Directory
  */
 class Directory {
 
@@ -24,13 +25,13 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let timestamp = + new Date();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': timestamp } );
+      let dt_update = + new Date();
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'dt_update': dt_update } );
 
       let data = {
         id: dirId,
         name: name,
-        timestamp: timestamp,
+        dt_update: dt_update,
         user: 'admin'
       };
 
