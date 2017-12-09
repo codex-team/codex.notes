@@ -31,10 +31,24 @@
     }    
 
     &__avatar {
+        display: block;
         float: right;
         margin-left: 30px;
+        color: #3D3F4D;
         width: 37px;
         height: 37px;
+
+        &-inner {
+            color: #A2A8BD;
+        }
+
+        &:hover {
+            color: #3C93F7;
+
+            .aside__avatar-inner {
+                color: #FFF;
+            }
+        }
     }
 
 
