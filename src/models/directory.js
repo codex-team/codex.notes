@@ -103,7 +103,7 @@ class Directory {
    */
   async rename(id, name) {
     try {
-      return await db.update(db.DIRECTORY, {'_id': id}, { name });
+      return await db.update(db.DIRECTORY, {'_id': id}, { name, 'dt_update': + new Date() });
     } catch (err) {
       console.log("Directory renaming error: ", err);
       return false;

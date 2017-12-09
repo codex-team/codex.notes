@@ -13,20 +13,21 @@ module.exports = class SyncObserver {
 
   /**
    * Prepare updates for API during synchronization
-   * @param last_sync
-   * @returns ( last_sync – last sync timestamp,
-   *    updates - {
-   *      folders - list of fresh folders,
-   *      notes - list of fresh notes
+   * @param {string} dt_sync – last synchronization timestamp
+   * @returns {dict} {
+   *    {object} dt_sync – last synchronization timestamp,
+   *    {object} updates {
+   *      {string} folders - list of fresh folders,
+   *      {object} notes - list of fresh notes
    *    }
-   * )
+   * }
    */
-  async prepareUpdates(last_sync) {
+  async prepareUpdates(dt_sync) {
     try {
-      let newFolders = await this.folders.getUpdates(last_sync);
-      let newNotes = await this.notes.getUpdates(last_sync);
+      let newFolders = await this.folders.getUpdates(dt_sync);
+      let newNotes = await this.notes.getUpdates(dt_sync);
       return {
-        'timestamp': last_sync,
+        'dt_sync': dt_sync,
         'updates': {
           'folders': newFolders,
           'notes': newNotes
@@ -39,9 +40,16 @@ module.exports = class SyncObserver {
     }
   }
 
-  async sync(last_sync) {
-    let updates = await this.prepareUpdates(last_sync);
+  /**
+   * Sync changes with API server
+   * @param {string} dt_sync – last synchronization timestamp
+   */
+  async sync(dt_sync) {
+    let updates = await this.prepareUpdates(dt_sync);
     console.log(JSON.stringify(updates));
+    // TODO: Send updates to API server
+    // TODO: Receive updates from API server
+    // TODO: Apply updates
   }
 
 };

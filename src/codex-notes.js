@@ -125,7 +125,7 @@ class CodexNotes {
         this.syncObserver = new SyncObserver();
       })
       .then(() =>{
-        return this.syncObserver.sync(this.user.last_sync);
+        return this.syncObserver.sync(this.user.dt_sync);
       })
       .catch(function (err) {
         console.log("Initialization error", err);
