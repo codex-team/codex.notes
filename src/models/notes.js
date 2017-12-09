@@ -146,6 +146,20 @@ class NotesModel {
   }
 
   /**
+   * Get updates action. Make a packet of data changed from timestamp specified.
+   */
+  async getUpdates(timestamp) {
+    try {
+      let newNotes = await db.find(db.NOTES, {'timestamp': { $gt: timestamp }});
+      return newNotes;
+    }
+    catch (err) {
+      console.log("getUpdates notes error: ", err);
+      return false;
+    }
+  }
+
+  /**
    * Delete note by specified ID.
    * @param noteId
    * @returns {Promise.<boolean>}
