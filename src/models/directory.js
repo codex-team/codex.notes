@@ -22,7 +22,7 @@ class Directory {
   async create(name) {
     try {
       let dirId = random.generatePassword();
-      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'timestamp': + new Date() } );
+      let dir = await db.insert(db.DIRECTORY, { 'name': name, 'notes': [], 'dt_update': + new Date() } );
       return dir;
     }
     catch (err) {
@@ -103,9 +103,23 @@ class Directory {
    */
   async rename(id, name) {
     try {
-      return await db.update(db.DIRECTORY, {'_id': id}, { name });
+      return await db.update(db.DIRECTORY, {'_id': id}, { name, 'dt_update': + new Date() });
     } catch (err) {
       console.log("Directory renaming error: ", err);
+      return false;
+    }
+  }
+
+  /**
+   * Get updates action. Make a packet of data changed from last sync date specified.
+   */
+  async getUpdates(dt_update) {
+    try {
+      let newFolders = await db.find(db.DIRECTORY, {'dt_update': { $gt: dt_update }});
+      return newFolders;
+    }
+    catch (err) {
+      console.log("getUpdates folders error: ", err);
       return false;
     }
   }

@@ -9,6 +9,8 @@ const Editor = require('./editor').default;
 const Aside = require('./aside').default;
 const Note = require('./note').default;
 
+import User from './user';
+
 /**
  * Save render proccess to the ipdRender global propery
  */
@@ -35,6 +37,7 @@ let documentReady = () => {
   codex.notes.editor = new Editor();
   codex.notes.aside = new Aside();
   codex.notes.note = new Note();
+  codex.notes.user = new User();
 
   /**
    * New note saving handler

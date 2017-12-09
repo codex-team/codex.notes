@@ -12,7 +12,7 @@ export default class Editor {
   * @property {TimerId} autosaveTimer - autosave debounce timer
   */
   constructor() {
-    this.path = '../public/codex.editor/';
+    this.path = '../../public/codex.editor/';
     this.plugins = ['paragraph', 'header'];
 
     this.autosaveTimer = null;
