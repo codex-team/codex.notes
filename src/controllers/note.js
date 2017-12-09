@@ -103,7 +103,7 @@ class NoteController {
     }
     catch (err) {
       console.log("Load notes list error: ", err);
-      return false;
+      event.returnValue = false;
     }
   }
 
