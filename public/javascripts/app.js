@@ -14,7 +14,6 @@ import User from './user';
 /**
  * Save render proccess to the ipdRender global propery
  */
-
 window.ipcRenderer = electron.ipcRenderer;
 
 /**
