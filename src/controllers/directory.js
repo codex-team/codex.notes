@@ -54,9 +54,9 @@ class DirectoryController {
   async loadFolders(event) {
     try {
       let userFolders = await this.directory.list();
+
       event.sender.send('update folders list', {userFolders});
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -75,13 +75,13 @@ class DirectoryController {
   async createFolder(event, folderName) {
     try {
       let dir = await this.directory.create(folderName);
+
       event.returnValue = {
         'id': dir._id,
         'name': dir.name,
         'notes': dir.notes
       };
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -96,8 +96,7 @@ class DirectoryController {
     try {
       await this.directory.delete(folderId);
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
@@ -114,8 +113,7 @@ class DirectoryController {
     try {
       await this.directory.rename(id, name);
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
@@ -136,7 +134,6 @@ class DirectoryController {
       event.returnValue = false;
     }
   }
-
 }
 
 module.exports = DirectoryController;

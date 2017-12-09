@@ -32,13 +32,13 @@ class Directory {
         id: dirId,
         name: name,
         dt_update: dt_update,
-        user: 'admin'
+        user: '' // @todo put here user's id
       };
 
       console.log(await this.api.sendRequest('folder/create', data));
 
       return dir;
-    }    catch (err) {
+    } catch (err) {
       console.log('Directory create error: ', err);
       return false;
     }
@@ -60,10 +60,10 @@ class Directory {
 
       if (dir) {
         return this.format(dir);
-      }      else {
+      } else {
         return false;
       }
-    }    catch (err) {
+    } catch (err) {
       console.log('Directory get error: ', err);
       return false;
     }
@@ -83,7 +83,7 @@ class Directory {
       let list = await db.find(db.DIRECTORY, {'_id': { $ne: 0 }});
 
       return list.map(this.format);
-    }    catch (err) {
+    } catch (err) {
       console.log('Directory list error: ', err);
       return false;
     }
@@ -100,7 +100,7 @@ class Directory {
       let deleteDirectoryResult = await db.remove(db.DIRECTORY, {'_id': directoryId}, {});
 
       return deleteDirectoryResult & deleteNotesResult;
-    }    catch (err) {
+    } catch (err) {
       console.log('Directory delete error: ', err);
       return false;
     }
@@ -147,7 +147,7 @@ class Directory {
       let newFolders = await db.find(db.DIRECTORY, {'dt_update': { $gt: dt_update }});
 
       return newFolders;
-    }    catch (err) {
+    } catch (err) {
       console.log('getUpdates folders error: ', err);
       return false;
     }
