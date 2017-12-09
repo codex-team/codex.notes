@@ -1,5 +1,6 @@
 const Notes = require('../models/notes');
 const Directory = require('../models/directory');
+const Api = require('../models/api');
 
 module.exports = class SyncObserver {
 
@@ -9,6 +10,7 @@ module.exports = class SyncObserver {
   constructor() {
     this.folders = new Directory();
     this.notes = new Notes();
+    this.api = new Api();
   }
 
   /**
@@ -47,7 +49,8 @@ module.exports = class SyncObserver {
    */
   async sendUpdates(updates) {
     try {
-
+      let response = await this.api.sendRequest('sync', updates);
+      return response;
     }
     catch (err) {
       console.log("Error during synchronization sendUpdates: ", err);
@@ -69,7 +72,7 @@ module.exports = class SyncObserver {
       await this.mergeNotes(notesInstructions);
     }
     catch (err) {
-      console("Error during applyUpdates: ", err);
+      console.log("Error during applyUpdates: ", err);
       return false;
     }
   }
@@ -81,6 +84,9 @@ module.exports = class SyncObserver {
    */
   async mergeFolders(instructions) {
     try {
+      if (!instructions) {
+        return false;
+      }
       // @TODO: Maybe generate new Timestamps before update?
       instructions.forEach(function (element, index, array) {
         if (element.cmd === 'create') {
@@ -98,7 +104,7 @@ module.exports = class SyncObserver {
       });
     }
     catch (err) {
-      console("Error during mergeFolders: ", err);
+      console.log("Error during mergeFolders: ", err);
       return false;
     }
   }
@@ -110,6 +116,9 @@ module.exports = class SyncObserver {
    */
   async mergeNotes(instructions) {
     try {
+      if (!instructions) {
+        return false;
+      }
       // @TODO: Maybe generate new Timestamps before update?
       instructions.forEach(function (element, index, array) {
         if (element.cmd === 'save') {
@@ -123,7 +132,7 @@ module.exports = class SyncObserver {
       });
     }
     catch (err) {
-      console("Error during mergeFolders: ", err);
+      console.log("Error during mergeFolders: ", err);
       return false;
     }
   }
@@ -142,7 +151,7 @@ module.exports = class SyncObserver {
       await this.applyUpdates(reply);
     }
     catch (err) {
-      console("Error during sync event: ", err);
+      console.log("Error during sync event: ", err);
       return false;
     }
   }

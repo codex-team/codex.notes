@@ -17,7 +17,7 @@ const locals = {
 };
 const pug = require('electron-pug')({
   cache: false,
-  debug: true,
+  debug: false,
   compileDebug: true
 }, locals);
 
