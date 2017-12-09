@@ -12,8 +12,14 @@ let pkg = require('./../package.json');
 /**
  * Enable Pug
  */
-const locals = {title: 'CodeX Notes'};
-const pug = require('electron-pug')({pretty:true}, locals);
+const locals = {
+  title: 'CodeX Notes',
+};
+const pug = require('electron-pug')({
+  // cache: false,
+  debug: true,
+  compileDebug: true
+}, locals);
 
 
 /**
@@ -88,9 +94,10 @@ class CodexNotes {
       this.makeMenu();
     }
 
-    this.mainWindow.loadURL(`file://${__dirname}/views/editor.pug`);
+    this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
+      console.log('window is ready.');
       this.mainWindow.show();
     });
 
