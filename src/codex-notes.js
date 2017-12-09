@@ -117,14 +117,19 @@ class CodexNotes {
   initComponents(){
     this.user = new UserModelClass();
 
-    this.user.init().then(() => {
-      this.directory = new DirectoryControllerClass();
-      this.notes = new NotesControllerClass();
-      this.auth = new AuthControllerClass();
-      this.syncObserver = new SyncObserver();
-    }).catch(function (err) {
-      console.log("Initialization error", err);
-    });
+    this.user.init()
+      .then(() => {
+        this.directory = new DirectoryControllerClass();
+        this.notes = new NotesControllerClass();
+        this.auth = new AuthControllerClass();
+        this.syncObserver = new SyncObserver();
+      })
+      .then(() =>{
+        return this.syncObserver.sync(this.user.dt_sync);
+      })
+      .catch(function (err) {
+        console.log("Initialization error", err);
+      });
   }
 
 
@@ -137,9 +142,9 @@ class CodexNotes {
     const menu = electron.Menu;
 
     let createMenuTemplate = require('./menu'),
-        menues = createMenuTemplate(app),
-        menuBar = menu.buildFromTemplate(menues.menuBar),
-        menuDock = menu.buildFromTemplate(menues.menuDock);
+      menues = createMenuTemplate(app),
+      menuBar = menu.buildFromTemplate(menues.menuBar),
+      menuDock = menu.buildFromTemplate(menues.menuDock);
 
     menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
