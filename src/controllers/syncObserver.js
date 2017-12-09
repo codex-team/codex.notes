@@ -21,7 +21,7 @@ module.exports = class SyncObserver {
    *    }
    * )
    */
-  async getUpdates(last_sync) {
+  async prepareUpdates(last_sync) {
     try {
       let newFolders = await this.folders.getUpdates(last_sync);
       let newNotes = await this.notes.getUpdates(last_sync);
@@ -40,7 +40,7 @@ module.exports = class SyncObserver {
   }
 
   async sync(last_sync) {
-    let updates = await this.getUpdates(last_sync);
+    let updates = await this.prepareUpdates(last_sync);
     console.log(JSON.stringify(updates));
   }
 
