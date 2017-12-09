@@ -128,6 +128,6 @@ export default class DOM {
    * @param  {Element} referenceNode
    */
   static after(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    referenceNode.insertAdjacentElement('afterEnd', newNode);
   }
 }
