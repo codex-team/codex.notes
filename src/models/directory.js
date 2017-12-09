@@ -117,9 +117,17 @@ class Directory {
     try {
       let newFolders = await db.find(db.DIRECTORY, {'dt_update': { $gt: dt_update }});
       return newFolders;
-    }
-    catch (err) {
+    } catch (err) {
       console.log("getUpdates folders error: ", err);
+      return false;
+    }
+  }
+
+  async insert(folder, upsert=false) {
+    try {
+      await db.update(db.DIRECTORY, {'id': folder.id}, folder, {upsert});
+    } catch (err) {
+      console.log("clone folder error: ", err);
       return false;
     }
   }
