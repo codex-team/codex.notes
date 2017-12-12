@@ -35,7 +35,9 @@ class Directory {
         user: '' // @todo put here user's id
       };
 
-      console.log(await this.api.sendRequest('folder/create', data));
+      if (data.user) {
+        console.log(await this.api.sendRequest('folder/create', data));
+      }
 
       return dir;
     } catch (err) {
@@ -99,7 +101,18 @@ class Directory {
       let deleteNotesResult = await db.remove(db.NOTES, {folderId: directoryId}, {});
       let deleteDirectoryResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
 
-      return deleteDirectoryResult & deleteNotesResult;
+        let data = {
+            id: dirId,
+            name: name,
+            dt_update: dt_update,
+            user: '' // @todo put here user's id
+        };
+
+        if (data.user) {
+          let deletedFromServer = await this.api.sendRequest('folder/delete', data);
+        }
+        
+      return deleteDirectoryResult & deleteNotesResult & ( deletedFromServer || true );
     } catch (err) {
       console.log('Directory delete error: ', err);
       return false;
