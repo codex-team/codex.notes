@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
-
+const Api = require('./models/api');
 
 /**
  * Enable Pug
@@ -17,8 +17,8 @@ const locals = {
 };
 const pug = require('electron-pug')({
   cache: false,
-  debug: true,
-  compileDebug: true
+  // debug: true,
+  // compileDebug: true
 }, locals);
 
 
@@ -74,7 +74,10 @@ class CodexNotes {
    * Initializes an application
    */
   constructor() {
-    this.mainWindow = new BrowserWindow({
+
+      this.appProtocol = 'codex';
+
+      this.mainWindow = new BrowserWindow({
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,
@@ -113,7 +116,12 @@ class CodexNotes {
     /**
      * Init controllers
      */
-    this.initComponents();
+    this.initComponents()
+
+    /**
+     * Set application protocol
+     */
+      .then(() => {this.setAppProtocol()});
   }
 
   /**
@@ -122,7 +130,7 @@ class CodexNotes {
   initComponents() {
     this.user = new UserModelClass();
 
-    this.user.init()
+    return this.user.init()
       .then(() => {
         global.user = this.user;
         this.directory = new DirectoryControllerClass();
@@ -153,6 +161,14 @@ class CodexNotes {
 
     menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
+  }
+
+  /**
+   * Set app protocol to handle internal links
+   */
+  setAppProtocol() {
+    app.setAsDefaultProtocolClient(this.appProtocol);
+    app.on('open-url', this.auth.verifyCollaborator);
   }
 
   /**

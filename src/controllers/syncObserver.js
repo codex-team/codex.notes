@@ -47,7 +47,7 @@ module.exports = class SyncObserver {
   async sync(dt_sync) {
     let updates = await this.prepareUpdates(dt_sync);
 
-    console.log(JSON.stringify(updates));
+    // console.log(JSON.stringify(updates));
     // @TODO: Send updates to API server
     // @TODO: Receive updates from API server
     // @TODO: Apply updates
