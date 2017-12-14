@@ -92,20 +92,21 @@ class AuthController {
    * @param inviteUrl
    */
   async verifyCollaborator(event, inviteUrl) {
+    let urlParts = url.parse(inviteUrl);
 
-    /** url => codex://join/<email>/<invitation_token> */
-    let path = url.parse(inviteUrl).path;
+    switch (urlParts) {
+      case 'join':
+        let credentials = urlParts.path.slice(1).split('/');
 
-    let credentials = path.slice(1).split('/');
+        let api = new API();
 
-    let api = new API();
-
-    await api.sendRequest('folder/verifyCollaborator', {
-      email: credentials[0],
-      token: credentials[1],
-      user: global.user.id
-    });
-
+        await api.sendRequest('folder/verifyCollaborator', {
+          email: credentials[0],
+          token: credentials[1],
+          user: global.user.id
+        });
+        break;
+    }
   }
 
 }
