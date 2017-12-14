@@ -1,6 +1,7 @@
 'use strict';
 
 const random = require('../utils/random');
+const isOnline = require('is-online');
 const db = require('../utils/database');
 const Api = require('./api');
 
@@ -35,9 +36,9 @@ class Directory {
         user: global.user ? global.user.id : null
       };
 
-      if (process.env.DEBUG !== 'true') {
-        await this.api.sendRequest('folder/create', data);
-      }
+      await isOnline().then(() => {
+        this.api.sendRequest('folder/create', data);
+      });
 
       return dir;
     } catch (err) {
@@ -98,6 +99,7 @@ class Directory {
    */
   async delete(directoryId) {
     try {
+
       let deleteNotesResult = await db.remove(db.NOTES, {folderId: directoryId}, {});
       let deleteDirectoryResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
       let deletedFromServer;
@@ -108,11 +110,11 @@ class Directory {
             dt_update: dt_update,
             user: global.user ? global.user.id : null
         };
+      await isOnline()
+          .then(() => {
+              deletedFromServer = this.api.sendRequest('folder/delete', data);
+          });
 
-        if (process.env.DEBUG !== 'true') {
-          deletedFromServer = await this.api.sendRequest('folder/delete', data);
-        }
-        
       return deleteDirectoryResult & deleteNotesResult & ( deletedFromServer || true );
     } catch (err) {
       console.log('Directory delete error: ', err);
