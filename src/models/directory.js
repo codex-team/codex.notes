@@ -32,10 +32,12 @@ class Directory {
         id: dirId,
         name: name,
         dt_update: dt_update,
-        user: '' // @todo put here user's id
+        user: global.user ? global.user.id : null
       };
 
-      console.log(await this.api.sendRequest('folder/create', data));
+      if (data.user) {
+        await this.api.sendRequest('folder/create', data);
+      }
 
       return dir;
     } catch (err) {
@@ -96,10 +98,21 @@ class Directory {
    */
   async delete(directoryId) {
     try {
+
       let deleteNotesResult = await db.remove(db.NOTES, {folderId: directoryId}, {});
       let deleteDirectoryResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
+      let deletedFromServer;
 
-      return deleteDirectoryResult & deleteNotesResult;
+        let data = {
+            id: directoryId,
+            user: global.user ? global.user.id : null
+        };
+
+        if (data.user) {
+          deletedFromServer = await this.api.sendRequest('folder/delete', data);
+        }
+
+      return deleteDirectoryResult & deleteNotesResult & ( deletedFromServer || true );
     } catch (err) {
       console.log('Directory delete error: ', err);
       return false;
