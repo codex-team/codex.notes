@@ -1,6 +1,7 @@
 'use strict';
 
 const request = require('request-promise');
+const isOnline = require('is-online');
 
 /**
  * @class       ApiController
@@ -27,12 +28,20 @@ class ApiController {
    * @param {Object} data - data to send
    */
   async sendRequest(action, data) {
-    return await request({
-      url: this.url + action,
-      method: 'POST',
-      body: data,
-      json: true
-    });
+    await isOnline()
+        .then((connection) => {
+
+            if (!connection) {
+              return true;
+            }
+
+            return request({
+                url: this.url + action,
+                method: 'POST',
+                body: data,
+                json: true
+            });
+        });
   }
 }
 

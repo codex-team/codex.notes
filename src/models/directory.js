@@ -1,7 +1,6 @@
 'use strict';
 
 const random = require('../utils/random');
-const isOnline = require('is-online');
 const db = require('../utils/database');
 const Api = require('./api');
 
@@ -36,9 +35,9 @@ class Directory {
         user: global.user ? global.user.id : null
       };
 
-      await isOnline().then(() => {
-        this.api.sendRequest('folder/create', data);
-      });
+      if (data.user) {
+        await this.api.sendRequest('folder/create', data);
+      }
 
       return dir;
     } catch (err) {
@@ -105,15 +104,13 @@ class Directory {
       let deletedFromServer;
 
         let data = {
-            id: dirId,
-            name: name,
-            dt_update: dt_update,
+            id: directoryId,
             user: global.user ? global.user.id : null
         };
-      await isOnline()
-          .then(() => {
-              deletedFromServer = this.api.sendRequest('folder/delete', data);
-          });
+
+        if (data.user) {
+          deletedFromServer = await this.api.sendRequest('folder/delete', data);
+        }
 
       return deleteDirectoryResult & deleteNotesResult & ( deletedFromServer || true );
     } catch (err) {
