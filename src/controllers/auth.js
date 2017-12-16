@@ -96,15 +96,20 @@ class AuthController {
 
     switch (urlParts.hostname) {
       case 'join':
-        let credentials = urlParts.path.slice(1).split('/');
+        let email, token;
+
+        [email, token] = urlParts.path.slice(1).split('/');
 
         let api = new API();
 
         await api.sendRequest('folder/verifyCollaborator', {
-          email: credentials[0],
-          token: credentials[1],
+          email: email,
+          token: token,
           user: global.user.id
         });
+
+        /** @todo fill user's shared folders */
+
         break;
     }
   }
