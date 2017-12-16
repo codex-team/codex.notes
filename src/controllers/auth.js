@@ -94,7 +94,7 @@ class AuthController {
   async verifyCollaborator(event, inviteUrl) {
     let urlParts = url.parse(inviteUrl);
 
-    switch (urlParts) {
+    switch (urlParts.hostname) {
       case 'join':
         let credentials = urlParts.path.slice(1).split('/');
 
