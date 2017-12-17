@@ -2,6 +2,8 @@
 const {ipcMain} = require('electron');
 const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
+const url = require('url');
+const API = require('../models/api');
 
 /**
  * @class AuthController
@@ -25,7 +27,6 @@ class AuthController {
    *
    */
   async googleAuth(event) {
-
     /**
      * Google OAuth credentials
      */
@@ -80,6 +81,36 @@ class AuthController {
     } catch (e) {
       console.log('Can`t sign in to Google account because of', e);
       event.returnValue = false;
+    }
+  }
+
+  /**
+   *
+   * Send `verify collaborator` request to API
+   *
+   * @param event
+   * @param inviteUrl
+   */
+  async verifyCollaborator(event, inviteUrl) {
+    let urlParts = url.parse(inviteUrl);
+
+    switch (urlParts.hostname) {
+      case 'join':
+        let email, token;
+
+        [email, token] = urlParts.path.slice(1).split('/');
+
+        let api = new API();
+
+        await api.sendRequest('folder/verifyCollaborator', {
+          email: email,
+          token: token,
+          user: global.user.id
+        });
+
+        /** @todo fill user's shared folders */
+
+        break;
     }
   }
 
