@@ -23,7 +23,7 @@ const pug = require('electron-pug')({
 
 
 /**
- * Syncronization controller
+ * Synchronization controller
  */
 const SyncObserver = require('./controllers/syncObserver');
 
@@ -75,9 +75,13 @@ class CodexNotes {
    */
   constructor() {
 
-      this.appProtocol = 'codex';
+    /**
+     * Web links with codex:// protocol will be handled by application
+     * @type {string}
+     */
+    this.appProtocol = 'codex';
 
-      this.mainWindow = new BrowserWindow({
+    this.mainWindow = new BrowserWindow({
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,

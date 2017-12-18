@@ -1,6 +1,19 @@
 const Notes = require('../models/notes');
 const Directory = require('../models/directory');
 
+const { GraphQLClient } = require('graphql-request');
+
+/**
+ * @class SyncObserver
+ *
+ * Sends new changes to the API server
+ * Accepts changes from the API server
+ *
+ * @typedef {SyncObserver} SyncObserver
+ * @property {Directory} folders    - Folders Model
+ * @property {Notes} notes          - Notes Model
+ * @property {GraphQLClient} api    - GraphQL API client
+ */
 module.exports = class SyncObserver {
 
   /**
@@ -9,6 +22,12 @@ module.exports = class SyncObserver {
   constructor() {
     this.folders = new Directory();
     this.notes = new Notes();
+
+    this.api = new GraphQLClient(process.env.API_ENDPOINT, {
+      headers: {
+        // Authorization: 'Put JWT here for authorization',
+      }
+    });
   }
 
   /**
@@ -51,6 +70,28 @@ module.exports = class SyncObserver {
     // @TODO: Send updates to API server
     // @TODO: Receive updates from API server
     // @TODO: Apply updates
+
+    this.getUpdates();
+  }
+
+  /**
+   * Requests updates from the cloud
+   */
+  getUpdates(){
+
+    /**
+     * Sync Query
+     * @type {String}
+     */
+    let query = require('../graphql/sync');
+
+    this.api.request(query)
+      .then( data => {
+        console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
+      })
+      .catch( error => {
+        console.log('[!] Synchronization failed because of ', error);
+      });
   }
 
 };
