@@ -21,7 +21,7 @@ class User {
    *  }
    */
   constructor() {
-    this._id = null;
+    this.id = null;
     this.name = null;
     this.avatar = null;
     this.dt_sync = 0;
@@ -36,7 +36,7 @@ class User {
       let user = await this.get();
 
       if (user) {
-        this._id = user.user._id;
+        this.id = user._id;
         this.name = user.user.name;
         this.avatar = user.user.avatar;
         this.dt_sync = user.user.dt_sync;
@@ -46,8 +46,9 @@ class User {
         this.avatar = null;
         this.dt_sync = 0;
         let savedUser = await db.insert(db.USER, this.prepare());
-        this._id = savedUser._id;
+        this.id = savedUser._id;
       }
+      console.log("[user]", this.id);
     } catch (err) {
       console.log('User register error: ', err);
     }

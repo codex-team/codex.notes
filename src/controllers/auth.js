@@ -67,7 +67,7 @@ class AuthController {
       };
 
       let oauthParams = {};
-      if (!global.user.oauth.access_token) {
+      if (!global.user.oauth || !global.user.oauth.access_token) {
         let token = await this.Oauth.getAccessToken(options);
         oauthParams = await this.saveOauthParams(token);
       }
@@ -125,7 +125,7 @@ class AuthController {
   async reAuth() {
     try {
       // @TODO: Check if access token is still valid (append expiration date)
-      if (global.user.oauth.refresh_token) {
+      if (global.user.oauth && global.user.oauth.refresh_token) {
         let newToken = await this.Oauth.refreshToken(global.user.oauth.refresh_token);
         if (newToken) {
           console.log('[*] AUTH refresh token – success');
