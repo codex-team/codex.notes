@@ -2,7 +2,7 @@
 let {ipcMain} = require('electron');
 
 const Notes = require('../models/notes');
-const Directory = require('../models/directory');
+const Directory = require('../models/folder');
 
 /**
  * Note controller.
@@ -152,6 +152,7 @@ class NoteController {
       event.returnValue = false;
     }
   }
+
 
 }
 

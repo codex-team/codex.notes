@@ -5,6 +5,26 @@ let webpack           = require('webpack');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
 let path              = require('path');
 
+require('dotenv').config();
+
+/**
+ * Configure plugins
+ * @type {Array}
+ */
+let plugins = [
+  /** Block build if errors found */
+  new webpack.NoEmitOnErrorsPlugin(),
+  /** Extract CSS bundle */
+  new ExtractTextPlugin('public/build/bundle.css'),
+
+];
+
+/** CSS and JS minification */
+if (process.env.DEBUG !== 'true'){
+  plugins.push(new webpack.optimize.UglifyJsPlugin());
+}
+
+
 module.exports = {
 
   entry: './public/javascripts/app.js',
@@ -34,7 +54,7 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              minimize: 1,
+              minimize: process.env.DEBUG !== 'true' ? 1 : 0,
               importLoaders: 1
             }
           },
@@ -70,18 +90,10 @@ module.exports = {
     ]
   },
 
-  plugins: [
-
-    /** Минифицируем CSS и JS */
-    new webpack.optimize.UglifyJsPlugin(),
-
-    /** Block build if errors found */
-    new webpack.NoEmitOnErrorsPlugin(),
-
-    /** Extract CSS bundle */
-    new ExtractTextPlugin('public/build/bundle.css')
-
-  ],
+  /**
+   * Add plugins
+   */
+  plugins,
 
   resolve: {
     // options for resolving module requests

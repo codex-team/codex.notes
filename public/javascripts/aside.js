@@ -269,12 +269,13 @@ export default class Aside {
    * Add new item to the folders list
    *
    * @param {object} folder
-   * @param {string} folder.name
+   * @param {string} folder.title
    * @param {number} folder.id
    */
   addFolder(folder) {
+    console.log('Trying to add Folder: ', folder);
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
-    let item = this.makeMenuItem(folder.name, {folderId: folder.id});
+    let item = this.makeMenuItem(folder.title, {folderId: folder.id});
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 

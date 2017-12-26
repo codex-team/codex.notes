@@ -1,22 +1,33 @@
 'use strict';
 let {ipcMain} = require('electron');
 
-const Directory = require('../models/directory');
+const Folder = require('../models/folder');
 
 /**
- * Directory controller.
+ * @typedef {Object} FolderData
+ * @property {String} id          - Folder's id
+ * @property {String} title       - Folder's title
+ * @property {Number} dtModify    - Last modification timestamp
+ * @property {Object} owner       - Folder's owner User
+ * @property {String} owner.id    - Folder owner's id
+ * @property {String} owner.name  - Folder owner's name
+ * @property {String} owner.email - Folder owner's email
+ */
+
+/**
+ * Folders controller.
  * Works with events:
  *  - create folder
  *  - load folders list
  *  - delete folder
  */
-class DirectoryController {
+class FoldersController {
 
   /**
    * Setup event handlers
    */
   constructor() {
-    this.directory = new Directory();
+    this.folder = new Folder();
 
     ipcMain.on('create folder', (event, folderName) => {
       this.createFolder(event, folderName);
@@ -53,7 +64,7 @@ class DirectoryController {
    */
   async loadFolders(event) {
     try {
-      let userFolders = await this.directory.list();
+      let userFolders = await this.folder.list();
 
       event.sender.send('update folders list', {userFolders});
     } catch (err) {
@@ -73,7 +84,7 @@ class DirectoryController {
    */
   async createFolder(event, folderName) {
     try {
-      let dir = await this.directory.create(folderName);
+      let dir = await this.folder.create(folderName);
 
       event.returnValue = {
         'id': dir._id,
@@ -92,7 +103,7 @@ class DirectoryController {
    */
   async deleteFolder(event, folderId) {
     try {
-      await this.directory.delete(folderId);
+      await this.folder.delete(folderId);
       event.returnValue = true;
     } catch (err) {
       console.log(err);
@@ -108,7 +119,7 @@ class DirectoryController {
    */
   async changeName(event, id, name) {
     try {
-      await this.directory.rename(id, name);
+      await this.folder.rename(id, name);
       event.returnValue = true;
     } catch (err) {
       console.log(err);
@@ -119,17 +130,32 @@ class DirectoryController {
   /**
    * Add new member to the folder as a collaborator
    * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {ObjectID} id  - folder id
+   * @param {String} id  - folder id
    * @param {string} email - invited user
    */
   async addMember(event, id, email) {
     try {
-      event.returnValue = await this.directory.addMember(id, email);
+      event.returnValue = await this.folder.addMember(id, email);
     } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
   }
+
+  /**
+   * Updates Folders data in the DB and sends new state to the Client
+   * @param {FolderData[]} folders - new Folder's list
+   * @return {Promise<void>}
+   */
+  async renew(folders){
+    await folders.forEach( async folder => {
+      console.log('\n\nStart syncing folder' , folder);
+      let updatedFolder = await this.folder.syncWithDB(folder);
+
+      console.log('updatedFolder: ', updatedFolder);
+    });
+
+  }
 }
 
-module.exports = DirectoryController;
+module.exports = FoldersController;

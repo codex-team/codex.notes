@@ -30,7 +30,7 @@ const SyncObserver = require('./controllers/syncObserver');
 /**
  * Directories controller
  */
-const DirectoryControllerClass = require('./controllers/directory');
+const FoldersController = require('./controllers/folders');
 
 /**
  * Notes controllers
@@ -88,7 +88,7 @@ class CodexNotes {
       minWidth: 1070,
       minHeight: 600,
       height: 700,
-      vibrancy: 'ultra-dark',
+      // vibrancy: 'ultra-dark',
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
@@ -109,7 +109,7 @@ class CodexNotes {
     });
 
     /** Open the DevTools. */
-    if (process.env.OPEN_DEV_TOOLS === 'true') {
+    if (process.env.DEBUG === 'true') {
       this.mainWindow.webContents.openDevTools();
     }
 
@@ -137,10 +137,17 @@ class CodexNotes {
     return this.user.init()
       .then(() => {
         global.user = this.user;
-        this.directory = new DirectoryControllerClass();
+        this.folders = new FoldersController();
         this.notes = new NotesControllerClass();
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
+
+        this.syncObserver.on('sync', (data) => {
+          console.log('Sync handler received data', data);
+          // this.user.sync(data.user);
+          // this.notes.sync(data);
+          this.folders.renew(data.user.folders);
+        });
       })
       .then(() => {
         return this.syncObserver.sync(this.user.dt_sync);

@@ -5,43 +5,60 @@ const db = require('../utils/database');
 const Api = require('./api');
 
 /**
- * Directory model
- * @class Directory
+ * @class Folder
+ * @classdesc Folder's model type
+ *
+ * @typedef {Folder} Folder
+ * @property {String} id
+ * @property {String} title
+ * @property {Number} dtModify
+ * @property {String} ownerId
+ * @property {Note[]} notes
+ *
  */
-class Directory {
+class Folder {
 
   /**
    * Initialize params for the API
    */
   constructor() {
-    this.api = new Api();
+    this.id = '';
+    this.title = '';
+    this.dtModify = null;
+    this.ownerId = null;
+    this.notes = [];
+
+
   }
 
   /**
    * Create new directory with the name specified.
-   * @param name - directory name
+   * @param title - directory title
    * @returns {Promise.<*>}
    */
-  async create(name) {
+  async create(title) {
     try {
-      let dirId = random.generatePassword();
-      let dt_update = + new Date();
-      let dir = await db.insert(db.DIRECTORY, { name: name, notes: [], dt_update: dt_update } );
+      let dtModify = + new Date();
+      let dir = await db.insert(db.DIRECTORY, {
+        title,
+        notes: [],
+        dtModify,
+        ownerId: global.user ? global.user.id : null
+      });
 
-      let data = {
-        id: dirId,
-        name: name,
-        dt_update: dt_update,
-        user: global.user ? global.user.id : null
-      };
-
-      if (data.user) {
-        await this.api.sendRequest('folder/create', data);
-      }
+      // if (data.user) {
+        // let data = {
+        //   id: dir._id,
+        //   title,
+        //   dtModify,
+        //   user: global.user ? global.user.id : null
+        // };
+        // await this.api.sendRequest('folder/create', data);
+      // }
 
       return dir;
     } catch (err) {
-      console.log('Directory create error: ', err);
+      console.log('Folder creation error: ', err);
       return false;
     }
   }
@@ -54,39 +71,37 @@ class Directory {
    *   notes: [] - array of notes
    * }
    * @param id - directory ID
-   * @returns note object
+   * @returns {Object} - Folder's data
    */
   async get(id) {
     try {
       let dir = await db.findOne(db.DIRECTORY, {_id: id});
 
       if (dir) {
-        return this.format(dir);
+        return Folder.format(dir);
       } else {
         return false;
       }
     } catch (err) {
-      console.log('Directory get error: ', err);
+      console.log('Folder get error: ', err);
       return false;
     }
   }
 
   /**
-   * Get list of directories in format:
-   * [{
-   *   id - unique folder ID
-   *   name - folder name (visible)
-   *   notes: [] - array of notes
-   * }]
-   * @returns {Promise.<boolean>}
+   * Returns Folders list
+   *
+   * @return {Promise.<Folder[]>}
    */
   async list() {
     try {
       let list = await db.find(db.DIRECTORY, {_id: { $ne: 0 }});
 
-      return list.map(this.format);
+      console.log('Folders in DB', list);
+
+      return list.map(Folder.format);
     } catch (err) {
-      console.log('Directory list error: ', err);
+      console.log('Folder list error: ', err);
       return false;
     }
   }
@@ -100,7 +115,7 @@ class Directory {
     try {
 
       let deleteNotesResult = await db.remove(db.NOTES, {folderId: directoryId}, {});
-      let deleteDirectoryResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
+      let deleteFolderResult = await db.remove(db.DIRECTORY, {_id: directoryId}, {});
       let deletedFromServer;
 
         let data = {
@@ -109,12 +124,12 @@ class Directory {
         };
 
         if (data.user) {
-          deletedFromServer = await this.api.sendRequest('folder/delete', data);
+          // deletedFromServer = await this.api.sendRequest('folder/delete', data);
         }
 
-      return deleteDirectoryResult & deleteNotesResult & ( deletedFromServer || true );
+      return deleteFolderResult & deleteNotesResult & ( deletedFromServer || true );
     } catch (err) {
-      console.log('Directory delete error: ', err);
+      console.log('Folder delete error: ', err);
       return false;
     }
   }
@@ -129,7 +144,7 @@ class Directory {
     try {
       return await db.update(db.DIRECTORY, {_id: id}, { name, dt_update: + new Date() });
     } catch (err) {
-      console.log('Directory renaming error: ', err);
+      console.log('Folder renaming error: ', err);
       return false;
     }
   }
@@ -172,17 +187,54 @@ class Directory {
 
   /**
    * Transform DB element into structure for frontend module.
-   * @param element - DB structure: {{name, _id, notes: (Array|*|Notes)}}
-   * @returns {{name, id, notes: (Array|*|Notes)}}
+   * @param {Object} record
+   * @param {String} record._id
+   * @param {String} record.title
+   * @param {String|null} record.ownerId
+   * @param {Array} record.notes
+   * @returns {{title: string, id: string, notes: (Array|*|Notes)}}
    */
-  format(element) {
+  static format(record) {
     return {
-      name: element.name,
-      id: element._id,
-      notes: element.notes
+      title: record.title,
+      id: record._id,
+      notes: record.notes
     };
+  }
+
+
+  /**
+   * Updates a Folder in the Database
+   * @param folder
+   */
+  async syncWithDB(folder) {
+    try {
+
+      console.log('What we will update: ', folder.id);
+
+      let updateResponse = await db.update(db.DIRECTORY,
+        // where
+        {
+          _id: folder.id
+        },
+        // new data
+        {
+          _id: folder.id,
+          title: folder.title,
+          dt_update: folder.dtModify,
+        },
+        // options
+        {
+          upsert: true
+        });
+      return updateResponse.affectedDocuments;
+
+    } catch (err) {
+      console.log(`Folder ${folder.id} [${folder.name}] sync failed: `, err);
+      return false;
+    }
   }
 
 }
 
-module.exports = Directory;
+module.exports = Folder;

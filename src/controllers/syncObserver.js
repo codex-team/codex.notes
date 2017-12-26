@@ -1,5 +1,5 @@
 const Notes = require('../models/notes');
-const Directory = require('../models/directory');
+const Directory = require('../models/folder');
 
 const { GraphQLClient } = require('graphql-request');
 
@@ -28,6 +28,8 @@ module.exports = class SyncObserver {
         // Authorization: 'Put JWT here for authorization',
       }
     });
+
+    this.subscribers = [];
   }
 
   /**
@@ -88,10 +90,32 @@ module.exports = class SyncObserver {
     this.api.request(query)
       .then( data => {
         console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
+        console.log('now will emit');
+        this.emit('sync', data);
       })
       .catch( error => {
         console.log('[!] Synchronization failed because of ', error);
       });
   }
 
+  emit(event, data){
+
+    this.subscribers.forEach(sub => {
+      if (sub.event !== event){
+        return;
+      }
+
+      sub.callback.call(null, data);
+    });
+
+    console.log(event, data);
+
+  }
+
+  on(event, callback){
+    this.subscribers.push({
+      event,
+      callback
+    });
+  }
 };

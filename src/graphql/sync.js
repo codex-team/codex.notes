@@ -2,15 +2,16 @@
  * Sync Query
  * @type {string}
  */
-module.exports = `query {
-  notes(userId: 1, folderId: 1){
-    title
-  },
-  folders(userId: 1){
-    id,
-    title,
-    owner {
-      name
+module.exports = `query Sync {
+  user(id: "taly1"){
+    name,
+    folders {
+      id,
+      title,
+      owner{
+        name,
+        id
+      }
     }
   }
 }`;
