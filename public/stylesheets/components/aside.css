@@ -13,73 +13,62 @@
     font-size: 13.7px;
     letter-spacing: 0.3px;
 
-    &__logo {
-        float: left;
+    &__header {
         display: flex;
-        flex-direction: column;
-        margin-bottom: 15px;
-        font-size: 18px;
-        font-weight: 600;
-        color: #fff;
+        flex-direction: row;
+        justify-content: space-between;
 
-        .status-panel {
-            margin-top: 5px;
-            color: color(var(--aside-color-light) alpha(50%));
-            font-size: 11.5px;
-        }
+        &-left {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;   
+        }    
 
-    }    
+        &-avatar {
+            width: 37px;
+            height: 37px;
+            padding-left: 10px;
+            padding-bottom: 20px;
+            color: #3D3F4D;
 
-    &__avatar {
-        display: block;
-        float: right;
-        margin-left: 30px;
-        color: #3D3F4D;
-        width: 37px;
-        height: 37px;
-        padding-bottom: 20px;
-
-        &-inner {
-            color: #A2A8BD;
-        }
-
-        &:hover {
-            color: #3C93F7;
-
-            .aside__authorization {
-                display: inline-flex;
+            &-inner {
+                color: #A2A8BD;
             }
 
-            .aside__avatar-inner {
-                color: #FFF;
-            }
+            &:hover {
+                color: #3C93F7;
 
+                .aside__authorization {
+                    display: inline-flex;
+                }
+
+                .aside__header-avatar-inner {
+                    color: #FFF;
+                }
+
+            }
         }
     }
 
     &__authorization {
-        position: relative;
-        left: -163px;
-        top: 10px;
+        position: absolute;
+        left: 15px;
+        top: 90px;
+        z-index: 10;
         display: none;
         flex-flow: column wrap;
         justify-content: space-around;
         margin-left: 3px;
-        width: 192px;
-        height: 114px;
-        color: #000;
-        font-family: Helvetica;
         font-size: 13.1px;
-        border: 1px solid #F5F9FE;
+        color: #000;
         text-align: center;
+        border: 1px solid #F5F9FE;
         border-radius: 3px;
         background-color: #F5F9FE;
-        z-index: 10;
-
-        .intro_auth {
-            width: 151px;
-            margin: 0 auto 0;
-        }
+        cursor: default;
 
         &::before {
             content:'';
@@ -241,8 +230,20 @@
     }
 }
 
+.status-panel {
+    margin-top: 5px;
+    font-size: 11.5px;
+    color: color(var(--aside-color-light) alpha(50%));
+}
+
+.intro_auth {
+    width: 151px;
+    margin: 20px;
+}
+
 .auth-button {
     display: inline-block;
+    margin-bottom: 20px;
     cursor: pointer;
     color: #496A84;
 
@@ -252,6 +253,7 @@
 
     &:hover {
         color: #3D3F4D;
+        cursor: pointer;
     }
 }
 
