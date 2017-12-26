@@ -20,7 +20,7 @@ module.exports = class SyncObserver {
    * Initialize params for the API
    */
   constructor() {
-    this.folders = new Directory();
+    // this.folders = new Directory();
     this.notes = new Notes();
 
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
@@ -45,16 +45,16 @@ module.exports = class SyncObserver {
    */
   async prepareUpdates(dt_sync) {
     try {
-      let newFolders = await this.folders.getUpdates(dt_sync);
-      let newNotes = await this.notes.getUpdates(dt_sync);
+      // let newFolders = await this.folders.getUpdates(dt_sync);
+      // let newNotes = await this.notes.getUpdates(dt_sync);
 
-      return {
-        'dt_sync': dt_sync,
-        'updates': {
-          'folders': newFolders,
-          'notes': newNotes
-        }
-      };
+      // return {
+      //   'dt_sync': dt_sync,
+      //   'updates': {
+      //     'folders': newFolders,
+      //     'notes': newNotes
+      //   }
+      // };
     } catch (err) {
       console.log('Error during synchronization getUpdates: ', err);
       return false;

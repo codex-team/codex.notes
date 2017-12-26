@@ -2,17 +2,9 @@
 let {ipcMain} = require('electron');
 
 const Folder = require('../models/folder');
+const FoldersList = require('../models/foldersList');
 
-/**
- * @typedef {Object} FolderData
- * @property {String} id          - Folder's id
- * @property {String} title       - Folder's title
- * @property {Number} dtModify    - Last modification timestamp
- * @property {Object} owner       - Folder's owner User
- * @property {String} owner.id    - Folder owner's id
- * @property {String} owner.name  - Folder owner's name
- * @property {String} owner.email - Folder owner's email
- */
+
 
 /**
  * Folders controller.
@@ -27,44 +19,38 @@ class FoldersController {
    * Setup event handlers
    */
   constructor() {
-    this.folder = new Folder();
 
-    ipcMain.on('create folder', (event, folderName) => {
+    ipcMain.on('folder - create', (event, folderName) => {
       this.createFolder(event, folderName);
     });
 
-    ipcMain.on('load folders list', (event) => {
+    ipcMain.on('folders list - load', (event) => {
       this.loadFolders(event);
     });
 
-    ipcMain.on('delete folder', (event, folderId) => {
+    ipcMain.on('folder - delete', (event, folderId) => {
       this.deleteFolder(event, folderId);
     });
-
-    ipcMain.on('folder - change name', (event, {id, name}) => {
-      this.changeName(event, id, name);
-    });
-
-    ipcMain.on('folder - collaborator add', (event, {id, email}) => {
-      this.addMember(event, id, email);
-    });
+    //
+    // ipcMain.on('folder - change name', (event, {id, name}) => {
+    //   this.changeName(event, id, name);
+    // });
+    //
+    // ipcMain.on('folder - collaborator add', (event, {id, email}) => {
+    //   this.addMember(event, id, email);
+    // });
   }
 
   /**
-   * Load list of folders. Send event 'update folders list' with the following params:
-   *  {
-   *    userFolders: [{
-   *      id - unique folder ID
-   *      name - folder name (visible)
-   *      notes: [] - array of notes
-   *    }]
-   *  }
-   * @param event
-   * @returns {Promise.<void>}
+   * Load list of Folders.
+   *
+   * @param {GlobalEvent} event
+   * @returns {Promise.<Folder[]>}
    */
   async loadFolders(event) {
     try {
-      let userFolders = await this.folder.list();
+      let list = new FoldersList();
+      let userFolders = await list.get();
 
       event.sender.send('update folders list', {userFolders});
     } catch (err) {
@@ -73,37 +59,52 @@ class FoldersController {
   }
 
   /**
-   * Create new folder. Return the following value to the event emitter:
-   * {
-   *  id - generated folder ID
-   *  name - folder name (got from event emitter)
-   *  notes - empty array of notes
-   * }
-   * @param event
-   * @param folderName - new folder name
+   * Saves new Folder
+   *
+   * @param {GlobalEvent} event
+   * @param {String} folderName - new folder name
+   *
+   * @return {{id: string, title: string, notes: []}}
    */
   async createFolder(event, folderName) {
     try {
-      let dir = await this.folder.create(folderName);
+      let folder = new Folder({
+        title: folderName,
+        dtModify: +new Date(),
+        ownerId: global.user ? global.user.id : null
+      });
+
+      let savedFolder = await folder.add();
 
       event.returnValue = {
-        'id': dir._id,
-        'name': dir.name,
-        'notes': dir.notes
+        'id': savedFolder._id,
+        'title': savedFolder.title,
+        'notes': savedFolder.notes
       };
+
     } catch (err) {
-      console.log(err);
+      console.log('Folder addition failed because of ', err);
     }
   }
 
   /**
-   * Delete folder. Return bool result to the event emitter
-   * @param event
-   * @param folderId - folder to delete ID
+   * Delete Folder
+   *
+   * @param {GlobalEvent} event
+   * @param {String} folderId
+   * @return {Boolean}
    */
   async deleteFolder(event, folderId) {
     try {
-      await this.folder.delete(folderId);
+
+      let folder = new Folder({
+        id: folderId,
+        ownerId: global.user ? global.user.id : null
+      });
+
+      let removedFolder = await folder.delete();
+
+      console.log('removedFolder:', removedFolder);
       event.returnValue = true;
     } catch (err) {
       console.log(err);
@@ -148,9 +149,11 @@ class FoldersController {
    * @return {Promise<void>}
    */
   async renew(folders){
-    await folders.forEach( async folder => {
-      console.log('\n\nStart syncing folder' , folder);
-      let updatedFolder = await this.folder.syncWithDB(folder);
+    await folders.forEach( async folderData => {
+      console.log('\n\nStart syncing folder' , folderData);
+
+      let folder = new Folder(folderData);
+      let updatedFolder = await folder.syncWithDB();
 
       console.log('updatedFolder: ', updatedFolder);
     });

@@ -782,7 +782,7 @@ var Aside = function () {
   }, {
     key: 'loadFolders',
     value: function loadFolders() {
-      window.ipcRenderer.send('load folders list');
+      window.ipcRenderer.send('folders list - load');
     }
 
     /**
@@ -838,7 +838,7 @@ var Aside = function () {
        * Save folder
        * @type {object}
        */
-      var createdFolder = window.ipcRenderer.sendSync('create folder', folderName);
+      var createdFolder = window.ipcRenderer.sendSync('folder - create', folderName);
 
       /**
        * Add saved folder to the menu
@@ -2059,7 +2059,7 @@ var Folder = function () {
     key: 'delete',
     value: function _delete() {
       if (Dialog.confirm('Are you sure you want to delete this folder?')) {
-        if (window.ipcRenderer.sendSync('delete folder', this._id)) {
+        if (window.ipcRenderer.sendSync('folder - delete', this._id)) {
           codex.notes.aside.removeFolderFromMenu(this._id);
           codex.notes.note.clear();
           return true;

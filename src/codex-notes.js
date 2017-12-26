@@ -198,6 +198,11 @@ app.on('ready', function () {
   try {
     new CodexNotes();
   } catch(error) {
-    console.log(error);
+    console.log(`\n\n 
+      ........................... \n\n 
+      CodeX Notes runtime error: 
+      ........................... \n\n
+      `, error);
+    console.log(`\n\n ........................... \n\n`);
   }
 });

@@ -86,7 +86,7 @@ export default class Folder {
    */
   delete() {
     if (Dialog.confirm('Are you sure you want to delete this folder?')) {
-      if (window.ipcRenderer.sendSync('delete folder', this._id)) {
+      if (window.ipcRenderer.sendSync('folder - delete', this._id)) {
         codex.notes.aside.removeFolderFromMenu(this._id);
         codex.notes.note.clear();
         return true;

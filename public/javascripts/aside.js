@@ -163,7 +163,7 @@ export default class Aside {
    * Loads folders list
    */
   loadFolders() {
-    window.ipcRenderer.send('load folders list');
+    window.ipcRenderer.send('folders list - load');
   }
 
 
@@ -211,7 +211,7 @@ export default class Aside {
      * Save folder
      * @type {object}
      */
-    let createdFolder = window.ipcRenderer.sendSync('create folder', folderName);
+    let createdFolder = window.ipcRenderer.sendSync('folder - create', folderName);
 
     /**
      * Add saved folder to the menu

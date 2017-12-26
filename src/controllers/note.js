@@ -18,14 +18,14 @@ class NoteController {
    */
   constructor() {
     this.notes = new Notes();
-    this.directory = new Directory();
+    // this.directory = new Directory();
 
     ipcMain.on('save note', (event, {note}) => {
       this.saveNote(note, event);
     });
 
     ipcMain.on('load notes list', (event, folderId) => {
-      this.loadNotesList(folderId, event);
+      // this.loadNotesList(folderId, event);
     });
 
     ipcMain.on('get note', (event, {id}) => {
