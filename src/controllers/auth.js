@@ -70,8 +70,7 @@ class AuthController {
       if (!global.user.oauth || !global.user.oauth.access_token) {
         let token = await this.Oauth.getAccessToken(options);
         oauthParams = await this.saveOauthParams(token);
-      }
-      else {
+      } else {
         oauthParams = await this.saveOauthParams(global.user.oauth);
       }
 
@@ -84,6 +83,9 @@ class AuthController {
 
   /**
    * Get user's name and photo from Google
+   * @param {JSON} token – response from Google Oauth. Should contain the following params.
+   * @param token.token_type – token type: ex. Bearer
+   * @param token.access_token – OAuth access token
    * @returns {Promise.<{name, photo: *, id}>}
    */
   async getProfileInfo(token) {
@@ -104,6 +106,9 @@ class AuthController {
   /**
    * Convert JSON response from Google Oauth to the DB format
    * @param token – JSON Response with Google Oauth results
+   * @param token.token_type – token type: ex. Bearer
+   * @param token.access_token – OAuth access token
+   * @param token.refresh_token – OAuth refresh token
    * @returns {json} Oauth params in the new format
    */
   async saveOauthParams(token) {

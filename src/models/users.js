@@ -4,28 +4,33 @@ const db = require('../utils/database');
 
 /**
  * Model for current user representation.
+ * @typedef {object} AuthDict
+ * @property {string} provider – oauth provider (ex. google)
+ * @property {string} token_type – type of the oauth token (ex. Bearer)
+ * @property {string} access_token – oauth access token
+ * @property {string} refresh_token – oauth refresh token
  */
 class User {
 
   /**
-   * User model {
-   *  {string} id – unique user ID
-   *  {string} name – user name
-   *  {string} avatar – avatar string URL,
-   *  {string} dt_sync – last synchronization timestamp
-   *  {object} oauth – authentication data {
-   *    {string} provider – oauth provider (ex. google)
-   *    {string} access_token – oauth access token
-   *    {string} refresh_token – oauth refresh token
-   *    {string} token_type – type of the oauth token
-   *  }
+   * User model
+   *  @param {string} id - unique user ID
+   *  @param {string} name – user name
+   *  @param {string} avatar – avatar string URL,
+   *  @param {string} dt_sync – last synchronization timestamp
+   *  @param {AuthDict} oauth – Authentication dictionary
    */
   constructor() {
     this.id = null;
     this.name = null;
     this.avatar = null;
     this.dt_sync = 0;
-    this.oauth = {};
+    this.oauth = {
+      'provider': 'google',
+      'token_type': 'Bearer',
+      'access_token': null,
+      'refresh_token': null
+    };
   }
 
   /**
@@ -45,7 +50,7 @@ class User {
         this.name = null;
         this.avatar = null;
         this.dt_sync = 0;
-        let savedUser = await db.insert(db.USER, this.prepare());
+        let savedUser = await db.insert(db.USER, this.data);
         this.id = savedUser._id;
       }
       console.log("[user]", this.id);
@@ -58,7 +63,7 @@ class User {
    * Convert model to JSON for the further saving to the DB
    * @returns {{user: {name: (null|*), avatar: (null|*), dt_sync: (number|*)}, oauth: *}}
    */
-  prepare() {
+  get data() {
     return {
       'user': {
         'name': this.name,
@@ -74,7 +79,7 @@ class User {
    * @returns {Promise.<*>}
    */
   async save() {
-    return await db.update(db.USER, {'user': {$exists: true}}, this.prepare());
+    return await db.update(db.USER, {'user': {$exists: true}}, this.data);
   }
 
   /**
