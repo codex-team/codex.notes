@@ -41,7 +41,9 @@
                 color: #3C93F7;
 
                 .aside__authorization {
-                    display: inline-flex;
+                    transform: none;
+                    opacity: 1;
+                    z-index: 10;
                 }
 
                 .aside__header-avatar-inner {
@@ -54,10 +56,8 @@
 
     &__authorization {
         position: absolute;
-        left: 15px;
+        left: 0px;
         top: 90px;
-        z-index: 10;
-        display: none;
         flex-flow: column wrap;
         justify-content: space-around;
         margin-left: 3px;
@@ -67,6 +67,10 @@
         border: 1px solid #F5F9FE;
         border-radius: 3px;
         background-color: #F5F9FE;
+        will-change: opacity, transform;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: transform 0.150s, opacity 0.150s;
         cursor: default;
 
         &::before {
