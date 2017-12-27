@@ -1,5 +1,5 @@
 'use strict';
-const {ipcMain} = require('electron');
+const {ipcMain, BrowserWindow} = require('electron');
 const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
 const url = require('url');
@@ -21,67 +21,52 @@ class AuthController {
   }
 
   /**
-   * Send auth request to Google api and get user`s profile information
+   * Send auth request to Google api and get user`s profile information from server
    *
    * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
    *
    */
   async googleAuth(event) {
-    /**
-     * Google OAuth credentials
-     */
-    const googleOAuthConfig = {
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-      tokenUrl: 'https://www.googleapis.com/oauth2/v4/token',
-      redirectUri: 'http://localhost'
-    };
-
-    /**
-     * OAuth window params
-     */
-    const windowParams = {
+    let window = new BrowserWindow({
       alwaysOnTop: true,
       autoHideMenuBar: true,
       webPreferences: {
         nodeIntegration: false
       }
-    };
+    });
 
-    /**
-     * Google access token information {@link https://developers.google.com/identity/protocols/OAuth2InstalledApp}
-     */
-    const options = {
-      scope: 'profile',
-      accessType: 'offline'
-    };
+    let webContents = window.webContents;
 
-    /**
-     * {@link https://www.npmjs.com/package/electron-oauth2}
-     */
-    const Oauth = electronOAuth(googleOAuthConfig, windowParams);
+    webContents.on('did-finish-load', function (loadEvent) {
+      if (loadEvent.sender.currentIndex < 1) return;
 
-    try {
-      let token = await Oauth.getAccessToken(options);
+      webContents.executeJavaScript('document.getElementById("jwt").textContent')
+        .then(function (jwt) {
+          try {
+            let payload = new Buffer(jwt.split('.')[1], 'base64');
 
-      let profileInfo = await request({
-        url: 'https://www.googleapis.com/userinfo/v2/me',
-        headers: {
-          'Authorization': token['token_type'] + ' ' + token['access_token']
-        },
-        json: true
-      });
+            payload = JSON.parse(payload);
 
-      event.returnValue = {
-        name: profileInfo.name,
-        photo: profileInfo.picture,
-        id: profileInfo.id
-      };
-    } catch (e) {
-      console.log('Can`t sign in to Google account because of', e);
-      event.returnValue = false;
-    }
+            event.returnValue = {
+              name: payload.name,
+              photo: payload.photo,
+              id: payload.id,
+              token: jwt
+            };
+          } catch(e) {
+            event.returnValue = false;
+          }
+
+          window.close();
+        });
+    });
+
+    window.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
+      'scope=email profile' +
+      '&response_type=code' +
+      '&state=' + process.env.GOOGLE_REDIRECT_URI +
+      '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
+      '&client_id=' + process.env.GOOGLE_CLIENT_ID);
   }
 
   /**
