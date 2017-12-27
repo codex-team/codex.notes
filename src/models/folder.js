@@ -109,13 +109,11 @@ module.exports = class Folder {
 
   /**
    * Delete Folder from the Database
-   *
    * @returns {Boolean}
    */
   async delete() {
-
     /**
-     * 1. Remove all Notes in Folder
+     * 1. Remove all Notes in the Folder
      */
     await db.remove(db.NOTES, {folderId: this.id}, {});
 
@@ -130,7 +128,6 @@ module.exports = class Folder {
      */
 
     return !!deleteFolderResult;
-
   }
 
   /**
@@ -150,25 +147,18 @@ module.exports = class Folder {
   }
 
   /**
-   * Invite a new member to the folder.
-   * @param {ObjectId} id  - directory ID
-   * @param {String} email - member's email
+   * Invite a Collaborator
+   * @param {String} email - Collaborator's email
    * @returns {Boolean}
    */
-  async addMember(id, email) {
-    try {
-      await this.api.sendRequest('folder/addCollaborator', {
-        user: global.user.id,
-        collaborator: email,
-        folder: id
-      });
+  async addCollaborator(email) {
 
-      console.log(`addMember API request with params {user: ${global.user.id}, collaborator: '${email}', folder: ${id}`);
-      return true;
-    } catch (err) {
-      console.log('Error while inviting a new member to the folder: ', err);
-      return false;
-    }
+    /**
+     * @todo Send Collaborator Mutation to the API
+     */
+    console.log('Collaborator will be added with email: ', email);
+
+    return true;
   }
 
   /**

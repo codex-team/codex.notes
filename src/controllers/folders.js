@@ -36,9 +36,9 @@ class FoldersController {
       this.changeName(event, id, name);
     });
 
-    // ipcMain.on('folder - collaborator add', (event, {id, email}) => {
-    //   this.addMember(event, id, email);
-    // });
+    ipcMain.on('folder - collaborator add', (event, {id, email}) => {
+      this.addCollaborator(event, id, email);
+    });
   }
 
   /**
@@ -132,16 +132,21 @@ class FoldersController {
   }
 
   /**
-   * Add new member to the folder as a collaborator
-   * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {String} id  - folder id
-   * @param {string} email - invited user
+   * Add a new Collaborator to the Folder
+   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {String} id  - Folder's id
+   * @param {string} email - invited User's email
    */
-  async addMember(event, id, email) {
+  async addCollaborator(event, id, email) {
     try {
-      event.returnValue = await this.folder.addMember(id, email);
+      let folder = new Folder({
+        id,
+        ownerId: global.user ? global.user.id : null,
+      });
+
+      event.returnValue = await folder.addCollaborator(email);
     } catch (err) {
-      console.log(err);
+      console.log('Collaborator invitation failed because of ', err);
       event.returnValue = false;
     }
   }
