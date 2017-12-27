@@ -82,9 +82,14 @@ class Database {
    * @param  {Object} query       - is a query object to find records that need to be updated (see Queries)
    * @param  {Object} data        - update is the replacement object
    * @param  {Object} options
-   * @param  {Boolean} options.multi   - update all records that match the query object, default is false (only the first one found is updated)
-   * @param  {Boolean} options.upsert  - if true and no records match the query, insert update as a new record
-   * @param  {Boolean} options.raw     - driver returns updated document as BSON binary Buffer, default:false
+   * @param  {Boolean|null} options.multi   - update all records that match the query object, default is false (only the first one found is updated)
+   * @param  {Boolean|null} options.upsert  - if true and no records match the query, insert update as a new record
+   * @param  {Boolean|null} options.raw     - driver returns updated document as BSON binary Buffer, default:false
+   * @param  {Boolean|null} options.returnUpdatedDocs  -  (defaults to false, not MongoDB-compatible)
+   *                                                      if set to true and update is not an upsert,
+   *                                                      will return the array of documents matched by the find query
+   *                                                      and updated. Updated documents will be returned even if
+   *                                                      the update did not actually modify them.
    *
    * @return {Promise<{numAffected: number, affectedDocuments: object|null}>}
    */

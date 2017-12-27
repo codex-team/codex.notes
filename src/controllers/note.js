@@ -2,7 +2,7 @@
 let {ipcMain} = require('electron');
 
 const Notes = require('../models/notes');
-const Directory = require('../models/folder');
+const Folder = require('../models/folder');
 
 /**
  * Note controller.
@@ -25,7 +25,7 @@ class NoteController {
     });
 
     ipcMain.on('load notes list', (event, folderId) => {
-      // this.loadNotesList(folderId, event);
+      this.loadNotesList(folderId, event);
     });
 
     ipcMain.on('get note', (event, {id}) => {
@@ -94,7 +94,9 @@ class NoteController {
    */
   async loadNotesList(folderId, event) {
     try {
-      let folder = await this.directory.get(folderId);
+
+      let folderModel = new Folder();
+      let folder = await folderModel.get(folderId);
       let notesList = await this.notes.list(folderId);
 
       let returnValue = {'notes': notesList, 'folder': folder};

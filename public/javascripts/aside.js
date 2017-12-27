@@ -77,7 +77,7 @@ export default class Aside {
     /**
      * Emit message to load list
      */
-    this.loadNotes();
+    // this.loadNotes();
     this.loadFolders();
 
     /**
@@ -156,6 +156,8 @@ export default class Aside {
        * @var {string} response.folder.name
        */
       resolve(response);
+    }).catch(error => {
+      console.log('Error while loading notes: ', error);
     });
   }
 
@@ -273,7 +275,6 @@ export default class Aside {
    * @param {number} folder.id
    */
   addFolder(folder) {
-    console.log('Trying to add Folder: ', folder);
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.title, {folderId: folder.id});
 
@@ -421,7 +422,7 @@ export default class Aside {
    * @param {Element} item - clicked folder button
    */
   folderClicked( item ) {
-    let folderId = item.dataset.folderId;
+    let folderId = item.dataset.folderId  ;
 
     /**
      * Load folder

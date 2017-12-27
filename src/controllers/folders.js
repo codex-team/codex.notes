@@ -31,11 +31,11 @@ class FoldersController {
     ipcMain.on('folder - delete', (event, folderId) => {
       this.deleteFolder(event, folderId);
     });
-    //
-    // ipcMain.on('folder - change name', (event, {id, name}) => {
-    //   this.changeName(event, id, name);
-    // });
-    //
+
+    ipcMain.on('folder - change name', (event, {id, name}) => {
+      this.changeName(event, id, name);
+    });
+
     // ipcMain.on('folder - collaborator add', (event, {id, email}) => {
     //   this.addMember(event, id, email);
     // });
@@ -45,7 +45,7 @@ class FoldersController {
    * Load list of Folders.
    *
    * @param {GlobalEvent} event
-   * @returns {Promise.<Folder[]>}
+   * @return {void}
    */
   async loadFolders(event) {
     try {
@@ -54,7 +54,7 @@ class FoldersController {
 
       event.sender.send('update folders list', {userFolders});
     } catch (err) {
-      console.log(err);
+      console.log('Folders list loading failed because of', err);
     }
   }
 
@@ -74,7 +74,7 @@ class FoldersController {
         ownerId: global.user ? global.user.id : null
       });
 
-      let savedFolder = await folder.add();
+      let savedFolder = await folder.save();
 
       event.returnValue = {
         'id': savedFolder._id,
@@ -102,28 +102,31 @@ class FoldersController {
         ownerId: global.user ? global.user.id : null
       });
 
-      let removedFolder = await folder.delete();
+      let folderRemovingResult = await folder.delete();
 
-      console.log('removedFolder:', removedFolder);
-      event.returnValue = true;
+      event.returnValue = !!folderRemovingResult;
     } catch (err) {
-      console.log(err);
+      console.log('Folder removing failed because of',  err);
       event.returnValue = false;
     }
   }
 
   /**
-   * Change folder name
-   * @param {Event} event - see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {ObjectId} id  - folder id
-   * @param {string} name - new name
+   * Change Folder's name
+   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {String} id   - Folder's id
+   * @param {string} title - new title
    */
-  async changeName(event, id, name) {
+  async changeName(event, id, title) {
     try {
-      await this.folder.rename(id, name);
-      event.returnValue = true;
+      let folder = new Folder({
+        id,
+        ownerId: global.user ? global.user.id : null,
+        title: title
+      });
+      event.returnValue = await folder.save();
     } catch (err) {
-      console.log(err);
+      console.log('Folder renaming failed because of', err);
       event.returnValue = false;
     }
   }

@@ -14,11 +14,7 @@ module.exports = class FoldersList {
   async get() {
     let foldersList = await db.find(db.DIRECTORY, {_id: { $ne: 0 }});
 
-    let folders = foldersList.map( folder => {
-      return new Folder(folder);
-    });
-
-    return folders;
+    return foldersList.map( folder => new Folder(folder));
   }
 
 };

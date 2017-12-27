@@ -7,7 +7,8 @@ const Api = require('./api');
 /**
  * @typedef {Object} FolderData
  * @property {String|null} id          - Folder's id
- * @property {String} title       - Folder's title
+ * @property {String|null} _id         - Folder's Database id
+ * @property {String|null} title       - Folder's title
  * @property {Number} dtModify    - Last modification timestamp
  * @property {String} ownerId     - Folder owner's id
  * @property {Array} notes        - Folder's Notes list
@@ -19,7 +20,7 @@ const Api = require('./api');
  *
  * @typedef {Folder} Folder
  * @property {String} id
- * @property {String} title
+ * @property {String|null} title
  * @property {Number} dtModify
  * @property {String} ownerId
  * @property {Note[]} notes
@@ -30,8 +31,8 @@ class Folder {
   /**
    * Initialize params for the API
    */
-  constructor({id, title, ownerId, dtModify, notes}) {
-    this.id = id || null;
+  constructor({_id, id, title, ownerId, dtModify, notes} = {}) {
+    this.id = id || _id ||null;
     this.title = title || null;
     this.dtModify = dtModify || null;
     this.ownerId = ownerId || null;
@@ -58,12 +59,37 @@ class Folder {
   }
 
   /**
+   * Folder data setter
+   * @param {FolderData} folderData
+   */
+  set data(folderData) {
+    this.id = folderData.id || folderData._id || null;
+    this.title = folderData.title || null;
+    this.dtModify = folderData.dtModify || null;
+    this.ownerId = folderData.ownerId || null;
+    this.notes = folderData.notes || [];
+  }
+
+  /**
    * Saves new Folder into the Database.
+   * Update ot Insert scheme
    * @returns {Promise.<FolderData>}
    */
-  async add() {
-    let savedFolder = await db.insert(db.DIRECTORY, this.data);
+  async save() {
+    let query = {
+          _id : this.id
+        },
+        data = this.data,
+        options = {
+          upsert: true,
+          returnUpdatedDocs: true
+        };
 
+    let savedFolder = await db.update(db.DIRECTORY, query, data, options);
+
+    /**
+     * Renew Model id with the actual value
+     */
     if (savedFolder._id){
       this.id = savedFolder._id;
     }
@@ -72,7 +98,7 @@ class Folder {
      * @todo Sync with API
      */
 
-    return savedFolder;
+    return savedFolder.affectedDocuments;
   }
 
 
@@ -83,38 +109,37 @@ class Folder {
    */
   async delete() {
 
-    let deleteNotesResult = await db.remove(db.NOTES, {folderId: this.id}, {});
-    let deleteFolderResult = await db.remove(db.DIRECTORY, {_id: this.id}, {});
-    let deletedFromServer;
+    /**
+     * 1. Remove all Notes in Folder
+     */
+    await db.remove(db.NOTES, {folderId: this.id}, {});
 
     /**
+     * 2. Remove Folder
+     */
+    let deleteFolderResult = await db.remove(db.DIRECTORY, {_id: this.id}, {});
+
+    /**
+     * 3. Send Folder Mutation to the API
      * @todo Sent Folder mutation to the API
      */
-    return deleteFolderResult & deleteNotesResult & ( deletedFromServer || true );
+
+    return !!deleteFolderResult;
 
   }
 
   /**
-   * Get directory by ID in format:
-   * {
-   *   id - unique folder ID
-   *   name - folder name (visible)
-   *   notes: [] - array of notes
-   * }
-   * @param id - directory ID
-   * @returns {Object} - Folder's data
+   * Get directory by ID
+   * @param {String} id - directory ID
+   * @returns {FolderData} - Folder's data
    */
   async get(id) {
-    try {
-      let dir = await db.findOne(db.DIRECTORY, {_id: id});
+    let folder = await db.findOne(db.DIRECTORY, {_id: id});
 
-      if (dir) {
-        return Folder.format(dir);
-      } else {
-        return false;
-      }
-    } catch (err) {
-      console.log('Folder get error: ', err);
+    if (folder) {
+      this.data = folder;
+      return this.data;
+    } else {
       return false;
     }
   }

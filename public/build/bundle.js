@@ -673,7 +673,7 @@ var Aside = function () {
     /**
      * Emit message to load list
      */
-    this.loadNotes();
+    // this.loadNotes();
     this.loadFolders();
 
     /**
@@ -772,6 +772,8 @@ var Aside = function () {
          * @var {string} response.folder.name
          */
         resolve(response);
+      }).catch(function (error) {
+        console.log('Error while loading notes: ', error);
       });
     }
 
@@ -909,7 +911,6 @@ var Aside = function () {
     value: function addFolder(folder) {
       var _this3 = this;
 
-      console.log('Trying to add Folder: ', folder);
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
       var item = this.makeMenuItem(folder.title, { folderId: folder.id });
 
@@ -1991,20 +1992,20 @@ var Folder = function () {
    * Folder methods
    *
    * @param {Number} id   - folder id
-   * @param {string} name - folder name
+   * @param {string} title - folder name
    *
    * @property {Number}    id           - folder id
-   * @property {string}    name         - folder name
+   * @property {string}    title         - folder title
    * @property {Array}     notes        - notes list
    * @property {Element}   notesListWrapper  - notes list holder
    */
-  function Folder(id, name) {
+  function Folder(id, title) {
     var _this = this;
 
     _classCallCheck(this, Folder);
 
     this._id = id;
-    this._name = name;
+    this._title = title;
 
     this.folderNameElement = $.get('js-folder-name');
 
@@ -2013,7 +2014,7 @@ var Folder = function () {
           folder = _ref.folder;
 
       _this.notes = notes;
-      _this._name = folder.name;
+      _this._title = folder.title;
     }).then(function () {
       return _this.fillHeader();
     }).then(function () {
@@ -2036,7 +2037,7 @@ var Folder = function () {
      * Fills folder header block
      */
     value: function fillHeader() {
-      this.folderNameElement.textContent = this._name;
+      this.folderNameElement.textContent = this._title;
     }
 
     /**
@@ -2082,7 +2083,7 @@ var Folder = function () {
   }, {
     key: 'name',
     get: function get() {
-      return this._name;
+      return this._title;
     }
 
     /**
@@ -2090,7 +2091,7 @@ var Folder = function () {
      */
     ,
     set: function set(newName) {
-      this._name = newName;
+      this._title = newName;
 
       /**
        * Update in the header
@@ -2100,7 +2101,7 @@ var Folder = function () {
       /**
        * Update in the aside menu
        */
-      codex.notes.aside.updateFolderNameInMenu(this._id, this._name);
+      codex.notes.aside.updateFolderNameInMenu(this._id, this._title);
     }
   }]);
 

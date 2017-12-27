@@ -10,23 +10,23 @@ export default class Folder {
    * Folder methods
    *
    * @param {Number} id   - folder id
-   * @param {string} name - folder name
+   * @param {string} title - folder name
    *
    * @property {Number}    id           - folder id
-   * @property {string}    name         - folder name
+   * @property {string}    title         - folder title
    * @property {Array}     notes        - notes list
    * @property {Element}   notesListWrapper  - notes list holder
    */
-  constructor(id, name) {
+  constructor(id, title) {
     this._id = id;
-    this._name = name;
+    this._title = title;
 
     this.folderNameElement = $.get('js-folder-name');
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
         this.notes = notes;
-        this._name = folder.name;
+        this._title = folder.title;
       })
       .then( () => this.fillHeader() )
       .then( () => this.updateNotesList() );
@@ -45,14 +45,14 @@ export default class Folder {
    * Folder name getter
    */
   get name() {
-    return this._name;
+    return this._title;
   }
 
   /**
    * Folder name setter
    */
   set name(newName) {
-    this._name = newName;
+    this._title = newName;
 
     /**
      * Update in the header
@@ -62,14 +62,14 @@ export default class Folder {
     /**
      * Update in the aside menu
      */
-    codex.notes.aside.updateFolderNameInMenu(this._id, this._name);
+    codex.notes.aside.updateFolderNameInMenu(this._id, this._title);
   }
 
   /**
    * Fills folder header block
    */
   fillHeader() {
-    this.folderNameElement.textContent = this._name;
+    this.folderNameElement.textContent = this._title;
   }
 
   /**
