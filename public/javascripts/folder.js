@@ -3,25 +3,26 @@ const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
+ *
+ * @typedef {Folder} Folder
+ * @property {Number}    id                 - Folder's id
+ * @property {string}    title              - Folder's title
+ * @property {Array}     notes              - Notes list
+ * @property {Element}   notesListWrapper   - Notes list holder
  */
 export default class Folder {
 
   /**
    * Folder methods
    *
-   * @param {Number} id   - folder id
-   * @param {string} title - folder name
-   *
-   * @property {Number}    id           - folder id
-   * @property {string}    title         - folder title
-   * @property {Array}     notes        - notes list
-   * @property {Element}   notesListWrapper  - notes list holder
+   * @param {Number} id     - Folder's id
+   * @param {string} title  - Folder's title
    */
   constructor(id, title) {
     this._id = id;
     this._title = title;
 
-    this.folderNameElement = $.get('js-folder-name');
+    this.folderTitleElement = $.get('js-folder-title');
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
@@ -42,34 +43,35 @@ export default class Folder {
   }
 
   /**
-   * Folder name getter
+   * Folder title getter
    */
-  get name() {
+  get title() {
     return this._title;
   }
 
   /**
-   * Folder name setter
+   * Folder title setter
+   * @param {String} newTitle
    */
-  set name(newName) {
-    this._title = newName;
+  set title(newTitle) {
+    this._title = newTitle;
 
     /**
-     * Update in the header
+     * Update in the Header
      */
     this.fillHeader();
 
     /**
-     * Update in the aside menu
+     * Update in the Aside menu
      */
-    codex.notes.aside.updateFolderNameInMenu(this._id, this._title);
+    codex.notes.aside.updateFolderTitleInMenu(this._id, this._title);
   }
 
   /**
    * Fills folder header block
    */
   fillHeader() {
-    this.folderNameElement.textContent = this._title;
+    this.folderTitleElement.textContent = this._title;
   }
 
   /**

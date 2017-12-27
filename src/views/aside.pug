@@ -54,7 +54,7 @@
             .folder-header(id="folder-header")
                 .folder-header__close(id="folder-close-zone")
                     include ../../public/svg/arrow-left.svg
-                .folder-header__name(id="js-folder-name") Folder Name
+                .folder-header__name(id="js-folder-title") Folder Title
                 .folder-header__settings(id="js-folder-settings-toggler") Settings
 
                 .folder-settings
@@ -63,7 +63,7 @@
                         include ../../public/svg/close-folder.svg
 
                     fieldset.aside__input
-                        input(placeholder="Change name", type="text", name="folder-name")
+                        input(placeholder="Change Folder title", type="text", name="folder-title")
                         include ../../public/svg/arrow-right.svg
 
                     .folder-settings__delete(id='js-delete-folder')

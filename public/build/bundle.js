@@ -769,7 +769,7 @@ var Aside = function () {
          * @var {array}  response.notes
          * @var {object} response.folder
          * @var {number} response.folder.id
-         * @var {string} response.folder.name
+         * @var {string} response.folder.title
          */
         resolve(response);
       }).catch(function (error) {
@@ -818,7 +818,7 @@ var Aside = function () {
     }
 
     /**
-    * New folder input keydown handler
+    * New Folder input keydown handler
     * @param {KeyboardEvent} event
     */
 
@@ -830,17 +830,17 @@ var Aside = function () {
       }
 
       var input = event.target,
-          folderName = input.value.trim();
+          folderTitle = input.value.trim();
 
-      if (!folderName) {
+      if (!folderTitle) {
         return;
       }
 
       /**
-       * Save folder
+       * Save Folder
        * @type {object}
        */
-      var createdFolder = window.ipcRenderer.sendSync('folder - create', folderName);
+      var createdFolder = window.ipcRenderer.sendSync('folder - create', folderTitle);
 
       /**
        * Add saved folder to the menu
@@ -910,6 +910,11 @@ var Aside = function () {
     key: 'addFolder',
     value: function addFolder(folder) {
       var _this3 = this;
+
+      if (!folder.title) {
+        console.warn('Folder skipped because it has not title', folder);
+        return;
+      }
 
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
       var item = this.makeMenuItem(folder.title, { folderId: folder.id });
@@ -1000,15 +1005,15 @@ var Aside = function () {
     }
 
     /**
-     * Updates folder name in menu
+     * Updates Folder's title in menu
      *
      * @param {MongoId} folderId - folder ID
-     * @param {Strign} anme      - new name
+     * @param {Strign} title     - new title
      */
 
   }, {
-    key: 'updateFolderNameInMenu',
-    value: function updateFolderNameInMenu(folderId, name) {
+    key: 'updateFolderTitleInMenu',
+    value: function updateFolderTitleInMenu(folderId, title) {
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
       if (!foldersMenu) {
@@ -1018,7 +1023,7 @@ var Aside = function () {
       var folderItem = foldersMenu.querySelector('[data-folder-id="' + folderId + '"]');
 
       if (folderItem) {
-        folderItem.textContent = name;
+        folderItem.textContent = title;
       }
     }
 
@@ -1777,7 +1782,7 @@ var FolderSettings = function () {
     this.toggler = $.get('js-folder-settings-toggler');
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
-    this.folderNameInput = document.getElementsByName('folder-name')[0];
+    this.folderTitleInput = document.getElementsByName('folder-title')[0];
     this.newMemberInput = document.getElementsByName('new-member')[0];
     this.membersList = $.get('js-members-list');
 
@@ -1793,8 +1798,8 @@ var FolderSettings = function () {
       _this.removeFolderClicked();
     });
 
-    this.folderNameInput.addEventListener('keydown', function (event) {
-      return _this.changeNameKeydown(event);
+    this.folderTitleInput.addEventListener('keydown', function (event) {
+      return _this.changeTitleKeydown(event);
     });
     this.newMemberInput.addEventListener('keydown', function (event) {
       return _this.inviteMemberKeydown(event);
@@ -1818,9 +1823,9 @@ var FolderSettings = function () {
       this.opened = true;
 
       /**
-       * Fill folder name input
+       * Fill Folder's title input
        */
-      this.folderNameInput.value = codex.notes.aside.currentFolder.name || '';
+      this.folderTitleInput.value = codex.notes.aside.currentFolder.title || '';
     }
 
     /**
@@ -1855,7 +1860,7 @@ var FolderSettings = function () {
   }, {
     key: 'removeFolderClicked',
     value: function removeFolderClicked() {
-      console.assert(codex.notes.aside.currentFolder, 'Cannot remove folder because it is not open');
+      console.assert(codex.notes.aside.currentFolder, 'Cannot remove Folder because it is not open');
 
       var result = codex.notes.aside.currentFolder.delete();
 
@@ -1866,22 +1871,22 @@ var FolderSettings = function () {
     }
 
     /**
-     * Handler for Change Name input
+     * Handler for Change Title input
      * @param  {KeyboardEvent} event - keydowns
      */
 
   }, {
-    key: 'changeNameKeydown',
-    value: function changeNameKeydown(event) {
+    key: 'changeTitleKeydown',
+    value: function changeTitleKeydown(event) {
       if (event.key !== 'Enter') {
         return;
       }
 
       var input = event.target,
-          name = input.value.trim(),
+          title = input.value.trim(),
           id = codex.notes.aside.currentFolder.id;
 
-      if (!name) {
+      if (!title) {
         return;
       }
 
@@ -1889,7 +1894,7 @@ var FolderSettings = function () {
        * Send request for renaming
        * @type {object}
        */
-      var result = window.ipcRenderer.sendSync('folder - change name', { id: id, name: name });
+      var result = window.ipcRenderer.sendSync('folder - change title', { id: id, title: title });
 
       if (!result) {
         Dialog.error('Folder renaming failed. Please, try again.');
@@ -1897,11 +1902,11 @@ var FolderSettings = function () {
       }
 
       /**
-       * Update name in the:
+       * Update title in the:
        *  - folder header
        *  - aside menu
        */
-      codex.notes.aside.currentFolder.name = name;
+      codex.notes.aside.currentFolder.title = title;
 
       /**
        * Close folder settings
@@ -1984,6 +1989,12 @@ var Dialog = __webpack_require__(1).default;
 
 /**
  * Folders methods
+ *
+ * @typedef {Folder} Folder
+ * @property {Number}    id                 - Folder's id
+ * @property {string}    title              - Folder's title
+ * @property {Array}     notes              - Notes list
+ * @property {Element}   notesListWrapper   - Notes list holder
  */
 
 var Folder = function () {
@@ -1991,13 +2002,8 @@ var Folder = function () {
   /**
    * Folder methods
    *
-   * @param {Number} id   - folder id
-   * @param {string} title - folder name
-   *
-   * @property {Number}    id           - folder id
-   * @property {string}    title         - folder title
-   * @property {Array}     notes        - notes list
-   * @property {Element}   notesListWrapper  - notes list holder
+   * @param {Number} id     - Folder's id
+   * @param {string} title  - Folder's title
    */
   function Folder(id, title) {
     var _this = this;
@@ -2007,7 +2013,7 @@ var Folder = function () {
     this._id = id;
     this._title = title;
 
-    this.folderNameElement = $.get('js-folder-name');
+    this.folderTitleElement = $.get('js-folder-title');
 
     codex.notes.aside.loadNotes(id).then(function (_ref) {
       var notes = _ref.notes,
@@ -2037,7 +2043,7 @@ var Folder = function () {
      * Fills folder header block
      */
     value: function fillHeader() {
-      this.folderNameElement.textContent = this._title;
+      this.folderTitleElement.textContent = this._title;
     }
 
     /**
@@ -2077,31 +2083,32 @@ var Folder = function () {
     }
 
     /**
-     * Folder name getter
+     * Folder title getter
      */
 
   }, {
-    key: 'name',
+    key: 'title',
     get: function get() {
       return this._title;
     }
 
     /**
-     * Folder name setter
+     * Folder title setter
+     * @param {String} newTitle
      */
     ,
-    set: function set(newName) {
-      this._title = newName;
+    set: function set(newTitle) {
+      this._title = newTitle;
 
       /**
-       * Update in the header
+       * Update in the Header
        */
       this.fillHeader();
 
       /**
-       * Update in the aside menu
+       * Update in the Aside menu
        */
-      codex.notes.aside.updateFolderNameInMenu(this._id, this._title);
+      codex.notes.aside.updateFolderTitleInMenu(this._id, this._title);
     }
   }]);
 

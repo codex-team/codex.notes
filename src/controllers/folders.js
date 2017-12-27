@@ -20,8 +20,8 @@ class FoldersController {
    */
   constructor() {
 
-    ipcMain.on('folder - create', (event, folderName) => {
-      this.createFolder(event, folderName);
+    ipcMain.on('folder - create', (event, folderTitle) => {
+      this.createFolder(event, folderTitle);
     });
 
     ipcMain.on('folders list - load', (event) => {
@@ -32,8 +32,8 @@ class FoldersController {
       this.deleteFolder(event, folderId);
     });
 
-    ipcMain.on('folder - change name', (event, {id, name}) => {
-      this.changeName(event, id, name);
+    ipcMain.on('folder - change title', (event, {id, title}) => {
+      this.changeTitle(event, id, title);
     });
 
     ipcMain.on('folder - collaborator add', (event, {id, email}) => {
@@ -62,14 +62,14 @@ class FoldersController {
    * Saves new Folder
    *
    * @param {GlobalEvent} event
-   * @param {String} folderName - new folder name
+   * @param {String} folderTitle - new Folder's title
    *
    * @return {{id: string, title: string, notes: []}}
    */
-  async createFolder(event, folderName) {
+  async createFolder(event, folderTitle) {
     try {
       let folder = new Folder({
-        title: folderName,
+        title: folderTitle,
         dtModify: +new Date(),
         ownerId: global.user ? global.user.id : null
       });
@@ -112,12 +112,12 @@ class FoldersController {
   }
 
   /**
-   * Change Folder's name
+   * Change Folder's title
    * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
    * @param {String} id   - Folder's id
    * @param {string} title - new title
    */
-  async changeName(event, id, title) {
+  async changeTitle(event, id, title) {
     try {
       let folder = new Folder({
         id,
