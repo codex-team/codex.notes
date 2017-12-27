@@ -1,8 +1,6 @@
 'use strict';
 
-const random = require('../utils/random');
 const db = require('../utils/database');
-const Api = require('./api');
 
 /**
  * @typedef {Object} FolderData
@@ -26,7 +24,7 @@ const Api = require('./api');
  * @property {Note[]} notes
  *
  */
-class Folder {
+module.exports = class Folder {
 
   /**
    * Initialize params for the API
@@ -84,6 +82,13 @@ class Folder {
           upsert: true,
           returnUpdatedDocs: true
         };
+
+    /**
+     * On sync, we need to save given id as _id in the DB.
+     */
+    if (this.id){
+      data = Object.assign(data, {_id: this.id});
+    }
 
     let savedFolder = await db.update(db.DIRECTORY, query, data, options);
 
@@ -144,22 +149,6 @@ class Folder {
     }
   }
 
-
-  /**
-   * Renames directory by id.
-   * @param {ObjectId} id  - directory ID
-   * @param {String} name - new name
-   * @returns {Boolean}
-   */
-  async rename(id, name) {
-    try {
-      return await db.update(db.DIRECTORY, {_id: id}, { name, dt_update: + new Date() });
-    } catch (err) {
-      console.log('Folder renaming error: ', err);
-      return false;
-    }
-  }
-
   /**
    * Invite a new member to the folder.
    * @param {ObjectId} id  - directory ID
@@ -195,56 +184,4 @@ class Folder {
       return false;
     }
   }
-
-  /**
-   * Transform DB element into structure for frontend module.
-   * @param {Object} record
-   * @param {String} record._id
-   * @param {String} record.title
-   * @param {String|null} record.ownerId
-   * @param {Array} record.notes
-   * @returns {{title: string, id: string, notes: (Array|*|Notes)}}
-   */
-  static format(record) {
-    return {
-      title: record.title,
-      id: record._id,
-      notes: record.notes
-    };
-  }
-
-
-  /**
-   * Updates a Folder in the Database
-   */
-  async syncWithDB() {
-    try {
-
-      console.log('Now we will update Folder with id: ', this.id);
-
-      let updateResponse = await db.update(db.DIRECTORY,
-        // where
-        {
-          _id: this.id
-        },
-        // new data
-        {
-          _id: this.id,
-          title: this.title,
-          dt_update: this.dtModify,
-        },
-        // options
-        {
-          upsert: true
-        });
-      return updateResponse.affectedDocuments;
-
-    } catch (err) {
-      console.log(`Folder ${this.id} [${this.title}] sync failed: `, err);
-      return false;
-    }
-  }
-
-}
-
-module.exports = Folder;
+};

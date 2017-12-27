@@ -156,7 +156,7 @@ class FoldersController {
       console.log('\n\nStart syncing folder' , folderData);
 
       let folder = new Folder(folderData);
-      let updatedFolder = await folder.syncWithDB();
+      let updatedFolder = await folder.save();
 
       console.log('updatedFolder: ', updatedFolder);
     });
