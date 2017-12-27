@@ -911,11 +911,6 @@ var Aside = function () {
     value: function addFolder(folder) {
       var _this3 = this;
 
-      if (!folder.title) {
-        console.warn('Folder skipped because it has not title', folder);
-        return;
-      }
-
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
       var item = this.makeMenuItem(folder.title, { folderId: folder.id });
 

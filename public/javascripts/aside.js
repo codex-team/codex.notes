@@ -275,11 +275,6 @@ export default class Aside {
    * @param {number} folder.id
    */
   addFolder(folder) {
-    if (!folder.title) {
-      console.warn('Folder skipped because it has not title', folder);
-      return;
-    }
-
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.title, {folderId: folder.id});
 
@@ -427,7 +422,7 @@ export default class Aside {
    * @param {Element} item - clicked folder button
    */
   folderClicked( item ) {
-    let folderId = item.dataset.folderId  ;
+    let folderId = item.dataset.folderId;
 
     /**
      * Load folder
