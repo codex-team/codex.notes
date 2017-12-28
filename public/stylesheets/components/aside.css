@@ -46,12 +46,14 @@
                     z-index: 10;
                 }
 
-                .aside__header-avatar-inner {
-                    color: #FFF;
-                }
-
             }
+
+            &:hover &-inner {
+                color: #FFF;
+            }
+            
         }
+
     }
 
     &__authorization {
