@@ -28,7 +28,7 @@ const pug = require('electron-pug')({
 const SyncObserver = require('./controllers/syncObserver');
 
 /**
- * Directories controller
+ * Folders controller
  */
 const FoldersController = require('./controllers/folders');
 
@@ -143,9 +143,8 @@ class CodexNotes {
         this.syncObserver = new SyncObserver();
 
         this.syncObserver.on('sync', (data) => {
-          console.log('Sync handler received data', data);
-          // this.user.sync(data.user);
-          // this.notes.sync(data);
+          // this.user.renew(data.user);
+          // this.notes.renew(data);
           this.folders.renew(data.user.folders);
         });
       })

@@ -54,7 +54,7 @@ class FoldersController {
 
       event.sender.send('update folders list', {userFolders});
     } catch (err) {
-      console.log('Folders list loading failed because of', err);
+      console.log('Folders list loading failed because of ', err);
     }
   }
 
@@ -106,7 +106,7 @@ class FoldersController {
 
       event.returnValue = !!folderRemovingResult;
     } catch (err) {
-      console.log('Folder removing failed because of',  err);
+      console.log('Folder removing failed because of ',  err);
       event.returnValue = false;
     }
   }
@@ -126,7 +126,7 @@ class FoldersController {
       });
       event.returnValue = await folder.save();
     } catch (err) {
-      console.log('Folder renaming failed because of', err);
+      console.log('Folder renaming failed because of ', err);
       event.returnValue = false;
     }
   }
@@ -158,7 +158,6 @@ class FoldersController {
    */
   async renew(folders){
     await folders.forEach( async folderData => {
-      console.log('\n\nStart syncing folder' , folderData);
 
       let folder = new Folder(folderData);
       let updatedFolder = await folder.save();

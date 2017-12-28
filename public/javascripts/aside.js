@@ -353,7 +353,7 @@ export default class Aside {
    * Updates Folder's title in menu
    *
    * @param {MongoId} folderId - folder ID
-   * @param {Strign} title     - new title
+   * @param {String} title     - new title
    */
   updateFolderTitleInMenu(folderId, title) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');

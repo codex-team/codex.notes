@@ -7,9 +7,9 @@ const db = require('../utils/database');
  * @property {String|null} id          - Folder's id
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
- * @property {Number} dtModify    - Last modification timestamp
- * @property {String} ownerId     - Folder owner's id
- * @property {Array} notes        - Folder's Notes list
+ * @property {Number} dtModify         - Last modification timestamp
+ * @property {String} ownerId          - Folder owner's id
+ * @property {Array} notes             - Folder's Notes list
  */
 
 /**
@@ -27,10 +27,11 @@ const db = require('../utils/database');
 module.exports = class Folder {
 
   /**
-   * Initialize params for the API
+   * @constructor
+   * Make new Folder example
    */
   constructor({_id, id, title, ownerId, dtModify, notes} = {}) {
-    this.id = id || _id ||null;
+    this.id = id || _id || null;
     this.title = title || null;
     this.dtModify = dtModify || null;
     this.ownerId = ownerId || null;
@@ -70,7 +71,7 @@ module.exports = class Folder {
 
   /**
    * Saves new Folder into the Database.
-   * Update ot Insert scheme
+   * Update or Insert scheme
    * @returns {Promise.<FolderData>}
    */
   async save() {
@@ -90,7 +91,7 @@ module.exports = class Folder {
       data = Object.assign(data, {_id: this.id});
     }
 
-    let savedFolder = await db.update(db.DIRECTORY, query, data, options);
+    let savedFolder = await db.update(db.FOLDERS, query, data, options);
 
     /**
      * Renew Model id with the actual value
@@ -120,7 +121,7 @@ module.exports = class Folder {
     /**
      * 2. Remove Folder
      */
-    let deleteFolderResult = await db.remove(db.DIRECTORY, {_id: this.id}, {});
+    let deleteFolderResult = await db.remove(db.FOLDERS, {_id: this.id}, {});
 
     /**
      * 3. Send Folder Mutation to the API
@@ -131,12 +132,12 @@ module.exports = class Folder {
   }
 
   /**
-   * Get directory by ID
-   * @param {String} id - directory ID
+   * Get Folder by ID
+   * @param {String} id - Folder ID
    * @returns {FolderData} - Folder's data
    */
   async get(id) {
-    let folder = await db.findOne(db.DIRECTORY, {_id: id});
+    let folder = await db.findOne(db.FOLDERS, {_id: id});
 
     if (folder) {
       this.data = folder;
@@ -166,7 +167,7 @@ module.exports = class Folder {
    */
   async getUpdates(dt_update) {
     try {
-      let newFolders = await db.find(db.DIRECTORY, {dt_update: { $gt: dt_update }});
+      let newFolders = await db.find(db.FOLDERS, {dt_update: { $gt: dt_update }});
 
       return newFolders;
     } catch (err) {

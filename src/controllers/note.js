@@ -8,7 +8,7 @@ const Folder = require('../models/folder');
  * Note controller.
  * Works with events:
  *  - save note
- *  - load notes list (in specified directory)
+ *  - load notes list (in specified Folder)
  *  - get note
  */
 class NoteController {
@@ -18,7 +18,6 @@ class NoteController {
    */
   constructor() {
     this.notes = new Notes();
-    // this.directory = new Directory();
 
     ipcMain.on('save note', (event, {note}) => {
       this.saveNote(note, event);
@@ -55,7 +54,7 @@ class NoteController {
    * {
    *   id - unique note ID
    *   title - note title
-   *   folderId - directory ID
+   *   folderId - Folder ID
    * }
    * @param event
    * @returns {Promise.<void>}
@@ -74,17 +73,17 @@ class NoteController {
   }
 
   /**
-   * Load notes from directory with an ID specified.
+   * Load notes from Folder with an ID specified.
    * Send 'update notes list' action to the event emitter with the following structure. This structure also will be
    * returned to the event emitter as the result.
    * {
    *   notes: [{
    *     id - note ID
    *     title - note title
-   *     folderId - directory ID
+   *     folderId - Folder ID
    *   }],
    *   folder: {
-   *     name - forder visible name
+   *     name - Folder visible name
    *     id - folder ID
    *     notes - [] - array of notes (TODO: it is not needed)
    * }

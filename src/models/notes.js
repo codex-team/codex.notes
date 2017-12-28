@@ -59,7 +59,7 @@ class NotesModel {
    */
   async list(directoryId) {
     try {
-      let directory = await db.findOne(db.DIRECTORY, {'_id': directoryId});
+      let directory = await db.findOne(db.FOLDERS, {'_id': directoryId});
 
       // Additional check to perform clever logging
       if (!directory) {
@@ -104,7 +104,7 @@ class NotesModel {
   async save(directoryId, note) {
     try {
       if (!directoryId) {
-        let directory = await db.findOne(db.DIRECTORY, {'root': true});
+        let directory = await db.findOne(db.FOLDERS, {'root': true});
 
         directoryId = directory._id;
         note.folderId = directoryId; // make sure that null or false is 0
@@ -128,7 +128,7 @@ class NotesModel {
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
 
       if (newNote) {
-        await db.update(db.DIRECTORY, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
+        await db.update(db.FOLDERS, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
 
         return {
           id: note.data.id,

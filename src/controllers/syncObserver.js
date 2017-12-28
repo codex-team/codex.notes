@@ -13,6 +13,7 @@ const { GraphQLClient } = require('graphql-request');
  * @property {Directory} folders    - Folders Model
  * @property {Notes} notes          - Notes Model
  * @property {GraphQLClient} api    - GraphQL API client
+ * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
 module.exports = class SyncObserver {
 
@@ -90,7 +91,6 @@ module.exports = class SyncObserver {
     this.api.request(query)
       .then( data => {
         console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
-        console.log('now will emit');
         this.emit('sync', data);
       })
       .catch( error => {
@@ -98,21 +98,29 @@ module.exports = class SyncObserver {
       });
   }
 
-  emit(event, data){
+  /**
+   * Emit Event to the each subscriber
+   * @param {String} event - Event name
+   * @param {*} data       - Data to pass with Event
+   */
+  emit(event, data) {
 
     this.subscribers.forEach(sub => {
-      if (sub.event !== event){
+      if (sub.event !== event) {
         return;
       }
 
       sub.callback.call(null, data);
     });
 
-    console.log(event, data);
-
   }
 
-  on(event, callback){
+  /**
+   * Add subscriber to the passed event
+   * @param {String} event - on what SyncObserver Event you want to subscribe
+   * @param {Function} callback - what callback we should fire with the Event
+   */
+  on(event, callback) {
     this.subscribers.push({
       event,
       callback
