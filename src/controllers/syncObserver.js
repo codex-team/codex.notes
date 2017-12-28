@@ -21,7 +21,6 @@ module.exports = class SyncObserver {
    * Initialize params for the API
    */
   constructor() {
-    // this.folders = new Directory();
     this.notes = new Notes();
 
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {

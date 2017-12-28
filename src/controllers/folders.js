@@ -114,8 +114,8 @@ class FoldersController {
   /**
    * Change Folder's title
    * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {String} id   - Folder's id
-   * @param {string} title - new title
+   * @param {String} id         - Folder's id
+   * @param {string} title      - new title
    */
   async changeTitle(event, id, title) {
     try {
@@ -133,9 +133,9 @@ class FoldersController {
 
   /**
    * Add a new Collaborator to the Folder
-   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   * @param {String} id  - Folder's id
-   * @param {string} email - invited User's email
+   * @param {GlobalEvent} event   - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {String} id           - Folder's id
+   * @param {string} email        - invited User's email
    */
   async addCollaborator(event, id, email) {
     try {

@@ -16,7 +16,6 @@ let plugins = [
   new webpack.NoEmitOnErrorsPlugin(),
   /** Extract CSS bundle */
   new ExtractTextPlugin('public/build/bundle.css'),
-
 ];
 
 /** CSS and JS minification */
