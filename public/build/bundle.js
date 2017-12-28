@@ -1003,7 +1003,7 @@ var Aside = function () {
      * Updates Folder's title in menu
      *
      * @param {MongoId} folderId - folder ID
-     * @param {Strign} title     - new title
+     * @param {String} title     - new title
      */
 
   }, {

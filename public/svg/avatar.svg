@@ -1,0 +1,10 @@
+<svg viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg">
+  <g fill-rule="evenodd">
+    <circle cx="18.5" cy="18.5" r="18.5"/>
+    <g transform="translate(9 15)" class="aside__header-avatar-inner">
+      <path d="M13.759 6.802c.013.123.02.249.02.376v.475a3.5 3.5 0 0 1-3.5 3.5h-.796a3.5 3.5 0 0 1-3.5-3.5v-.475c0-.127.007-.253.02-.376h1.535a2.019 2.019 0 0 0-.017.26v.35a2 2 0 0 0 2 2h.72a2 2 0 0 0 2-2v-.35a2.02 2.02 0 0 0-.017-.26h1.535z"/>
+      <circle cx="2" cy="2" r="2"/>
+      <circle cx="17" cy="2" r="2"/>
+    </g>
+  </g>
+</svg>
