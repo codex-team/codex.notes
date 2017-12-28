@@ -7,24 +7,30 @@ require('dotenv').config();
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
-
+const Api = require('./models/api');
 
 /**
  * Enable Pug
  */
-const locals = {title: 'CodeX Notes'};
-const pug = require('electron-pug')({pretty:true}, locals);
+const locals = {
+  title: 'CodeX Notes',
+};
+const pug = require('electron-pug')({
+  cache: false,
+  // debug: true,
+  // compileDebug: true
+}, locals);
 
 
 /**
- * Syncronization controller
+ * Synchronization controller
  */
 const SyncObserver = require('./controllers/syncObserver');
 
 /**
- * Directories controller
+ * Folders controller
  */
-const DirectoryControllerClass = require('./controllers/directory');
+const FoldersController = require('./controllers/folders');
 
 /**
  * Notes controllers
@@ -67,7 +73,13 @@ class CodexNotes {
   /**
    * Initializes an application
    */
-  constructor(){
+  constructor() {
+
+    /**
+     * Web links with codex:// protocol will be handled by application
+     * @type {string}
+     */
+    this.appProtocol = 'codex';
 
     this.mainWindow = new BrowserWindow({
       title: pkg.productName,
@@ -76,7 +88,7 @@ class CodexNotes {
       minWidth: 1070,
       minHeight: 600,
       height: 700,
-      vibrancy: 'ultra-dark',
+      // vibrancy: 'ultra-dark',
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
@@ -89,14 +101,15 @@ class CodexNotes {
       this.makeMenu();
     }
 
-    this.mainWindow.loadURL(`file://${__dirname}/views/editor.pug`);
+    this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
+      console.log('window is ready.');
       this.mainWindow.show();
     });
 
     /** Open the DevTools. */
-    if (process.env.OPEN_DEV_TOOLS === 'true') {
+    if (process.env.DEBUG === 'true') {
       this.mainWindow.webContents.openDevTools();
     }
 
@@ -107,28 +120,39 @@ class CodexNotes {
     /**
      * Init controllers
      */
-    this.initComponents();
+    this.initComponents()
 
+    /**
+     * Set application protocol
+     */
+      .then(() => {this.setAppProtocol()});
   }
 
   /**
    * Activate controller
    */
-  initComponents(){
+  initComponents() {
     this.user = new UserModelClass();
 
-    this.user.init()
+    return this.user.init()
       .then(() => {
-        this.directory = new DirectoryControllerClass();
+        global.user = this.user;
+        this.folders = new FoldersController();
         this.notes = new NotesControllerClass();
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
+
+        this.syncObserver.on('sync', (data) => {
+          // this.user.renew(data.user);
+          // this.notes.renew(data);
+          this.folders.renew(data.user.folders);
+        });
       })
-      .then(() =>{
+      .then(() => {
         return this.syncObserver.sync(this.user.dt_sync);
       })
       .catch(function (err) {
-        console.log("Initialization error", err);
+        console.log('Initialization error', err);
       });
   }
 
@@ -138,22 +162,29 @@ class CodexNotes {
    * @author @guryn
    */
   makeMenu() {
-
     const menu = electron.Menu;
 
     let createMenuTemplate = require('./menu'),
-      menues = createMenuTemplate(app),
-      menuBar = menu.buildFromTemplate(menues.menuBar),
-      menuDock = menu.buildFromTemplate(menues.menuDock);
+        menues = createMenuTemplate(app),
+        menuBar = menu.buildFromTemplate(menues.menuBar),
+        menuDock = menu.buildFromTemplate(menues.menuDock);
 
     menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
   }
 
   /**
+   * Set app protocol to handle internal links
+   */
+  setAppProtocol() {
+    app.setAsDefaultProtocolClient(this.appProtocol);
+    app.on('open-url', this.auth.verifyCollaborator);
+  }
+
+  /**
    * Destroyes an application
    */
-  destroy(){
+  destroy() {
     this.mainWindow = null;
   }
 
@@ -165,10 +196,12 @@ class CodexNotes {
 app.on('ready', function () {
   try {
     new CodexNotes();
-  } catch(error){
-    console.log(error);
+  } catch(error) {
+    console.log(`\n\n 
+      ........................... \n\n 
+      CodeX Notes runtime error: 
+      ........................... \n\n
+      `, error);
+    console.log(`\n\n ........................... \n\n`);
   }
 });
-
-
-

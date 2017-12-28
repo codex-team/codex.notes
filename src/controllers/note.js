@@ -2,13 +2,13 @@
 let {ipcMain} = require('electron');
 
 const Notes = require('../models/notes');
-const Directory = require('../models/directory');
+const Folder = require('../models/folder');
 
 /**
  * Note controller.
  * Works with events:
  *  - save note
- *  - load notes list (in specified directory)
+ *  - load notes list (in specified Folder)
  *  - get note
  */
 class NoteController {
@@ -18,7 +18,6 @@ class NoteController {
    */
   constructor() {
     this.notes = new Notes();
-    this.directory = new Directory();
 
     ipcMain.on('save note', (event, {note}) => {
       this.saveNote(note, event);
@@ -55,7 +54,7 @@ class NoteController {
    * {
    *   id - unique note ID
    *   title - note title
-   *   folderId - directory ID
+   *   folderId - Folder ID
    * }
    * @param event
    * @returns {Promise.<void>}
@@ -64,27 +63,27 @@ class NoteController {
     try {
       let folderId = note.folderId;
       let newNote = await this.notes.save(folderId, note);
+
       if (newNote) {
         event.sender.send('note saved', {note: newNote});
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
 
   /**
-   * Load notes from directory with an ID specified.
+   * Load notes from Folder with an ID specified.
    * Send 'update notes list' action to the event emitter with the following structure. This structure also will be
    * returned to the event emitter as the result.
    * {
    *   notes: [{
    *     id - note ID
    *     title - note title
-   *     folderId - directory ID
+   *     folderId - Folder ID
    *   }],
    *   folder: {
-   *     name - forder visible name
+   *     name - Folder visible name
    *     id - folder ID
    *     notes - [] - array of notes (TODO: it is not needed)
    * }
@@ -94,15 +93,17 @@ class NoteController {
    */
   async loadNotesList(folderId, event) {
     try {
-      let folder = await this.directory.get(folderId);
+
+      let folderModel = new Folder();
+      let folder = await folderModel.get(folderId);
       let notesList = await this.notes.list(folderId);
 
       let returnValue = {'notes': notesList, 'folder': folder};
+
       event.returnValue = returnValue;
       event.sender.send('update notes list', returnValue);
-    }
-    catch (err) {
-      console.log("Load notes list error: ", err);
+    } catch (err) {
+      console.log('Load notes list error: ', err);
       event.returnValue = false;
     }
   }
@@ -126,12 +127,12 @@ class NoteController {
   async getNote(noteId, event) {
     try {
       let note = await this.notes.get(noteId);
+
       if (!note) {
         return false;
       }
       event.returnValue = note;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -145,13 +146,14 @@ class NoteController {
   async deleteNote(noteId, event) {
     try {
       let result = await this.notes.delete(noteId);
+
       event.returnValue = true;
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       event.returnValue = false;
     }
   }
+
 
 }
 

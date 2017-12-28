@@ -3,6 +3,7 @@
 let sanitizeHtml = require('sanitize-html');
 const random = require('../utils/random');
 const db = require('../utils/database');
+const api = require('./api');
 const DEFAULT_TITLE = 'Untitled';
 
 /**
@@ -34,15 +35,14 @@ class NotesModel {
   async get(noteId) {
     try {
       let note = await db.findOne(db.NOTES, {'_id': noteId});
+
       if (!note) {
-        console.log("Note is not found", noteId);
+        console.log('Note is not found', noteId);
         return false;
-      }
-      else {
+      } else {
         return note;
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
@@ -59,7 +59,7 @@ class NotesModel {
    */
   async list(directoryId) {
     try {
-      let directory = await db.findOne(db.DIRECTORY, {'_id': directoryId});
+      let directory = await db.findOne(db.FOLDERS, {'_id': directoryId});
 
       // Additional check to perform clever logging
       if (!directory) {
@@ -75,9 +75,8 @@ class NotesModel {
           'folderId': directoryId
         };
       });
-    }
-    catch (err) {
-      console.log("Notes list error: ", err);
+    } catch (err) {
+      console.log('Notes list error: ', err);
     }
   }
 
@@ -105,7 +104,8 @@ class NotesModel {
   async save(directoryId, note) {
     try {
       if (!directoryId) {
-        let directory = await db.findOne(db.DIRECTORY, {'root': true});
+        let directory = await db.findOne(db.FOLDERS, {'root': true});
+
         directoryId = directory._id;
         note.folderId = directoryId; // make sure that null or false is 0
       }
@@ -120,27 +120,26 @@ class NotesModel {
       // set title from first paragraph in the case it is not presented
       if (!note.title) {
         let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
+
         note.title = sanitizeHtml(titleFromText, {allowedTags: []});
       }
 
       // update note in DB
       let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
-      if (newNote) {
 
-        await db.update(db.DIRECTORY, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
+      if (newNote) {
+        await db.update(db.FOLDERS, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
 
         return {
           id: note.data.id,
           title: note.title,
           folderId: directoryId
         };
-      }
-      else {
+      } else {
         return false;
       }
-    }
-    catch (err) {
-      console.log("Note save error: ", err);
+    } catch (err) {
+      console.log('Note save error: ', err);
       return false;
     }
   }
@@ -151,10 +150,10 @@ class NotesModel {
   async getUpdates(dt_update) {
     try {
       let newNotes = await db.find(db.NOTES, {'dt_update': { $gt: dt_update }});
+
       return newNotes;
-    }
-    catch (err) {
-      console.log("getUpdates notes error: ", err);
+    } catch (err) {
+      console.log('getUpdates notes error: ', err);
       return false;
     }
   }
@@ -167,10 +166,10 @@ class NotesModel {
   async delete(noteId) {
     try {
       let result = await db.remove(db.NOTES, {'_id': noteId}, {});
+
       return true;
-    }
-    catch (err) {
-      console.log("Note delete error: ", err);
+    } catch (err) {
+      console.log('Note delete error: ', err);
       return false;
     }
   }

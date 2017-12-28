@@ -40,6 +40,8 @@
     "electron": "^1.8.1",
     "electron-oauth2": "^3.0.0",
     "electron-pug": "^1.5.1",
+    "graphql-request": "^1.4.0",
+    "is-online": "^7.0.0",
     "nedb": "^1.8.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",

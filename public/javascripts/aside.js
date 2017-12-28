@@ -77,7 +77,7 @@ export default class Aside {
     /**
      * Emit message to load list
      */
-    this.loadNotes();
+    // this.loadNotes();
     this.loadFolders();
 
     /**
@@ -153,9 +153,11 @@ export default class Aside {
        * @var {array}  response.notes
        * @var {object} response.folder
        * @var {number} response.folder.id
-       * @var {string} response.folder.name
+       * @var {string} response.folder.title
        */
       resolve(response);
+    }).catch(error => {
+      console.log('Error while loading notes: ', error);
     });
   }
 
@@ -163,7 +165,7 @@ export default class Aside {
    * Loads folders list
    */
   loadFolders() {
-    window.ipcRenderer.send('load folders list');
+    window.ipcRenderer.send('folders list - load');
   }
 
 
@@ -192,7 +194,7 @@ export default class Aside {
   }
 
    /**
-   * New folder input keydown handler
+   * New Folder input keydown handler
    * @param {KeyboardEvent} event
    */
   newFolderInputFilled(event) {
@@ -201,17 +203,17 @@ export default class Aside {
     }
 
     let input = event.target,
-        folderName = input.value.trim();
+        folderTitle = input.value.trim();
 
-    if (!folderName) {
+    if (!folderTitle) {
       return;
     }
 
     /**
-     * Save folder
+     * Save Folder
      * @type {object}
      */
-    let createdFolder = window.ipcRenderer.sendSync('create folder', folderName);
+    let createdFolder = window.ipcRenderer.sendSync('folder - create', folderTitle);
 
     /**
      * Add saved folder to the menu
@@ -269,12 +271,12 @@ export default class Aside {
    * Add new item to the folders list
    *
    * @param {object} folder
-   * @param {string} folder.name
+   * @param {string} folder.title
    * @param {number} folder.id
    */
   addFolder(folder) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
-    let item = this.makeMenuItem(folder.name, {folderId: folder.id});
+    let item = this.makeMenuItem(folder.title, {folderId: folder.id});
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 
@@ -348,12 +350,12 @@ export default class Aside {
   }
 
   /**
-   * Updates folder name in menu
+   * Updates Folder's title in menu
    *
    * @param {MongoId} folderId - folder ID
-   * @param {Strign} anme      - new name
+   * @param {String} title     - new title
    */
-  updateFolderNameInMenu(folderId, name) {
+  updateFolderTitleInMenu(folderId, title) {
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
 
     if (!foldersMenu) {
@@ -363,7 +365,7 @@ export default class Aside {
     let folderItem = foldersMenu.querySelector('[data-folder-id="' + folderId + '"]');
 
     if (folderItem) {
-      folderItem.textContent = name;
+      folderItem.textContent = title;
     }
   }
 

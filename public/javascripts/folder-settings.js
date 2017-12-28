@@ -1,5 +1,6 @@
 const Dialog = require('./dialog').default;
 const $ = require('./dom').default;
+const Validate = require('./utils/validate').default;
 
 /**
  * Folder Settings panel module
@@ -15,7 +16,9 @@ export default class FolderSettings {
     this.toggler = $.get('js-folder-settings-toggler');
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
-    this.folderNameInput  = document.getElementsByName('folder-name')[0];
+    this.folderTitleInput = document.getElementsByName('folder-title')[0];
+    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', () => {
       this.toggle();
@@ -29,7 +32,8 @@ export default class FolderSettings {
       this.removeFolderClicked();
     });
 
-    this.folderNameInput.addEventListener('keydown', event => this.changeNameKeydown(event) );
+    this.folderTitleInput.addEventListener('keydown', event => this.changeTitleKeydown(event) );
+    this.newMemberInput.addEventListener('keydown', event => this.inviteMemberKeydown(event) );
   }
 
   /**
@@ -49,9 +53,9 @@ export default class FolderSettings {
     this.opened = true;
 
     /**
-     * Fill folder name input
+     * Fill Folder's title input
      */
-    this.folderNameInput.value = codex.notes.aside.currentFolder.name || '';
+    this.folderTitleInput.value = codex.notes.aside.currentFolder.title || '';
   }
 
   /**
@@ -77,7 +81,7 @@ export default class FolderSettings {
    * Handler for Remove Folder Button
    */
   removeFolderClicked() {
-    console.assert(codex.notes.aside.currentFolder, 'Cannot remove folder because it is not open');
+    console.assert(codex.notes.aside.currentFolder, 'Cannot remove Folder because it is not open');
 
     let result = codex.notes.aside.currentFolder.delete();
 
@@ -88,19 +92,19 @@ export default class FolderSettings {
   }
 
   /**
-   * Handler for Change Name input
+   * Handler for Change Title input
    * @param  {KeyboardEvent} event - keydowns
    */
-  changeNameKeydown(event) {
+  changeTitleKeydown(event) {
     if (event.key !== 'Enter') {
       return;
     }
 
     let input = event.target,
-        name = input.value.trim(),
+        title = input.value.trim(),
         id = codex.notes.aside.currentFolder.id;
 
-    if (!name) {
+    if (!title) {
       return;
     }
 
@@ -108,7 +112,7 @@ export default class FolderSettings {
      * Send request for renaming
      * @type {object}
      */
-    let result = window.ipcRenderer.sendSync('folder - change name', { id, name });
+    let result = window.ipcRenderer.sendSync('folder - change title', { id, title });
 
     if (!result) {
       Dialog.error('Folder renaming failed. Please, try again.');
@@ -116,16 +120,55 @@ export default class FolderSettings {
     }
 
     /**
-     * Update name in the:
+     * Update title in the:
      *  - folder header
      *  - aside menu
      */
-    codex.notes.aside.currentFolder.name = name;
+    codex.notes.aside.currentFolder.title = title;
 
     /**
      * Close folder settings
      */
     this.close();
+  }
+
+  /**
+   * Handler for New Member input
+   * @param {KeyboardEvent} event - keydowns
+   */
+  inviteMemberKeydown(event) {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    let input = event.target,
+        email = input.value.trim(),
+        id = codex.notes.aside.currentFolder.id;
+
+    if (!email || !Validate.email(email)) {
+      return;
+    }
+
+    /**
+     * Send request for adding new collaborator
+     * @type {object}
+     */
+    let result = window.ipcRenderer.sendSync('folder - collaborator add', { id, email });
+
+    if (!result) {
+      Dialog.error('Error while adding a collaborator to the folder');
+      return false;
+    }
+
+    // Clear input field
+    input.value = '';
+
+    // Add item to list of Collaborators
+    let newMemberItem = $.make('P', [], {
+      innerHTML: email
+    });
+
+    $.append(this.membersList, newMemberItem);
   }
 
 }
