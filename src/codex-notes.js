@@ -149,6 +149,10 @@ class CodexNotes {
         });
       })
       .then(() => {
+        // @TODO: send update to fill the user panel
+        return this.auth.reAuth();
+      })
+      .then(() => {
         return this.syncObserver.sync(this.user.dt_sync);
       })
       .catch(function (err) {
