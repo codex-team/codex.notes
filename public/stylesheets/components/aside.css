@@ -58,9 +58,11 @@
         position: absolute;
         left: 0px;
         top: 90px;
+        width: 100% - 30px;
         flex-flow: column wrap;
         justify-content: space-around;
-        margin-left: 3px;
+        margin: 0 15px;
+        padding: 25px;
         font-size: 13.1px;
         color: #000;
         text-align: center;
@@ -77,7 +79,7 @@
             content:'';
             position: absolute;
             top: -7px;
-            left: 169px;
+            left: 172.3px;
             width: 0;
             height: 0;
             border-style: solid;
@@ -239,14 +241,9 @@
     color: color(var(--aside-color-light) alpha(50%));
 }
 
-.intro_auth {
-    width: 151px;
-    margin: 20px;
-}
-
-.auth-button {
+.authorization-button {
     display: inline-block;
-    margin-bottom: 20px;
+    margin-top: 15px; 
     cursor: pointer;
     color: #496A84;
 
@@ -255,7 +252,7 @@
     }
 
     &:hover {
-        color: #3D3F4D;
+        color: #1A2630;
         cursor: pointer;
     }
 }
