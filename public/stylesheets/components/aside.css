@@ -46,7 +46,7 @@
                     z-index: 10;
                 }
 
-                &-inner {
+                .aside__header-avatar-inner {
                     color: #FFF;
                 }
 
