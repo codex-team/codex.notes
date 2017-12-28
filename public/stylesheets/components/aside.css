@@ -46,7 +46,7 @@
                     z-index: 10;
                 }
 
-                .aside__header-avatar-inner {
+                &-inner {
                     color: #FFF;
                 }
 
@@ -62,7 +62,7 @@
         flex-flow: column wrap;
         justify-content: space-around;
         margin: 0 15px;
-        padding: 25px;
+        padding: 20px 25px;
         font-size: 13.1px;
         color: #000;
         text-align: center;
