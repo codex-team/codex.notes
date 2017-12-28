@@ -14,38 +14,38 @@
     letter-spacing: 0.3px;
 
     &__header {
+        position: relative;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        margin-bottom: 15px;
 
         &-left {
             display: flex;
             flex-direction: column;
-            margin-bottom: 15px;
             font-size: 18px;
             font-weight: 600;
-            color: #fff;   
-        }    
+            color: #fff;
+        }
 
         &-avatar {
             width: 37px;
             height: 37px;
-            padding-bottom: 20px;
             color: #3D3F4D;
+            cursor: pointer;
+            transition: all 50ms ease;
+            transition-delay: 100ms;
+            will-change: color;
 
             &-inner {
                 color: #A2A8BD;
+                transition: color 50ms ease;
+                transition-delay: 100ms;
+                will-change: color;
             }
 
             &:hover {
                 color: #3C93F7;
-
-                .aside__authorization {
-                    transform: none;
-                    opacity: 1;
-                    z-index: 10;
-                }
-
             }
 
             &:hover &-inner {
@@ -56,14 +56,15 @@
 
     }
 
+    /**
+     * Authorization panel
+     * =========================
+     */
     &__authorization {
         position: absolute;
-        left: 0px;
-        top: 90px;
-        width: 100% - 30px;
-        flex-flow: column wrap;
-        justify-content: space-around;
-        margin: 0 15px;
+        top: calc(100% + 12px);
+        right: 0;
+        left: 0;
         padding: 20px 25px;
         font-size: 13.1px;
         color: #000;
@@ -72,9 +73,12 @@
         background-color: #F5F9FE;
         will-change: opacity, transform;
         opacity: 0;
-        transform: translateY(10px);
-        transition: transform 0.150s, opacity 0.150s;
+        visibility: hidden;
+        transform: translateY(7px);
+        transition: all 70ms ease;
+        transition-delay: 150ms;
         cursor: default;
+        z-index: 2;
 
         &::before {
             content:'';
@@ -87,8 +91,18 @@
             border-width: 0 8px 8px 8px;
             border-color: transparent transparent #F5F9FE transparent;
         }
+
+        &-title {
+            line-height: 1.4em;
+            letter-spacing: 0.0284em;
+        }
     }
 
+    &__header-avatar:hover &__authorization {
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+    }
 
     /**
      * Section title such as Folders or Notes
@@ -244,7 +258,7 @@
 
 .authorization-button {
     display: inline-block;
-    margin-top: 15px; 
+    margin-top: 15px;
     cursor: pointer;
     color: #496A84;
 
