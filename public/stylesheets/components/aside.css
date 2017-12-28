@@ -51,7 +51,7 @@
             &:hover &-inner {
                 color: #FFF;
             }
-            
+
         }
 
     }
@@ -68,7 +68,6 @@
         font-size: 13.1px;
         color: #000;
         text-align: center;
-        border: 1px solid #F5F9FE;
         border-radius: 3px;
         background-color: #F5F9FE;
         will-change: opacity, transform;
@@ -81,7 +80,7 @@
             content:'';
             position: absolute;
             top: -7px;
-            left: 172.3px;
+            left: 173.5px;
             width: 0;
             height: 0;
             border-style: solid;
