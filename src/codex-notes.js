@@ -28,9 +28,9 @@ const pug = require('electron-pug')({
 const SyncObserver = require('./controllers/syncObserver');
 
 /**
- * Directories controller
+ * Folders controller
  */
-const DirectoryControllerClass = require('./controllers/directory');
+const FoldersController = require('./controllers/folders');
 
 /**
  * Notes controllers
@@ -88,7 +88,7 @@ class CodexNotes {
       minWidth: 1070,
       minHeight: 600,
       height: 700,
-      vibrancy: 'ultra-dark',
+      // vibrancy: 'ultra-dark',
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
@@ -109,7 +109,7 @@ class CodexNotes {
     });
 
     /** Open the DevTools. */
-    if (process.env.OPEN_DEV_TOOLS === 'true') {
+    if (process.env.DEBUG === 'true') {
       this.mainWindow.webContents.openDevTools();
     }
 
@@ -137,10 +137,16 @@ class CodexNotes {
     return this.user.init()
       .then(() => {
         global.user = this.user;
-        this.directory = new DirectoryControllerClass();
+        this.folders = new FoldersController();
         this.notes = new NotesControllerClass();
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
+
+        this.syncObserver.on('sync', (data) => {
+          // this.user.renew(data.user);
+          // this.notes.renew(data);
+          this.folders.renew(data.user.folders);
+        });
       })
       .then(() => {
         return this.syncObserver.sync(this.user.dt_sync);
@@ -191,6 +197,11 @@ app.on('ready', function () {
   try {
     new CodexNotes();
   } catch(error) {
-    console.log(error);
+    console.log(`\n\n 
+      ........................... \n\n 
+      CodeX Notes runtime error: 
+      ........................... \n\n
+      `, error);
+    console.log(`\n\n ........................... \n\n`);
   }
 });

@@ -1,5 +1,5 @@
 const Notes = require('../models/notes');
-const Directory = require('../models/directory');
+const Directory = require('../models/folder');
 
 const { GraphQLClient } = require('graphql-request');
 
@@ -13,6 +13,7 @@ const { GraphQLClient } = require('graphql-request');
  * @property {Directory} folders    - Folders Model
  * @property {Notes} notes          - Notes Model
  * @property {GraphQLClient} api    - GraphQL API client
+ * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
 module.exports = class SyncObserver {
 
@@ -20,7 +21,6 @@ module.exports = class SyncObserver {
    * Initialize params for the API
    */
   constructor() {
-    this.folders = new Directory();
     this.notes = new Notes();
 
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
@@ -28,6 +28,8 @@ module.exports = class SyncObserver {
         // Authorization: 'Put JWT here for authorization',
       }
     });
+
+    this.subscribers = [];
   }
 
   /**
@@ -43,16 +45,16 @@ module.exports = class SyncObserver {
    */
   async prepareUpdates(dt_sync) {
     try {
-      let newFolders = await this.folders.getUpdates(dt_sync);
-      let newNotes = await this.notes.getUpdates(dt_sync);
+      // let newFolders = await this.folders.getUpdates(dt_sync);
+      // let newNotes = await this.notes.getUpdates(dt_sync);
 
-      return {
-        'dt_sync': dt_sync,
-        'updates': {
-          'folders': newFolders,
-          'notes': newNotes
-        }
-      };
+      // return {
+      //   'dt_sync': dt_sync,
+      //   'updates': {
+      //     'folders': newFolders,
+      //     'notes': newNotes
+      //   }
+      // };
     } catch (err) {
       console.log('Error during synchronization getUpdates: ', err);
       return false;
@@ -88,10 +90,39 @@ module.exports = class SyncObserver {
     this.api.request(query)
       .then( data => {
         console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
+        this.emit('sync', data);
       })
       .catch( error => {
         console.log('[!] Synchronization failed because of ', error);
       });
   }
 
+  /**
+   * Emit Event to the each subscriber
+   * @param {String} event - Event name
+   * @param {*} data       - Data to pass with Event
+   */
+  emit(event, data) {
+
+    this.subscribers.forEach(sub => {
+      if (sub.event !== event) {
+        return;
+      }
+
+      sub.callback.call(null, data);
+    });
+
+  }
+
+  /**
+   * Add subscriber to the passed event
+   * @param {String} event - on what SyncObserver Event you want to subscribe
+   * @param {Function} callback - what callback we should fire with the Event
+   */
+  on(event, callback) {
+    this.subscribers.push({
+      event,
+      callback
+    });
+  }
 };

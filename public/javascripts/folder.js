@@ -3,30 +3,31 @@ const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
+ *
+ * @typedef {Folder} Folder
+ * @property {Number}    id                 - Folder's id
+ * @property {string}    title              - Folder's title
+ * @property {Array}     notes              - Notes list
+ * @property {Element}   notesListWrapper   - Notes list holder
  */
 export default class Folder {
 
   /**
    * Folder methods
    *
-   * @param {Number} id   - folder id
-   * @param {string} name - folder name
-   *
-   * @property {Number}    id           - folder id
-   * @property {string}    name         - folder name
-   * @property {Array}     notes        - notes list
-   * @property {Element}   notesListWrapper  - notes list holder
+   * @param {Number} id     - Folder's id
+   * @param {string} title  - Folder's title
    */
-  constructor(id, name) {
+  constructor(id, title) {
     this._id = id;
-    this._name = name;
+    this._title = title;
 
-    this.folderNameElement = $.get('js-folder-name');
+    this.folderTitleElement = $.get('js-folder-title');
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
         this.notes = notes;
-        this._name = folder.name;
+        this._title = folder.title;
       })
       .then( () => this.fillHeader() )
       .then( () => this.updateNotesList() );
@@ -42,34 +43,35 @@ export default class Folder {
   }
 
   /**
-   * Folder name getter
+   * Folder title getter
    */
-  get name() {
-    return this._name;
+  get title() {
+    return this._title;
   }
 
   /**
-   * Folder name setter
+   * Folder title setter
+   * @param {String} newTitle
    */
-  set name(newName) {
-    this._name = newName;
+  set title(newTitle) {
+    this._title = newTitle;
 
     /**
-     * Update in the header
+     * Update in the Header
      */
     this.fillHeader();
 
     /**
-     * Update in the aside menu
+     * Update in the Aside menu
      */
-    codex.notes.aside.updateFolderNameInMenu(this._id, this._name);
+    codex.notes.aside.updateFolderTitleInMenu(this._id, this._title);
   }
 
   /**
    * Fills folder header block
    */
   fillHeader() {
-    this.folderNameElement.textContent = this._name;
+    this.folderTitleElement.textContent = this._title;
   }
 
   /**
@@ -86,7 +88,7 @@ export default class Folder {
    */
   delete() {
     if (Dialog.confirm('Are you sure you want to delete this folder?')) {
-      if (window.ipcRenderer.sendSync('delete folder', this._id)) {
+      if (window.ipcRenderer.sendSync('folder - delete', this._id)) {
         codex.notes.aside.removeFolderFromMenu(this._id);
         codex.notes.note.clear();
         return true;

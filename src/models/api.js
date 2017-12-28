@@ -4,6 +4,10 @@ const request = require('request-promise');
 const isOnline = require('is-online');
 
 /**
+ * @deprecated - not actual with GraphQL scheme
+ * @since 26 dec 2017
+ *
+ *
  * @class       ApiController
  * @classdesc   Api methods
  *
