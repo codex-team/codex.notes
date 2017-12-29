@@ -46,8 +46,9 @@ class AuthController {
      */
     let webContents = window.webContents;
 
-    /** Fires when popup page is refreshed
-     *  @param {Event} loadEvent – onload event
+    /**
+     * Fires when popup page is refreshed
+     * @param {Event} loadEvent – onload event
      */
     webContents.on('did-finish-load', loadEvent => {
       /**
