@@ -61,24 +61,23 @@ class AuthController {
        */
       webContents.executeJavaScript('document.body.textContent')
         .then(function (jwt) {
-          try {
             /** Decode JWT payload */
-            let payload = new Buffer(jwt.split('.')[1], 'base64');
+          let payload = new Buffer(jwt.split('.')[1], 'base64');
 
             /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
-            payload = JSON.parse(payload);
+          payload = JSON.parse(payload);
 
-            event.returnValue = {
-              name: payload.name,
-              photo: payload.photo,
-              id: payload.id,
-              token: jwt
-            };
-          } catch(e) {
-            console.log('Google OAuth failed because of ', e);
-            event.returnValue = false;
-          }
+          event.returnValue = {
+            name: payload.name,
+            photo: payload.photo,
+            google_id: payload.google_id,
+            token: jwt
+          };
 
+          window.close();
+        })
+        .catch (function (e) {
+          console.log('Google OAuth failed because of ', e);
           window.close();
         });
     });
