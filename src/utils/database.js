@@ -28,15 +28,17 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
-    let rootFolder = await this.find(this.FOLDERS, {'isRoot': true });
+    let rootFolder = await this.find(this.FOLDERS, {'isRoot': true }, {});
 
     if (rootFolder.length === 0) {
-      await this.insert(this.FOLDERS, {
+      let rootFolderCreated = await this.insert(this.FOLDERS, {
         'isRoot': true,
         'name': 'Root Folder',
-        '_id': 0,
+        // '_id': 0, // nedb does npt works properly with _id = 0
         'notes': []
       });
+
+      console.log('Root Folder created: ', rootFolderCreated);
     }
   }
 

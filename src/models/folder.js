@@ -31,13 +31,16 @@ module.exports = class Folder {
   /**
    * @constructor
    * Make new Folder example
+   * @param {FolderData} folderData
    */
-  constructor({_id, id, title, ownerId, dtModify, notes} = {}) {
-    this.id = id || _id || null;
-    this.title = title || null;
-    this.dtModify = dtModify || null;
-    this.ownerId = ownerId || null;
-    this.notes = notes || [];
+  constructor(folderData = {}) {
+    this.id = null;
+    this.title = null;
+    this.dtModify = null;
+    this.ownerId = null;
+    this.notes = [];
+
+    this.data = folderData;
   }
 
   /**
@@ -64,7 +67,18 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    this.id = folderData.id || folderData._id || null;
+
+    /**
+     * Folder id can be 0 on the Root Folder
+     */
+    if (folderData.id !== null) {
+      this.id = folderData.id;
+    } else if (folderData._id !== null) {
+      this.id = folderData._id;
+    } else {
+      this.id = null;
+    }
+
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.ownerId = folderData.ownerId || null;
@@ -99,8 +113,9 @@ module.exports = class Folder {
 
     /**
      * On sync, we need to save given id as _id in the DB.
+     * Folder's id can be 0 — on the Root Folder
      */
-    if (this.id){
+    if (this.id !== null){
       data = Object.assign(data, {_id: this.id});
     }
 

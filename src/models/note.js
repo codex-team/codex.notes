@@ -105,7 +105,7 @@ class Note {
       console.log('\n\n Note creation: \n\n');
       this.dtCreate = +new Date();
     } else {
-      console.log('\n\n Note updating %o: \n\n', this._id);
+      console.log('\n\n Note updating ', this._id, '\n\n');
     }
 
     /**
@@ -127,7 +127,8 @@ class Note {
     /**
      * If Note is not included at any Folder, save it to the Root Folder
      */
-    if (!this.folderId) {
+    if (this.folderId === null) {
+
       let rootFolder = await db.findOne(db.FOLDERS, {
         'isRoot': true
       });
@@ -152,14 +153,12 @@ class Note {
     if (savedNote._id){
       this._id = savedNote._id;
     }
-
-    console.log('Note saved: ', savedNote);
-
+    
     /**
      * Update Folder's modification time
      */
     let folder = new Folder({
-      _id: this.folderId,
+      id: this.folderId,
     });
 
     folder = await folder.save({
