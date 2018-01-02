@@ -1,4 +1,4 @@
-const Notes = require('../models/notes');
+const Notes = require('../models/note');
 const Directory = require('../models/folder');
 
 const { GraphQLClient } = require('graphql-request');

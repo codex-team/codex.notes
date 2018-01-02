@@ -11,6 +11,18 @@ module.exports = `query Sync {
       owner{
         name,
         id
+      },
+      notes {
+        id,
+        title,
+        dtCreate,
+        dtModify,
+        author {
+          id,
+          name,
+          email
+        },
+        isRemoved
       }
     }
   }

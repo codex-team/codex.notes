@@ -35,7 +35,7 @@ const FoldersController = require('./controllers/folders');
 /**
  * Notes controllers
  */
-const NotesControllerClass = require('./controllers/note');
+const NotesController = require('./controllers/notes');
 
 /**
  * Authorization
@@ -138,13 +138,13 @@ class CodexNotes {
       .then(() => {
         global.user = this.user;
         this.folders = new FoldersController();
-        this.notes = new NotesControllerClass();
+        this.notes = new NotesController();
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
 
         this.syncObserver.on('sync', (data) => {
           // this.user.renew(data.user);
-          // this.notes.renew(data);
+          this.notes.renew(data.user.notes);
           this.folders.renew(data.user.folders);
         });
       })

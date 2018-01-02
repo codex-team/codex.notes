@@ -1,17 +1,17 @@
 'use strict';
 let {ipcMain} = require('electron');
 
-const Notes = require('../models/notes');
+const Notes = require('../models/note');
 const Folder = require('../models/folder');
 
 /**
- * Note controller.
+ * Notes controller.
  * Works with events:
  *  - save note
  *  - load notes list (in specified Folder)
  *  - get note
  */
-class NoteController {
+class NotesController {
 
   /**
    * Setup event handlers
@@ -23,17 +23,17 @@ class NoteController {
       this.saveNote(note, event);
     });
 
-    ipcMain.on('load notes list', (event, folderId) => {
-      this.loadNotesList(folderId, event);
-    });
+    // ipcMain.on('load notes list', (event, folderId) => {
+    //   this.loadNotesList(folderId, event);
+    // });
 
-    ipcMain.on('get note', (event, {id}) => {
-      this.getNote(id, event);
-    });
+    // ipcMain.on('get note', (event, {id}) => {
+    //   this.getNote(id, event);
+    // });
 
-    ipcMain.on('delete note', (event, {id}) => {
-      this.deleteNote(id, event);
-    });
+    // ipcMain.on('delete note', (event, {id}) => {
+    //   this.deleteNote(id, event);
+    // });
   }
 
   /**
@@ -153,8 +153,6 @@ class NoteController {
       event.returnValue = false;
     }
   }
-
-
 }
 
-module.exports = NoteController;
+module.exports = NotesController;

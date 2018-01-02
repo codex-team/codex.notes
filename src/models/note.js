@@ -9,12 +9,19 @@ const DEFAULT_TITLE = 'Untitled';
 /**
  * Notes model.
  */
-class NotesModel {
+class Note {
 
   /**
    * Initialize parameters for API.
    */
   constructor() {
+    this._id = null;
+    this.title = null;
+    this.content = null;
+    this.dtCreate = null;
+    this.dtModify = null;
+    this.author = null;
+    this.isRemoved = false;
   }
 
   /**
@@ -176,4 +183,4 @@ class NotesModel {
 
 }
 
-module.exports = NotesModel;
+module.exports = Note;
