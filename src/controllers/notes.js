@@ -1,7 +1,7 @@
 'use strict';
 let {ipcMain} = require('electron');
 
-const Notes = require('../models/note');
+const Note = require('../models/note');
 const Folder = require('../models/folder');
 
 /**
@@ -17,9 +17,9 @@ class NotesController {
    * Setup event handlers
    */
   constructor() {
-    this.notes = new Notes();
 
     ipcMain.on('save note', (event, {note}) => {
+      console.log('Controller Notes: save, ', note);
       this.saveNote(note, event);
     });
 
@@ -37,18 +37,18 @@ class NotesController {
   }
 
   /**
-   * Save note and return result to the event emitter.
-   * @param note - note structure in the following format:
-   * {
-   *   data: {
-   *     id - unique note ID
-   *     items - Codex Editor object
-   *     time - timestamp
-   *     version - current editor version
-   *   }
-   *   folderId - folder ID
-   *   title - note title
-   * }
+   * Save Note and return result to the event emitter.
+   *
+   * @param {object} noteData
+   * @param {object|null} noteData.folderId      - in which Folder Note was created. Null for the Root Folder.
+   * @param {string} noteData.title              - Note's title
+   * @param {object} noteData.data               - Note data got from the CodeX Editor
+   * @param {string|null} noteData.data.id       - On editing, stores Note's id
+   * @param {string} noteData.data.items         - Note's content
+   * @param {number} noteData.data.time          - Note's saving time
+   * @param {string} noteData.data.version       - used CodeX Editor version
+   *
+   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
    *
    * Send 'note saved' action to the event emitter with the following message.
    * {
@@ -56,19 +56,30 @@ class NotesController {
    *   title - note title
    *   folderId - Folder ID
    * }
-   * @param event
    * @returns {Promise.<void>}
    */
-  async saveNote(note, event) {
+  async saveNote(noteData, event) {
     try {
-      let folderId = note.folderId;
-      let newNote = await this.notes.save(folderId, note);
+      let note = new Note({
+        title: noteData.title,
+        editorVersion: noteData.data.version,
+        dtModify: +new Date(),
+        authorId: global.user ? global.user.id : null,
+        folderId: noteData.folderId,
+        content: noteData.data.items,
+        _id: noteData.data.id || null,
+      });
+      let newNote = await note.save();
+
+      console.log('Note saving result: ', newNote);
 
       if (newNote) {
-        event.sender.send('note saved', {note: newNote});
+        event.sender.send('note saved', {
+          note: newNote
+        });
       }
     } catch (err) {
-      console.log(err);
+      console.log('Note saving failed because of ', err);
     }
   }
 
@@ -152,6 +163,21 @@ class NotesController {
       console.log(err);
       event.returnValue = false;
     }
+  }
+
+  /**
+   * Updates Notes data in the DB and sends new state to the Client
+   * @param {NoteData[]} notes - new Notes's list
+   * @return {Promise<void>}
+   */
+  async renew(notes){
+    // await folders.forEach( async folderData => {
+    //
+    //   let folder = new Folder(folderData);
+    //   let updatedFolder = await folder.save();
+    //
+    //   console.log('updatedFolder: ', updatedFolder);
+    // });
   }
 }
 

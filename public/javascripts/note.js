@@ -41,6 +41,8 @@ export default class Note {
      */
     let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
+    console.log('Folder: ', folderId);
+
     codex.editor.saver.save()
       .then( noteData => {
         let note = {
@@ -61,28 +63,30 @@ export default class Note {
           saveIndicator.classList.remove('saved');
         }, 500);
 
+        console.log('Saving note: ', note);
+
         window.ipcRenderer.send('save note', {note});
       })
       .catch( err => console.log('Error while saving note: ', err) );
   }
 
   /**
-   * Add note to the menu by Aside.addMenuItem method
+   * Add Note to the menu by Aside.addMenuItem method
    *
    * @param {object} data
    * @param {object} data.note
    * @param {number} data.note.folderId
-   * @param {number} data.note.id
+   * @param {number} data.note._id
    * @param {string} data.note.title
    */
   addToMenu({note}) {
-    codex.editor.state.blocks.id = note.id;
+    codex.editor.state.blocks.id = note._id;
 
     codex.notes.aside.addMenuItem(note);
   }
 
   /**
-   * Renders note
+   * Render Note
    * @param  {object} noteData
    */
   render(note) {

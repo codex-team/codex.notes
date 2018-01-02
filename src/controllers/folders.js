@@ -124,6 +124,10 @@ class FoldersController {
         ownerId: global.user ? global.user.id : null,
         title: title
       });
+
+      /**
+       * @todo Check for fields (dtModify, etc) override
+       */
       event.returnValue = await folder.save();
     } catch (err) {
       console.log('Folder renaming failed because of ', err);

@@ -398,6 +398,8 @@ var Note = function () {
        */
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
+      console.log('Folder: ', folderId);
+
       codex.editor.saver.save().then(function (noteData) {
         var note = {
           data: noteData,
@@ -417,6 +419,8 @@ var Note = function () {
           saveIndicator.classList.remove('saved');
         }, 500);
 
+        console.log('Saving note: ', note);
+
         window.ipcRenderer.send('save note', { note: note });
       }).catch(function (err) {
         return console.log('Error while saving note: ', err);
@@ -424,12 +428,12 @@ var Note = function () {
     }
 
     /**
-     * Add note to the menu by Aside.addMenuItem method
+     * Add Note to the menu by Aside.addMenuItem method
      *
      * @param {object} data
      * @param {object} data.note
      * @param {number} data.note.folderId
-     * @param {number} data.note.id
+     * @param {number} data.note._id
      * @param {string} data.note.title
      */
 
@@ -438,13 +442,13 @@ var Note = function () {
     value: function addToMenu(_ref) {
       var note = _ref.note;
 
-      codex.editor.state.blocks.id = note.id;
+      codex.editor.state.blocks.id = note._id;
 
       codex.notes.aside.addMenuItem(note);
     }
 
     /**
-     * Renders note
+     * Render Note
      * @param  {object} noteData
      */
 
@@ -682,6 +686,7 @@ var Aside = function () {
     window.ipcRenderer.on('update folders list', function (event, _ref) {
       var userFolders = _ref.userFolders;
 
+      console.log('Update folders list ', userFolders);
       foldersMenu.classList.remove(_this.CSS.notesMenuLoading);
       userFolders.forEach(function (folder) {
         return _this.addFolder(folder);
@@ -855,10 +860,10 @@ var Aside = function () {
 
     /**
      *
-     * Add note to left menu
+     * Add a Note to left menu
      *
      * @param {object} noteData
-     * @param {number} noteData.id
+     * @param {number} noteData._id
      * @param {string} noteData.title
      * @param {number} noteData.folderId
      */
@@ -882,14 +887,14 @@ var Aside = function () {
       /**
        * If we already have this item, update title
        */
-      var existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
+      var existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
       if (existingNote) {
         existingNote.textContent = this.createMenuItemTitle(noteData.title);
         return;
       }
 
-      var item = this.makeMenuItem(noteData.title, { id: noteData.id });
+      var item = this.makeMenuItem(noteData.title, { id: noteData._id });
 
       notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -911,6 +916,10 @@ var Aside = function () {
     value: function addFolder(folder) {
       var _this3 = this;
 
+      if (!folder.title) {
+        console.warn('Can not add Folder to the Aside because it has not title', folder);
+        return;
+      }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
       var item = this.makeMenuItem(folder.title, { folderId: folder.id });
 
@@ -1496,6 +1505,7 @@ var documentReady = function documentReady() {
    * New note saving handler
    */
   window.ipcRenderer.on('note saved', function (event, response) {
+    console.log('Note saved: ', response);
     codex.notes.note.addToMenu(response);
   });
 };

@@ -84,6 +84,7 @@ export default class Aside {
      * Update folder list
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
+      console.log('Update folders list ', userFolders);
       foldersMenu.classList.remove(this.CSS.notesMenuLoading);
       userFolders.forEach( folder => this.addFolder(folder) );
     });
@@ -231,10 +232,10 @@ export default class Aside {
 
   /**
    *
-   * Add note to left menu
+   * Add a Note to left menu
    *
    * @param {object} noteData
-   * @param {number} noteData.id
+   * @param {number} noteData._id
    * @param {string} noteData.title
    * @param {number} noteData.folderId
    */
@@ -253,14 +254,14 @@ export default class Aside {
     /**
      * If we already have this item, update title
      */
-    let existingNote = notesMenu.querySelector('[data-id="' + noteData.id + '"]');
+    let existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
     if (existingNote) {
       existingNote.textContent = this.createMenuItemTitle(noteData.title);
       return;
     }
 
-    let item = this.makeMenuItem(noteData.title, {id: noteData.id});
+    let item = this.makeMenuItem(noteData.title, {id: noteData._id});
 
     notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -275,6 +276,10 @@ export default class Aside {
    * @param {number} folder.id
    */
   addFolder(folder) {
+    if (!folder.title) {
+      console.warn('Can not add Folder to the Aside because it has not title', folder);
+      return;
+    }
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
     let item = this.makeMenuItem(folder.title, {folderId: folder.id});
 

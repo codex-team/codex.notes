@@ -1,27 +1,178 @@
 'use strict';
 
-let sanitizeHtml = require('sanitize-html');
-const random = require('../utils/random');
+/**
+ * HTML Sanitizer {@link https://github.com/punkave/sanitize-html}
+ * @type {sanitizeHtml}
+ */
+const sanitizeHtml = require('sanitize-html');
+
+/**
+ * Database wrapper
+ * @type {Database}
+ */
 const db = require('../utils/database');
-const api = require('./api');
-const DEFAULT_TITLE = 'Untitled';
+
+/**
+ * Folder Model
+ */
+const Folder = require('../models/folder.js');
+
+/**
+ * @typedef {Object} NoteData
+ * @property {String} _id           — Note's id
+ * @property {String} authorId      — Note's Author id
+ * @property {String} folderId      - Note's Folder id
+ * @property {String} content       - JSON with Note's body
+ * @property {Number} dtModify      - timestamp of last modification
+ * @property {Number} dtCreate      - timestamp of Note creation
+ * @property {Boolean} isRemoved    - Note's removed state
+ * @property {String|null} editorVersion - used CodeX Editor version
+ */
 
 /**
  * Notes model.
  */
 class Note {
-
   /**
-   * Initialize parameters for API.
+   * @constructor
+   * Makes new Note example
+   *
+   * @param {NoteData} noteData  - Note's data to fill the Model
    */
-  constructor() {
+  constructor(noteData = {}) {
     this._id = null;
     this.title = null;
     this.content = null;
     this.dtCreate = null;
     this.dtModify = null;
-    this.author = null;
+    this.authorId = null;
+    this.folderId = null;
     this.isRemoved = false;
+    this.editorVersion = null;
+
+    this.data = noteData;
+  }
+
+  /**
+   * Note data setter
+   * @param {NoteData} noteData
+   */
+  set data(noteData) {
+    this._id = noteData._id || null;
+    this.authorId = noteData.authorId || null;
+    this.folderId = noteData.folderId || null;
+    this.title = noteData.title || null;
+    this.content = noteData.content || null;
+    this.dtCreate = noteData.dtCreate || null;
+    this.dtModify = noteData.dtModify || null;
+    this.isRemoved = noteData.folderId || false;
+    this.editorVersion = noteData.editorVersion || null;
+  }
+
+  /**
+   * Note data getter
+   * @return {NoteData}
+   */
+  get data() {
+    let noteData = {
+      authorId: this.authorId,
+      folderId: this.folderId,
+      title: this.title,
+      content: this.content,
+      dtCreate: this.dtCreate,
+      dtModify: this.dtModify,
+      isRemoved: this.isRemoved,
+      editorVersion: this.editorVersion,
+    };
+
+    if (this._id){
+      noteData._id = this._id;
+    }
+
+    return noteData;
+  }
+
+
+  /**
+   * Save current Node to the DB
+   */
+  async save(){
+
+    /**
+     * Set creation date for the new Note
+     */
+    if (!this._id) {
+      console.log('\n\n Note creation: \n\n');
+      this.dtCreate = +new Date();
+    } else {
+      console.log('\n\n Note updating %o: \n\n', this._id);
+    }
+
+    /**
+     * Update modification time
+     */
+    this.dtModify = +new Date();
+
+    /**
+     * Make Title from the first Text Block in case when it is not presented.
+     */
+    if (!this.title) {
+      if (this.content.items.length && this.content.items[0].data) {
+        let titleFromText = this.content.items[0].data.text;
+
+        this.title = sanitizeHtml(titleFromText, {allowedTags: []});
+      }
+    }
+
+    /**
+     * If Note is not included at any Folder, save it to the Root Folder
+     */
+    if (!this.folderId) {
+      let rootFolder = await db.findOne(db.FOLDERS, {
+        'isRoot': true
+      });
+
+      this.folderId = rootFolder._id;
+    }
+
+    let query = {
+          _id : this._id
+        },
+        data = this.data,
+        options = {
+          upsert: true,
+          returnUpdatedDocs: true
+        };
+
+    let savedNote = await db.update(db.NOTES, query, data, options);
+
+    /**
+     * Renew Model id with the actual value
+     */
+    if (savedNote._id){
+      this._id = savedNote._id;
+    }
+
+    console.log('Note saved: ', savedNote);
+
+    /**
+     * Update Folder's modification time
+     */
+    let folder = new Folder({
+      _id: this.folderId,
+    });
+
+    folder = await folder.save({
+      dtModify: this.dtModify
+    });
+
+    console.log('\n Folder\'s modify date updated ', folder, '\n');
+
+    /**
+     * @todo Sync with API
+     */
+
+    return savedNote.affectedDocuments;
   }
 
   /**
@@ -84,70 +235,6 @@ class Note {
       });
     } catch (err) {
       console.log('Notes list error: ', err);
-    }
-  }
-
-  /**
-   * Save not to the directory.
-   * @param directoryId - directory ID
-   * @param note - note in format:
-   * {
-   *   data: {
-   *     id - unique note ID
-   *     items - Codex Editor object
-   *     dt_update - last update
-   *     version - current editor version
-   *   }
-   *   folderId - folder ID
-   *   title - note title
-   * }
-   * @returns Note in format:
-   * {
-   *   id - unique note ID
-   *   title - note title
-   *   folderId - directory ID
-   * }
-   */
-  async save(directoryId, note) {
-    try {
-      if (!directoryId) {
-        let directory = await db.findOne(db.FOLDERS, {'root': true});
-
-        directoryId = directory._id;
-        note.folderId = directoryId; // make sure that null or false is 0
-      }
-      if (!note.data.id) {
-        // create new note
-        note.data.id = random.generatePassword();
-      }
-      // change note meta-data during create or update
-      note._id = note.data.id;
-      note.dt_update = + new Date();
-
-      // set title from first paragraph in the case it is not presented
-      if (!note.title) {
-        let titleFromText = !!note.data.items.length ? note.data.items[0].data.text : DEFAULT_TITLE;
-
-        note.title = sanitizeHtml(titleFromText, {allowedTags: []});
-      }
-
-      // update note in DB
-      let newNote = await db.update(db.NOTES, {'_id': note._id }, note, {'upsert': true});
-
-      if (newNote) {
-        await db.update(db.FOLDERS, {'_id': directoryId}, {'dt_update': newNote.dt_update}, {}, function () {});
-
-        return {
-          id: note.data.id,
-          title: note.title,
-          folderId: directoryId
-        };
-      } else {
-        return false;
-      }
-    } catch (err) {
-      console.log('Note save error: ', err);
-      return false;
     }
   }
 

@@ -10,6 +10,7 @@ const db = require('../utils/database');
  * @property {Number} dtModify         - Last modification timestamp
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
+ * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
  */
 
 /**
@@ -22,6 +23,7 @@ const db = require('../utils/database');
  * @property {Number} dtModify
  * @property {String} ownerId
  * @property {Note[]} notes
+ * @property {Boolean} isRoot
  *
  */
 module.exports = class Folder {
@@ -72,17 +74,28 @@ module.exports = class Folder {
   /**
    * Saves new Folder into the Database.
    * Update or Insert scheme
+   * @param {Object|null} dataToUpdate  — if you need to update only specified fields,
+   *                                      pass it directly with this parameter
    * @returns {Promise.<FolderData>}
    */
-  async save() {
+  async save(dataToUpdate = null) {
     let query = {
           _id : this.id
         },
-        data = this.data,
+        data = {},
         options = {
           upsert: true,
           returnUpdatedDocs: true
         };
+
+    /**
+     * Save only passed fields or save the full model data
+     */
+    if (dataToUpdate) {
+      data = dataToUpdate;
+    } else {
+      data = this.data;
+    }
 
     /**
      * On sync, we need to save given id as _id in the DB.

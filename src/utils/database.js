@@ -12,8 +12,9 @@ class Database {
   constructor() {}
 
   /**
-   * Create directory in user application folder and initialize collections USER and DIRECTORY.
-   * Create root directory if not exists.
+   * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
+   * - Initialize collections User, Folders and Notes
+   * - Create Root Folder if it doesn't exist.
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
@@ -27,12 +28,12 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
-    let rootDirectory = await this.find(this.FOLDERS, {'root': true });
+    let rootFolder = await this.find(this.FOLDERS, {'isRoot': true });
 
-    if (rootDirectory.length === 0) {
+    if (rootFolder.length === 0) {
       await this.insert(this.FOLDERS, {
-        'root': true,
-        'name': 'root',
+        'isRoot': true,
+        'name': 'Root Folder',
         '_id': 0,
         'notes': []
       });

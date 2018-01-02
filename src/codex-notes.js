@@ -51,7 +51,6 @@ const UserModelClass = require('./models/users');
  * Database setup
  */
 const db = require('./utils/database');
-
 db.makeInitialSettings(app.getPath('userData'));
 
 /**
