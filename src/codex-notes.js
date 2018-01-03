@@ -103,7 +103,7 @@ class CodexNotes {
     this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
-      console.log('window is ready.');
+      console.log('\nMain Window is ready to show. Let\'s go \n');
       this.mainWindow.show();
     });
 

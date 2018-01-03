@@ -94,7 +94,7 @@ class Note {
 
 
   /**
-   * Save current Node to the DB
+   * Save current Note to the DB
    */
   async save(){
 
@@ -128,12 +128,7 @@ class Note {
      * If Note is not included at any Folder, save it to the Root Folder
      */
     if (this.folderId === null) {
-
-      let rootFolder = await db.findOne(db.FOLDERS, {
-        'isRoot': true
-      });
-
-      this.folderId = rootFolder._id;
+      this.folderId = await Folder.getRootFolderId();
     }
 
     let query = {
@@ -153,7 +148,7 @@ class Note {
     if (savedNote._id){
       this._id = savedNote._id;
     }
-    
+
     /**
      * Update Folder's modification time
      */

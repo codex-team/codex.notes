@@ -28,18 +28,35 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
-    let rootFolder = await this.find(this.FOLDERS, {'isRoot': true }, {});
-
-    if (rootFolder.length === 0) {
-      let rootFolderCreated = await this.insert(this.FOLDERS, {
-        'isRoot': true,
-        'name': 'Root Folder',
-        // '_id': 0, // nedb does npt works properly with _id = 0
-        'notes': []
+    this.FOLDERS.find({}, {multi: true}, (err, docs) => {
+      console.log('\Folders in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
       });
+    });
 
-      console.log('Root Folder created: ', rootFolderCreated);
-    }
+    this.findOne(this.FOLDERS, {'isRoot': true }, {})
+      .then(rootFolder => {
+        if (rootFolder) {
+          console.log('\nRoot Folder found: ', rootFolder._id);
+          return;
+        }
+
+        this.insert(this.FOLDERS, {
+          'isRoot': true,
+          'name': 'Root Folder',
+          // '_id': 0, // nedb does not works properly with _id = 0
+          'notes': []
+        }).then(rootFolderCreated => {
+          console.log('\nRoot Folder created: ', rootFolderCreated._id);
+        }).catch(err => {
+          console.log('\nCan not create the Rood Folder because of: ', err);
+        });
+      })
+      .catch(err => {
+        console.log('\nCan not find the Root Folder because of: ', err);
+      });
   }
 
   find(collection, query) {

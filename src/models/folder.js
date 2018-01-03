@@ -203,4 +203,21 @@ module.exports = class Folder {
       return false;
     }
   }
+
+  /**
+   * Return Root Folder that was create on the first opening
+   * {@link Database#makeInitialSettings}
+   */
+  static async getRootFolderId(){
+    try {
+      let rootFolder = await db.findOne(db.FOLDERS, {
+        'isRoot': true
+      });
+
+      console.log("rootFolder", rootFolder);
+      return rootFolder._id;
+    } catch( err ){
+      console.log('Folder#getRootFolderId: Can not find Root Folder because: ', err);
+    }
+  }
 };
