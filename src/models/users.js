@@ -9,16 +9,18 @@ class User {
 
   /**
    * User model {
-   *  {string} id – unique user ID
+   *  {string} google_id – unique user ID passed by Google
    *  {string} name – user name
-   *  {string} avatar – avatar string URL,
+   *  {string} photo – avatar string URL
+   *  {string} token – user's authorization JWT
    *  {string} dt_sync – last synchronization timestamp
    * }
    */
   constructor() {
-    this.id = null;
+    this.google_id = null;
     this.name = null;
-    this.avatar = null;
+    this.photo = null;
+    this.token = null;
     this.dt_sync = 0;
   }
 

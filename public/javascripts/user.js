@@ -29,9 +29,9 @@ export default class User {
    * Opens auth popup
    */
   showAuth() {
-    let authResponse = window.ipcRenderer.sendSync('auth - google auth', authResponse);
+    let authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
-    if (authResponse && authResponse.id) {
+    if (authResponse && authResponse.token) {
       this.fillUserPanel(authResponse);
     } else {
       Dialog.error('Authentication failed. Please, try again.');

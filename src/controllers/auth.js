@@ -4,6 +4,7 @@ const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
+const UserModel = require('../models/users');
 
 /**
  * @class AuthController
@@ -67,12 +68,16 @@ class AuthController {
             /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
-          event.returnValue = {
-            name: payload.name,
-            photo: payload.photo,
-            google_id: payload.google_id,
-            token: jwt
-          };
+          let user = new UserModel();
+
+          user.name = payload.name;
+          user.photo = payload.photo;
+          user.google_id = payload.google_id;
+          user.token = jwt;
+
+          global.user = user;
+
+          event.returnValue = user;
 
           window.close();
         })

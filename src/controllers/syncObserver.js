@@ -25,7 +25,7 @@ module.exports = class SyncObserver {
 
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
-        // Authorization: 'Put JWT here for authorization',
+        Authorization: 'Basic ' + global.user.token,
       }
     });
 
