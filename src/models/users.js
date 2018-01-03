@@ -16,11 +16,11 @@ class User {
    *  {string} dt_sync – last synchronization timestamp
    * }
    */
-  constructor() {
-    this.google_id = null;
-    this.name = null;
-    this.photo = null;
-    this.token = null;
+  constructor({google_id, name, photo, token}) {
+    this.google_id = google_id || null;
+    this.name = name || null;
+    this.photo = photo || null;
+    this.token = token || null;
     this.dt_sync = 0;
   }
 

@@ -67,13 +67,9 @@ class AuthController {
 
             /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
+          payload.token = jwt;
 
-          let user = new UserModel();
-
-          user.name = payload.name;
-          user.photo = payload.photo;
-          user.google_id = payload.google_id;
-          user.token = jwt;
+          let user = new UserModel(payload);
 
           global.user = user;
 
