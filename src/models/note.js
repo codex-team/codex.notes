@@ -145,7 +145,7 @@ class Note {
     /**
      * Renew Model id with the actual value
      */
-    if (savedNote._id){
+    if (savedNote._id) {
       this._id = savedNote._id;
     }
 

@@ -398,8 +398,6 @@ var Note = function () {
        */
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
-      console.log('Folder: ', folderId);
-
       codex.editor.saver.save().then(function (noteData) {
         var note = {
           data: noteData,
@@ -421,7 +419,7 @@ var Note = function () {
 
         console.log('Saving note: ', note);
 
-        window.ipcRenderer.send('save note', { note: note });
+        window.ipcRenderer.send('note - save', { note: note });
       }).catch(function (err) {
         return console.log('Error while saving note: ', err);
       });
@@ -767,7 +765,7 @@ var Aside = function () {
       var folderId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
       return new Promise(function (resolve) {
-        var response = window.ipcRenderer.sendSync('load notes list', folderId);
+        var response = window.ipcRenderer.sendSync('notes list - load', folderId);
 
         /**
          * @var {object} response
@@ -2025,6 +2023,7 @@ var Folder = function () {
           folder = _ref.folder;
 
       _this.notes = notes;
+      console.assert(folder.title, 'Load Notes List does not return Folder title');
       _this._title = folder.title;
     }).then(function () {
       return _this.fillHeader();

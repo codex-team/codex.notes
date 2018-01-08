@@ -147,7 +147,7 @@ export default class Aside {
    */
   loadNotes( folderId = 0 ) {
     return new Promise(resolve => {
-      let response = window.ipcRenderer.sendSync('load notes list', folderId);
+      let response = window.ipcRenderer.sendSync('notes list - load', folderId);
 
       /**
        * @var {object} response

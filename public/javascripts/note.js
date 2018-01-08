@@ -41,8 +41,6 @@ export default class Note {
      */
     let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
-    console.log('Folder: ', folderId);
-
     codex.editor.saver.save()
       .then( noteData => {
         let note = {
@@ -65,7 +63,7 @@ export default class Note {
 
         console.log('Saving note: ', note);
 
-        window.ipcRenderer.send('save note', {note});
+        window.ipcRenderer.send('note - save', {note});
       })
       .catch( err => console.log('Error while saving note: ', err) );
   }

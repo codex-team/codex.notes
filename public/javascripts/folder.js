@@ -27,6 +27,7 @@ export default class Folder {
     codex.notes.aside.loadNotes(id)
       .then( ({notes, folder}) => {
         this.notes = notes;
+        console.assert(folder.title, 'Load Notes List does not return Folder title');
         this._title = folder.title;
       })
       .then( () => this.fillHeader() )

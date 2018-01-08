@@ -106,17 +106,19 @@ module.exports = class Folder {
      * Save only passed fields or save the full model data
      */
     if (dataToUpdate) {
-      data = dataToUpdate;
+      data = {
+        $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
+      };
     } else {
       data = this.data;
-    }
 
-    /**
-     * On sync, we need to save given id as _id in the DB.
-     * Folder's id can be 0 — on the Root Folder
-     */
-    if (this.id !== null){
-      data = Object.assign(data, {_id: this.id});
+      /**
+       * On sync, we need to save given id as _id in the DB.
+       * Folder's id can be 0 — on the Root Folder
+       */
+      if (this.id !== null){
+        data = Object.assign(data, {_id: this.id});
+      }
     }
 
     let savedFolder = await db.update(db.FOLDERS, query, data, options);
@@ -208,15 +210,14 @@ module.exports = class Folder {
    * Return Root Folder that was create on the first opening
    * {@link Database#makeInitialSettings}
    */
-  static async getRootFolderId(){
+  static async getRootFolderId() {
     try {
       let rootFolder = await db.findOne(db.FOLDERS, {
         'isRoot': true
       });
 
-      console.log("rootFolder", rootFolder);
       return rootFolder._id;
-    } catch( err ){
+    } catch ( err ) {
       console.log('Folder#getRootFolderId: Can not find Root Folder because: ', err);
     }
   }

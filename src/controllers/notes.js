@@ -3,12 +3,13 @@ let {ipcMain} = require('electron');
 
 const Note = require('../models/note');
 const Folder = require('../models/folder');
+const NotesList = require('../models/notesList');
 
 /**
  * Notes controller.
  * Works with events:
- *  - save note
- *  - load notes list (in specified Folder)
+ *  - note - save
+ *  - notes list - load (in specified Folder)
  *  - get note
  */
 class NotesController {
@@ -18,14 +19,13 @@ class NotesController {
    */
   constructor() {
 
-    ipcMain.on('save note', (event, {note}) => {
-      console.log('Controller Notes: save, ', note);
+    ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
     });
 
-    // ipcMain.on('load notes list', (event, folderId) => {
-    //   this.loadNotesList(folderId, event);
-    // });
+    ipcMain.on('notes list - load', (event, folderId) => {
+      this.loadNotesList(folderId, event);
+    });
 
     // ipcMain.on('get note', (event, {id}) => {
     //   this.getNote(id, event);
@@ -103,19 +103,18 @@ class NotesController {
    * @returns {Promise.<boolean>}
    */
   async loadNotesList(folderId, event) {
+
     try {
+      let list = new NotesList({
+        folderId
+      });
+      let notesInFolder = await list.get();
 
-      let folderModel = new Folder();
-      let folder = await folderModel.get(folderId);
-      let notesList = await this.notes.list(folderId);
-
-      let returnValue = {'notes': notesList, 'folder': folder};
-
-      event.returnValue = returnValue;
-      event.sender.send('update notes list', returnValue);
+      event.sender.send('update notes list', {
+        'notes': notesInFolder
+      });
     } catch (err) {
-      console.log('Load notes list error: ', err);
-      event.returnValue = false;
+      console.log('Notes list loading failed because of ', err);
     }
   }
 
