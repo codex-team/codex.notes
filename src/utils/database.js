@@ -29,22 +29,7 @@ class Database {
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
     // this.drop();
-
-    this.FOLDERS.find({}, {multi: true}, (err, docs) => {
-      console.log('Folders in the DB: \n');
-      docs.forEach( doc => {
-        console.log(doc);
-        console.log('\n');
-      });
-    });
-
-    this.NOTES.find({}, {multi: true}, (err, docs) => {
-      console.log('Notes in the DB: \n');
-      docs.forEach( doc => {
-        console.log(doc);
-        console.log('\n');
-      });
-    });
+    // this.showDB();
 
     this.getRootFolderId()
       .then(rootFolderId => {
@@ -64,6 +49,33 @@ class Database {
           console.log('\nCan not create the Rood Folder because of: ', err);
         });
       });
+  }
+
+  /**
+   * Show Folder and Notes collections contents
+   * For local-development only
+   */
+  showDB(){
+    if (process.env.DEBUG !== 'true') {
+      throw Error('Datastore dropping is not allowed for current environment');
+    }
+
+    this.FOLDERS.find({}, {multi: true}, (err, docs) => {
+      console.log('Folders in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
+      });
+    });
+
+    this.NOTES.find({}, {multi: true}, (err, docs) => {
+      console.log('Notes in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
+      });
+    });
+
   }
 
   /**
