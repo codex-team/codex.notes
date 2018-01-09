@@ -73,10 +73,6 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-
-    /**
-     * Folder id can be 0 on the Root Folder
-     */
     if (folderData.id !== null) {
       this.id = folderData.id;
     } else if (folderData._id !== null) {
@@ -120,7 +116,6 @@ module.exports = class Folder {
 
       /**
        * On sync, we need to save given id as _id in the DB.
-       * Folder's id can be 0 — on the Root Folder
        */
       if (this.id !== null){
         data = Object.assign(data, {_id: this.id});
