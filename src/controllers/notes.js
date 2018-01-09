@@ -50,12 +50,7 @@ class NotesController {
    *
    * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
    *
-   * Send 'note saved' action to the event emitter with the following message.
-   * {
-   *   id - unique note ID
-   *   title - note title
-   *   folderId - Folder ID
-   * }
+   * Send 'note saved' action to the event emitter with the saved Note data.
    * @returns {Promise.<void>}
    */
   async saveNote(noteData, event) {
@@ -84,37 +79,30 @@ class NotesController {
   }
 
   /**
-   * Load notes from Folder with an ID specified.
-   * Send 'update notes list' action to the event emitter with the following structure. This structure also will be
-   * returned to the event emitter as the result.
-   * {
-   *   notes: [{
-   *     id - note ID
-   *     title - note title
-   *     folderId - Folder ID
-   *   }],
-   *   folder: {
-   *     name - Folder visible name
-   *     id - folder ID
-   *     notes - [] - array of notes (TODO: it is not needed)
-   * }
-   * @param folderId - folder ID
-   * @param event
-   * @returns {Promise.<boolean>}
+   * Load Notes from Folder with the specified id.
+   * Send 'update notes list' action to the event emitter with Notes list.
+   *
+   * @param {string} folderId - Folder's id
+   * @param {GlobalEvent} event
+   * @returns {Promise.<Object|boolean>}
    */
   async loadNotesList(folderId, event) {
-
     try {
       let list = new NotesList({
         folderId
       });
       let notesInFolder = await list.get();
 
-      event.sender.send('update notes list', {
+      let retunValue = {
         'notes': notesInFolder
-      });
+      };
+
+      event.returnValue = retunValue;
+
+      event.sender.send('update notes list', retunValue);
     } catch (err) {
       console.log('Notes list loading failed because of ', err);
+      event.returnValue = false;
     }
   }
 

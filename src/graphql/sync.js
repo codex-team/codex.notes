@@ -17,6 +17,7 @@ module.exports = `query Sync {
         title,
         dtCreate,
         dtModify,
+        content,
         author {
           id,
           name,

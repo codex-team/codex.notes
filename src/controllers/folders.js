@@ -20,6 +20,10 @@ class FoldersController {
    */
   constructor() {
 
+    ipcMain.on('folder - get', (event, folderId) => {
+      this.getFolderData(event, folderId);
+    });
+
     ipcMain.on('folder - create', (event, folderTitle) => {
       this.createFolder(event, folderTitle);
     });
@@ -39,6 +43,22 @@ class FoldersController {
     ipcMain.on('folder - collaborator add', (event, {id, email}) => {
       this.addCollaborator(event, id, email);
     });
+  }
+
+  /**
+   * Load Folder data
+   * @param {GlobalEvent} event
+   * @param {string} folderId
+   * @return {Promise<void>}
+   */
+  async getFolderData(event, folderId){
+    try {
+      let folder = new Folder();
+      event.returnValue = await folder.get(folderId);
+    } catch (err) {
+      console.log('Cannot load Folder data because of: ', err);
+      event.returnValue = false;
+    }
   }
 
   /**

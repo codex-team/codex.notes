@@ -28,18 +28,28 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
+    // this.drop();
+
     this.FOLDERS.find({}, {multi: true}, (err, docs) => {
-      console.log('\Folders in the DB: \n');
+      console.log('Folders in the DB: \n');
       docs.forEach( doc => {
         console.log(doc);
         console.log('\n');
       });
     });
 
-    this.findOne(this.FOLDERS, {'isRoot': true }, {})
-      .then(rootFolder => {
-        if (rootFolder) {
-          console.log('\nRoot Folder found: ', rootFolder._id);
+    this.NOTES.find({}, {multi: true}, (err, docs) => {
+      console.log('Notes in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
+      });
+    });
+
+    this.getRootFolderId()
+      .then(rootFolderId => {
+        if (rootFolderId) {
+          console.log('\nRoot Folder found: ', rootFolderId);
           return;
         }
 
@@ -57,6 +67,44 @@ class Database {
       .catch(err => {
         console.log('\nCan not find the Root Folder because of: ', err);
       });
+  }
+
+  /**
+   * Drop Folders and Notes collections.
+   * For local-development only
+   */
+  drop(){
+    if (process.env.DEBUG !== 'true') {
+      throw Error('Datastore dropping is not allowed for current environment');
+    }
+
+    [this.FOLDERS, this.NOTES].forEach( collection => {
+      console.log('\n\n Drop ', collection.filename, '\n\n');
+      collection.remove({ }, { multi: true }, function (err, numRemoved) {
+        collection.loadDatabase(function (err) {
+          console.log(collection.filename, ': ', numRemoved, ' docs removed');
+        });
+      });
+    });
+  }
+
+  /**
+   * Return Root Folder that was create on the first opening
+   * {@link Database#makeInitialSettings}
+   */
+  getRootFolderId() {
+    return new Promise((resolve, reject) => {
+      this.findOne(this.FOLDERS, {'isRoot': true }, {}).then(rootFolder => {
+        if (rootFolder){
+          resolve(rootFolder._id);
+        }
+
+        reject('Root Folder was not found');
+      }).catch( err => {
+        console.log('Database#getRootFolderId: Can not find Root Folder because: ', err);
+        reject(err);
+      });
+    });
   }
 
   find(collection, query) {

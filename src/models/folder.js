@@ -2,6 +2,12 @@
 
 const db = require('../utils/database');
 
+
+/**
+ * Note Model
+ */
+const Note = require('../models/note.js');
+
 /**
  * @typedef {Object} FolderData
  * @property {String|null} id          - Folder's id
@@ -121,6 +127,17 @@ module.exports = class Folder {
       }
     }
 
+    /**
+     * Update Notes
+     */
+    if (data.notes){
+      this.updateNotes(data.notes);
+      /**
+       * Notes array stores in other Collection, we don't need to save them to the Folder document
+       */
+      delete data.notes;
+    }
+
     let savedFolder = await db.update(db.FOLDERS, query, data, options);
 
     /**
@@ -135,6 +152,21 @@ module.exports = class Folder {
      */
 
     return savedFolder.affectedDocuments;
+  }
+
+  /**
+   * Update each Note in this Folder
+   * @param {Array|null} notes - save passed Notes instead of this.notes
+   * @return {Promise<void>}
+   */
+  updateNotes(notes) {
+    let notesToUpdate = notes || this.notes;
+    notesToUpdate.forEach( async (noteData) => {
+      let note = new Note(Object.assign(noteData, {folderId: this.id}));
+      let savingResult = await note.save();
+
+      console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
+    });
   }
 
 
@@ -203,22 +235,6 @@ module.exports = class Folder {
     } catch (err) {
       console.log('getUpdates folders error: ', err);
       return false;
-    }
-  }
-
-  /**
-   * Return Root Folder that was create on the first opening
-   * {@link Database#makeInitialSettings}
-   */
-  static async getRootFolderId() {
-    try {
-      let rootFolder = await db.findOne(db.FOLDERS, {
-        'isRoot': true
-      });
-
-      return rootFolder._id;
-    } catch ( err ) {
-      console.log('Folder#getRootFolderId: Can not find Root Folder because: ', err);
     }
   }
 };

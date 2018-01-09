@@ -10,7 +10,7 @@ module.exports = class NotesList {
   /**
    * @param {string} folderId - from which Folder we need to create Notes List
    */
-  constructor(folderId) {
+  constructor({folderId}) {
     this.folderId = folderId;
   }
 

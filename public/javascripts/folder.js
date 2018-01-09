@@ -24,14 +24,21 @@ export default class Folder {
 
     this.folderTitleElement = $.get('js-folder-title');
 
+    /**
+     * Load actual Folder's data
+     * @type {Object}
+     */
+    let folderData = window.ipcRenderer.sendSync('folder - get', this._id);
+
+    this.title = folderData.title;
+
     codex.notes.aside.loadNotes(id)
-      .then( ({notes, folder}) => {
+      .then( ({notes}) => {
         this.notes = notes;
-        console.assert(folder.title, 'Load Notes List does not return Folder title');
-        this._title = folder.title;
       })
-      .then( () => this.fillHeader() )
       .then( () => this.updateNotesList() );
+
+
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }

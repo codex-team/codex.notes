@@ -148,7 +148,6 @@ export default class Aside {
   loadNotes( folderId = 0 ) {
     return new Promise(resolve => {
       let response = window.ipcRenderer.sendSync('notes list - load', folderId);
-
       /**
        * @var {object} response
        * @var {array}  response.notes
@@ -156,6 +155,7 @@ export default class Aside {
        * @var {number} response.folder.id
        * @var {string} response.folder.title
        */
+
       resolve(response);
     }).catch(error => {
       console.log('Error while loading notes: ', error);
@@ -382,6 +382,8 @@ export default class Aside {
   menuItemClicked(event) {
     let menuItem = event.target,
         id = menuItem.dataset.id;
+
+    console.log('Note clicked: ', id);
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 

@@ -13,13 +13,10 @@ const sanitizeHtml = require('sanitize-html');
 const db = require('../utils/database');
 
 /**
- * Folder Model
- */
-const Folder = require('../models/folder.js');
-
-/**
  * @typedef {Object} NoteData
  * @property {String} _id           — Note's id
+ * @property {String} id            — similar to _id. Uses for filling Model from the GraphQL query which is 'id'
+ * @property {String} title         — Note's title
  * @property {String} authorId      — Note's Author id
  * @property {String} folderId      - Note's Folder id
  * @property {String} content       - JSON with Note's body
@@ -27,6 +24,7 @@ const Folder = require('../models/folder.js');
  * @property {Number} dtCreate      - timestamp of Note creation
  * @property {Boolean} isRemoved    - Note's removed state
  * @property {String|null} editorVersion - used CodeX Editor version
+ * @property {{id: string, name: string, email: string}|null} author - Note's author from GraphQL query field
  */
 
 /**
@@ -58,15 +56,19 @@ class Note {
    * @param {NoteData} noteData
    */
   set data(noteData) {
-    this._id = noteData._id || null;
+    this._id = noteData._id || noteData.id || null;
     this.authorId = noteData.authorId || null;
     this.folderId = noteData.folderId || null;
     this.title = noteData.title || null;
     this.content = noteData.content || null;
     this.dtCreate = noteData.dtCreate || null;
     this.dtModify = noteData.dtModify || null;
-    this.isRemoved = noteData.folderId || false;
+    this.isRemoved = noteData.isRemoved || false;
     this.editorVersion = noteData.editorVersion || null;
+
+    if (noteData.author && noteData.author.id) {
+      this.authorId = noteData.author.id;
+    }
   }
 
   /**
@@ -128,7 +130,7 @@ class Note {
      * If Note is not included at any Folder, save it to the Root Folder
      */
     if (this.folderId === null) {
-      this.folderId = await Folder.getRootFolderId();
+      this.folderId = await db.getRootFolderId();
     }
 
     let query = {
@@ -152,21 +154,29 @@ class Note {
     /**
      * Update Folder's modification time
      */
-    let folder = new Folder({
-      id: this.folderId,
-    });
-
-    folder = await folder.save({
-      dtModify: this.dtModify
-    });
-
-    console.log('\n Folder\'s modify date updated ', folder, '\n');
+    await this.updateFolderModifyDate();
 
     /**
      * @todo Sync with API
      */
 
     return savedNote.affectedDocuments;
+  }
+
+  /**
+   * Update dtModify of parent Folder
+   * @return {Promise<void>}
+   */
+  async updateFolderModifyDate(){
+    let folderUpdated = await db.update(db.FOLDERS, {_id: this.folderId}, {
+      $set: {dtModify: this.dtModify}
+    });
+
+    if (folderUpdated && folderUpdated.numAffected){
+      console.log('\n Folder\'s modification date updated', this.folderId, '\n');
+    } else {
+      console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);
+    }
   }
 
   /**

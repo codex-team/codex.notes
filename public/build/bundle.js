@@ -766,7 +766,6 @@ var Aside = function () {
 
       return new Promise(function (resolve) {
         var response = window.ipcRenderer.sendSync('notes list - load', folderId);
-
         /**
          * @var {object} response
          * @var {array}  response.notes
@@ -774,6 +773,7 @@ var Aside = function () {
          * @var {number} response.folder.id
          * @var {string} response.folder.title
          */
+
         resolve(response);
       }).catch(function (error) {
         console.log('Error while loading notes: ', error);
@@ -1039,6 +1039,8 @@ var Aside = function () {
     value: function menuItemClicked(event) {
       var menuItem = event.target,
           id = menuItem.dataset.id;
+
+      console.log('Note clicked: ', id);
 
       var noteData = window.ipcRenderer.sendSync('get note', { id: id });
 
@@ -2018,15 +2020,18 @@ var Folder = function () {
 
     this.folderTitleElement = $.get('js-folder-title');
 
+    /**
+     * Load actual Folder's data
+     * @type {Object}
+     */
+    var folderData = window.ipcRenderer.sendSync('folder - get', this._id);
+
+    this.title = folderData.title;
+
     codex.notes.aside.loadNotes(id).then(function (_ref) {
-      var notes = _ref.notes,
-          folder = _ref.folder;
+      var notes = _ref.notes;
 
       _this.notes = notes;
-      console.assert(folder.title, 'Load Notes List does not return Folder title');
-      _this._title = folder.title;
-    }).then(function () {
-      return _this.fillHeader();
     }).then(function () {
       return _this.updateNotesList();
     });
