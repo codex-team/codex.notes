@@ -93,7 +93,6 @@ export default class Note {
    */
   addToMenu({note, isRootFolder}) {
     codex.editor.state.blocks.id = note._id;
-
     codex.notes.aside.addMenuItem(note, isRootFolder);
   }
 
@@ -115,9 +114,10 @@ export default class Note {
       hour12: false
     });
     codex.editor.content.load({
+      id: note._id,
       items: note.content,
       time: note.dtModify,
-      version: note.editorVersion
+      version: note.editorVersion,
     });
     this.deleteButton.classList.remove('hide');
 

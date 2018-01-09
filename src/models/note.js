@@ -198,39 +198,6 @@ class Note {
   }
 
   /**
-   * List notes in directory
-   *  [{
-   *    id - note ID
-   *    title - note title
-   *    folderId - directory ID
-   *  }]
-   * @param directoryId - directory ID
-   * @returns {Promise.<Array>}
-   */
-  async list(directoryId) {
-    try {
-      let directory = await db.findOne(db.FOLDERS, {'_id': directoryId});
-
-      // Additional check to perform clever logging
-      if (!directory) {
-        return [];
-      }
-
-      let notes = await db.find(db.NOTES, {'folderId': directoryId});
-
-      return notes.map(function (element) {
-        return {
-          'id': element.data.id,
-          'title': element.title,
-          'folderId': directoryId
-        };
-      });
-    } catch (err) {
-      console.log('Notes list error: ', err);
-    }
-  }
-
-  /**
    * Get updates action. Make a packet of data changed from last sync date specified.
    */
   async getUpdates(dt_update) {
@@ -246,18 +213,10 @@ class Note {
 
   /**
    * Delete note by specified ID.
-   * @param noteId
    * @returns {Promise.<boolean>}
    */
-  async delete(noteId) {
-    try {
-      let result = await db.remove(db.NOTES, {'_id': noteId}, {});
-
-      return true;
-    } catch (err) {
-      console.log('Note delete error: ', err);
-      return false;
-    }
+  async delete() {
+    return await db.remove(db.NOTES, {'_id': this._id}, {});
   }
 
 }

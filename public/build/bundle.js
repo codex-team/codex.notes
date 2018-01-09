@@ -456,7 +456,6 @@ var Note = function () {
           isRootFolder = _ref.isRootFolder;
 
       codex.editor.state.blocks.id = note._id;
-
       codex.notes.aside.addMenuItem(note, isRootFolder);
     }
 
@@ -481,6 +480,7 @@ var Note = function () {
         hour12: false
       });
       codex.editor.content.load({
+        id: note._id,
         items: note.content,
         time: note.dtModify,
         version: note.editorVersion

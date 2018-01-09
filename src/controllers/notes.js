@@ -31,9 +31,9 @@ class NotesController {
       this.getNote(id, event);
     });
 
-    // ipcMain.on('delete note', (event, {id}) => {
-    //   this.deleteNote(id, event);
-    // });
+    ipcMain.on('delete note', (event, {id}) => {
+      this.deleteNote(id, event);
+    });
   }
 
   /**
@@ -127,35 +127,23 @@ class NotesController {
   }
 
   /**
-   * Delete note with specified ID. Return boolean result.
-   * @param noteId
-   * @param event
+   * Delete Note with specified ID
+   * @param {string} noteId
+   * @param {GlobalEvent} event
    * @returns {Promise.<boolean>}
    */
   async deleteNote(noteId, event) {
     try {
-      let result = await this.notes.delete(noteId);
+      let note = new Note({
+        _id: noteId
+      });
+      let result = await note.delete();
 
-      event.returnValue = true;
+      event.returnValue = !!result;
     } catch (err) {
-      console.log(err);
+      console.log('Note failed because of ', err);
       event.returnValue = false;
     }
-  }
-
-  /**
-   * Updates Notes data in the DB and sends new state to the Client
-   * @param {NoteData[]} notes - new Notes's list
-   * @return {Promise<void>}
-   */
-  async renew(notes){
-    // await folders.forEach( async folderData => {
-    //
-    //   let folder = new Folder(folderData);
-    //   let updatedFolder = await folder.save();
-    //
-    //   console.log('updatedFolder: ', updatedFolder);
-    // });
   }
 }
 

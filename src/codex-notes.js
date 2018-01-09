@@ -143,7 +143,6 @@ class CodexNotes {
 
         this.syncObserver.on('sync', (data) => {
           // this.user.renew(data.user);
-          this.notes.renew(data.user.notes);
           this.folders.renew(data.user.folders);
         });
       })
