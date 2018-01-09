@@ -195,11 +195,13 @@ module.exports = class Folder {
 
   /**
    * Get Folder by ID
-   * @param {String} id - Folder ID
+   * @param {String|null} id - Folder ID
    * @returns {FolderData} - Folder's data
    */
   async get(id) {
-    let folder = await db.findOne(db.FOLDERS, {_id: id});
+    let folder = await db.findOne(db.FOLDERS, {
+      _id: id || this._id
+    });
 
     if (folder) {
       this.data = folder;

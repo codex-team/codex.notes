@@ -9,7 +9,7 @@ const NotesList = require('../models/notesList');
  * Works with events:
  *  - note - save
  *  - notes list - load (in specified Folder)
- *  - get note
+ *  - note - get
  */
 class NotesController {
 
@@ -26,11 +26,11 @@ class NotesController {
       this.loadNotesList(folderId, event);
     });
 
-    ipcMain.on('get note', (event, {id}) => {
+    ipcMain.on('note - get', (event, {id}) => {
       this.getNote(id, event);
     });
 
-    ipcMain.on('delete note', (event, {id}) => {
+    ipcMain.on('note - delete', (event, {id}) => {
       this.deleteNote(id, event);
     });
   }
@@ -81,7 +81,7 @@ class NotesController {
 
   /**
    * Load Notes from Folder with the specified id.
-   * Send 'update notes list' action to the event emitter with Notes list.
+   * Send 'notes list - update' action to the event emitter with Notes list.
    *
    * @param {string} folderId - Folder's id
    * @param {GlobalEvent} event
@@ -101,7 +101,7 @@ class NotesController {
 
       event.returnValue = retunValue;
 
-      event.sender.send('update notes list', retunValue);
+      event.sender.send('notes list - update', retunValue);
     } catch (err) {
       console.log('Notes list loading failed because of ', err);
       event.returnValue = false;

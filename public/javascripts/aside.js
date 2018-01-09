@@ -91,7 +91,7 @@ export default class Aside {
     /**
      * Update notes list
      */
-    window.ipcRenderer.on('update notes list', (event, {notes, isRootFolder}) => {
+    window.ipcRenderer.on('notes list - update', (event, {notes, isRootFolder}) => {
       notesMenu.classList.remove(this.CSS.notesMenuLoading);
       notes.forEach( note => this.addMenuItem(note, isRootFolder) );
     });
@@ -137,7 +137,7 @@ export default class Aside {
    * Loads notes list from the server
    *
    * Can be used async with subscribtion
-   * on window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {})
+   * on window.ipcRenderer.on('notes list - update', (event, {notes, folder}) => {})
    *
    * or synchronously like loadNotes().then( notes => {})
    *
@@ -227,9 +227,6 @@ export default class Aside {
     this.newFolderButton.classList.remove('hide');
   }
 
-
-
-
   /**
    *
    * Add a Note to the left menu
@@ -242,6 +239,11 @@ export default class Aside {
    * @param {Boolean} isRootFolder - true if Note is included to the Root Folder
    */
   addMenuItem(noteData, isRootFolder) {
+    if (!noteData.title) {
+      console.warn('Can not add Note to the Aside because it has no title', noteData);
+      return;
+    }
+
     let notesMenu;
 
     if (isRootFolder) {
@@ -279,7 +281,7 @@ export default class Aside {
    */
   addFolder(folder) {
     if (!folder.title) {
-      console.warn('Can not add Folder to the Aside because it has not title', folder);
+      console.warn('Can not add Folder to the Aside because it has no title', folder);
       return;
     }
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
@@ -385,7 +387,7 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
-    let noteData = window.ipcRenderer.sendSync('get note', {id});
+    let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
     codex.notes.note.render(noteData);
 

@@ -532,7 +532,7 @@ var Note = function () {
       }
 
       if (Dialog.confirm('Are you sure you want to delete this note?')) {
-        if (!window.ipcRenderer.sendSync('delete note', { id: id })) {
+        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
           return false;
         }
 
@@ -710,7 +710,7 @@ var Aside = function () {
     /**
      * Update notes list
      */
-    window.ipcRenderer.on('update notes list', function (event, _ref2) {
+    window.ipcRenderer.on('notes list - update', function (event, _ref2) {
       var notes = _ref2.notes,
           isRootFolder = _ref2.isRootFolder;
 
@@ -767,7 +767,7 @@ var Aside = function () {
    * Loads notes list from the server
    *
    * Can be used async with subscribtion
-   * on window.ipcRenderer.on('update notes list', (event, {notes, folder}) => {})
+   * on window.ipcRenderer.on('notes list - update', (event, {notes, folder}) => {})
    *
    * or synchronously like loadNotes().then( notes => {})
    *
@@ -891,6 +891,11 @@ var Aside = function () {
     value: function addMenuItem(noteData, isRootFolder) {
       var _this2 = this;
 
+      if (!noteData.title) {
+        console.warn('Can not add Note to the Aside because it has no title', noteData);
+        return;
+      }
+
       var notesMenu = void 0;
 
       if (isRootFolder) {
@@ -935,7 +940,7 @@ var Aside = function () {
       var _this3 = this;
 
       if (!folder.title) {
-        console.warn('Can not add Folder to the Aside because it has not title', folder);
+        console.warn('Can not add Folder to the Aside because it has no title', folder);
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
@@ -1060,7 +1065,7 @@ var Aside = function () {
       var menuItem = event.target,
           id = menuItem.dataset.id;
 
-      var noteData = window.ipcRenderer.sendSync('get note', { id: id });
+      var noteData = window.ipcRenderer.sendSync('note - get', { id: id });
 
       codex.notes.note.render(noteData);
 

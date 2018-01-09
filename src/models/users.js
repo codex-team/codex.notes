@@ -16,7 +16,7 @@ class User {
    *  {string} dt_sync – last synchronization timestamp
    * }
    */
-  constructor({google_id, name, photo, token}) {
+  constructor({google_id, name, photo, token} = {}) {
     this.google_id = google_id || null;
     this.name = name || null;
     this.photo = photo || null;

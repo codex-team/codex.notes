@@ -45,7 +45,7 @@ const AuthControllerClass = require('./controllers/auth');
 /**
  * User model
  */
-const UserModelClass = require('./models/users');
+const User = require('./models/users');
 
 /**
  * Database setup
@@ -131,7 +131,7 @@ class CodexNotes {
    * Activate controller
    */
   initComponents() {
-    this.user = new UserModelClass();
+    this.user = new User();
 
     return this.user.init()
       .then(() => {

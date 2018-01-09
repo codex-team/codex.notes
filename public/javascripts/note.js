@@ -166,7 +166,7 @@ export default class Note {
     }
 
     if (Dialog.confirm('Are you sure you want to delete this note?')) {
-      if (!window.ipcRenderer.sendSync('delete note', {id})) {
+      if (!window.ipcRenderer.sendSync('note - delete', {id})) {
         return false;
       }
 
