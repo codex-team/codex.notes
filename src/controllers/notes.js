@@ -27,9 +27,9 @@ class NotesController {
       this.loadNotesList(folderId, event);
     });
 
-    // ipcMain.on('get note', (event, {id}) => {
-    //   this.getNote(id, event);
-    // });
+    ipcMain.on('get note', (event, {id}) => {
+      this.getNote(id, event);
+    });
 
     // ipcMain.on('delete note', (event, {id}) => {
     //   this.deleteNote(id, event);
@@ -70,7 +70,8 @@ class NotesController {
 
       if (newNote) {
         event.sender.send('note saved', {
-          note: newNote
+          note: newNote,
+          isRootFolder: !noteData.folderId
         });
       }
     } catch (err) {
@@ -94,7 +95,8 @@ class NotesController {
       let notesInFolder = await list.get();
 
       let retunValue = {
-        'notes': notesInFolder
+        notes: notesInFolder,
+        isRootFolder: !folderId
       };
 
       event.returnValue = retunValue;
@@ -107,31 +109,20 @@ class NotesController {
   }
 
   /**
-   * Get note with the ID specified. Return the following message to the event emitter:
-   * {
-   *   data: {
-   *     id: unique note ID
-   *     items: Codex Editor object
-   *     time: timestamp
-   *     version - current editor version
-   *   }
-   *   folderId - folder ID
-   *   title - note title
-   * }
-   * @param noteId
-   * @param event
+   * Get Note with the ID specified
+   * @param {string} noteId  - Note's id
+   * @param {GlobalEvent} event
    * @returns {Promise.<boolean>}
    */
   async getNote(noteId, event) {
     try {
-      let note = await this.notes.get(noteId);
+      let note = new Note({_id : noteId});
 
-      if (!note) {
-        return false;
-      }
-      event.returnValue = note;
+      let noteData = await note.get();
+      event.returnValue = noteData;
     } catch (err) {
-      console.log(err);
+      console.log('Note\'s data loading failed because of ', err);
+      event.returnValue = false;
     }
   }
 

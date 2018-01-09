@@ -11,7 +11,7 @@ module.exports = class NotesList {
    * @param {string} folderId - from which Folder we need to create Notes List
    */
   constructor({folderId}) {
-    this.folderId = folderId;
+      this.folderId = folderId;
   }
 
   /**
@@ -20,6 +20,11 @@ module.exports = class NotesList {
    * @return {Promise.<Note[]>}
    */
   async get() {
+
+    if (!this.folderId){
+      this.folderId = await db.getRootFolderId();
+    }
+
     let notesList = await db.find(db.NOTES, {
       folderId: this.folderId,
       isRemoved: false

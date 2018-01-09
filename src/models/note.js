@@ -117,10 +117,11 @@ class Note {
 
     /**
      * Make Title from the first Text Block in case when it is not presented.
+     * @todo find first Text block, not any first-Tool
      */
     if (!this.title) {
-      if (this.content.items.length && this.content.items[0].data) {
-        let titleFromText = this.content.items[0].data.text;
+      if (this.content.length && this.content[0].data) {
+        let titleFromText = this.content[0].data.text;
 
         this.title = sanitizeHtml(titleFromText, {allowedTags: []});
       }
@@ -180,32 +181,19 @@ class Note {
   }
 
   /**
-   * Get note with ID.
-   * {
-   *   data: {
-   *     id: unique note ID
-   *     items: Codex Editor object
-   *     dt_update: last update
-   *     version - current editor version
-   *   }
-   *   folderId - folder ID
-   *   title - note title
-   * }
-   * @param noteId - note ID
+   * Load current Note's data.
    * @returns {Promise.<*>}
    */
-  async get(noteId) {
-    try {
-      let note = await db.findOne(db.NOTES, {'_id': noteId});
+  async get() {
+    let noteData = await db.findOne(db.NOTES, {
+      '_id': this._id
+    });
 
-      if (!note) {
-        console.log('Note is not found', noteId);
-        return false;
-      } else {
-        return note;
-      }
-    } catch (err) {
-      console.log(err);
+    if (!noteData) {
+      return false;
+    } else {
+      this.data = noteData;
+      return noteData;
     }
   }
 

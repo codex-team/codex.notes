@@ -48,10 +48,10 @@ class Database {
 
     this.getRootFolderId()
       .then(rootFolderId => {
-        if (rootFolderId) {
-          console.log('\nRoot Folder found: ', rootFolderId);
-          return;
-        }
+        console.log('\nRoot Folder found: ', rootFolderId);
+      })
+      .catch(err => {
+        console.log('\nCan not find the Root Folder\'s id because of: ', err);
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
@@ -63,9 +63,6 @@ class Database {
         }).catch(err => {
           console.log('\nCan not create the Rood Folder because of: ', err);
         });
-      })
-      .catch(err => {
-        console.log('\nCan not find the Root Folder because of: ', err);
       });
   }
 
@@ -95,7 +92,7 @@ class Database {
   getRootFolderId() {
     return new Promise((resolve, reject) => {
       this.findOne(this.FOLDERS, {'isRoot': true }, {}).then(rootFolder => {
-        if (rootFolder){
+        if (rootFolder) {
           resolve(rootFolder._id);
         }
 
