@@ -1429,9 +1429,9 @@ var User = function () {
   _createClass(User, [{
     key: 'showAuth',
     value: function showAuth() {
-      var authResponse = window.ipcRenderer.sendSync('auth - google auth', authResponse);
+      var authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
-      if (authResponse && authResponse.id) {
+      if (authResponse && authResponse.token) {
         this.fillUserPanel(authResponse);
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
