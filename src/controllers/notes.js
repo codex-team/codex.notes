@@ -2,7 +2,6 @@
 let {ipcMain} = require('electron');
 
 const Note = require('../models/note');
-const Folder = require('../models/folder');
 const NotesList = require('../models/notesList');
 
 /**
@@ -39,16 +38,17 @@ class NotesController {
   /**
    * Save Note and return result to the event emitter.
    *
-   * @param {object} noteData
-   * @param {object|null} noteData.folderId      - in which Folder Note was created. Null for the Root Folder.
-   * @param {string} noteData.title              - Note's title
-   * @param {object} noteData.data               - Note data got from the CodeX Editor
-   * @param {string|null} noteData.data.id       - On editing, stores Note's id
-   * @param {string} noteData.data.items         - Note's content
-   * @param {number} noteData.data.time          - Note's saving time
-   * @param {string} noteData.data.version       - used CodeX Editor version
+   * @typedef {object} SavingNoteData
+   * @property {object|null} folderId      - in which Folder Note was created. Null for the Root Folder.
+   * @property {string} title              - Note's title
+   * @property {object} data               - Note data got from the CodeX Editor
+   * @property {string|null} data.id       - On editing, stores Note's id
+   * @property {string} data.items         - Note's content
+   * @property {number} data.time          - Note's saving time
+   * @property {string} data.version       - used CodeX Editor version
    *
-   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {SavingNoteData} noteData - Note's data from the Client
+   * @param {GlobalEvent} event       - {@link https://electronjs.org/docs/api/ipc-main#event-object}
    *
    * Send 'note saved' action to the event emitter with the saved Note data.
    * @returns {Promise.<void>}
