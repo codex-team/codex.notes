@@ -12,8 +12,9 @@ class Database {
   constructor() {}
 
   /**
-   * Create directory in user application folder and initialize collections USER and DIRECTORY.
-   * Create root directory if not exists.
+   * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
+   * - Initialize collections User, Folders and Notes
+   * - Create Root Folder if it doesn't exist.
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
@@ -27,16 +28,92 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
 
-    let rootDirectory = await this.find(this.FOLDERS, {'root': true });
+    // this.drop();
+    // this.showDB();
 
-    if (rootDirectory.length === 0) {
-      await this.insert(this.FOLDERS, {
-        'root': true,
-        'name': 'root',
-        '_id': 0,
-        'notes': []
+    this.getRootFolderId()
+      .then(rootFolderId => {
+        console.log('\nRoot Folder found: ', rootFolderId);
+      })
+      .catch(err => {
+        console.log('\nCan not find the Root Folder\'s id because of: ', err);
+
+        this.insert(this.FOLDERS, {
+          'isRoot': true,
+          'name': 'Root Folder',
+          // '_id': 0, // nedb does not works properly with _id = 0
+          'notes': []
+        }).then(rootFolderCreated => {
+          console.log('\nRoot Folder created: ', rootFolderCreated._id);
+        }).catch(err => {
+          console.log('\nCan not create the Rood Folder because of: ', err);
+        });
       });
+  }
+
+  /**
+   * Show Folder and Notes collections contents
+   * For local-development only
+   */
+  showDB(){
+    if (process.env.DEBUG !== 'true') {
+      throw Error('Datastore dropping is not allowed for current environment');
     }
+
+    this.FOLDERS.find({}, {multi: true}, (err, docs) => {
+      console.log('Folders in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
+      });
+    });
+
+    this.NOTES.find({}, {multi: true}, (err, docs) => {
+      console.log('Notes in the DB: \n');
+      docs.forEach( doc => {
+        console.log(doc);
+        console.log('\n');
+      });
+    });
+
+  }
+
+  /**
+   * Drop Folders and Notes collections.
+   * For local-development only
+   */
+  drop(){
+    if (process.env.DEBUG !== 'true') {
+      throw Error('Datastore dropping is not allowed for current environment');
+    }
+
+    [this.FOLDERS, this.NOTES].forEach( collection => {
+      console.log('\n\n Drop ', collection.filename, '\n\n');
+      collection.remove({ }, { multi: true }, function (err, numRemoved) {
+        collection.loadDatabase(function (err) {
+          console.log(collection.filename, ': ', numRemoved, ' docs removed');
+        });
+      });
+    });
+  }
+
+  /**
+   * Return Root Folder that was create on the first opening
+   * {@link Database#makeInitialSettings}
+   */
+  getRootFolderId() {
+    return new Promise((resolve, reject) => {
+      this.findOne(this.FOLDERS, {'isRoot': true }, {}).then(rootFolder => {
+        if (rootFolder) {
+          resolve(rootFolder._id);
+        }
+
+        reject('Root Folder was not found');
+      }).catch( err => {
+        console.log('Database#getRootFolderId: Can not find Root Folder because: ', err);
+        reject(err);
+      });
+    });
   }
 
   find(collection, query) {

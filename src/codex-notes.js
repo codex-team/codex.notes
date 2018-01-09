@@ -35,7 +35,7 @@ const FoldersController = require('./controllers/folders');
 /**
  * Notes controllers
  */
-const NotesControllerClass = require('./controllers/note');
+const NotesController = require('./controllers/notes');
 
 /**
  * Authorization
@@ -45,13 +45,12 @@ const AuthControllerClass = require('./controllers/auth');
 /**
  * User model
  */
-const UserModelClass = require('./models/users');
+const User = require('./models/users');
 
 /**
  * Database setup
  */
 const db = require('./utils/database');
-
 db.makeInitialSettings(app.getPath('userData'));
 
 /**
@@ -104,7 +103,7 @@ class CodexNotes {
     this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
-      console.log('window is ready.');
+      console.log('\nMain Window is ready to show. Let\'s go \n');
       this.mainWindow.show();
     });
 
@@ -132,19 +131,18 @@ class CodexNotes {
    * Activate controller
    */
   initComponents() {
-    this.user = new UserModelClass();
+    this.user = new User();
 
     return this.user.init()
       .then(() => {
         global.user = this.user;
         this.folders = new FoldersController();
-        this.notes = new NotesControllerClass();
+        this.notes = new NotesController();
         this.auth = new AuthControllerClass();
         this.syncObserver = new SyncObserver();
 
         this.syncObserver.on('sync', (data) => {
           // this.user.renew(data.user);
-          // this.notes.renew(data);
           this.folders.renew(data.user.folders);
         });
       })

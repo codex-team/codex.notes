@@ -3,6 +3,19 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 
 /**
+ * @typedef {Object} NoteData
+ * @property {String} _id           — Note's id
+ * @property {String} title         — Note's title
+ * @property {String} authorId      — Note's Author id
+ * @property {String} folderId      - Note's Folder id
+ * @property {String} content       - JSON with Note's body
+ * @property {Number} dtModify      - timestamp of last modification
+ * @property {Number} dtCreate      - timestamp of Note creation
+ * @property {Boolean} isRemoved    - Note's removed state
+ * @property {String|null} editorVersion - used CodeX Editor version
+ */
+
+/**
  * Note section module
  */
 export default class Note {
@@ -61,48 +74,53 @@ export default class Note {
           saveIndicator.classList.remove('saved');
         }, 500);
 
-        window.ipcRenderer.send('save note', {note});
+        window.ipcRenderer.send('note - save', {note});
       })
       .catch( err => console.log('Error while saving note: ', err) );
   }
 
   /**
-   * Add note to the menu by Aside.addMenuItem method
+   * Add Note to the menu by Aside.addMenuItem method
    *
    * @param {object} data
    * @param {object} data.note
    * @param {number} data.note.folderId
-   * @param {number} data.note.id
+   * @param {number} data.note._id
    * @param {string} data.note.title
+   * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
    */
-  addToMenu({note}) {
-    codex.editor.state.blocks.id = note.id;
-
-    codex.notes.aside.addMenuItem(note);
+  addToMenu({note, isRootFolder}) {
+    codex.editor.state.blocks.id = note._id;
+    codex.notes.aside.addMenuItem(note, isRootFolder);
   }
 
   /**
-   * Renders note
-   * @param  {object} noteData
+   * Render the Note
+   * @param {NoteData} note
    */
   render(note) {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
 
-    let saveDate = new Date(note.data.time);
+    let dtModify = new Date(note.dtModify);
 
-    this.dateEl.textContent = saveDate.toLocaleDateString('en-US', {
+    this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
       hour: 'numeric',
       minute: 'numeric',
       hour12: false
     });
-    codex.editor.content.load(note.data);
+    codex.editor.content.load({
+      id: note._id,
+      items: note.content,
+      time: note.dtModify,
+      version: note.editorVersion,
+    });
     this.deleteButton.classList.remove('hide');
 
     /**
-     * if we are trying to render new note but we have an autoresizer instance
+     * if we are trying to render new note but we have an Autoresizer instance
      * then we need to clear it before we create new one
      */
     if (this.autoresizedTitle) {
@@ -148,7 +166,7 @@ export default class Note {
     }
 
     if (Dialog.confirm('Are you sure you want to delete this note?')) {
-      if (!window.ipcRenderer.sendSync('delete note', {id})) {
+      if (!window.ipcRenderer.sendSync('note - delete', {id})) {
         return false;
       }
 

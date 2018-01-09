@@ -2,6 +2,12 @@
 
 const db = require('../utils/database');
 
+
+/**
+ * Note Model
+ */
+const Note = require('../models/note.js');
+
 /**
  * @typedef {Object} FolderData
  * @property {String|null} id          - Folder's id
@@ -10,6 +16,7 @@ const db = require('../utils/database');
  * @property {Number} dtModify         - Last modification timestamp
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
+ * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
  */
 
 /**
@@ -22,6 +29,7 @@ const db = require('../utils/database');
  * @property {Number} dtModify
  * @property {String} ownerId
  * @property {Note[]} notes
+ * @property {Boolean} isRoot
  *
  */
 module.exports = class Folder {
@@ -29,13 +37,16 @@ module.exports = class Folder {
   /**
    * @constructor
    * Make new Folder example
+   * @param {FolderData} folderData
    */
-  constructor({_id, id, title, ownerId, dtModify, notes} = {}) {
-    this.id = id || _id || null;
-    this.title = title || null;
-    this.dtModify = dtModify || null;
-    this.ownerId = ownerId || null;
-    this.notes = notes || [];
+  constructor(folderData = {}) {
+    this.id = null;
+    this.title = null;
+    this.dtModify = null;
+    this.ownerId = null;
+    this.notes = [];
+
+    this.data = folderData;
   }
 
   /**
@@ -62,7 +73,14 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    this.id = folderData.id || folderData._id || null;
+    if (folderData.id !== null) {
+      this.id = folderData.id;
+    } else if (folderData._id !== null) {
+      this.id = folderData._id;
+    } else {
+      this.id = null;
+    }
+
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.ownerId = folderData.ownerId || null;
@@ -72,23 +90,47 @@ module.exports = class Folder {
   /**
    * Saves new Folder into the Database.
    * Update or Insert scheme
+   * @param {Object|null} dataToUpdate  — if you need to update only specified fields,
+   *                                      pass it directly with this parameter
    * @returns {Promise.<FolderData>}
    */
-  async save() {
+  async save(dataToUpdate = null) {
     let query = {
           _id : this.id
         },
-        data = this.data,
+        data = {},
         options = {
           upsert: true,
           returnUpdatedDocs: true
         };
 
     /**
-     * On sync, we need to save given id as _id in the DB.
+     * Save only passed fields or save the full model data
      */
-    if (this.id){
-      data = Object.assign(data, {_id: this.id});
+    if (dataToUpdate) {
+      data = {
+        $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
+      };
+    } else {
+      data = this.data;
+
+      /**
+       * On sync, we need to save given id as _id in the DB.
+       */
+      if (this.id !== null){
+        data = Object.assign(data, {_id: this.id});
+      }
+    }
+
+    /**
+     * Update Notes
+     */
+    if (data.notes){
+      this.updateNotes(data.notes);
+      /**
+       * Notes array stores in other Collection, we don't need to save them to the Folder document
+       */
+      delete data.notes;
     }
 
     let savedFolder = await db.update(db.FOLDERS, query, data, options);
@@ -105,6 +147,21 @@ module.exports = class Folder {
      */
 
     return savedFolder.affectedDocuments;
+  }
+
+  /**
+   * Update each Note in this Folder
+   * @param {Array|null} notes - save passed Notes instead of this.notes
+   * @return {Promise<void>}
+   */
+  updateNotes(notes) {
+    let notesToUpdate = notes || this.notes;
+    notesToUpdate.forEach( async (noteData) => {
+      let note = new Note(Object.assign(noteData, {folderId: this.id}));
+      let savingResult = await note.save();
+
+      console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
+    });
   }
 
 
@@ -133,11 +190,13 @@ module.exports = class Folder {
 
   /**
    * Get Folder by ID
-   * @param {String} id - Folder ID
+   * @param {String|null} id - Folder ID
    * @returns {FolderData} - Folder's data
    */
   async get(id) {
-    let folder = await db.findOne(db.FOLDERS, {_id: id});
+    let folder = await db.findOne(db.FOLDERS, {
+      _id: id || this._id
+    });
 
     if (folder) {
       this.data = folder;

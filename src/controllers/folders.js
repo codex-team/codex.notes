@@ -20,6 +20,10 @@ class FoldersController {
    */
   constructor() {
 
+    ipcMain.on('folder - get', (event, folderId) => {
+      this.getFolderData(event, folderId);
+    });
+
     ipcMain.on('folder - create', (event, folderTitle) => {
       this.createFolder(event, folderTitle);
     });
@@ -39,6 +43,24 @@ class FoldersController {
     ipcMain.on('folder - collaborator add', (event, {id, email}) => {
       this.addCollaborator(event, id, email);
     });
+  }
+
+  /**
+   * Load Folder data
+   * @param {GlobalEvent} event
+   * @param {string} folderId
+   * @return {Promise<void>}
+   */
+  async getFolderData(event, folderId){
+    try {
+      let folder = new Folder({
+        _id: folderId
+      });
+      event.returnValue = await folder.get();
+    } catch (err) {
+      console.log('Cannot load Folder data because of: ', err);
+      event.returnValue = false;
+    }
   }
 
   /**
@@ -124,6 +146,10 @@ class FoldersController {
         ownerId: global.user ? global.user.id : null,
         title: title
       });
+
+      /**
+       * @todo Check for fields (dtModify, etc) override
+       */
       event.returnValue = await folder.save();
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
