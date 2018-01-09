@@ -430,8 +430,6 @@ var Note = function () {
           saveIndicator.classList.remove('saved');
         }, 500);
 
-        console.log('Saving note: ', note);
-
         window.ipcRenderer.send('note - save', { note: note });
       }).catch(function (err) {
         return console.log('Error while saving note: ', err);
@@ -703,7 +701,6 @@ var Aside = function () {
     window.ipcRenderer.on('update folders list', function (event, _ref) {
       var userFolders = _ref.userFolders;
 
-      console.log('Update folders list ', userFolders);
       foldersMenu.classList.remove(_this.CSS.notesMenuLoading);
       userFolders.forEach(function (folder) {
         return _this.addFolder(folder);
@@ -879,7 +876,7 @@ var Aside = function () {
 
     /**
      *
-     * Add a Note to left menu
+     * Add a Note to the left menu
      *
      * @param {object} noteData
      * @param {number} noteData._id
@@ -1062,8 +1059,6 @@ var Aside = function () {
     value: function menuItemClicked(event) {
       var menuItem = event.target,
           id = menuItem.dataset.id;
-
-      console.log('Note clicked: ', id);
 
       var noteData = window.ipcRenderer.sendSync('get note', { id: id });
 
@@ -1528,7 +1523,6 @@ var documentReady = function documentReady() {
    * New note saving handler
    */
   window.ipcRenderer.on('note saved', function (event, response) {
-    console.log('Note saved: ', response);
     codex.notes.note.addToMenu(response);
   });
 };

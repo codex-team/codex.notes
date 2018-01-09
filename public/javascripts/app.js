@@ -43,7 +43,6 @@ let documentReady = () => {
    * New note saving handler
    */
   window.ipcRenderer.on('note saved', (event, response) => {
-    console.log('Note saved: ', response);
     codex.notes.note.addToMenu(response);
   });
 };

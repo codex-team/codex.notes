@@ -74,8 +74,6 @@ export default class Note {
           saveIndicator.classList.remove('saved');
         }, 500);
 
-        console.log('Saving note: ', note);
-
         window.ipcRenderer.send('note - save', {note});
       })
       .catch( err => console.log('Error while saving note: ', err) );

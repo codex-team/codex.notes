@@ -84,7 +84,6 @@ export default class Aside {
      * Update folder list
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
-      console.log('Update folders list ', userFolders);
       foldersMenu.classList.remove(this.CSS.notesMenuLoading);
       userFolders.forEach( folder => this.addFolder(folder) );
     });
@@ -233,7 +232,7 @@ export default class Aside {
 
   /**
    *
-   * Add a Note to left menu
+   * Add a Note to the left menu
    *
    * @param {object} noteData
    * @param {number} noteData._id
@@ -385,8 +384,6 @@ export default class Aside {
   menuItemClicked(event) {
     let menuItem = event.target,
         id = menuItem.dataset.id;
-
-    console.log('Note clicked: ', id);
 
     let noteData = window.ipcRenderer.sendSync('get note', {id});
 

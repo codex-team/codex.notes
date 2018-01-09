@@ -38,8 +38,6 @@ export default class Folder {
       })
       .then( () => this.updateNotesList() );
 
-
-
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
 
