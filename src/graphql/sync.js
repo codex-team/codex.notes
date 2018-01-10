@@ -2,8 +2,8 @@
  * Sync Query
  * @type {string}
  */
-module.exports = `query Sync {
-  user(id: "taly1"){
+module.exports = `query Sync($userId: ID!) {
+  user(id: $userId){
     name,
     folders {
       id,

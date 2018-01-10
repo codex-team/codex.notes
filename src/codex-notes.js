@@ -40,12 +40,12 @@ const NotesController = require('./controllers/notes');
 /**
  * Authorization
  */
-const AuthControllerClass = require('./controllers/auth');
+const AuthController = require('./controllers/auth');
 
 /**
  * User model
  */
-const User = require('./models/users');
+const User = require('./models/user');
 
 /**
  * Database setup
@@ -138,7 +138,7 @@ class CodexNotes {
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
-        this.auth = new AuthControllerClass();
+        this.auth = new AuthController();
         this.syncObserver = new SyncObserver();
 
         this.syncObserver.on('sync', (data) => {
