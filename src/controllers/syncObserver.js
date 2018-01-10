@@ -1,6 +1,10 @@
 const Notes = require('../models/note');
 const Directory = require('../models/folder');
 
+/**
+ * Simple GraphQL requests provider
+ * {@link https://github.com/graphcool/graphql-request}
+ */
 const { GraphQLClient } = require('graphql-request');
 
 /**
@@ -88,7 +92,11 @@ module.exports = class SyncObserver {
      */
     let query = require('../graphql/sync');
 
-    this.api.request(query)
+    let syncVariables = {
+      userId: global.user ? global.user.id : null
+    };
+
+    this.api.request(query, syncVariables)
       .then( data => {
         console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
         this.emit('sync', data);

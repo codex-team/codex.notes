@@ -4,7 +4,7 @@ const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
-const UserModel = require('../models/users');
+const UserModel = require('../models/user');
 
 /**
  * @class AuthController
