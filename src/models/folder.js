@@ -161,7 +161,7 @@ module.exports = class Folder {
     }
 
     /**
-     * @todo Sync with API
+     * Sync with API
      */
     this.syncObserver.sync();
 

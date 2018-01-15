@@ -39,6 +39,7 @@ module.exports = class SyncObserver {
   /**
    * Prepare updates for API during synchronization
    * @param {Number} lastSyncDate - Date of last synchronisation
+   * @return {{folders: []|null, notes: []|null}}
    */
   async prepareUpdates(lastSyncDate) {
     try {
@@ -48,7 +49,7 @@ module.exports = class SyncObserver {
 
       return {
         folders: changedFolders,
-        notes: []
+        notes: null
       };
 
     } catch (err) {
@@ -70,7 +71,7 @@ module.exports = class SyncObserver {
      * @type {{folders: []|null, notes: []|null}}
      */
     let updates = await this.prepareUpdates(lastSyncDate);
-    
+
     console.log('SyncObserver: updates are ready for sending to the Cloud:', updates);
 
     /**
