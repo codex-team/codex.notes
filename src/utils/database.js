@@ -40,7 +40,7 @@ class Database {
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
-          'name': 'Root Folder',
+          'title': 'Root Folder',
           // '_id': 0, // nedb does not works properly with _id = 0
           'notes': []
         }).then(rootFolderCreated => {

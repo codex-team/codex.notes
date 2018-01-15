@@ -41,7 +41,12 @@ class User {
         this.name = null;
         this.avatar = null;
         this.dt_sync = 0;
-        await db.insert(db.USER, {'user': {'id': this.id, 'name': this.name, 'avatar': this.avatar, 'dt_sync': this.dt_sync}});
+        await db.insert(db.USER, {'user': {
+          'id': this.id,
+          'name': this.name,
+          'avatar': this.avatar,
+          'dt_sync': this.dt_sync
+        }});
       }
     } catch (err) {
       console.log('User register error: ', err);
@@ -54,6 +59,31 @@ class User {
    */
   async get() {
     return await db.findOne(db.USER, { 'user': { $exists: true } });
+  }
+
+  /**
+   * Return User's synchronisation date
+   * @return {Promise<Number>}
+   */
+  async getSyncDate(){
+    let user = await this.get();
+    return user.user.dt_sync;
+  }
+
+  /**
+   * Save new synchronisation date
+   * @param {Number} newSyncDate
+   * @return {Promise<Number>}
+   */
+  async setSyncDate(newSyncDate){
+    let user = await db.update(db.USER, { 'user': { $exists: true }}, {
+        $set: {
+          'user.dt_sync': newSyncDate
+        }
+      }, {
+        returnUpdatedDocs: true
+      });
+    return user.affectedDocuments;
   }
 
 }
