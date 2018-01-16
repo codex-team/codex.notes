@@ -75,23 +75,38 @@ module.exports = class SyncObserver {
     console.log('SyncObserver: updates are ready for sending to the Cloud:', updates);
 
     /**
-     * Send Folders mutations
+     * Sequence of mutations requests
+     * @type {Array}
+     */
+    let syncMutationsSequence = [];
+
+    /**
+     * Push Folders mutations to the Sync Mutations Sequence
      */
     if (updates.folders) {
-      updates.folders.forEach( folder => {
-        this.sendFolder(folder);
-      });
+      syncMutationsSequence.push(...updates.folders.map( folder => {
+        return this.sendFolder(folder);
+      }));
     }
 
     /**
-     * Renew synchronisation date
+     * Send mutations sequence and renew synchronisation date when it will be finished
      */
-    global.user.setSyncDate(currentTime).then((resp) => {
-      console.log('Synchronisation\'s date updated', currentTime, resp);
-    }).catch(e => {
-      console.log('SyncObserver cannot renovate the sync date: ', e);
-    });
+    try {
+      await Promise.all(syncMutationsSequence);
 
+      global.user.setSyncDate(currentTime).then((resp) => {
+        console.log('Synchronisation\'s date updated', currentTime, resp);
+      }).catch(e => {
+        console.log('SyncObserver cannot renovate the sync date: ', e);
+      });
+    } catch (sequenceError) {
+      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
+    }
+
+    /**
+     * Load updates from the Cloud
+     */
     this.getUpdates();
   }
   /**
@@ -151,6 +166,7 @@ module.exports = class SyncObserver {
   /**
    * Send Folder Mutation
    * @param {FolderData} folder
+   * @return {Promise<object>}
    */
   sendFolder(folder){
     let query = require('../graphql/mutations/folder');
@@ -163,7 +179,7 @@ module.exports = class SyncObserver {
       dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null
     };
 
-    this.api.request(query, variables)
+    return this.api.request(query, variables)
       .then( data => {
         console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);
       })
