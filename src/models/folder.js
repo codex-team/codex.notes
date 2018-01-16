@@ -84,14 +84,7 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    if (folderData.id !== null) {
-      this.id = folderData.id;
-    } else if (folderData._id !== null) {
-      this.id = folderData._id;
-    } else {
-      this.id = null;
-    }
-
+    this.id = folderData.id || folderData._id || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
@@ -214,7 +207,7 @@ module.exports = class Folder {
    */
   async get(id) {
     let folder = await db.findOne(db.FOLDERS, {
-      _id: id || this._id
+      _id: id || this._id || this.id
     });
 
     if (folder) {
