@@ -96,7 +96,7 @@ module.exports = class SyncObserver {
       await Promise.all(syncMutationsSequence);
 
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('Synchronisation\'s date updated', currentTime, resp);
+        console.log('Synchronisation\'s date renovated', currentTime, resp);
       }).catch(e => {
         console.log('SyncObserver cannot renovate the sync date: ', e);
       });
