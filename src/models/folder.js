@@ -2,6 +2,11 @@
 
 const db = require('../utils/database');
 
+/**
+ * Synchronization controller
+ */
+const SyncObserver = require('../controllers/syncObserver');
+
 
 /**
  * Note Model
@@ -14,6 +19,7 @@ const Note = require('../models/note.js');
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
  * @property {Number} dtModify         - Last modification timestamp
+ * @property {Number} dtCreate         - Folder's creation date
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
@@ -27,6 +33,7 @@ const Note = require('../models/note.js');
  * @property {String} id
  * @property {String|null} title
  * @property {Number} dtModify
+ * @property {Number} dtCreate
  * @property {String} ownerId
  * @property {Note[]} notes
  * @property {Boolean} isRoot
@@ -43,10 +50,13 @@ module.exports = class Folder {
     this.id = null;
     this.title = null;
     this.dtModify = null;
+    this.dtCreate = null;
     this.ownerId = null;
     this.notes = [];
 
     this.data = folderData;
+
+    this.syncObserver = new SyncObserver();
   }
 
   /**
@@ -58,6 +68,7 @@ module.exports = class Folder {
       title: this.title,
       ownerId: this.ownerId,
       dtModify: this.dtModify,
+      dtCreate: this.dtCreate,
       notes: this.notes
     };
 
@@ -83,6 +94,7 @@ module.exports = class Folder {
 
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
+    this.dtCreate = folderData.dtCreate || null;
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
   }
@@ -103,6 +115,12 @@ module.exports = class Folder {
           upsert: true,
           returnUpdatedDocs: true
         };
+    /**
+     * Set creation date for the new Folder
+     */
+    if (!this._id) {
+      this.dtCreate = +new Date();
+    }
 
     /**
      * Save only passed fields or save the full model data
@@ -143,8 +161,9 @@ module.exports = class Folder {
     }
 
     /**
-     * @todo Sync with API
+     * Sync with API
      */
+    this.syncObserver.sync();
 
     return savedFolder.affectedDocuments;
   }

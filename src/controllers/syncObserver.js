@@ -1,5 +1,6 @@
+const db = require('../utils/database');
 const Notes = require('../models/note');
-const Directory = require('../models/folder');
+
 
 /**
  * Simple GraphQL requests provider
@@ -25,8 +26,6 @@ module.exports = class SyncObserver {
    * Initialize params for the API
    */
   constructor() {
-    this.notes = new Notes();
-
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
         // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
@@ -39,48 +38,77 @@ module.exports = class SyncObserver {
 
   /**
    * Prepare updates for API during synchronization
-   * @param {string} dt_sync – last synchronization timestamp
-   * @returns {object} {
-   *    {object} dt_sync – last synchronization timestamp,
-   *    {object} updates {
-   *      {string} folders - list of fresh folders,
-   *      {object} notes - list of fresh notes
-   *    }
-   * }
+   * @param {Number} lastSyncDate - Date of last synchronisation
+   * @return {{folders: []|null, notes: []|null}}
    */
-  async prepareUpdates(dt_sync) {
+  async prepareUpdates(lastSyncDate) {
     try {
-      // let newFolders = await this.folders.getUpdates(dt_sync);
-      // let newNotes = await this.notes.getUpdates(dt_sync);
+      let changedFolders = await db.find(db.FOLDERS, {
+        dtModify: {$gte: lastSyncDate}
+      });
 
-      // return {
-      //   'dt_sync': dt_sync,
-      //   'updates': {
-      //     'folders': newFolders,
-      //     'notes': newNotes
-      //   }
-      // };
+      return {
+        folders: changedFolders,
+        notes: null
+      };
+
     } catch (err) {
-      console.log('Error during synchronization getUpdates: ', err);
+      console.log('Error during synchronization prepareUpdates: ', err);
       return false;
     }
   }
 
   /**
    * Sync changes with API server
-   * @param {string} dt_sync – last synchronization timestamp
    */
-  async sync(dt_sync) {
-    let updates = await this.prepareUpdates(dt_sync);
+  async sync() {
 
-    // console.log(JSON.stringify(updates));
-    // @TODO: Send updates to API server
-    // @TODO: Receive updates from API server
-    // @TODO: Apply updates
+    let lastSyncDate = await global.user.getSyncDate();
+    let currentTime = +new Date();
 
+    /**
+     * Get new updates from the last sync date
+     * @type {{folders: []|null, notes: []|null}}
+     */
+    let updates = await this.prepareUpdates(lastSyncDate);
+
+    console.log('SyncObserver: updates are ready for sending to the Cloud:', updates);
+
+    /**
+     * Sequence of mutations requests
+     * @type {Array}
+     */
+    let syncMutationsSequence = [];
+
+    /**
+     * Push Folders mutations to the Sync Mutations Sequence
+     */
+    if (updates.folders) {
+      syncMutationsSequence.push(...updates.folders.map( folder => {
+        return this.sendFolder(folder);
+      }));
+    }
+
+    /**
+     * Send mutations sequence and renew synchronisation date when it will be finished
+     */
+    try {
+      await Promise.all(syncMutationsSequence);
+
+      global.user.setSyncDate(currentTime).then((resp) => {
+        console.log('Synchronisation\'s date renovated', currentTime, resp);
+      }).catch(e => {
+        console.log('SyncObserver cannot renovate the sync date: ', e);
+      });
+    } catch (sequenceError) {
+      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
+    }
+
+    /**
+     * Load updates from the Cloud
+     */
     this.getUpdates();
   }
-
   /**
    * Requests updates from the cloud
    */
@@ -133,5 +161,30 @@ module.exports = class SyncObserver {
       event,
       callback
     });
+  }
+
+  /**
+   * Send Folder Mutation
+   * @param {FolderData} folder
+   * @return {Promise<object>}
+   */
+  sendFolder(folder){
+    let query = require('../graphql/mutations/folder');
+
+    let variables = {
+      ownerId: global.user ? global.user.id : null,
+      id: folder._id,
+      title: folder.title || '',
+      dtModify: folder.dtModify ? parseInt(folder.dtModify / 1000, 10) : null,
+      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null
+    };
+
+    return this.api.request(query, variables)
+      .then( data => {
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);
+      })
+      .catch( error => {
+        console.log('[!] Folder Mutation failed because of ', error);
+      });
   }
 };
