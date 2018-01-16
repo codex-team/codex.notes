@@ -88,6 +88,8 @@ module.exports = class SyncObserver {
      */
     global.user.setSyncDate(currentTime).then((resp) => {
       console.log('Synchronisation\'s date updated', currentTime, resp);
+    }).catch(e => {
+      console.log('SyncObserver cannot renovate the sync date: ', e);
     });
 
     this.getUpdates();
@@ -163,7 +165,7 @@ module.exports = class SyncObserver {
 
     this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation: \n\n', data);
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
