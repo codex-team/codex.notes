@@ -16,12 +16,12 @@ class User {
    *  {string} token – user's authorization JWT
    *  {number} dt_sync – last synchronization timestamp
    * }
+   *
+   * @param {UserData} userData
    */
   constructor(userData = {}) {
-
     this.data = userData;
     this.dt_sync = 0;
-
   }
 
   /**
@@ -57,12 +57,7 @@ class User {
   /**
    * Update user's data
    *
-   * @param {Object} userData
-   * @param {String} userData.id
-   * @param {String} userData.name
-   * @param {String} userData.photo
-   * @param {String} userData.token
-   * @param {String} userData.google_id
+   * @param {UserData} userData
    * @returns {Promise.<void>}
    */
   async update(userData = {}) {
@@ -128,13 +123,19 @@ class User {
   }
 
   /**
-   * @param {string} id – unique user ID
-   * @param {string} google_id – unique user ID passed by Google
-   * @param {string} name – user name
-   * @param {string} photo – avatar string URL
-   * @param {string} token – user's authorization JWT
+   *
+   * @typedef {Object} UserData
+   * @property {string} id – unique user ID
+   * @property {string} google_id – unique user ID passed by Google
+   * @property {string} name – user name
+   * @property {string} photo – avatar string URL
+   * @property {string} token – user's authorization JWT
+   *
+   * @param {UserData} userData
    */
-  set data({id, name, photo, token, google_id}) {
+  set data(userData) {
+      let {id, name, photo, token, google_id} = userData;
+
       this.id = id || this.id || null;
       this.name = name || this.name || null;
       this.photo = photo || this.photo || null;
