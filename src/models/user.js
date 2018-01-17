@@ -21,7 +21,6 @@ class User {
    */
   constructor(userData = {}) {
     this.data = userData;
-    this.dt_sync = 0;
   }
 
   /**
@@ -32,12 +31,8 @@ class User {
       let user = await this.get();
 
       if (user) {
-        this.id = user._id;
-        this.name = user.name;
-        this.photo = user.photo;
-        this.dt_sync = user.dt_sync;
-        this.google_id = user.google_id;
-        this.token = user.token;
+        user.id = user._id;
+        this.data = user;
       } else {
         let insertedRow = await db.insert(db.USER, {
           name: this.name,
@@ -131,11 +126,12 @@ class User {
    * @property {string} email – user email
    * @property {string} photo – avatar string URL
    * @property {string} token – user's authorization JWT
+   * @property {number} dt_sync – user's last synchronization time
    *
    * @param {UserData} userData
    */
   set data(userData) {
-      let {id, name, photo, email, token, google_id} = userData;
+      let {id, name, photo, email, token, google_id, dt_sync} = userData;
 
       this.id = id || this.id || null;
       this.name = name || this.name || null;
@@ -143,6 +139,7 @@ class User {
       this.email = email || this.email || null;
       this.token = token || this.token || null;
       this.google_id = google_id || this.google_id || null;
+      this.dt_sync = dt_sync || this.dt_sync || 0;
   }
 
 }
