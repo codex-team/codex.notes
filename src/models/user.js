@@ -1,7 +1,6 @@
 'use strict';
 const random = require('../utils/random');
 const db = require('../utils/database');
-const {ipcMain} = require('electron');
 
 /**
  * Model for current user representation.
@@ -15,20 +14,14 @@ class User {
    *  {string} name – user name
    *  {string} photo – avatar string URL
    *  {string} token – user's authorization JWT
-   *  {string} dt_sync – last synchronization timestamp
+   *  {number} dt_sync – last synchronization timestamp
    * }
    */
-  constructor({id, name, photo, token, google_id} = {}) {
-    this.id = id || null;
-    this.name = name || null;
-    this.photo = photo || null;
-    this.token = token || null;
-    this.google_id = google_id|| null;
+  constructor(userData = {}) {
+
+    this.data = userData;
     this.dt_sync = 0;
 
-    ipcMain.on('user - get', (event) => {
-      event.returnValue = this;
-    });
   }
 
   /**
@@ -61,24 +54,21 @@ class User {
     }
   }
 
-    /**
-     * Update user's data
-     *
-     * @param {String} id
-     * @param {String} name
-     * @param {String} photo
-     * @param {String} token
-     * @param {String} google_id
-     * @returns {Promise.<void>}
-     */
-  async update({id, name, photo, token, google_id} = {}) {
-    this.id = id || this.id;
-    this.name = name || this.name;
-    this.photo = photo || this.photo;
-    this.token = token || this.token;
-    this.google_id = google_id || this.google_id;
+  /**
+   * Update user's data
+   *
+   * @param {Object} userData
+   * @param {String} userData.id
+   * @param {String} userData.name
+   * @param {String} userData.photo
+   * @param {String} userData.token
+   * @param {String} userData.google_id
+   * @returns {Promise.<void>}
+   */
+  async update(userData = {}) {
+    this.data = userData;
 
-    let userData = {
+    let dataToInsert = {
       name: this.name,
       photo: this.photo,
       token: this.token,
@@ -90,15 +80,15 @@ class User {
      * Using nedb we can't change document's _id.
      * If new id is passed, we should delete old document first
      */
-    if (!id) {
+    if (!userData.id) {
       await db.update(db.USER, {}, {
-        $set: userData
+        $set: dataToInsert
       });
     } else {
       await db.remove(db.USER, {}, {});
 
-      userData._id = this.id;
-      await db.insert(db.USER, userData);
+      dataToInsert._id = this.id;
+      await db.insert(db.USER, dataToInsert);
     }
   }
 
@@ -135,6 +125,21 @@ class User {
     });
 
     return user.affectedDocuments;
+  }
+
+  /**
+   * @param {string} id – unique user ID
+   * @param {string} google_id – unique user ID passed by Google
+   * @param {string} name – user name
+   * @param {string} photo – avatar string URL
+   * @param {string} token – user's authorization JWT
+   */
+  set data({id, name, photo, token, google_id}) {
+      this.id = id || this.id || null;
+      this.name = name || this.name || null;
+      this.photo = photo || this.photo || null;
+      this.token = token || this.token || null;
+      this.google_id = google_id || this.google_id || null;
   }
 
 }

@@ -7,7 +7,6 @@ require('dotenv').config();
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
-const Api = require('./models/api');
 
 /**
  * Enable Pug
@@ -41,6 +40,11 @@ const NotesController = require('./controllers/notes');
  * Authorization
  */
 const AuthController = require('./controllers/auth');
+
+/**
+ * User Controller
+ */
+const UserController = require('./controllers/user');
 
 /**
  * User model
@@ -142,6 +146,7 @@ class CodexNotes {
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
+        this.userCtrl = new UserController();
         this.auth = new AuthController();
         this.syncObserver = new SyncObserver();
 
@@ -151,7 +156,9 @@ class CodexNotes {
         });
       })
       .then(() => {
-        return this.syncObserver.sync(this.user.dt_sync);
+        if (this.user.token) {
+          return this.syncObserver.sync();
+        }
       })
       .catch(function (err) {
         console.log('Initialization error', err);
@@ -197,7 +204,7 @@ class CodexNotes {
  */
 app.on('ready', function () {
   try {
-    new CodexNotes();
+    global.app = new CodexNotes();
   } catch(error) {
     console.log(`\n\n 
       ........................... \n\n 

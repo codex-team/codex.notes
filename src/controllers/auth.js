@@ -64,7 +64,7 @@ class AuthController {
             /** Decode JWT payload */
           let payload = new Buffer(jwt.split('.')[1], 'base64');
 
-            /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
+          /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
           await global.user.update({
@@ -74,6 +74,8 @@ class AuthController {
             google_id: payload.google_id,
             token: jwt
           });
+
+          global.app.syncObserver.sync();
 
           event.returnValue = global.user;
 

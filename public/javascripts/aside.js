@@ -85,6 +85,7 @@ export default class Aside {
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
       foldersMenu.classList.remove(this.CSS.notesMenuLoading);
+      foldersMenu.innerHTML = '';
       userFolders.forEach( folder => this.addFolder(folder) );
     });
 
