@@ -51,10 +51,12 @@ class AuthController {
      * @param {Event} loadEvent – onload event
      */
     webContents.on('did-finish-load', loadEvent => {
-      /**
-       * Page with JWT should be loaded second
-       */
-      if (loadEvent.sender.currentIndex < 1) return;
+      let sender = loadEvent.sender,
+          currentPage = sender.history[sender.currentIndex],
+          parsedUrl = url.parse(currentPage),
+          path = parsedUrl.protocol + '//' + parsedUrl.host + parsedUrl.pathname;
+
+      if (process.env.GOOGLE_REDIRECT_URI !== path) return;
 
       /**
        * Just get content from div with "jwt" id, contains user`s JWT
