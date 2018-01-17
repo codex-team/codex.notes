@@ -51,6 +51,7 @@ const User = require('./models/user');
  * Database setup
  */
 const db = require('./utils/database');
+
 db.makeInitialSettings(app.getPath('userData'));
 
 /**
@@ -73,7 +74,6 @@ class CodexNotes {
    * Initializes an application
    */
   constructor() {
-
     /**
      * Web links with codex:// protocol will be handled by application
      * @type {string}
@@ -124,7 +124,9 @@ class CodexNotes {
     /**
      * Set application protocol
      */
-      .then(() => {this.setAppProtocol()});
+      .then(() => {
+        this.setAppProtocol();
+      });
   }
 
   /**
@@ -135,6 +137,8 @@ class CodexNotes {
 
     return this.user.init()
       .then(() => {
+        console.log('Current user data is: ', this.user);
+
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
@@ -200,6 +204,6 @@ app.on('ready', function () {
       CodeX Notes runtime error: 
       ........................... \n\n
       `, error);
-    console.log(`\n\n ........................... \n\n`);
+    console.log('\n\n ........................... \n\n');
   }
 });

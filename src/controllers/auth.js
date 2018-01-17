@@ -1,6 +1,5 @@
 'use strict';
 const {ipcMain, BrowserWindow} = require('electron');
-const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
@@ -61,23 +60,22 @@ class AuthController {
        * Just get content from div with "jwt" id, contains user`s JWT
        */
       webContents.executeJavaScript('document.body.textContent')
-        .then(function (jwt) {
+        .then(async (jwt) => {
             /** Decode JWT payload */
           let payload = new Buffer(jwt.split('.')[1], 'base64');
 
             /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
-          let user = new UserModel({
+          await global.user.update({
+            id: payload.user_id,
             name: payload.name,
             photo: payload.photo,
             google_id: payload.google_id,
             token: jwt
           });
 
-          global.user = user;
-
-          event.returnValue = user;
+          event.returnValue = global.user;
 
           window.close();
         })
