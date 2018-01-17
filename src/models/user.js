@@ -128,17 +128,19 @@ class User {
    * @property {string} id – unique user ID
    * @property {string} google_id – unique user ID passed by Google
    * @property {string} name – user name
+   * @property {string} email – user email
    * @property {string} photo – avatar string URL
    * @property {string} token – user's authorization JWT
    *
    * @param {UserData} userData
    */
   set data(userData) {
-      let {id, name, photo, token, google_id} = userData;
+      let {id, name, photo, email, token, google_id} = userData;
 
       this.id = id || this.id || null;
       this.name = name || this.name || null;
       this.photo = photo || this.photo || null;
+      this.email = email || this.email || null;
       this.token = token || this.token || null;
       this.google_id = google_id || this.google_id || null;
   }

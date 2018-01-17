@@ -100,6 +100,10 @@
 
     &__header-avatar {
 
+         &--filled {
+             cursor: default;
+         }
+
          &:not(&--filled):hover ^&__authorization {
               transform: none;
               opacity: 1;
@@ -112,7 +116,6 @@
             height: 37px;
             border-radius: 50%;
             background-size: cover;
-            cursor: default;
          }
 
          &--filled ^&__user-photo {

@@ -74,6 +74,7 @@ class AuthController {
             name: payload.name,
             photo: payload.photo,
             google_id: payload.google_id,
+            email: payload.email,
             token: jwt
           });
 
