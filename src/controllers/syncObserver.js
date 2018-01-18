@@ -60,6 +60,7 @@ module.exports = class SyncObserver {
 
   /**
    * Sync changes with API server
+   * @return {Promise<object>}
    */
   async sync() {
 
@@ -96,7 +97,7 @@ module.exports = class SyncObserver {
       await Promise.all(syncMutationsSequence);
 
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('Synchronisation\'s date renovated', currentTime, resp);
+        console.log('Synchronisation\'s date renovated', currentTime);
       }).catch(e => {
         console.log('SyncObserver cannot renovate the sync date: ', e);
       });
@@ -107,12 +108,15 @@ module.exports = class SyncObserver {
     /**
      * Load updates from the Cloud
      */
-    this.getUpdates();
+    let updatesFromCloud = await this.getUpdates();
+
+    return updatesFromCloud;
   }
   /**
    * Requests updates from the cloud
+   * @return {Promise<object>}
    */
-  getUpdates(){
+  async getUpdates(){
 
     /**
      * Sync Query
@@ -124,10 +128,11 @@ module.exports = class SyncObserver {
       userId: global.user ? global.user.id : null
     };
 
-    this.api.request(query, syncVariables)
+    return this.api.request(query, syncVariables)
       .then( data => {
         console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
         this.emit('sync', data);
+        return data;
       })
       .catch( error => {
         console.log('[!] Synchronization failed because of ', error);
