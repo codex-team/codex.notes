@@ -60,6 +60,7 @@ export default class ConnectionObserver {
 
     this.reconnect();
   }
+
   /**
    * Start reconnection process
    */

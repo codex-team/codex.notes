@@ -1281,6 +1281,7 @@ var ConnectionObserver = function () {
 
       this.reconnect();
     }
+
     /**
      * Start reconnection process
      */
