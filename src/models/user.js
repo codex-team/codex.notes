@@ -37,6 +37,7 @@ class User {
         let insertedRow = await db.insert(db.USER, {
           name: this.name,
           photo: this.photo,
+          email: this.email,
           dt_sync: this.dt_sync,
           google_id: this.google_id,
           token: this.token

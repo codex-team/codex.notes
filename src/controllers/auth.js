@@ -56,6 +56,10 @@ class AuthController {
           parsedUrl = url.parse(currentPage),
           path = parsedUrl.protocol + '//' + parsedUrl.host + parsedUrl.pathname;
 
+      /**
+       * If current page uri equal to GOOGLE_REDIRECT_URI, tha means we on page with JWT.
+       * Else we should just do nothing.
+       */
       if (process.env.GOOGLE_REDIRECT_URI !== path) return;
 
       /**
