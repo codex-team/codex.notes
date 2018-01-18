@@ -1,3 +1,5 @@
+import $ from './dom';
+
 /**
  * @module StatusBar
  * @description Module for working with Aside Status Bar
@@ -12,7 +14,7 @@ export default class StatusBar {
    * Find status bar Element, init all stuff
    */
   constructor() {
-    this.statusBar = document.getElementById('status-bar');
+    this.statusBar = $.get('status-bar');
   }
 
   /**

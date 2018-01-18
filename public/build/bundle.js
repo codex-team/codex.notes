@@ -1211,7 +1211,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * Detects Online and Offline statuses and update state in the Aside
  *
  * @typedef {ConnectionObserver} ConnectionObserver
- * @property {Element} statusBar - DOM element in the Aside that contains connection status
  */
 var ConnectionObserver = function () {
   /**
@@ -1255,7 +1254,7 @@ var ConnectionObserver = function () {
 
     /**
      * Send sync event
-     * @return {Promise<boolean>}
+     * @return {Promise<Object>} - updates from the Cloud
      */
 
   }, {
@@ -1492,6 +1491,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
@@ -1510,7 +1515,7 @@ var StatusBar = function () {
   function StatusBar() {
     _classCallCheck(this, StatusBar);
 
-    this.statusBar = document.getElementById('status-bar');
+    this.statusBar = _dom2.default.get('status-bar');
   }
 
   /**
@@ -1656,9 +1661,6 @@ var User = function () {
     value: function fillUserPanel(user) {
       if (!user.name) return;
 
-      /**
-       * @todo Use StatusBar class
-       */
       var userPanel = _dom2.default.get('user-panel'),
           photo = _dom2.default.get('user-photo');
 

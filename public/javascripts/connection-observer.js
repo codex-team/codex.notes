@@ -4,7 +4,6 @@
  * Detects Online and Offline statuses and update state in the Aside
  *
  * @typedef {ConnectionObserver} ConnectionObserver
- * @property {Element} statusBar - DOM element in the Aside that contains connection status
  */
 export default class ConnectionObserver {
   /**
@@ -40,7 +39,7 @@ export default class ConnectionObserver {
 
   /**
    * Send sync event
-   * @return {Promise<boolean>}
+   * @return {Promise<Object>} - updates from the Cloud
    */
   sync() {
     return new Promise((resolve) => {

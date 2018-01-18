@@ -52,9 +52,6 @@ export default class User {
   fillUserPanel(user) {
     if (!user.name) return;
 
-    /**
-     * @todo Use StatusBar class
-     */
     let userPanel = $.get('user-panel'),
         photo = $.get('user-photo');
 
