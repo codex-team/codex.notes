@@ -52,13 +52,10 @@ export default class User {
   fillUserPanel(user) {
     if (!user.name) return;
 
-    let userStatus = $.get('user-status'),
-        userPanel = $.get('user-panel'),
+    let userPanel = $.get('user-panel'),
         photo = $.get('user-photo');
 
     userPanel.classList.add('aside__header-avatar--filled');
-
-    userStatus.textContent = 'Online';
     photo.style.backgroundImage = `url(${user.photo})`;
   }
 }

@@ -273,13 +273,6 @@
     }
 }
 
-.status-panel {
-    margin-top: 5px;
-    font-size: 12.4px;
-    letter-spacing: 0.035em;
-    color: color(var(--aside-color-light) alpha(50%));
-}
-
 .authorization-button {
     display: inline-block;
     margin-top: 15px;

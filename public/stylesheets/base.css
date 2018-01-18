@@ -6,6 +6,7 @@
 @import "components/notes.css";
 @import "components/folder-header.css";
 @import "components/folder-settings.css";
+@import "components/status-bar.css";
 
 body {
     height: 100vh;

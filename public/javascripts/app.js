@@ -6,10 +6,16 @@
  */
 const electron = require('electron');
 const Editor = require('./editor').default;
+
+/**
+ * Load components
+ */
 const Aside = require('./aside').default;
 const Note = require('./note').default;
 
 import User from './user';
+import StatusBar from './status-bar';
+import ConnectionObserver from './connection-observer';
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -38,6 +44,8 @@ let documentReady = () => {
   codex.notes.aside = new Aside();
   codex.notes.note = new Note();
   codex.notes.user = new User();
+  codex.notes.statusBar = new StatusBar();
+  codex.notes.connectionObserver = new ConnectionObserver();
 
   /**
    * New note saving handler
