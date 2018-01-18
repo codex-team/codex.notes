@@ -191,6 +191,10 @@ class FoldersController {
       console.log('updatedFolder: ', updatedFolder);
     });
 
+    let list = new FoldersList();
+    let userFolders = await list.get();
+
+    global.app.mainWindow.webContents.send('update folders list', {userFolders});
   }
 }
 

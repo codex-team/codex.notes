@@ -1,6 +1,5 @@
 'use strict';
 const {ipcMain, BrowserWindow} = require('electron');
-const electronOAuth = require('electron-oauth2');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
@@ -52,32 +51,40 @@ class AuthController {
      * @param {Event} loadEvent – onload event
      */
     webContents.on('did-finish-load', loadEvent => {
+      let sender = loadEvent.sender,
+          currentPage = sender.history[sender.currentIndex],
+          parsedUrl = url.parse(currentPage),
+          path = parsedUrl.protocol + '//' + parsedUrl.host + parsedUrl.pathname;
+
       /**
-       * Page with JWT should be loaded second
+       * If current page uri equal to GOOGLE_REDIRECT_URI, tha means we on page with JWT.
+       * Else we should just do nothing.
        */
-      if (loadEvent.sender.currentIndex < 1) return;
+      if (process.env.GOOGLE_REDIRECT_URI !== path) return;
 
       /**
        * Just get content from div with "jwt" id, contains user`s JWT
        */
       webContents.executeJavaScript('document.body.textContent')
-        .then(function (jwt) {
+        .then(async (jwt) => {
             /** Decode JWT payload */
           let payload = new Buffer(jwt.split('.')[1], 'base64');
 
-            /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
+          /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
-          let user = new UserModel({
+          await global.user.update({
+            id: payload.user_id,
             name: payload.name,
             photo: payload.photo,
             google_id: payload.google_id,
+            email: payload.email,
             token: jwt
           });
 
-          global.user = user;
+          global.app.syncObserver.sync();
 
-          event.returnValue = user;
+          event.returnValue = global.user;
 
           window.close();
         })

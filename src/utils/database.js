@@ -18,11 +18,15 @@ class Database {
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
+
+    console.log('Making initial database settings...');
+
     this.appFolder = appFolder;
 
     if (!fs.existsSync(this.appFolder)) {
       fs.mkdirSync(this.appFolder);
     }
+    console.log(`Local data storage is in "${this.appFolder}" directory`);
 
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });

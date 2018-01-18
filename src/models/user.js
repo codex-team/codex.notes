@@ -9,19 +9,18 @@ class User {
 
   /**
    * User model {
+   *  {string} id – unique user ID
    *  {string} google_id – unique user ID passed by Google
    *  {string} name – user name
    *  {string} photo – avatar string URL
    *  {string} token – user's authorization JWT
-   *  {string} dt_sync – last synchronization timestamp
+   *  {number} dt_sync – last synchronization timestamp
    * }
+   *
+   * @param {UserData} userData
    */
-  constructor({google_id, name, photo, token} = {}) {
-    this.google_id = google_id || null;
-    this.name = name || null;
-    this.photo = photo || null;
-    this.token = token || null;
-    this.dt_sync = 0;
+  constructor(userData = {}) {
+    this.data = userData;
   }
 
   /**
@@ -32,24 +31,56 @@ class User {
       let user = await this.get();
 
       if (user) {
-        this.id = user.user.id;
-        this.name = user.user.name;
-        this.avatar = user.user.avatar;
-        this.dt_sync = user.user.dt_sync;
+        user.id = user._id;
+        this.data = user;
       } else {
-        this.id = random.generatePassword();
-        this.name = null;
-        this.avatar = null;
-        this.dt_sync = 0;
-        await db.insert(db.USER, {'user': {
-          'id': this.id,
-          'name': this.name,
-          'avatar': this.avatar,
-          'dt_sync': this.dt_sync
-        }});
+        let insertedRow = await db.insert(db.USER, {
+          name: this.name,
+          photo: this.photo,
+          email: this.email,
+          dt_sync: this.dt_sync,
+          google_id: this.google_id,
+          token: this.token
+        });
+
+        this.id = insertedRow._id;
       }
     } catch (err) {
       console.log('User register error: ', err);
+    }
+  }
+
+  /**
+   * Update user's data
+   *
+   * @param {UserData} userData
+   * @returns {Promise.<void>}
+   */
+  async update(userData = {}) {
+    this.data = userData;
+
+    let dataToInsert = {
+      name: this.name,
+      photo: this.photo,
+      token: this.token,
+      email: this.email,
+      google_id: this.google_id,
+      dt_sync: this.dt_sync
+    };
+
+    /**
+     * Using nedb we can't change document's _id.
+     * If new id is passed, we should delete old document first
+     */
+    if (!userData.id) {
+      await db.update(db.USER, {}, {
+        $set: dataToInsert
+      });
+    } else {
+      await db.remove(db.USER, {}, {});
+
+      dataToInsert._id = this.id;
+      await db.insert(db.USER, dataToInsert);
     }
   }
 
@@ -58,16 +89,17 @@ class User {
    * @returns {*}
    */
   async get() {
-    return await db.findOne(db.USER, { 'user': { $exists: true } });
+    return await db.findOne(db.USER, {});
   }
 
   /**
    * Return User's synchronisation date
    * @return {Promise<Number>}
    */
-  async getSyncDate(){
+  async getSyncDate() {
     let user = await this.get();
-    return user.user.dt_sync;
+
+    return user.dt_sync;
   }
 
   /**
@@ -75,15 +107,41 @@ class User {
    * @param {Number} newSyncDate
    * @return {Promise<Number>}
    */
-  async setSyncDate(newSyncDate){
-    let user = await db.update(db.USER, { 'user': { $exists: true }}, {
-        $set: {
-          'user.dt_sync': newSyncDate
-        }
-      }, {
-        returnUpdatedDocs: true
-      });
+  async setSyncDate(newSyncDate) {
+    let user = await db.update(db.USER, {}, {
+      $set: {
+        dt_sync: newSyncDate
+      }
+    }, {
+      returnUpdatedDocs: true
+    });
+
     return user.affectedDocuments;
+  }
+
+  /**
+   *
+   * @typedef {Object} UserData
+   * @property {string} id – unique user ID
+   * @property {string} google_id – unique user ID passed by Google
+   * @property {string} name – user name
+   * @property {string} email – user email
+   * @property {string} photo – avatar string URL
+   * @property {string} token – user's authorization JWT
+   * @property {number} dt_sync – user's last synchronization time
+   *
+   * @param {UserData} userData
+   */
+  set data(userData) {
+      let {id, name, photo, email, token, google_id, dt_sync} = userData;
+
+      this.id = id || this.id || null;
+      this.name = name || this.name || null;
+      this.photo = photo || this.photo || null;
+      this.email = email || this.email || null;
+      this.token = token || this.token || null;
+      this.google_id = google_id || this.google_id || null;
+      this.dt_sync = dt_sync || this.dt_sync || 0;
   }
 
 }

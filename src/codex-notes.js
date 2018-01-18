@@ -7,7 +7,6 @@ require('dotenv').config();
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
-const Api = require('./models/api');
 
 /**
  * Enable Pug
@@ -43,6 +42,11 @@ const NotesController = require('./controllers/notes');
 const AuthController = require('./controllers/auth');
 
 /**
+ * User Controller
+ */
+const UserController = require('./controllers/user');
+
+/**
  * User model
  */
 const User = require('./models/user');
@@ -51,6 +55,7 @@ const User = require('./models/user');
  * Database setup
  */
 const db = require('./utils/database');
+
 db.makeInitialSettings(app.getPath('userData'));
 
 /**
@@ -73,7 +78,6 @@ class CodexNotes {
    * Initializes an application
    */
   constructor() {
-
     /**
      * Web links with codex:// protocol will be handled by application
      * @type {string}
@@ -124,7 +128,9 @@ class CodexNotes {
     /**
      * Set application protocol
      */
-      .then(() => {this.setAppProtocol()});
+      .then(() => {
+        this.setAppProtocol();
+      });
   }
 
   /**
@@ -135,9 +141,12 @@ class CodexNotes {
 
     return this.user.init()
       .then(() => {
+        console.log('Current user data is: ', this.user);
+
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
+        this.userCtrl = new UserController();
         this.auth = new AuthController();
         this.syncObserver = new SyncObserver();
 
@@ -147,7 +156,9 @@ class CodexNotes {
         });
       })
       .then(() => {
-        return this.syncObserver.sync(this.user.dt_sync);
+        if (this.user.token) {
+          return this.syncObserver.sync();
+        }
       })
       .catch(function (err) {
         console.log('Initialization error', err);
@@ -193,13 +204,13 @@ class CodexNotes {
  */
 app.on('ready', function () {
   try {
-    new CodexNotes();
+    global.app = new CodexNotes();
   } catch(error) {
     console.log(`\n\n 
       ........................... \n\n 
       CodeX Notes runtime error: 
       ........................... \n\n
       `, error);
-    console.log(`\n\n ........................... \n\n`);
+    console.log('\n\n ........................... \n\n');
   }
 });

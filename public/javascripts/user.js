@@ -20,6 +20,10 @@ export default class User {
   constructor() {
     this.authButton = document.getElementById('js-auth-button');
 
+    let userData = window.ipcRenderer.sendSync('user - get');
+
+    this.fillUserPanel(userData);
+
     this.authButton.addEventListener('click', () => {
       this.showAuth();
     });
@@ -46,16 +50,15 @@ export default class User {
    * @param  {String} user.photo
    */
   fillUserPanel(user) {
-    let panel = $.make('div', 'profile-panel'),
-        photo = $.make('div', 'profile-panel__photo'),
-        name = $.make('div', 'profile-panel__name');
+    if (!user.name) return;
 
+    let userStatus = $.get('user-status'),
+        userPanel = $.get('user-panel'),
+        photo = $.get('user-photo');
+
+    userPanel.classList.add('aside__header-avatar--filled');
+
+    userStatus.textContent = 'Online';
     photo.style.backgroundImage = `url(${user.photo})`;
-    name.textContent = user.name;
-
-    $.append(panel, [photo, name]);
-    $.after(panel, this.authButton);
-
-    this.authButton.style.display = 'none';
   }
 }

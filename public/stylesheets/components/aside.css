@@ -98,10 +98,33 @@
         }
     }
 
-    &__header-avatar:hover &__authorization {
-        transform: none;
-        opacity: 1;
-        visibility: visible;
+    &__header-avatar {
+
+         &--filled {
+             cursor: default;
+         }
+
+         &:not(&--filled):hover ^&__authorization {
+              transform: none;
+              opacity: 1;
+              visibility: visible;
+         }
+
+         ^&__user-photo {
+            display: none;
+            width: 37px;
+            height: 37px;
+            border-radius: 50%;
+            background-size: cover;
+         }
+
+         &--filled ^&__user-photo {
+            display: inline-block;
+         }
+
+         &--filled svg {
+            display: none;
+         }
     }
 
     /**
@@ -270,26 +293,6 @@
     &:hover {
         color: #1A2630;
         cursor: pointer;
-    }
-}
-
-.profile-panel {
-    margin-bottom: 10px;
-
-    &__photo {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        display: inline-block;
-        vertical-align: middle;
-        margin-right: 8px;
-        background-size: cover;
-    }
-
-    &__name {
-        display: inline-block;
-        vertical-align: middle;
-        line-height: 40px;
     }
 }
 
