@@ -63,6 +63,7 @@ class User {
       name: this.name,
       photo: this.photo,
       token: this.token,
+      email: this.email,
       google_id: this.google_id,
       dt_sync: this.dt_sync
     };
