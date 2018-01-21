@@ -48,7 +48,6 @@
     "sanitize-html": "^1.14.1"
   },
   "devDependencies": {
-    "appdmg": "^0.4.5",
     "asar": "^0.13.0",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.1.0",
@@ -79,5 +78,8 @@
     "postcss-smart-import": "^0.7.4",
     "stylelint-webpack-plugin": "^0.4.2",
     "webpack": "^2.6.1"
+  },
+  "optionalDependencies": {
+    "appdmg": "^0.4.5"
   }
 }
