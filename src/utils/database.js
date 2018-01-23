@@ -28,12 +28,13 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
+    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
-    // this.drop();
+    this.drop();
     // this.showDB();
+
 
     this.getRootFolderId()
       .then(rootFolderId => {
@@ -44,6 +45,7 @@ class Database {
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
+          'ownerId': null,
           'title': 'Root Folder',
           // '_id': 0, // nedb does not works properly with _id = 0
           'notes': []

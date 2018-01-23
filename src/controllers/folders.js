@@ -98,6 +98,11 @@ class FoldersController {
 
       let savedFolder = await folder.save();
 
+      /**
+       * Sync with an API
+       */
+      global.app.syncObserver.sync();
+
       event.returnValue = {
         'id': savedFolder._id,
         'title': savedFolder.title,
@@ -120,7 +125,7 @@ class FoldersController {
     try {
 
       let folder = new Folder({
-        id: folderId,
+        _id: folderId,
         ownerId: global.user ? global.user.id : null
       });
 
@@ -142,7 +147,7 @@ class FoldersController {
   async changeTitle(event, id, title) {
     try {
       let folder = new Folder({
-        id,
+        _id: id,
         ownerId: global.user ? global.user.id : null,
         title: title
       });
@@ -151,6 +156,12 @@ class FoldersController {
        * @todo Check for fields (dtModify, etc) override
        */
       event.returnValue = await folder.save();
+
+      /**
+       * Sync with an API
+       */
+      global.app.syncObserver.sync();
+
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
       event.returnValue = false;
@@ -166,7 +177,7 @@ class FoldersController {
   async addCollaborator(event, id, email) {
     try {
       let folder = new Folder({
-        id,
+        _id: id,
         ownerId: global.user ? global.user.id : null,
       });
 
@@ -183,18 +194,25 @@ class FoldersController {
    * @return {Promise<void>}
    */
   async renew(folders){
-    await folders.forEach( async folderData => {
+    try {
+      await folders.forEach(async folderData => {
+        try {
+          let folder = new Folder(folderData);
+          let updatedFolder = await folder.save();
 
-      let folder = new Folder(folderData);
-      let updatedFolder = await folder.save();
+          console.log('updatedFolder: ', updatedFolder);
+        } catch (error) {
+          console.log('Folder saving error:', error);
+        }
+      });
 
-      console.log('updatedFolder: ', updatedFolder);
-    });
+      let list = new FoldersList();
+      let userFolders = await list.get();
 
-    let list = new FoldersList();
-    let userFolders = await list.get();
-
-    global.app.mainWindow.webContents.send('update folders list', {userFolders});
+      global.app.mainWindow.webContents.send('update folders list', {userFolders});
+    } catch (err){
+      console.log('Can not renew Folder because of:', err);
+    }
   }
 }
 

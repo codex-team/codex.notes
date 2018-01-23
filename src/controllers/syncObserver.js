@@ -15,8 +15,6 @@ const { GraphQLClient } = require('graphql-request');
  * Accepts changes from the API server
  *
  * @typedef {SyncObserver} SyncObserver
- * @property {Directory} folders    - Folders Model
- * @property {Notes} notes          - Notes Model
  * @property {GraphQLClient} api    - GraphQL API client
  * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
@@ -38,13 +36,18 @@ module.exports = class SyncObserver {
 
   /**
    * Prepare updates for API during synchronization
-   * @param {Number} lastSyncDate - Date of last synchronisation
+   * @param {Number} lastSyncTimestamp - Date of last synchronisation
    * @return {{folders: []|null, notes: []|null}}
    */
-  async prepareUpdates(lastSyncDate) {
+  async prepareUpdates(lastSyncTimestamp) {
     try {
+      console.log('\n\n\n\n\n\n:::::');
+      let lastSyncDate = new Date(lastSyncTimestamp);
+
+      console.log(lastSyncDate);
+      console.log(lastSyncTimestamp);
       let changedFolders = await db.find(db.FOLDERS, {
-        dtModify: {$gte: lastSyncDate}
+        updatedAt: {$gte: lastSyncDate}
       });
 
       return {
@@ -63,7 +66,7 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   async sync() {
-
+    // return;
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = +new Date();
 
@@ -84,7 +87,7 @@ module.exports = class SyncObserver {
     /**
      * Push Folders mutations to the Sync Mutations Sequence
      */
-    if (updates.folders) {
+    if (updates.folders.length) {
       syncMutationsSequence.push(...updates.folders.map( folder => {
         return this.sendFolder(folder);
       }));
@@ -96,8 +99,11 @@ module.exports = class SyncObserver {
     try {
       await Promise.all(syncMutationsSequence);
 
+      console.log('\n\n\n\n\n\n\n\nnow we try to update dt sync\n\n\n\n\n');
+
       global.user.setSyncDate(currentTime).then((resp) => {
         console.log('Synchronisation\'s date renovated', currentTime);
+        console.log(new Date(currentTime));
       }).catch(e => {
         console.log('SyncObserver cannot renovate the sync date: ', e);
       });
@@ -176,14 +182,20 @@ module.exports = class SyncObserver {
   sendFolder(folder){
     let query = require('../graphql/mutations/folder');
 
+    let dtModify = +new Date(folder.updatedAt);
+
     let variables = {
       ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
-      dtModify: folder.dtModify ? parseInt(folder.dtModify / 1000, 10) : null,
-      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null
+      dtModify: dtModify ? parseInt(dtModify/ 1000, 10) : null,
+      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null,
+      isRoot: folder.isRoot
     };
 
+    console.log('->>>>>>>>>>>>>>>>>>.', variables.isRoot);
+
+    console.log('\n\nNow i will send a folder to the cloud. \n\n', dtModify, '\n\n');
     return this.api.request(query, variables)
       .then( data => {
         console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);

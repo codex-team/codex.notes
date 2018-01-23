@@ -3,19 +3,13 @@
 const db = require('../utils/database');
 
 /**
- * Synchronization controller
- */
-const SyncObserver = require('../controllers/syncObserver');
-
-
-/**
  * Note Model
  */
 const Note = require('../models/note.js');
 
 /**
  * @typedef {Object} FolderData
- * @property {String|null} id          - Folder's id
+ * @property {String|null} id         - Folder's Database id
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
  * @property {Number} dtModify         - Last modification timestamp
@@ -30,7 +24,7 @@ const Note = require('../models/note.js');
  * @classdesc Folder's model type
  *
  * @typedef {Folder} Folder
- * @property {String} id
+ * @property {String} _id
  * @property {String|null} title
  * @property {Number} dtModify
  * @property {Number} dtCreate
@@ -47,16 +41,15 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   constructor(folderData = {}) {
-    this.id = null;
+    this._id = null;
     this.title = null;
     this.dtModify = null;
     this.dtCreate = null;
     this.ownerId = null;
     this.notes = [];
+    this.isRoot = false;
 
     this.data = folderData;
-
-    this.syncObserver = new SyncObserver();
   }
 
   /**
@@ -69,11 +62,12 @@ module.exports = class Folder {
       ownerId: this.ownerId,
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
-      notes: this.notes
+      notes: this.notes,
+      isRoot: this.isRoot
     };
 
-    if (this.id){
-      folderData.id = this.id;
+    if (this._id){
+      folderData._id = this._id;
     }
 
     return folderData;
@@ -84,12 +78,13 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    this.id = folderData.id || folderData._id || null;
+    this._id = folderData.id || folderData._id || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
+    this.isRoot = folderData.isRoot || false;
   }
 
   /**
@@ -101,7 +96,7 @@ module.exports = class Folder {
    */
   async save(dataToUpdate = null) {
     let query = {
-          _id : this.id
+          _id : this._id
         },
         data = {},
         options = {
@@ -116,6 +111,11 @@ module.exports = class Folder {
     }
 
     /**
+     * Renew modification date
+     */
+    // this.dtModify = +new Date();
+
+    /**
      * Save only passed fields or save the full model data
      */
     if (dataToUpdate) {
@@ -126,17 +126,23 @@ module.exports = class Folder {
       data = this.data;
 
       /**
+       * We don't need to rewrite an _id field
+       */
+      delete data._id;
+
+
+      /**
        * On sync, we need to save given id as _id in the DB.
        */
-      if (this.id !== null){
-        data = Object.assign(data, {_id: this.id});
-      }
+      // if (this.id !== null){
+      //   data = Object.assign(data, {_id: this.id});
+      // }
     }
 
     /**
      * Update Notes
      */
-    if (data.notes){
+    if (data.notes.length){
       this.updateNotes(data.notes);
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -144,19 +150,37 @@ module.exports = class Folder {
       delete data.notes;
     }
 
+    // let currentUpdatedAt = await db.find(db.FOLDERS, query);
+
+    // console.log('\n\n\n\n Current Folder state: ', currentUpdatedAt);
+
+
     let savedFolder = await db.update(db.FOLDERS, query, data, options);
 
     /**
      * Renew Model id with the actual value
      */
     if (savedFolder._id){
-      this.id = savedFolder._id;
+      this._id = savedFolder._id;
     }
 
-    /**
-     * Sync with API
-     */
-    this.syncObserver.sync();
+    console.log('Была ли обновлена папка ->>>>', savedFolder.numAffected);
+
+
+    console.log('\n\n\n\n After updating Folder state: ', savedFolder.affectedDocuments);
+
+    console.log('\n\n\n\n this.data: ', this.data);
+    if (savedFolder.affectedDocuments === this.data){
+      console.log('NOTHING CHANGED');
+    } else {
+      console.log('SOMETHING CHANGED. Need to update dtModify.');
+      /**
+       * @todo update dtModify.
+       */
+      // let savedFolder = await db.update(db.FOLDERS, query, {
+      // dtMofidy: +new Date()
+      // }, options);
+    }
 
     return savedFolder.affectedDocuments;
   }

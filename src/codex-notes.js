@@ -148,6 +148,10 @@ class CodexNotes {
         this.notes = new NotesController();
         this.userCtrl = new UserController();
         this.auth = new AuthController();
+
+        /**
+         * @type {SyncObserver}
+         */
         this.syncObserver = new SyncObserver();
 
         this.syncObserver.on('sync', (data) => {
@@ -157,7 +161,7 @@ class CodexNotes {
       })
       .then(() => {
         if (this.user.token) {
-          return this.syncObserver.sync();
+          // return this.syncObserver.sync();
         }
       })
       .catch(function (err) {
@@ -206,9 +210,9 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    console.log(`\n\n 
-      ........................... \n\n 
-      CodeX Notes runtime error: 
+    console.log(`\n\n
+      ........................... \n\n
+      CodeX Notes runtime error:
       ........................... \n\n
       `, error);
     console.log('\n\n ........................... \n\n');
