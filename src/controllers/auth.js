@@ -142,7 +142,7 @@ class AuthController {
    * Log out
    * @return {Promise.<void>}
    */
-  async logOut() {
+  logOut() {
 
     global.user.destroy();
     global.user = new User();
