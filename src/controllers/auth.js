@@ -3,7 +3,7 @@ const {ipcMain, BrowserWindow} = require('electron');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
-const UserModel = require('../models/user');
+const User = require('../models/user');
 
 /**
  * @class AuthController
@@ -136,6 +136,20 @@ class AuthController {
 
         break;
     }
+  }
+
+  /**
+   * Log out
+   * @return {Promise.<void>}
+   */
+  async logOut() {
+
+    global.user.destroy();
+    global.user = new User();
+
+    // reload page
+    global.app.mainWindow.reload();
+
   }
 
 }
