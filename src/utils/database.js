@@ -33,7 +33,7 @@ class Database {
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
     // this.drop();
-    // this.showDB();
+    this.showDB();
 
 
     this.getRootFolderId()

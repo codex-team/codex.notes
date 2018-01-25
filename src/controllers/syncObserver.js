@@ -71,7 +71,6 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   async sync() {
-    // return;
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = +new Date();
 
@@ -187,9 +186,10 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   sendFolder(folder){
-    console.log('> Send Folder to the server. Folder:', folder);
 
     let query = require('../graphql/mutations/folder');
+
+      console.log('\n\n\n\n\n\n\n\n> Try to Send Folder to the server. :', folder);
 
     let variables = {
       ownerId: global.user ? global.user.id : null,
@@ -200,7 +200,7 @@ module.exports = class SyncObserver {
       isRoot: folder.isRoot
     };
 
-    console.log('Variables:', variables);
+    console.log('\n\n\n> Send Folder to the server. Data:', variables);
 
     return this.api.request(query, variables)
       .then( data => {

@@ -932,7 +932,7 @@ var Aside = function () {
      *
      * @param {object} folder
      * @param {string} folder.title
-     * @param {number} folder.id
+     * @param {number} folder._id
      */
 
   }, {
@@ -2263,11 +2263,15 @@ var Folder = function () {
 
     this.folderTitleElement = $.get('js-folder-title');
 
+    console.log('this._id)', this._id);
+
     /**
      * Load actual Folder's data
      * @type {Object}
      */
     var folderData = window.ipcRenderer.sendSync('folder - get', this._id);
+
+    console.log('folderData', folderData);
 
     this.title = folderData.title;
 

@@ -278,7 +278,7 @@ export default class Aside {
    *
    * @param {object} folder
    * @param {string} folder.title
-   * @param {number} folder.id
+   * @param {number} folder._id
    */
   addFolder(folder) {
     if (!folder.title) {

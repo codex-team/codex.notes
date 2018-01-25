@@ -93,7 +93,6 @@ class FoldersController {
     try {
       let folder = new Folder({
         title: folderTitle,
-        dtModify: +new Date(),
         ownerId: global.user ? global.user.id : null
       });
 
@@ -105,7 +104,7 @@ class FoldersController {
       global.app.syncObserver.sync();
 
       event.returnValue = {
-        'id': savedFolder._id,
+        '_id': savedFolder._id,
         'title': savedFolder.title,
         'notes': savedFolder.notes
       };
@@ -152,14 +151,14 @@ class FoldersController {
     try {
       let folder = new Folder({
         _id: id,
-        ownerId: global.user ? global.user.id : null,
-        title: title
       });
 
       /**
        * @todo Check for fields (dtModify, etc) override
        */
-      event.returnValue = await folder.save();
+      event.returnValue = await folder.save({
+        title: title
+      });
 
       console.log('Folder was saved. Run sync');
 

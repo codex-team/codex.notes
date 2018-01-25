@@ -21,6 +21,7 @@ module.exports = `mutation Folder(
     id,
     title,
     dtModify,
+    dtCreate,
     owner{
       name,
       id

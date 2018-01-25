@@ -153,7 +153,7 @@ module.exports = class Folder {
     /**
      * Update Notes
      */
-    if (data.notes.length) {
+    if (data.notes && data.notes.length) {
       this.updateNotes(data.notes);
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -161,10 +161,11 @@ module.exports = class Folder {
       delete data.notes;
     }
 
-    let updateResponseBeforeSaving = await db.find(db.FOLDERS, query);
-    let folderStateBeforeSaving = updateResponseBeforeSaving.affectedDocuments;
+    let folderStateBeforeSaving = await db.findOne(db.FOLDERS, query);
     console.log('> Folder state before saving:', folderStateBeforeSaving);
 
+
+    console.log('\n\n\nData:', data);
 
     let updateResponse = await db.update(db.FOLDERS, query, data, options);
     console.log('> Try to save folder. updateResponse:', updateResponse);
