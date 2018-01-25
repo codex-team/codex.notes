@@ -5,6 +5,7 @@ const isOnline = require('is-online');
 const url = require('url');
 const API = require('../models/api');
 const User = require('../models/user');
+const db = require('../utils/database');
 
 /**
  * @class AuthController
@@ -184,13 +185,18 @@ class AuthController {
         }
 
         global.app.syncObserver.sync()
-            .then(() => {
-                global.user.destroy();
-                global.user = new User();
+          .then(() => {
 
-                // reload page
-                global.app.mainWindow.reload();
-            });
+            // force database drop
+            db.drop(true);
+
+            // destroy user instance
+            global.user.destroy();
+            global.user = new User();
+
+            // reload page
+            global.app.mainWindow.reload();
+          });
 
       });
   }

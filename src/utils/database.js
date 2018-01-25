@@ -85,9 +85,11 @@ class Database {
   /**
    * Drop Folders and Notes collections.
    * For local-development only
+   *
+   * @param {Boolean} force - force drop
    */
-  drop(){
-    if (process.env.DEBUG !== 'true') {
+  drop(force = false){
+    if (process.env.DEBUG !== 'true' || !force) {
       throw Error('Datastore dropping is not allowed for current environment');
     }
 
