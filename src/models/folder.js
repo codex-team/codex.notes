@@ -8,6 +8,11 @@ const db = require('../utils/database');
 const Note = require('../models/note.js');
 
 /**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
+/**
  * @typedef {Object} FolderData
  * @property {String|null} id         - Folder's Database id
  * @property {String|null} _id         - Folder's Database id
@@ -111,8 +116,8 @@ module.exports = class Folder {
      * Set creation date for the new Folder
      */
     if (!this._id) {
-      this.dtCreate = +new Date();
-      this.dtModify = +new Date();
+      this.dtCreate = Time.now;
+      this.dtModify = Time.now;
     }
 
     console.log('> query:', query);
@@ -186,7 +191,7 @@ module.exports = class Folder {
       console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
 
       let updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
-          $set: { dtModify: +new Date()}
+          $set: { dtModify: Time.now}
       }, options);
 
       let savedFolder = updateResponse.affectedDocuments;

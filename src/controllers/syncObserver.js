@@ -1,6 +1,11 @@
 const db = require('../utils/database');
 const Notes = require('../models/note');
 
+/**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
 
 /**
  * Simple GraphQL requests provider
@@ -41,19 +46,9 @@ module.exports = class SyncObserver {
    */
   async prepareUpdates(lastSyncTimestamp) {
     try {
-      console.log(`\n> Prepare updates`);
-
-      let lastSyncDate = new Date(lastSyncTimestamp);
-
-      console.log(`Last sync date:`, lastSyncDate);
-      console.log(`Last sync timestamp:`, lastSyncTimestamp);
       let changedFolders = await db.find(db.FOLDERS, {
-        // updatedAt: {$gte: lastSyncDate}
         dtModify: {$gte: lastSyncTimestamp}
       });
-
-      console.log('These folders need to be updated: ', changedFolders);
-      console.log('\nAll folders:', await db.find(db.FOLDERS, {}));
 
       return {
         folders: changedFolders,
@@ -72,7 +67,7 @@ module.exports = class SyncObserver {
    */
   async sync() {
     let lastSyncDate = await global.user.getSyncDate();
-    let currentTime = +new Date();
+    let currentTime = Time.now;
 
     /**
      * Get new updates from the last sync date
@@ -107,9 +102,7 @@ module.exports = class SyncObserver {
       console.log('> Now we try to update user.dtSync');
 
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('> Synchronisation\'s date renovated:');
-        console.log('Timestamp:', currentTime);
-        console.log('Date:', new Date(currentTime));
+        console.log('> Synchronisation\'s date renovated:', currentTime);
       }).catch(e => {
         console.log('> SyncObserver cannot renovate the sync date: ', e);
       });
@@ -195,8 +188,8 @@ module.exports = class SyncObserver {
       ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
-      dtModify: folder.dtModify ? parseInt(folder.dtModify / 1000, 10) : null,
-      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10) : null,
+      dtModify: folder.dtModify || null,
+      dtCreate: folder.dtCreate || null,
       isRoot: folder.isRoot
     };
 

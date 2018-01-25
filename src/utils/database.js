@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
+const Time = require('../utils/time.js');
 
 /**
  * Database class. neDB - https://github.com/louischatriot/nedb.
@@ -48,8 +49,8 @@ class Database {
           'ownerId': null,
           'title': 'Root Folder',
           'notes': [],
-          'dtCreate': +new Date(),
-          'dtModify': +new Date()
+          'dtCreate': Time.now,
+          'dtModify': Time.now
         }).then(rootFolderCreated => {
           console.log('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {
