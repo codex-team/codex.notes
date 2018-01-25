@@ -41,13 +41,15 @@ module.exports = class SyncObserver {
    */
   async prepareUpdates(lastSyncTimestamp) {
     try {
-      console.log('\n\n\n\n\n\n:::::');
+      console.log(`\n\n\n> Prepare updates`);
+
       let lastSyncDate = new Date(lastSyncTimestamp);
 
-      console.log(lastSyncDate);
-      console.log(lastSyncTimestamp);
+      console.log(`Last sync date:`, lastSyncDate);
+      console.log(`Last sync timestamp:`, lastSyncTimestamp);
       let changedFolders = await db.find(db.FOLDERS, {
-        updatedAt: {$gte: lastSyncDate}
+        // updatedAt: {$gte: lastSyncDate}
+        dtMofidy: {$gte: lastSyncDate}
       });
 
       return {
@@ -97,18 +99,20 @@ module.exports = class SyncObserver {
      * Send mutations sequence and renew synchronisation date when it will be finished
      */
     try {
+      console.log('> Run syncMutationsSequence');
       await Promise.all(syncMutationsSequence);
 
-      console.log('\n\n\n\n\n\n\n\nnow we try to update dt sync\n\n\n\n\n');
+      console.log('> Now we try to update user.dtSync');
 
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('Synchronisation\'s date renovated', currentTime);
-        console.log(new Date(currentTime));
+        console.log('> Synchronisation\'s date renovated:');
+        console.log('Timestamp:', currentTime);
+        console.log('Date:', new Date(currentTime));
       }).catch(e => {
-        console.log('SyncObserver cannot renovate the sync date: ', e);
+        console.log('> SyncObserver cannot renovate the sync date: ', e);
       });
     } catch (sequenceError) {
-      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
+      console.log('> SyncObserver: something failed due to mutation sequence', sequenceError);
     }
 
     /**

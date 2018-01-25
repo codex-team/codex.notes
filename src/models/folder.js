@@ -66,7 +66,7 @@ module.exports = class Folder {
       isRoot: this.isRoot
     };
 
-    if (this._id){
+    if (this._id) {
       folderData._id = this._id;
     }
 
@@ -78,7 +78,8 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    this._id = folderData.id || folderData._id || null;
+    // console.log('> Setter works with folderData:', folderData);
+    this._id = folderData._id  || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
@@ -95,6 +96,9 @@ module.exports = class Folder {
    * @returns {Promise.<FolderData>}
    */
   async save(dataToUpdate = null) {
+    console.log('> We are going to save a Folder.');
+    console.log('> Here is a data to update:', dataToUpdate);
+
     let query = {
           _id : this._id
         },
@@ -110,10 +114,9 @@ module.exports = class Folder {
       this.dtCreate = +new Date();
     }
 
-    /**
-     * Renew modification date
-     */
-    // this.dtModify = +new Date();
+    console.log('> query:', query);
+    console.log('> data:', data);
+    console.log('> options:', options);
 
     /**
      * Save only passed fields or save the full model data
@@ -122,13 +125,20 @@ module.exports = class Folder {
       data = {
         $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
       };
+
+      console.log('> Save only passed fields. data:', data);
     } else {
       data = this.data;
+
+
+      console.log('> No data was passed. Get this.data:', data);
 
       /**
        * We don't need to rewrite an _id field
        */
       delete data._id;
+
+      console.log('> Remove _id field from data:', data);
 
 
       /**
@@ -142,7 +152,7 @@ module.exports = class Folder {
     /**
      * Update Notes
      */
-    if (data.notes.length){
+    if (data.notes.length) {
       this.updateNotes(data.notes);
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -156,30 +166,31 @@ module.exports = class Folder {
 
 
     let savedFolder = await db.update(db.FOLDERS, query, data, options);
+    console.log('> Try to save folder. savedFolder:', savedFolder);
 
     /**
      * Renew Model id with the actual value
      */
-    if (savedFolder._id){
+    if (savedFolder._id) {
       this._id = savedFolder._id;
+      console.log('> Saved folder has _id field. this:', this);
     }
 
-    console.log('Была ли обновлена папка ->>>>', savedFolder.numAffected);
+    console.log('> this:', this);
+    console.log('> this.data:', this.data);
 
-
-    console.log('\n\n\n\n After updating Folder state: ', savedFolder.affectedDocuments);
-
-    console.log('\n\n\n\n this.data: ', this.data);
-    if (savedFolder.affectedDocuments === this.data){
-      console.log('NOTHING CHANGED');
+    if (savedFolder.affectedDocuments === this.data) {
+      console.log('folder: NOTHING CHANGED');
     } else {
-      console.log('SOMETHING CHANGED. Need to update dtModify.');
+      console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
       /**
        * @todo update dtModify.
        */
-      // let savedFolder = await db.update(db.FOLDERS, query, {
-      // dtMofidy: +new Date()
-      // }, options);
+      let savedFolder = await db.update(db.FOLDERS, query, {
+        dtMofidy: +new Date()
+      }, options);
+
+      console.log('> Saved folder: ', savedFolder);
     }
 
     return savedFolder.affectedDocuments;
@@ -207,6 +218,10 @@ module.exports = class Folder {
    */
   async delete() {
     /**
+     * @todo Delete folder == set isRemoved=1
+     */
+
+    /**
      * 1. Remove all Notes in the Folder
      */
     await db.remove(db.NOTES, {folderId: this.id}, {});
@@ -218,7 +233,7 @@ module.exports = class Folder {
 
     /**
      * 3. Send Folder Mutation to the API
-     * @todo Sent Folder mutation to the API
+     * @todo Sent Folder mutation to the API == run sync
      */
 
     return !!deleteFolderResult;
@@ -248,7 +263,6 @@ module.exports = class Folder {
    * @returns {Boolean}
    */
   async addCollaborator(email) {
-
     /**
      * @todo Send Collaborator Mutation to the API
      */

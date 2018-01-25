@@ -89,6 +89,7 @@ class FoldersController {
    * @return {{id: string, title: string, notes: []}}
    */
   async createFolder(event, folderTitle) {
+    console.log('> createFolder with title:', folderTitle);
     try {
       let folder = new Folder({
         title: folderTitle,
@@ -122,8 +123,8 @@ class FoldersController {
    * @return {Boolean}
    */
   async deleteFolder(event, folderId) {
+    console.log('> Delete folder with id:', folderId);
     try {
-
       let folder = new Folder({
         _id: folderId,
         ownerId: global.user ? global.user.id : null
@@ -132,6 +133,7 @@ class FoldersController {
       let folderRemovingResult = await folder.delete();
 
       event.returnValue = !!folderRemovingResult;
+      console.log('Folder', folderId, 'was successfully removed.');
     } catch (err) {
       console.log('Folder removing failed because of ',  err);
       event.returnValue = false;
@@ -145,6 +147,8 @@ class FoldersController {
    * @param {string} title      - new title
    */
   async changeTitle(event, id, title) {
+    console.log('> Rename folder with id:', id);
+    console.log('New title:', title);
     try {
       let folder = new Folder({
         _id: id,
@@ -156,6 +160,8 @@ class FoldersController {
        * @todo Check for fields (dtModify, etc) override
        */
       event.returnValue = await folder.save();
+
+      console.log('Folder was saved. Run sync');
 
       /**
        * Sync with an API
@@ -193,21 +199,24 @@ class FoldersController {
    * @param {FolderData[]} folders - new Folder's list
    * @return {Promise<void>}
    */
-  async renew(folders){
+  async renew(folders) {
+    console.log('> renew folders:', folders);
     try {
       await folders.forEach(async folderData => {
         try {
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
 
-          console.log('updatedFolder: ', updatedFolder);
+          console.log('>> updatedFolder: ', updatedFolder);
         } catch (error) {
-          console.log('Folder saving error:', error);
+          console.log('>> Folder saving error:', error);
         }
       });
 
       let list = new FoldersList();
       let userFolders = await list.get();
+
+      console.log('Folders were renewed. Updating list on the client');
 
       global.app.mainWindow.webContents.send('update folders list', {userFolders});
     } catch (err){
