@@ -146,50 +146,53 @@ class AuthController {
   logOut() {
 
     isOnline()
-        .then((connection) => {
+      .then((connection) => {
 
-          let hasUpdates = true,
-              closeApp = false;
+        let hasUpdates = true,
+            logoutConfirmed = false;
 
-          // get updates
-          global.app.syncObserver.prepareUpdates(global.user.dt_sync)
-              .then( (updates) => {
+        // get updates
+        // set flag true if user has folder or note changes
+        global.app.syncObserver.prepareUpdates(global.user.dt_sync)
+            .then( (updates) => {
 
-                if (updates.folders.length === 0 && !updates.notes) {
-                  hasUpdates = false;
+              if (updates.folders.length === 0 && !updates.notes) {
+                hasUpdates = false;
+              }
+
+            });
+
+        // if there is no internet connection
+        if (!connection && hasUpdates) {
+
+          // show confirmation dialog
+          dialog.showMessageBox({
+                type: 'Log Out',
+                buttons: ['No', 'Yes'],
+                title: 'Confirm',
+                message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
+            }, function (confirmed) {
+                if (confirmed) {
+                    logoutConfirmed = true;
                 }
+            });
 
-              });
-
-          // if there is no internet connection
-          if (!connection && hasUpdates) {
-
-            dialog.showMessageBox({
-                  type: 'Log Out',
-                  buttons: ['No', 'Yes'],
-                  title: 'Confirm',
-                  message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
-              }, function (confirmed) {
-                  if (confirmed) {
-                      closeApp = true;
-                  }
-              });
-
-            if (!closeApp) {
-              return;
-            }
+          // if log out not confirmed, then do not log out
+          if (!logoutConfirmed) {
+            return;
           }
+        }
 
-          global.app.syncObserver.sync()
-              .then(() => {
-                  global.user.destroy();
-                  global.user = new User();
+        global.app.syncObserver.sync()
+            .then(() => {
+                global.user.destroy();
+                global.user = new User();
 
-                  // reload page
-                  global.app.mainWindow.reload();
-              });
+                // reload page
+                global.app.mainWindow.reload();
+            });
 
-        });
+      });
   }
 
 }
