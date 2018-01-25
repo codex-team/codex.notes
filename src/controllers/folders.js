@@ -92,14 +92,18 @@ class FoldersController {
     try {
       let folder = new Folder({
         title: folderTitle,
-        dtModify: +new Date(),
         ownerId: global.user ? global.user.id : null
       });
 
       let savedFolder = await folder.save();
 
+      /**
+       * Sync with an API
+       */
+      global.app.syncObserver.sync();
+
       event.returnValue = {
-        'id': savedFolder._id,
+        '_id': savedFolder._id,
         'title': savedFolder.title,
         'notes': savedFolder.notes
       };
@@ -118,15 +122,15 @@ class FoldersController {
    */
   async deleteFolder(event, folderId) {
     try {
-
       let folder = new Folder({
-        id: folderId,
+        _id: folderId,
         ownerId: global.user ? global.user.id : null
       });
 
       let folderRemovingResult = await folder.delete();
 
       event.returnValue = !!folderRemovingResult;
+      console.log('Folder', folderId, 'was successfully removed.');
     } catch (err) {
       console.log('Folder removing failed because of ',  err);
       event.returnValue = false;
@@ -142,15 +146,18 @@ class FoldersController {
   async changeTitle(event, id, title) {
     try {
       let folder = new Folder({
-        id,
-        ownerId: global.user ? global.user.id : null,
+        _id: id,
+      });
+
+      event.returnValue = await folder.save({
         title: title
       });
 
       /**
-       * @todo Check for fields (dtModify, etc) override
+       * Sync with an API
        */
-      event.returnValue = await folder.save();
+      global.app.syncObserver.sync();
+
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
       event.returnValue = false;
@@ -166,7 +173,7 @@ class FoldersController {
   async addCollaborator(event, id, email) {
     try {
       let folder = new Folder({
-        id,
+        _id: id,
         ownerId: global.user ? global.user.id : null,
       });
 
@@ -182,19 +189,28 @@ class FoldersController {
    * @param {FolderData[]} folders - new Folder's list
    * @return {Promise<void>}
    */
-  async renew(folders){
-    await folders.forEach( async folderData => {
+  async renew(folders) {
+    try {
+      await folders.forEach(async folderData => {
+        try {
+          let folder = new Folder(folderData);
+          let updatedFolder = await folder.save();
 
-      let folder = new Folder(folderData);
-      let updatedFolder = await folder.save();
+          console.log('updatedFolder: ', updatedFolder);
+        } catch (error) {
+          console.log('Folder saving error:', error);
+        }
+      });
 
-      console.log('updatedFolder: ', updatedFolder);
-    });
+      let list = new FoldersList();
+      let userFolders = await list.get();
 
-    let list = new FoldersList();
-    let userFolders = await list.get();
+      console.log('Folders were renewed. Updating list on the client');
 
-    global.app.mainWindow.webContents.send('update folders list', {userFolders});
+      global.app.mainWindow.webContents.send('update folders list', {userFolders});
+    } catch (err){
+      console.log('Can not renew Folder because of:', err);
+    }
   }
 }
 

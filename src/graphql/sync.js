@@ -8,10 +8,13 @@ module.exports = `query Sync($userId: ID!) {
     folders {
       id,
       title,
-      owner{
+      owner {
         name,
         id
       },
+      isRoot,
+      dtModify,
+      dtCreate,
       notes {
         id,
         title,

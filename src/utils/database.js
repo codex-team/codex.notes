@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
+const Time = require('../utils/time.js');
 
 /**
  * Database class. neDB - https://github.com/louischatriot/nedb.
@@ -28,12 +29,13 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
+    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
     // this.drop();
     // this.showDB();
+
 
     this.getRootFolderId()
       .then(rootFolderId => {
@@ -44,9 +46,11 @@ class Database {
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
+          'ownerId': null,
           'title': 'Root Folder',
-          // '_id': 0, // nedb does not works properly with _id = 0
-          'notes': []
+          'notes': [],
+          'dtCreate': Time.now,
+          'dtModify': Time.now
         }).then(rootFolderCreated => {
           console.log('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {
