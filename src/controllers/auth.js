@@ -1,6 +1,7 @@
 'use strict';
-const {ipcMain, BrowserWindow} = require('electron');
+const {ipcMain, BrowserWindow, dialog} = require('electron');
 const request = require('request-promise');
+const isOnline = require('is-online');
 const url = require('url');
 const API = require('../models/api');
 const User = require('../models/user');
@@ -144,12 +145,51 @@ class AuthController {
    */
   logOut() {
 
-    global.user.destroy();
-    global.user = new User();
+    isOnline()
+        .then((connection) => {
 
-    // reload page
-    global.app.mainWindow.reload();
+          let hasUpdates = true,
+              closeApp = false;
 
+          // get updates
+          global.app.syncObserver.prepareUpdates(global.user.dt_sync)
+              .then( (updates) => {
+
+                if (updates.folders.length === 0 && !updates.notes) {
+                  hasUpdates = false;
+                }
+
+              });
+
+          // if there is no internet connection
+          if (!connection && hasUpdates) {
+
+            dialog.showMessageBox({
+                  type: 'Log Out',
+                  buttons: ['No', 'Yes'],
+                  title: 'Confirm',
+                  message: 'Unsaved data will be lost. Are you sure you want to quit?'
+              }, function (confirmed) {
+                  if (confirmed) {
+                      closeApp = true;
+                  }
+              });
+
+            if (!closeApp) {
+              return;
+            }
+          }
+
+          global.app.syncObserver.sync()
+              .then(() => {
+                  global.user.destroy();
+                  global.user = new User();
+
+                  // reload page
+                  global.app.mainWindow.reload();
+              });
+
+        });
   }
 
 }
