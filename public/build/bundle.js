@@ -632,8 +632,8 @@ var menuItemTitleMaxLength = 68;
 var Aside = function () {
 
   /**
-  * @constructor
-  */
+   * @constructor
+   */
   function Aside() {
     var _this = this;
 
@@ -901,7 +901,7 @@ var Aside = function () {
 
       if (isRootFolder) {
         notesMenu = document.querySelector('[name="js-notes-menu"]');
-      } else if (this.currentFolder && noteData.folderId === this.currentFolder.id) {
+      } else if (this.currentFolder && noteData.folderId === this.currentFolder._id) {
         notesMenu = document.querySelector('[name="js-folder-notes-menu"]');
       } else {
         console.log('Note added to closed folder: %o', noteData.folderId);
@@ -945,7 +945,7 @@ var Aside = function () {
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
-      var item = this.makeMenuItem(folder.title, { folderId: folder.id });
+      var item = this.makeMenuItem(folder.title, { folderId: folder._id });
 
       foldersMenu.insertAdjacentElement('afterbegin', item);
 
@@ -2132,7 +2132,7 @@ var FolderSettings = function () {
 
       var input = event.target,
           title = input.value.trim(),
-          id = codex.notes.aside.currentFolder.id;
+          id = codex.notes.aside.currentFolder._id;
 
       if (!title) {
         return;
@@ -2176,7 +2176,7 @@ var FolderSettings = function () {
 
       var input = event.target,
           email = input.value.trim(),
-          id = codex.notes.aside.currentFolder.id;
+          id = codex.notes.aside.currentFolder._id;
 
       if (!email || !Validate.email(email)) {
         return;

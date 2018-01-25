@@ -47,8 +47,9 @@ class Database {
           'isRoot': true,
           'ownerId': null,
           'title': 'Root Folder',
-          // '_id': 0, // nedb does not works properly with _id = 0
-          'notes': []
+          'notes': [],
+          'dtCreate': +new Date(),
+          'dtModify': +new Date()
         }).then(rootFolderCreated => {
           console.log('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {

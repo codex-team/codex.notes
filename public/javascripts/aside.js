@@ -25,8 +25,8 @@ const menuItemTitleMaxLength = 68;
 export default class Aside {
 
   /**
-  * @constructor
-  */
+   * @constructor
+   */
   constructor() {
     /**
      * Make CSS dictionary
@@ -249,7 +249,7 @@ export default class Aside {
 
     if (isRootFolder) {
       notesMenu = document.querySelector('[name="js-notes-menu"]');
-    } else if (this.currentFolder && noteData.folderId === this.currentFolder.id) {
+    } else if (this.currentFolder && noteData.folderId === this.currentFolder._id) {
       notesMenu = document.querySelector('[name="js-folder-notes-menu"]');
     } else {
       console.log('Note added to closed folder: %o', noteData.folderId);
@@ -286,7 +286,7 @@ export default class Aside {
       return;
     }
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
-    let item = this.makeMenuItem(folder.title, {folderId: folder.id});
+    let item = this.makeMenuItem(folder.title, {folderId: folder._id});
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
 

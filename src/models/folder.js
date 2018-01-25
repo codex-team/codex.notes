@@ -79,7 +79,7 @@ module.exports = class Folder {
    */
   set data(folderData) {
     // console.log('> Setter works with folderData:', folderData);
-    this._id = folderData._id  || null;
+    this._id = folderData._id || folderData.id || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
@@ -112,6 +112,7 @@ module.exports = class Folder {
      */
     if (!this._id) {
       this.dtCreate = +new Date();
+      this.dtModify = +new Date();
     }
 
     console.log('> query:', query);
@@ -160,13 +161,15 @@ module.exports = class Folder {
       delete data.notes;
     }
 
-    // let currentUpdatedAt = await db.find(db.FOLDERS, query);
+    let updateResponseBeforeSaving = await db.find(db.FOLDERS, query);
+    let folderStateBeforeSaving = updateResponseBeforeSaving.affectedDocuments;
+    console.log('> Folder state before saving:', folderStateBeforeSaving);
 
-    // console.log('\n\n\n\n Current Folder state: ', currentUpdatedAt);
 
+    let updateResponse = await db.update(db.FOLDERS, query, data, options);
+    console.log('> Try to save folder. updateResponse:', updateResponse);
 
-    let savedFolder = await db.update(db.FOLDERS, query, data, options);
-    console.log('> Try to save folder. savedFolder:', savedFolder);
+    let savedFolder = updateResponse.affectedDocuments;
 
     /**
      * Renew Model id with the actual value
@@ -176,24 +179,21 @@ module.exports = class Folder {
       console.log('> Saved folder has _id field. this:', this);
     }
 
-    console.log('> this:', this);
-    console.log('> this.data:', this.data);
-
-    if (savedFolder.affectedDocuments === this.data) {
+    if (!folderStateBeforeSaving || savedFolder === folderStateBeforeSaving) {
       console.log('folder: NOTHING CHANGED');
     } else {
       console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
-      /**
-       * @todo update dtModify.
-       */
-      let savedFolder = await db.update(db.FOLDERS, query, {
-        dtMofidy: +new Date()
+
+      let updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
+          $set: { dtModify: +new Date()}
       }, options);
 
-      console.log('> Saved folder: ', savedFolder);
+      let savedFolder = updateResponse.affectedDocuments;
+
+      console.log('> Saved folder:', savedFolder);
     }
 
-    return savedFolder.affectedDocuments;
+    return savedFolder;
   }
 
   /**

@@ -41,7 +41,7 @@ module.exports = class SyncObserver {
    */
   async prepareUpdates(lastSyncTimestamp) {
     try {
-      console.log(`\n\n\n> Prepare updates`);
+      console.log(`\n> Prepare updates`);
 
       let lastSyncDate = new Date(lastSyncTimestamp);
 
@@ -49,8 +49,11 @@ module.exports = class SyncObserver {
       console.log(`Last sync timestamp:`, lastSyncTimestamp);
       let changedFolders = await db.find(db.FOLDERS, {
         // updatedAt: {$gte: lastSyncDate}
-        dtMofidy: {$gte: lastSyncDate}
+        dtModify: {$gte: lastSyncTimestamp}
       });
+
+      console.log('These folders need to be updated: ', changedFolders);
+      console.log('\nAll folders:', await db.find(db.FOLDERS, {}));
 
       return {
         folders: changedFolders,
@@ -184,25 +187,24 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   sendFolder(folder){
-    let query = require('../graphql/mutations/folder');
+    console.log('> Send Folder to the server. Folder:', folder);
 
-    let dtModify = +new Date(folder.updatedAt);
+    let query = require('../graphql/mutations/folder');
 
     let variables = {
       ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
-      dtModify: dtModify ? parseInt(dtModify/ 1000, 10) : null,
-      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null,
+      dtModify: folder.dtModify ? parseInt(folder.dtModify / 1000, 10) : null,
+      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10) : null,
       isRoot: folder.isRoot
     };
 
-    console.log('->>>>>>>>>>>>>>>>>>.', variables.isRoot);
+    console.log('Variables:', variables);
 
-    console.log('\n\nNow i will send a folder to the cloud. \n\n', dtModify, '\n\n');
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data);
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
