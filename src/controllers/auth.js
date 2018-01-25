@@ -168,7 +168,7 @@ class AuthController {
                   type: 'Log Out',
                   buttons: ['No', 'Yes'],
                   title: 'Confirm',
-                  message: 'Unsaved data will be lost. Are you sure you want to quit?'
+                  message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
               }, function (confirmed) {
                   if (confirmed) {
                       closeApp = true;
