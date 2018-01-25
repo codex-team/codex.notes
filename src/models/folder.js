@@ -101,9 +101,6 @@ module.exports = class Folder {
    * @returns {Promise.<FolderData>}
    */
   async save(dataToUpdate = null) {
-    console.log('> We are going to save a Folder.');
-    console.log('> Here is a data to update:', dataToUpdate);
-
     let query = {
           _id : this._id
         },
@@ -120,10 +117,6 @@ module.exports = class Folder {
       this.dtModify = Time.now;
     }
 
-    console.log('> query:', query);
-    console.log('> data:', data);
-    console.log('> options:', options);
-
     /**
      * Save only passed fields or save the full model data
      */
@@ -131,28 +124,13 @@ module.exports = class Folder {
       data = {
         $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
       };
-
-      console.log('> Save only passed fields. data:', data);
     } else {
       data = this.data;
-
-
-      console.log('> No data was passed. Get this.data:', data);
 
       /**
        * We don't need to rewrite an _id field
        */
       delete data._id;
-
-      console.log('> Remove _id field from data:', data);
-
-
-      /**
-       * On sync, we need to save given id as _id in the DB.
-       */
-      // if (this.id !== null){
-      //   data = Object.assign(data, {_id: this.id});
-      // }
     }
 
     /**
@@ -166,15 +144,16 @@ module.exports = class Folder {
       delete data.notes;
     }
 
+    /**
+     * We need to check either something in DB was updated to manually update dtModify.
+     * 1. Get current DB value
+     * 2. Make nedb upsert (always returns numAffected and affectedDocuments)
+     * 3. If previous value is not equals with affectedDocument, it means that something is changed
+     * 4. If something is changed, update dtModify
+     */
+    let somethingChanged = false;
     let folderStateBeforeSaving = await db.findOne(db.FOLDERS, query);
-    console.log('> Folder state before saving:', folderStateBeforeSaving);
-
-
-    console.log('\n\n\nData:', data);
-
     let updateResponse = await db.update(db.FOLDERS, query, data, options);
-    console.log('> Try to save folder. updateResponse:', updateResponse);
-
     let savedFolder = updateResponse.affectedDocuments;
 
     /**
@@ -182,21 +161,18 @@ module.exports = class Folder {
      */
     if (savedFolder._id) {
       this._id = savedFolder._id;
-      console.log('> Saved folder has _id field. this:', this);
     }
 
-    if (!folderStateBeforeSaving || savedFolder === folderStateBeforeSaving) {
-      console.log('folder: NOTHING CHANGED');
-    } else {
+    somethingChanged = folderStateBeforeSaving && savedFolder !== folderStateBeforeSaving;
+
+    if (somethingChanged) {
       console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
 
       let updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
           $set: { dtModify: Time.now}
       }, options);
 
-      let savedFolder = updateResponse.affectedDocuments;
-
-      console.log('> Saved folder:', savedFolder);
+      savedFolder = updateResponse.affectedDocuments;
     }
 
     return savedFolder;
@@ -222,7 +198,7 @@ module.exports = class Folder {
    * Delete Folder from the Database
    * @returns {Boolean}
    */
-  async delete() {
+  async delete () {
     /**
      * @todo Delete folder == set isRemoved=1
      */

@@ -89,7 +89,6 @@ class FoldersController {
    * @return {{id: string, title: string, notes: []}}
    */
   async createFolder(event, folderTitle) {
-    console.log('> createFolder with title:', folderTitle);
     try {
       let folder = new Folder({
         title: folderTitle,
@@ -122,7 +121,6 @@ class FoldersController {
    * @return {Boolean}
    */
   async deleteFolder(event, folderId) {
-    console.log('> Delete folder with id:', folderId);
     try {
       let folder = new Folder({
         _id: folderId,
@@ -146,21 +144,14 @@ class FoldersController {
    * @param {string} title      - new title
    */
   async changeTitle(event, id, title) {
-    console.log('> Rename folder with id:', id);
-    console.log('New title:', title);
     try {
       let folder = new Folder({
         _id: id,
       });
 
-      /**
-       * @todo Check for fields (dtModify, etc) override
-       */
       event.returnValue = await folder.save({
         title: title
       });
-
-      console.log('Folder was saved. Run sync');
 
       /**
        * Sync with an API
@@ -199,16 +190,15 @@ class FoldersController {
    * @return {Promise<void>}
    */
   async renew(folders) {
-    console.log('> renew folders:', folders);
     try {
       await folders.forEach(async folderData => {
         try {
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
 
-          console.log('>> updatedFolder: ', updatedFolder);
+          console.log('updatedFolder: ', updatedFolder);
         } catch (error) {
-          console.log('>> Folder saving error:', error);
+          console.log('Folder saving error:', error);
         }
       });
 
