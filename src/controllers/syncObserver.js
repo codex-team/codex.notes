@@ -96,18 +96,15 @@ module.exports = class SyncObserver {
      * Send mutations sequence and renew synchronisation date when it will be finished
      */
     try {
-      console.log('> Run syncMutationsSequence');
       await Promise.all(syncMutationsSequence);
 
-      console.log('> Now we try to update user.dtSync');
-
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('> Synchronisation\'s date renovated:', currentTime);
+        console.log('Synchronisation\'s date renovated:', currentTime);
       }).catch(e => {
-        console.log('> SyncObserver cannot renovate the sync date: ', e);
+        console.log('SyncObserver cannot renovate the sync date: ', e);
       });
     } catch (sequenceError) {
-      console.log('> SyncObserver: something failed due to mutation sequence', sequenceError);
+      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
     }
 
     /**
@@ -182,8 +179,6 @@ module.exports = class SyncObserver {
 
     let query = require('../graphql/mutations/folder');
 
-      console.log('\n\n\n\n\n\n\n\n> Try to Send Folder to the server. :', folder);
-
     let variables = {
       ownerId: global.user ? global.user.id : null,
       id: folder._id,
@@ -192,8 +187,6 @@ module.exports = class SyncObserver {
       dtCreate: folder.dtCreate || null,
       isRoot: folder.isRoot
     };
-
-    console.log('\n\n\n> Send Folder to the server. Data:', variables);
 
     return this.api.request(query, variables)
       .then( data => {

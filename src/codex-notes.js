@@ -160,9 +160,9 @@ class CodexNotes {
         });
       })
       .then(() => {
-        if (this.user.token) {
+        // if (this.user.token) {
           // return this.syncObserver.sync();
-        }
+        // }
       })
       .catch(function (err) {
         console.log('Initialization error', err);
