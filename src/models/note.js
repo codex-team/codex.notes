@@ -98,16 +98,16 @@ class Note {
   /**
    * Save current Note to the DB
    */
-  async save(){
-
+  async save() {
+    console.log('> Save note');
     /**
      * Set creation date for the new Note
      */
     if (!this._id) {
-      console.log('\n\n Note creation: \n\n');
+      console.log('Create note');
       this.dtCreate = +new Date();
     } else {
-      console.log('\n\n Note updating ', this._id, '\n\n');
+      console.log('Update note with id:', this._id);
     }
 
     /**
@@ -173,8 +173,10 @@ class Note {
       $set: {dtModify: this.dtModify}
     });
 
+    console.log('> Updated Folder\'s data:', folderUpdated);
+
     if (folderUpdated && folderUpdated.numAffected){
-      console.log('\n Folder\'s modification date updated', this.folderId, '\n');
+      console.log('dtModify for Folder with id:', this.folderId, 'was successfully updated');
     } else {
       console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);
     }

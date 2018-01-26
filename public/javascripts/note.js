@@ -102,7 +102,11 @@ export default class Note {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
 
-    let dtModify = new Date(note.dtModify);
+    /**
+     * We store all times in a Seconds to correspond server-format
+     * @type {Date}
+     */
+    let dtModify = new Date(note.dtModify * 1000);
 
     this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',

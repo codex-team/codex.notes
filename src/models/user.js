@@ -1,5 +1,4 @@
 'use strict';
-const random = require('../utils/random');
 const db = require('../utils/database');
 
 /**
