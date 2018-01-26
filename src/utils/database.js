@@ -36,7 +36,6 @@ class Database {
     // this.drop();
     // this.showDB();
 
-
     this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);

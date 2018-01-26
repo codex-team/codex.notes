@@ -1,11 +1,12 @@
 'use strict';
-const {ipcMain, BrowserWindow, dialog} = require('electron');
+const {ipcMain, BrowserWindow, dialog, app} = require('electron');
 const request = require('request-promise');
 const isOnline = require('is-online');
 const url = require('url');
 const API = require('../models/api');
 const User = require('../models/user');
 const db = require('../utils/database');
+const SyncObserver = require('./syncObserver');
 
 /**
  * @class AuthController
@@ -75,6 +76,8 @@ class AuthController {
           /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
+          console.log('User authorized with following data: ', payload);
+
           await global.user.update({
             id: payload.user_id,
             name: payload.name,
@@ -84,7 +87,11 @@ class AuthController {
             token: jwt
           });
 
-          global.app.syncObserver.sync();
+          if (!global.app.syncObserver) {
+              global.app.syncObserver = new SyncObserver();
+          }
+
+          await global.app.syncObserver.sync();
 
           event.returnValue = global.user;
 
@@ -187,15 +194,17 @@ class AuthController {
         global.app.syncObserver.sync()
           .then(() => {
 
-            // force database drop
-            db.drop(true);
-
             // destroy user instance
             global.user.destroy();
             global.user = new User();
 
+            // force database drop
+            db.drop(true);
+
             // reload page
             global.app.mainWindow.reload();
+
+            db.makeInitialSettings(app.getPath('userData'));
           });
 
       });

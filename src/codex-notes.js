@@ -154,21 +154,25 @@ class CodexNotes {
          */
         this.syncObserver = new SyncObserver();
 
-        this.syncObserver.on('sync', (data) => {
-          // this.user.renew(data.user);
-          this.folders.renew(data.user.folders);
-        });
       })
-      .then(() => {
-        // if (this.user.token) {
-          // return this.syncObserver.sync();
-        // }
-      })
+      .then(() => { this.syncUser(); })
       .catch(function (err) {
         console.log('Initialization error', err);
       });
   }
 
+  syncUser() {
+
+    if (this.user.token) {
+
+        this.syncObserver.on('sync', (data) => {
+            this.folders.renew(data.user.folders);
+        });
+
+        return this.syncObserver.sync();
+    }
+
+  }
 
   /**
    * Makes native application menu

@@ -39,6 +39,15 @@ module.exports = class SyncObserver {
     this.subscribers = [];
   }
 
+  async reload() {
+    this.api = new GraphQLClient(process.env.API_ENDPOINT, {
+        headers: {
+            // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
+            Authorization: 'Bearer ' + global.user.token,
+        }
+    });
+  }
+
   /**
    * Prepare updates for API during synchronization
    * @param {Number} lastSyncTimestamp - Date of last synchronisation
