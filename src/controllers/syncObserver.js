@@ -50,11 +50,14 @@ module.exports = class SyncObserver {
         dtModify: {$gte: lastSyncTimestamp}
       });
 
+      let changedNotes = await db.find(db.NOTES, {
+        dtModify: {$gte: lastSyncTimestamp}
+      });
+
       return {
         folders: changedFolders,
-        notes: null
+        notes: changedNotes
       };
-
     } catch (err) {
       console.log('Error during synchronization prepareUpdates: ', err);
       return false;
@@ -93,6 +96,15 @@ module.exports = class SyncObserver {
     }
 
     /**
+     * Push Notes mutations to the Sync Mutations Sequence
+     */
+    if (updates.notes.length) {
+      syncMutationsSequence.push(...updates.notes.map( note => {
+        return this.sendNote(note);
+      }));
+    }
+
+    /**
      * Send mutations sequence and renew synchronisation date when it will be finished
      */
     try {
@@ -118,8 +130,7 @@ module.exports = class SyncObserver {
    * Requests updates from the cloud
    * @return {Promise<object>}
    */
-  async getUpdates(){
-
+  async getUpdates() {
     /**
      * Sync Query
      * @type {String}
@@ -147,7 +158,6 @@ module.exports = class SyncObserver {
    * @param {*} data       - Data to pass with Event
    */
   emit(event, data) {
-
     this.subscribers.forEach(sub => {
       if (sub.event !== event) {
         return;
@@ -155,7 +165,6 @@ module.exports = class SyncObserver {
 
       sub.callback.call(null, data);
     });
-
   }
 
   /**
@@ -175,8 +184,7 @@ module.exports = class SyncObserver {
    * @param {FolderData} folder
    * @return {Promise<object>}
    */
-  sendFolder(folder){
-
+  sendFolder(folder) {
     let query = require('../graphql/mutations/folder');
 
     let variables = {
@@ -194,6 +202,34 @@ module.exports = class SyncObserver {
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
+      });
+  }
+
+  /**
+   * Send Notes Mutation
+   * @param {NoteData} note
+   * @return {Promise<object>}
+   */
+  sendNote(note) {
+    let query = require('../graphql/mutations/note');
+
+    let variables = {
+      id: note._id,
+      authorId: global.user ? global.user.id : null,
+      folderId: note.folderId,
+      title: note.title || '',
+      content: note.content,
+      dtModify: note.dtModify || null,
+      dtCreate: note.dtCreate || null,
+      isRemoved: note.isRemoved
+    };
+
+    return this.api.request(query, variables)
+      .then( data => {
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data: \n\n', data);
+      })
+      .catch( error => {
+        console.log('[!] Note Mutation failed because of ', error);
       });
   }
 };

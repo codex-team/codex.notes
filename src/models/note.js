@@ -13,6 +13,11 @@ const sanitizeHtml = require('sanitize-html');
 const db = require('../utils/database');
 
 /**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
+/**
  * @typedef {Object} NoteData
  * @property {String} _id           — Note's id
  * @property {String} id            — similar to _id. Uses for filling Model from the GraphQL query which is 'id'
@@ -87,7 +92,7 @@ class Note {
       editorVersion: this.editorVersion,
     };
 
-    if (this._id){
+    if (this._id) {
       noteData._id = this._id;
     }
 
@@ -100,20 +105,25 @@ class Note {
    */
   async save() {
     console.log('> Save note');
+    let query = {
+          _id : this._id
+        },
+        data,
+        options = {
+          upsert: true,
+          returnUpdatedDocs: true
+        };
+
     /**
-     * Set creation date for the new Note
+     * Set dates for the new Note
      */
     if (!this._id) {
       console.log('Create note');
-      this.dtCreate = +new Date();
+      this.dtCreate = Time.now;
+      this.dtModify = Time.now;
     } else {
       console.log('Update note with id:', this._id);
     }
-
-    /**
-     * Update modification time
-     */
-    this.dtModify = +new Date();
 
     /**
      * Make Title from the first Text Block in case when it is not presented.
@@ -134,16 +144,20 @@ class Note {
       this.folderId = await db.getRootFolderId();
     }
 
-    let query = {
-          _id : this._id
-        },
-        data = this.data,
-        options = {
-          upsert: true,
-          returnUpdatedDocs: true
-        };
+    data = this.data;
 
-    let savedNote = await db.update(db.NOTES, query, data, options);
+    /**
+     * We need to check either something in DB was updated to manually update dtModify.
+     * 1. Get current DB value
+     * 2. Make nedb upsert (always returns numAffected and affectedDocuments)
+     * 3. If previous value is not equals with affectedDocument, it means that something is changed
+     * 4. If something is changed, update dtModify
+     */
+    let somethingChanged = false;
+    let noteStateBeforeSaving = await db.findOne(db.NOTES, query);
+    let updateResponse = await db.update(db.NOTES, query, data, options);
+    let savedNote = updateResponse.affectedDocuments;
+
 
     /**
      * Renew Model id with the actual value
@@ -152,30 +166,45 @@ class Note {
       this._id = savedNote._id;
     }
 
-    /**
-     * Update Folder's modification time
-     */
-    await this.updateFolderModifyDate();
+    somethingChanged = noteStateBeforeSaving && savedNote !== noteStateBeforeSaving;
 
-    /**
-     * @todo Sync with API
-     */
+    if (somethingChanged) {
+      console.log('note: SOMETHING CHANGED. Need to update dtModify.');
 
-    return savedNote.affectedDocuments;
+      /**
+       * Update Folder's modification time
+       */
+      await this.updateFolderModifyDate();
+
+      /**
+       * Update Note's modification time
+       */
+      let currentTimestamp = Time.now;
+
+      updateResponse = await db.update(db.NOTES, { _id: this._id }, {
+        $set: { dtModify: currentTimestamp}
+      }, options);
+
+      this.dtModify = currentTimestamp;
+
+      savedNote = updateResponse.affectedDocuments;
+    }
+
+    return savedNote;
   }
 
   /**
    * Update dtModify of parent Folder
    * @return {Promise<void>}
    */
-  async updateFolderModifyDate(){
+  async updateFolderModifyDate() {
     let folderUpdated = await db.update(db.FOLDERS, {_id: this.folderId}, {
       $set: {dtModify: this.dtModify}
     });
 
     console.log('> Updated Folder\'s data:', folderUpdated);
 
-    if (folderUpdated && folderUpdated.numAffected){
+    if (folderUpdated && folderUpdated.numAffected) {
       console.log('dtModify for Folder with id:', this.folderId, 'was successfully updated');
     } else {
       console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);

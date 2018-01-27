@@ -56,15 +56,19 @@ class NotesController {
   async saveNote(noteData, event) {
     try {
       let note = new Note({
+        _id: noteData.data.id || null,
         title: noteData.title,
+        content: noteData.data.items,
         editorVersion: noteData.data.version,
-        dtModify: +new Date(),
         authorId: global.user ? global.user.id : null,
         folderId: noteData.folderId,
-        content: noteData.data.items,
-        _id: noteData.data.id || null,
       });
+
       let newNote = await note.save();
+
+      if (noteData.dtModify !== newNote.dtModify) {
+        global.app.syncObserver.sync();
+      }
 
       console.log('Note saving result: ', newNote);
 
@@ -143,6 +147,45 @@ class NotesController {
     } catch (err) {
       console.log('Note failed because of ', err);
       event.returnValue = false;
+    }
+  }
+
+  /**
+   * Updates Notes data in the DB and sends new state to the Client
+   * @param {NotesData[]} notes - new Note's list
+   * @return {Promise<void>}
+   */
+  async renew(notes) {
+    try {
+      await notes.forEach(async noteData => {
+        try {
+          console.log('\n\n\n\n\n\n\n\n\n\n\n',noteData);
+
+          let note = new Note({
+            _id: noteData._id || null,
+            title: noteData.title,
+            content: noteData.items,
+            editorVersion: noteData.version,
+            authorId: global.user ? global.user.id : null,
+            folderId: noteData.folderId,
+          });
+
+          let updatedNote = await note.save();
+
+          console.log('updatedNote: ', updatedNote);
+        } catch (error) {
+          console.log('Note saving error:', error);
+        }
+      });
+
+      let list = new NotesList({});
+      let rootNotes = await list.get();
+
+      console.log('Notes were renewed. Updating list on the client');
+
+      global.app.mainWindow.webContents.send('notes list - update', {rootNotes});
+    } catch (err){
+      console.log('Can not renew Note because of:', err);
     }
   }
 }

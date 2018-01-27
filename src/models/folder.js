@@ -168,7 +168,7 @@ module.exports = class Folder {
     if (somethingChanged) {
       console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
 
-      let updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
+      updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
           $set: { dtModify: Time.now}
       }, options);
 

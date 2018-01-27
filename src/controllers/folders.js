@@ -4,6 +4,11 @@ let {ipcMain} = require('electron');
 const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
 
+/**
+ * Notes controllers
+ */
+const NotesController = require('./notes');
+const notesController = new NotesController();
 
 
 /**
@@ -195,6 +200,8 @@ class FoldersController {
         try {
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
+
+          notesController.renew(folder.notes || []);
 
           console.log('updatedFolder: ', updatedFolder);
         } catch (error) {
