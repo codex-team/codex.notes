@@ -158,7 +158,7 @@ class CodexNotes {
           // console.log('\n\n\n\n\n\n\n\n\ndata:',data,'\n\n\n\n\n');
           // this.user.renew( data.user);
           this.folders.renew(data.user.folders || []);
-          this.notes.renew(data.user.notes || []);
+          // this.notes.renew(data.user.notes || []);
         });
       })
       .then(() => {

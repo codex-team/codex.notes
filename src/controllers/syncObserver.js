@@ -218,7 +218,7 @@ module.exports = class SyncObserver {
       authorId: global.user ? global.user.id : null,
       folderId: note.folderId,
       title: note.title || '',
-      content: note.content,
+      content: JSON.stringify(note.content),
       dtModify: note.dtModify || null,
       dtCreate: note.dtCreate || null,
       isRemoved: note.isRemoved
