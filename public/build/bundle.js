@@ -1648,6 +1648,7 @@ var User = function () {
 
       if (authResponse && authResponse.token) {
         this.fillUserPanel(authResponse);
+        window.ipcRenderer.send('user - sync');
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
       }

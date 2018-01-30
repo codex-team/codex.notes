@@ -23,20 +23,29 @@ const { GraphQLClient } = require('graphql-request');
  * @property {GraphQLClient} api    - GraphQL API client
  * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
-module.exports = class SyncObserver {
+class SyncObserver {
 
   /**
    * Initialize params for the API
    */
   constructor() {
+    this.api = null;
+    this.subscribers = [];
+
+    this.refreshClient();
+  }
+
+  /**
+   * Makes a new GraphQL client with the new auth-token
+   * It used by {@link AuthController#googleAuth}
+   */
+  refreshClient(){
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
         // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
         Authorization: 'Bearer ' + global.user.token,
       }
     });
-
-    this.subscribers = [];
   }
 
   /**
@@ -233,3 +242,5 @@ module.exports = class SyncObserver {
       });
   }
 };
+
+module.exports = SyncObserver;

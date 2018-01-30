@@ -143,6 +143,9 @@ class CodexNotes {
       .then(() => {
         console.log('Current user data is: ', this.user);
 
+        /**
+         * @type {User}
+         */
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
