@@ -117,7 +117,7 @@ export default class Note {
     });
     codex.editor.content.load({
       id: note._id,
-      items: note.content,
+      items: JSON.parse(note.content),
       time: note.dtModify,
       version: note.editorVersion,
     });

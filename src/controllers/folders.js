@@ -194,8 +194,6 @@ class FoldersController {
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
 
-          global.app.notes.renew(folder.notes || []);
-
           console.log('updatedFolder: ', updatedFolder);
         } catch (error) {
           console.log('Folder saving error:', error);

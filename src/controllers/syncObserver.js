@@ -227,7 +227,7 @@ class SyncObserver {
       authorId: global.user ? global.user.id : null,
       folderId: note.folderId,
       title: note.title || '',
-      content: JSON.stringify(note.content),
+      content: note.content,
       dtModify: note.dtModify || null,
       dtCreate: note.dtCreate || null,
       isRemoved: note.isRemoved
