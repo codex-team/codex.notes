@@ -5,13 +5,6 @@ const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
 
 /**
- * Notes controllers
- */
-const NotesController = require('./notes');
-const notesController = new NotesController();
-
-
-/**
  * Folders controller.
  * Works with events:
  *  - create folder
@@ -201,7 +194,7 @@ class FoldersController {
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
 
-          notesController.renew(folder.notes || []);
+          global.app.notes.renew(folder.notes || []);
 
           console.log('updatedFolder: ', updatedFolder);
         } catch (error) {
