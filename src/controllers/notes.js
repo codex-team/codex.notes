@@ -70,7 +70,7 @@ class NotesController {
         global.app.syncObserver.sync();
       }
 
-      console.log('Note saving result: ', newNote);
+      // console.log('Note saving result: ', newNote);
 
       if (newNote) {
         event.sender.send('note saved', {

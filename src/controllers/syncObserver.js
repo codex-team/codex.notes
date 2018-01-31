@@ -42,7 +42,9 @@ class SyncObserver {
   refreshClient(){
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
-        // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
+        /**
+         * Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
+         */
         Authorization: 'Bearer ' + global.user.token,
       }
     });
@@ -54,6 +56,7 @@ class SyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async prepareUpdates(lastSyncTimestamp) {
+    console.log('syncObserver: Prepare updates');
     try {
       let changedFolders = await db.find(db.FOLDERS, {
         dtModify: {$gte: lastSyncTimestamp}
@@ -68,7 +71,7 @@ class SyncObserver {
         notes: changedNotes
       };
     } catch (err) {
-      console.log('Error during synchronization prepareUpdates: ', err);
+      console.log('syncObserver: [catch] error during synchronization prepareUpdates: ', err);
       return false;
     }
   }
@@ -78,6 +81,7 @@ class SyncObserver {
    * @return {Promise<object>}
    */
   async sync() {
+    console.log('syncObserver: run sync command');
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = Time.now;
 
@@ -87,7 +91,7 @@ class SyncObserver {
      */
     let updates = await this.prepareUpdates(lastSyncDate);
 
-    console.log('SyncObserver: updates are ready for sending to the Cloud:', updates);
+    console.log('syncObserver: updates are ready for sending to the Cloud:\n', updates);
 
     /**
      * Sequence of mutations requests
@@ -120,12 +124,12 @@ class SyncObserver {
       await Promise.all(syncMutationsSequence);
 
       global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('Synchronisation\'s date renovated:', currentTime);
+        console.log('syncObserver: user last sync date renovated:', currentTime);
       }).catch(e => {
-        console.log('SyncObserver cannot renovate the sync date: ', e);
+        console.log('syncObserver: [catch] cannot renovate the sync date: ', e);
       });
     } catch (sequenceError) {
-      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
+      console.log('syncObserver: [catch] something failed due to mutation sequence', sequenceError);
     }
 
     /**
@@ -152,7 +156,7 @@ class SyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
+        console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data:', data, '\n');
         this.emit('sync', data);
         return data;
       })
@@ -207,7 +211,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data);
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
@@ -235,7 +239,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data: \n\n', data);
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Note Mutation failed because of ', error);

@@ -104,7 +104,7 @@ class Note {
    * Save current Note to the DB
    */
   async save() {
-    console.log('> Save note');
+    console.log('\nmodel note ' + this._id + ': save', this._id);
     let query = {
           _id : this._id
         },
@@ -118,11 +118,11 @@ class Note {
      * Set dates for the new Note
      */
     if (!this._id) {
-      console.log('Create note');
+      console.log('model note ' + this._id + ': no _id -> create a new note');
       this.dtCreate = Time.now;
       this.dtModify = Time.now;
     } else {
-      console.log('Update note with id:', this._id);
+      console.log('model note: update note with id:', this._id);
     }
 
     /**
@@ -141,6 +141,7 @@ class Note {
      * If Note is not included at any Folder, save it to the Root Folder
      */
     if (this.folderId === null) {
+      console.log('model note' + this._id + ': note.folderId is null -> save to root folder')
       this.folderId = await db.getRootFolderId();
     }
 
@@ -153,11 +154,9 @@ class Note {
      * 3. If previous value is not equals with affectedDocument, it means that something is changed
      * 4. If something is changed, update dtModify
      */
-    let somethingChanged = false;
     let noteStateBeforeSaving = await db.findOne(db.NOTES, query);
     let updateResponse = await db.update(db.NOTES, query, data, options);
     let savedNote = updateResponse.affectedDocuments;
-
 
     /**
      * Renew Model id with the actual value
@@ -166,20 +165,20 @@ class Note {
       this._id = savedNote._id;
     }
 
-    somethingChanged = noteStateBeforeSaving && savedNote !== noteStateBeforeSaving;
+    let somethingChanged = noteStateBeforeSaving && savedNote !== noteStateBeforeSaving;
 
     if (somethingChanged) {
-      console.log('note: SOMETHING CHANGED. Need to update dtModify.');
+      /**
+       * Update Note's modification time
+       */
+      let currentTimestamp = Time.now;
+
+      console.log('model note ' + this._id + ': update dtModify to', currentTimestamp);
 
       /**
        * Update Folder's modification time
        */
       await this.updateFolderModifyDate();
-
-      /**
-       * Update Note's modification time
-       */
-      let currentTimestamp = Time.now;
 
       updateResponse = await db.update(db.NOTES, { _id: this._id }, {
         $set: { dtModify: currentTimestamp}
@@ -198,16 +197,17 @@ class Note {
    * @return {Promise<void>}
    */
   async updateFolderModifyDate() {
+    console.log('model note ' + this._id + ': set dtModify', this.dtModify, 'for folder with id', this.folderId);
     let folderUpdated = await db.update(db.FOLDERS, {_id: this.folderId}, {
       $set: {dtModify: this.dtModify}
     });
 
-    console.log('> Updated Folder\'s data:', folderUpdated);
+    // console.log('> Updated Folder\'s data:', folderUpdated);
 
     if (folderUpdated && folderUpdated.numAffected) {
-      console.log('dtModify for Folder with id:', this.folderId, 'was successfully updated');
+      // console.log('dtModify for Folder with id:', this.folderId, 'was successfully updated');
     } else {
-      console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);
+      // console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);
     }
   }
 
