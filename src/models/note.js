@@ -197,7 +197,14 @@ class Note {
    * @return {Promise<void>}
    */
   async updateFolderModifyDate() {
+    let folderBeforeUpdate = await db.findOne(db.FOLDERS, {_id: this.folderId});
+
+    if (folderBeforeUpdate.dtModify > this.dtModify) {
+      return;
+    }
+
     console.log('model note ' + this._id + ': set dtModify', this.dtModify, 'for folder with id', this.folderId);
+
     let folderUpdated = await db.update(db.FOLDERS, {_id: this.folderId}, {
       $set: {dtModify: this.dtModify}
     });
