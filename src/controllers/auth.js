@@ -89,7 +89,13 @@ class AuthController {
 
           if (!global.app.syncObserver) {
               global.app.syncObserver = new SyncObserver();
+          } else {
+              global.app.syncObserver.setup();
           }
+
+          global.app.syncObserver.on('sync', (data) => {
+            global.app.folders.renew(data.user.folders);
+          });
 
           await global.app.syncObserver.sync();
 
@@ -162,21 +168,19 @@ class AuthController {
         // get updates
         // set flag true if user has folder or note changes
         global.app.syncObserver.prepareUpdates(global.user.dt_sync)
-            .then( (updates) => {
+        .then( (updates) => {
 
-              if (updates.folders.length === 0 && !updates.notes) {
-                hasUpdates = false;
-              }
+          if (updates.folders.length === 0 && !updates.notes) {
+            hasUpdates = false;
+          }
 
-            });
+          // if there is no internet connection
+          if (!connection && hasUpdates) {
 
-        // if there is no internet connection
-        if (!connection && hasUpdates) {
-
-          // show confirmation dialog
-          dialog.showMessageBox({
+            // show confirmation dialog
+            dialog.showMessageBox({
                 type: 'Log Out',
-                buttons: ['No', 'Yes'],
+                buttons: ['Cancel', 'Continue'],
                 title: 'Confirm',
                 message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
             }, function (confirmed) {
@@ -185,27 +189,28 @@ class AuthController {
                 }
             });
 
-          // if log out not confirmed, then do not log out
-          if (!logoutConfirmed) {
-            return;
+            // if log out not confirmed, then do not log out
+            if (!logoutConfirmed) {
+                return;
+            }
           }
-        }
 
-        global.app.syncObserver.sync()
-          .then(() => {
-
-            // destroy user instance
-            global.user.destroy();
-            global.user = new User();
-
-            // force database drop
-            db.drop(true);
-
-            // reload page
-            global.app.mainWindow.reload();
-
-            db.makeInitialSettings(app.getPath('userData'));
-          });
+          global.app.syncObserver.sync()
+            .then(() => {
+              // force database drop
+              db.drop(true);
+              db.showDB();
+              return;
+                // .then( () => {
+                //
+                //     // destroy user instance
+                //     global.user = new User();
+                //     db.makeInitialSettings(app.getPath('userData'));
+                //     global.app.mainWindow.reload();
+                //
+                // });
+            });
+        });
 
       });
   }

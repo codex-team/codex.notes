@@ -26,9 +26,18 @@ const { GraphQLClient } = require('graphql-request');
 module.exports = class SyncObserver {
 
   /**
-   * Initialize params for the API
+   * fires observer initialization
+   * @constructor
    */
   constructor() {
+    this.setup()
+    this.subscribers = [];
+  }
+
+  /**
+   * Initialize params for the API
+   */
+  setup() {
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
         // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
@@ -36,16 +45,7 @@ module.exports = class SyncObserver {
       }
     });
 
-    this.subscribers = [];
-  }
-
-  async reload() {
-    this.api = new GraphQLClient(process.env.API_ENDPOINT, {
-        headers: {
-            // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
-            Authorization: 'Bearer ' + global.user.token,
-        }
-    });
+    console.log("API req", this.api);
   }
 
   /**
@@ -72,9 +72,15 @@ module.exports = class SyncObserver {
 
   /**
    * Sync changes with API server
-   * @return {Promise<object>}
+   * @return {null|Promise.<object>}
    */
   async sync() {
+
+    // if user is not logged in it doesn't make a sense to send request
+    if (!global.user.token) {
+      return;
+    }
+
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = Time.now;
 

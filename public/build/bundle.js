@@ -468,7 +468,11 @@ var Note = function () {
       codex.editor.content.clear(true);
       this.titleEl.value = note.title;
 
-      var dtModify = new Date(note.dtModify);
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
 
       this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
         day: 'numeric',
@@ -2263,15 +2267,11 @@ var Folder = function () {
 
     this.folderTitleElement = $.get('js-folder-title');
 
-    console.log('this._id)', this._id);
-
     /**
      * Load actual Folder's data
      * @type {Object}
      */
     var folderData = window.ipcRenderer.sendSync('folder - get', this._id);
-
-    console.log('folderData', folderData);
 
     this.title = folderData.title;
 

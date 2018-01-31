@@ -33,10 +33,10 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
-    // this.drop();
-    // this.showDB();
-
-    this.getRootFolderId()
+      // this.drop(true);
+      this.showDB();
+      return;
+    return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
       })
@@ -91,18 +91,20 @@ class Database {
    *
    * @param {Boolean} force - force drop
    */
-  drop(force = false){
+  drop(force = false) {
     if (process.env.DEBUG !== 'true' || !force) {
-      throw Error('Datastore dropping is not allowed for current environment');
+        throw Error('Datastore dropping is not allowed for current environment');
     }
 
-    [this.FOLDERS, this.NOTES].forEach( collection => {
+    [this.FOLDERS, this.NOTES, this.USER].forEach((collection) => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
-      collection.remove({ }, { multi: true }, function (err, numRemoved) {
-        collection.loadDatabase(function (err) {
-          console.log(collection.filename, ': ', numRemoved, ' docs removed');
+      // sequence.push(
+        collection.remove({}, {multi: true}, function (err, numRemoved) {
+          collection.loadDatabase(function (err) {
+              console.log(collection.filename, ': ', numRemoved, ' docs removed');
+          });
         });
-      });
+      // )
     });
   }
 
@@ -208,7 +210,7 @@ class Database {
     });
   }
 
-  remove(collection, query, options) {
+  async remove(collection, query, options) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {

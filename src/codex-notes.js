@@ -56,8 +56,6 @@ const User = require('./models/user');
  */
 const db = require('./utils/database');
 
-db.makeInitialSettings(app.getPath('userData'));
-
 /**
  * All windows is closed
  */
@@ -120,15 +118,10 @@ class CodexNotes {
       this.destroy();
     });
 
-    /**
-     * Init controllers
-     */
+    /** Init controllers */
     this.initComponents()
-
-    /**
-     * Set application protocol
-     */
       .then(() => {
+        /** Set application protocol */
         this.setAppProtocol();
       });
   }
@@ -137,41 +130,30 @@ class CodexNotes {
    * Activate controller
    */
   initComponents() {
-    this.user = new User();
-
-    return this.user.init()
+    global.user = new User();
+    db.makeInitialSettings(app.getPath('userData'));
+    return global.user.init()
       .then(() => {
-        console.log('Current user data is: ', this.user);
 
-        global.user = this.user;
+        console.log('Current user data is: ', global.user);
         this.folders = new FoldersController();
         this.notes = new NotesController();
         this.userCtrl = new UserController();
         this.auth = new AuthController();
-
-        /**
-         * @type {SyncObserver}
-         */
         this.syncObserver = new SyncObserver();
 
+        if (global.user.token) {
+
+          this.syncObserver.on('sync', (data) => {
+              this.folders.renew(data.user.folders);
+          });
+
+          return this.syncObserver.sync();
+        }
       })
-      .then(() => { this.syncUser(); })
       .catch(function (err) {
         console.log('Initialization error', err);
       });
-  }
-
-  syncUser() {
-
-    if (this.user.token) {
-
-        this.syncObserver.on('sync', (data) => {
-            this.folders.renew(data.user.folders);
-        });
-
-        return this.syncObserver.sync();
-    }
-
   }
 
   /**
