@@ -147,6 +147,8 @@ class FoldersController {
         _id: id,
       });
 
+      console.log('changeTitle');
+
       event.returnValue = await folder.save({
         title: title
       });

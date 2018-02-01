@@ -132,15 +132,17 @@ class Note {
      * @todo find first Text block, not any first-Tool
      */
     if (!this.title) {
-      console.log('this.content', this.content);
-      if (this.content.length && this.content[0].data) {
-        let titleFromText = this.content[0].data.text;
+      let content = JSON.parse(this.content);
+      // console.log('this.content', content);
+
+      if (content.length && content[0].data) {
+        let titleFromText = content[0].data.text;
 
         this.title = sanitizeHtml(titleFromText, {allowedTags: []});
       }
     }
 
-    console.log('this.title',  this.title);
+    // console.log('this.title',  this.title);
 
     /**
      * If Note is not included at any Folder, save it to the Root Folder

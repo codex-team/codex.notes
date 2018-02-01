@@ -40,7 +40,7 @@ const Time = require('../utils/time.js');
  * @property {Boolean} isRoot
  *
  */
-module.exports = class Folder {
+class Folder {
 
   /**
    * @constructor
@@ -103,8 +103,7 @@ module.exports = class Folder {
    * @returns {Promise.<FolderData>}
    */
   async save(dataToUpdate = null) {
-    console.log('\n\nSAVE', utils.caller);
-    console.log('\nmodel folder ' + this._id + ': save');
+    console.log('\n\nSAVE Folder id' + this._id, utils.caller);
 
     let query = {
           _id : this._id
@@ -127,6 +126,7 @@ module.exports = class Folder {
      * Save only passed fields or save the full model data
      */
     if (dataToUpdate) {
+      console.log('dataToUpdate', dataToUpdate);
       data = {
         $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
       };
@@ -160,16 +160,6 @@ module.exports = class Folder {
      * 4. If something is changed, update dtModify
      */
     let folderStateBeforeSaving = await db.findOne(db.FOLDERS, query);
-
-    // console.log('folderStateBeforeSaving', folderStateBeforeSaving);
-    //
-    //
-    // // query.dtModify = {
-    // //   $lt: data.dtModify
-    // // };
-    //
-    // console.log('query', query);
-
     let updateResponse = await db.update(db.FOLDERS, query, data, options);
     let savedFolder = updateResponse.affectedDocuments;
 
@@ -288,3 +278,6 @@ module.exports = class Folder {
     }
   }
 };
+
+
+module.exports =  Folder;

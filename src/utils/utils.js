@@ -9,7 +9,7 @@ class Utils {
   static equals(...items) {
     let firstStringified = JSON.stringify(items.shift());
 
-    for (let i = items.length; i >= 0; i--) {
+    for (let i = items.length - 1; i >= 0; i--) {
       if (JSON.stringify(items[i]) !== firstStringified) {
         return false;
       }
