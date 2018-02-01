@@ -1,5 +1,8 @@
 'use strict';
-const db = require('../utils/database');
+const db = require('../utils/database'),
+      fs = require('fs'),
+      request = require('request'),
+      rp = require('request-promise');
 
 /**
  * Model for current user representation.
@@ -81,6 +84,22 @@ class User {
       dataToInsert._id = this.id;
       await db.insert(db.USER, dataToInsert);
     }
+  }
+
+  /**
+   * Save the avatar on local of user
+   */
+  async save() {
+    let uri = this.photo,
+        filename = 'assets/icons/avatars/' + this.name + '.jpeg';
+
+    rp.head(uri)
+      .then(request(uri).pipe(fs.createWriteStream(filename)).on('close', function(){
+        console.log('File saved');
+      }))
+      .catch(function(err) {
+        console.log('Error: ', err);
+      });
   }
 
   /**

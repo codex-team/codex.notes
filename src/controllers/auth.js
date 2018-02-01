@@ -82,6 +82,8 @@ class AuthController {
             token: jwt
           });
 
+          await global.user.save();
+
           global.app.syncObserver.sync();
 
           event.returnValue = global.user;
