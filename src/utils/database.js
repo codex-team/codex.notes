@@ -29,13 +29,11 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
+    // this.showDB();
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
-      // this.drop(true);
-      this.showDB();
-      return;
     return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
@@ -62,7 +60,7 @@ class Database {
    * Show Folder and Notes collections contents
    * For local-development only
    */
-  showDB(){
+  async showDB(){
     if (process.env.DEBUG !== 'true') {
       throw Error('Datastore dropping is not allowed for current environment');
     }
@@ -91,21 +89,24 @@ class Database {
    *
    * @param {Boolean} force - force drop
    */
-  drop(force = false) {
+  async drop(force = false) {
     if (process.env.DEBUG !== 'true' || !force) {
         throw Error('Datastore dropping is not allowed for current environment');
     }
 
+    await this.showDB();
+    let sequence = [];
     [this.FOLDERS, this.NOTES, this.USER].forEach((collection) => {
-      console.log('\n\n Drop ', collection.filename, '\n\n');
-      // sequence.push(
-        collection.remove({}, {multi: true}, function (err, numRemoved) {
-          collection.loadDatabase(function (err) {
-              console.log(collection.filename, ': ', numRemoved, ' docs removed');
-          });
-        });
-      // )
+        console.log('\n\n Drop ', collection.filename, '\n\n');
+        sequence.push(this.remove(collection, {}, {multi: true}));
+        // collection.remove({}, {multi: true}, function (err, numRemoved) {
+        //   collection.loadDatabase(function (err) {
+        //       console.log(collection.filename, ': ', numRemoved, ' docs removed');
+        //   });
+        // });
     });
+
+    return Promise.all(sequence);
   }
 
   /**

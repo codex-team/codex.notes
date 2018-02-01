@@ -93,10 +93,6 @@ class AuthController {
               global.app.syncObserver.setup();
           }
 
-          global.app.syncObserver.on('sync', (data) => {
-            global.app.folders.renew(data.user.folders);
-          });
-
           await global.app.syncObserver.sync();
 
           event.returnValue = global.user;
@@ -157,62 +153,63 @@ class AuthController {
    * Log out
    * @return {Promise.<void>}
    */
-  logOut() {
+  async logOut() {
 
-    isOnline()
-      .then((connection) => {
+      try {
+          let connection = await isOnline(),
+              hasUpdates = true;
 
-        let hasUpdates = true,
-            logoutConfirmed = false;
-
-        // get updates
-        // set flag true if user has folder or note changes
-        global.app.syncObserver.prepareUpdates(global.user.dt_sync)
-        .then( (updates) => {
+          // get updates
+          // set flag true if user has folder or note changes
+          let updates = await global.app.syncObserver.prepareUpdates(global.user.dt_sync);
 
           if (updates.folders.length === 0 && !updates.notes) {
-            hasUpdates = false;
+              hasUpdates = false;
           }
 
-          // if there is no internet connection
+          // if there is no internet connection and user has updates show dialog
           if (!connection && hasUpdates) {
 
-            // show confirmation dialog
-            dialog.showMessageBox({
-                type: 'Log Out',
-                buttons: ['Cancel', 'Continue'],
-                title: 'Confirm',
-                message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
-            }, function (confirmed) {
-                if (confirmed) {
-                    logoutConfirmed = true;
-                }
-            });
-
-            // if log out not confirmed, then do not log out
-            if (!logoutConfirmed) {
-                return;
-            }
+              // show confirmation dialog
+              dialog.showMessageBox({
+                  type: 'Log Out',
+                  buttons: ['Cancel', 'Continue'],
+                  title: 'Confirm',
+                  message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
+              }, (confirmed) => {
+                  if (confirmed) {
+                      return this.dropSession();
+                  }
+              });
+          } else {
+              return this.dropSession();
           }
 
-          global.app.syncObserver.sync()
-            .then(() => {
-              // force database drop
-              db.drop(true);
-              db.showDB();
-              return;
-                // .then( () => {
-                //
-                //     // destroy user instance
-                //     global.user = new User();
-                //     db.makeInitialSettings(app.getPath('userData'));
-                //     global.app.mainWindow.reload();
-                //
-                // });
-            });
-        });
+      } catch (e) {
+          console.log("Error occured while logging out", e);
+      }
+  }
 
-      });
+  /**
+   *
+   * @return {Promise.<void>}
+   */
+  async dropSession() {
+
+      await global.app.syncObserver.sync();
+
+      // force database drop
+      await db.drop(true);
+
+      // create new user instance
+      global.user = new User();
+
+      // make initialization again
+      await db.makeInitialSettings(app.getPath('userData'));
+
+      // reload page
+      global.app.mainWindow.reload();
+
   }
 
 }

@@ -30,7 +30,7 @@ module.exports = class SyncObserver {
    * @constructor
    */
   constructor() {
-    this.setup()
+    this.setup();
     this.subscribers = [];
   }
 
