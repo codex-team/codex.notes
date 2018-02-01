@@ -12,6 +12,8 @@ const sanitizeHtml = require('sanitize-html');
  */
 const db = require('../utils/database');
 
+const utils = require('../utils/utils');
+
 /**
  * Time helper
  */
@@ -130,12 +132,15 @@ class Note {
      * @todo find first Text block, not any first-Tool
      */
     if (!this.title) {
+      console.log('this.content', this.content);
       if (this.content.length && this.content[0].data) {
         let titleFromText = this.content[0].data.text;
 
         this.title = sanitizeHtml(titleFromText, {allowedTags: []});
       }
     }
+
+    console.log('this.title',  this.title);
 
     /**
      * If Note is not included at any Folder, save it to the Root Folder
@@ -165,7 +170,7 @@ class Note {
       this._id = savedNote._id;
     }
 
-    let somethingChanged = noteStateBeforeSaving && savedNote !== noteStateBeforeSaving;
+    let somethingChanged = noteStateBeforeSaving && utils.equals(savedNote, noteStateBeforeSaving);
 
     if (somethingChanged) {
       /**
@@ -173,7 +178,7 @@ class Note {
        */
       let currentTimestamp = Time.now;
 
-      console.log('model note ' + this._id + ': update dtModify to', currentTimestamp);
+      console.log('now we need to update Folder\'s dtModify for the Note' + this._id, currentTimestamp);
 
       /**
        * Update Folder's modification time
@@ -196,26 +201,20 @@ class Note {
    * Update dtModify of parent Folder
    * @return {Promise<void>}
    */
-  async updateFolderModifyDate() {
-    let folderBeforeUpdate = await db.findOne(db.FOLDERS, {_id: this.folderId});
+  async updateFolderModifyDate(){
 
-    if (folderBeforeUpdate.dtModify > this.dtModify) {
-      return;
-    }
 
-    console.log('model note ' + this._id + ': set dtModify', this.dtModify, 'for folder with id', this.folderId);
-
-    let folderUpdated = await db.update(db.FOLDERS, {_id: this.folderId}, {
+    let folderUpdated = await db.update(db.FOLDERS, {
+      _id: this.folderId,
+      dtModify : {
+        $lt: this.dtModify
+      }
+    }, {
       $set: {dtModify: this.dtModify}
     });
 
-    // console.log('> Updated Folder\'s data:', folderUpdated);
+    console.log('> updateFolderModifyDate folderUpdated:', folderUpdated);
 
-    if (folderUpdated && folderUpdated.numAffected) {
-      // console.log('dtModify for Folder with id:', this.folderId, 'was successfully updated');
-    } else {
-      // console.log('Warning! Can not update Folder\'s modification date: ', this.folderId, ' on saving a Note ', this._id);
-    }
   }
 
   /**

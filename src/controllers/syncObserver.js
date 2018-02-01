@@ -56,7 +56,7 @@ class SyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async prepareUpdates(lastSyncTimestamp) {
-    console.log('syncObserver: Prepare updates');
+    console.log('syncObserver: Prepare updates after', lastSyncTimestamp);
     try {
       let changedFolders = await db.find(db.FOLDERS, {
         dtModify: {$gte: lastSyncTimestamp}

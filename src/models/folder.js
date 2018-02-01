@@ -2,6 +2,8 @@
 
 const db = require('../utils/database');
 
+const utils = require('../utils/utils');
+
 /**
  * Note Model
  */
@@ -101,6 +103,7 @@ module.exports = class Folder {
    * @returns {Promise.<FolderData>}
    */
   async save(dataToUpdate = null) {
+    console.log('\n\nSAVE', utils.caller);
     console.log('\nmodel folder ' + this._id + ': save');
 
     let query = {
@@ -140,8 +143,8 @@ module.exports = class Folder {
      * Update Notes
      */
     if (data.notes && data.notes.length) {
-      console.log('model folder ' + this._id + ': save notes');
-      this.updateNotes(data.notes);
+      console.log('Need to update notes for Folder ' + this._id);
+      this.updateNotes(data.notes); // probably it should be awaited
 
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -157,6 +160,16 @@ module.exports = class Folder {
      * 4. If something is changed, update dtModify
      */
     let folderStateBeforeSaving = await db.findOne(db.FOLDERS, query);
+
+    // console.log('folderStateBeforeSaving', folderStateBeforeSaving);
+    //
+    //
+    // // query.dtModify = {
+    // //   $lt: data.dtModify
+    // // };
+    //
+    // console.log('query', query);
+
     let updateResponse = await db.update(db.FOLDERS, query, data, options);
     let savedFolder = updateResponse.affectedDocuments;
 
@@ -167,7 +180,7 @@ module.exports = class Folder {
       this._id = savedFolder._id;
     }
 
-    let somethingChanged = folderStateBeforeSaving && savedFolder !== folderStateBeforeSaving;
+    let somethingChanged = folderStateBeforeSaving && utils.equals(savedFolder, folderStateBeforeSaving);
 
     if (somethingChanged) {
       let dtNow = Time.now;
@@ -178,6 +191,8 @@ module.exports = class Folder {
       }, options);
 
       savedFolder = updateResponse.affectedDocuments;
+    } else {
+      console.log('nothing changed.');
     }
 
     return savedFolder;
@@ -189,7 +204,7 @@ module.exports = class Folder {
    * @return {Promise<void>}
    */
   updateNotes(notes) {
-    console.log('model folder ' + this._id + ': save notes:\n', notes, '\n');
+    console.log('model folder ' + this._id + ': updateNotes:\n', notes, '\n');
     let notesToUpdate = notes || this.notes;
     notesToUpdate.forEach( async (noteData) => {
       let note = new Note(Object.assign(noteData, {folderId: this.id}));
