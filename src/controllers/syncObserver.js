@@ -189,6 +189,11 @@ class SyncObserver {
         let localNote = new Note(note);
 
         /**
+         * We does not receive note.folderId from the Sync Query
+         */
+        localNote.folderId = folder._id;
+
+        /**
          * Save Note's data
          */
         return await localNote.save();

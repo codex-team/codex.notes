@@ -161,9 +161,9 @@ class Folder {
        *
        * @returns {object._id} - _id for a new item
        */
-      let createdFolderId = await db.insert(db.FOLDERS, data);
+      let createdFolder = await db.insert(db.FOLDERS, data);
 
-      this._id = createdFolderId;
+      this._id = createdFolder._id;
 
       /**
        * Return Folder's data
@@ -182,6 +182,8 @@ class Folder {
        * We don't need to rewrite an _id field
        */
       delete data._id;
+
+      console.log(' Folder update ---->', data);
 
       let updateResponse = await db.update(db.FOLDERS, query, {$set: data}, options);
 

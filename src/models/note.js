@@ -156,6 +156,7 @@ class Note {
        *
        * @returns {object._id} - _id for a new item
        */
+      console.log('Note insert ---->', data);
       let createdNote = await db.insert(db.NOTES, data);
 
       this._id = createdNote._id;
@@ -163,6 +164,7 @@ class Note {
       /**
        * Update Folder's dtModify
        */
+      console.log('Note updateFolderModifyDate');
       await this.updateFolderModifyDate(this.dtModify);
 
       /**
@@ -191,13 +193,16 @@ class Note {
        *
        * @returns {object._id} - _id for a new item
        */
-      let createdNoteid = await db.insert(db.NOTES, data);
+      console.log('Note insert (noteFromLocalDB) ---->', data);
 
-      this._id = createdNoteid;
+      let createdNote = await db.insert(db.NOTES, data);
+
+      this._id = createdNote._id;
 
       /**
        * Update Folder's dtModify
        */
+      console.log('Note updateFolderModifyDate 2');
       await this.updateFolderModifyDate(this.dtModify);
 
       /**
@@ -218,6 +223,8 @@ class Note {
        */
       delete data._id;
 
+      console.log('----> data to set to the Note DB', data);
+
       let updateResponse = await db.update(db.NOTES, query, {$set: data}, options);
 
       this.data = updateResponse.affectedDocuments;
@@ -225,6 +232,7 @@ class Note {
       /**
        * Update Folder's dtModify
        */
+      console.log('Note updateFolderModifyDate 3');
       await this.updateFolderModifyDate(this.dtModify);
     }
 
