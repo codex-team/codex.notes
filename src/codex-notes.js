@@ -156,18 +156,6 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
-
-        // this.syncObserver.on('sync', (data) => {
-        //   // console.log('\n\n\n\n\n\n\n\n\ndata:',data,'\n\n\n\n\n');
-        //   // this.user.renew( data.user);
-        //   this.folders.renew(data.user.folders || []);
-        //   // this.notes.renew(data.user.notes || []);
-        // });
-      })
-      .then(() => {
-        // if (this.user.token) {
-          // return this.syncObserver.sync();
-        // }
       })
       .catch(function (err) {
         console.log('Initialization error', err);

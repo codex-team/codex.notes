@@ -14,6 +14,8 @@ const db = require('../utils/database');
 
 const utils = require('../utils/utils');
 
+const Folder = require('./folder');
+
 /**
  * Time helper
  */
@@ -154,8 +156,11 @@ class Note {
     /**
      * We need to check either something in DB was updated to manually update dtModify.
      * 1. Get current DB value
+     *
      * 2. Make nedb upsert (always returns numAffected and affectedDocuments)
+     *
      * 3. If previous value is not equals with affectedDocument, it means that something is changed
+     *
      * 4. If something is changed, update dtModify
      */
     let noteStateBeforeSaving = await db.findOne(db.NOTES, query);
@@ -200,24 +205,28 @@ class Note {
 
   /**
    * Update dtModify of parent Folder
-   * @return {Promise<void>}
+   *
+   * @param currentTimestamp
+   *
+   *  @returns {Promise<FolderData>}
    */
   async updateFolderModifyDate(currentTimestamp) {
-    let query = {
-          _id: this.folderId,
-          dtModify: { $lt: currentTimestamp }
-        },
-        data = {
-          $set: { dtModify: currentTimestamp }
-        },
-        options = {
-          returnUpdatedDocs: true
-        };
+    /**
+     * Create Folder's model
+     *
+     * @type {Folder}
+     */
+    let folder = await Folder.get(this.folderId);
 
-    let folderUpdated = await db.update(db.FOLDERS, query, data, options);
+    /**
+     * Update Folder's timestamp
+     */
+    folder.dtModify = currentTimestamp;
 
-    console.log('> folder updated: ', utils.objJSON(folderUpdated));
-
+    /**
+     * Try to save Folder
+     */
+    return await folder.save();
   }
 
   /**

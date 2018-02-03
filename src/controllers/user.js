@@ -33,6 +33,7 @@ class UserController {
 
   /**
    * Perform synchronisation by request from the Client
+   *
    * @param {GlobalEvent} event
    */
   async sync(event) {

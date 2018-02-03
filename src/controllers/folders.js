@@ -51,10 +51,7 @@ class FoldersController {
    */
   async getFolderData(event, folderId){
     try {
-      let folder = new Folder({
-        _id: folderId
-      });
-      event.returnValue = await folder.get();
+      event.returnValue = await Folder.get(folderId);
     } catch (err) {
       console.log('Cannot load Folder data because of: ', err);
       event.returnValue = false;
@@ -145,6 +142,7 @@ class FoldersController {
     try {
       let folder = new Folder({
         _id: id,
+        title: title
       });
 
       console.log('changeTitle');

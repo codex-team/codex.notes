@@ -1,5 +1,8 @@
 const db = require('../utils/database');
 
+const Folder = require('../models/folder');
+const Note = require('../models/note');
+
 /**
  * Load utils
  *
@@ -13,7 +16,6 @@ const utils = require('../utils/utils');
  * @type {Time}
  */
 const Time = require('../utils/time.js');
-
 
 /**
  * Simple GraphQL requests provider
@@ -62,11 +64,11 @@ class SyncObserver {
    *
    * 1. Get data from the Cloud
    *
-   * 2. Update local data if it is Cloud item's
+   * 2. Update local data if Cloud item's
    *    dtModify is greater than local
    *
    * 3. Prepare local updates: local item's
-   *    dtModify is less than user's last sync date
+   *    dtModify is greater than user's last sync date
    *
    * 4. Create Sync Mutations Sequence
    *
@@ -84,7 +86,7 @@ class SyncObserver {
       let dataFromCloud = await this.getDataFromCloud();
 
       /**
-       * Update local data if it is Cloud item's
+       * Update local data if Cloud item's
        *    dtModify is greater than local.
        */
       let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
@@ -106,7 +108,7 @@ class SyncObserver {
 
       /** @todo а тру ли надо вернуть? */
 
-      return true;
+      return dataFromCloud; // fix it later
     } catch(e) {
       console.log('[syncObserver] Error:', e);
       return false;
@@ -149,22 +151,42 @@ class SyncObserver {
   async saveDataFromCloud(dataFromCloud) {
     console.log('[syncObserver] Update local data');
 
-    console.log('DATA FROM SERVER:', dataFromCloud);
+    // console.log('DATA FROM SERVER:', dataFromCloud);
 
     let folders = dataFromCloud.user.folders;
 
-    folders.map( folder => {
+    await folders.forEach( async folder => {
+      /**
+       * Create Folder model
+       *
+       * @type {Folder}
+       */
+      let localFolder = new Folder(folder);
 
-      /** @todo save folder data */
-      console.log('> save folder', folder);
+      /**
+       * Save Folder's data
+       */
+      await localFolder.save();
 
+      /**
+       * Get Folder's Notes
+       *
+       * @type {*|Array|NotesController}
+       */
       let notes = folder.notes;
 
-      notes.map(  note => {
+      await notes.forEach( async note => {
+        /**
+         * Create Note model
+         *
+         * @type {Note}
+         */
+        let localNote = new Note(note);
 
-        /** @todo save notes data */
-        console.log('> > save note', note);
-
+        /**
+         * Save Note's data
+         */
+        await localNote.save();
       });
     });
 
@@ -211,7 +233,7 @@ class SyncObserver {
    *
    * @param updates
    *
-   * @returns {Promise<Array>}
+   * @returns {Promise[]}
    */
   async syncMutationsSequence(updates) {
     console.log('[syncObserver] Create Sync Mutations Sequence');
