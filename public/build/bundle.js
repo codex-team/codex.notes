@@ -349,7 +349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(15).default;
+var Shortcut = __webpack_require__(18).default;
 
 /**
  * @typedef {Object} NoteData
@@ -1832,7 +1832,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(16).default;
+var SwipeDetector = __webpack_require__(15).default;
 
 /**
  * Aside swiper class
@@ -2045,7 +2045,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(17).default;
+var Validate = __webpack_require__(16).default;
 
 /**
  * Folder Settings panel module
@@ -2421,6 +2421,146 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
+ * Two fingers swipe detection class
+ */
+var SwipeDetector = function () {
+
+  /**
+  * @constructor
+  *
+  * @param {Element} el          - Element to handle swipe
+  * @param {Function} callback   - Callback for swipe event. Accepts {Boolean} directionRight parameter
+  *
+  *
+  * @property {Element} el
+  * @property {Function} callback
+  * @property {Boolean} swiped         -  Flag user to detect horisontal swipe by mousewheel
+  * @property {Timer} wheelTimeout     - Timer for detect swipe
+  */
+  function SwipeDetector(el, callback) {
+    var _this = this;
+
+    _classCallCheck(this, SwipeDetector);
+
+    this.el = el;
+    this.callback = callback;
+    this.swiped = false;
+    this.wheelTimeout = null;
+
+    this.el.addEventListener('mousewheel', function (event) {
+      _this.detectSwipe(event);
+    });
+  }
+
+  /**
+   * Detects two-fingers swipe and fires callback
+   * @fires this.callback
+   * @param {WheelEvent} event - mouse wheel
+   */
+
+
+  _createClass(SwipeDetector, [{
+    key: 'detectSwipe',
+    value: function detectSwipe(event) {
+      var _this2 = this;
+
+      /**
+       * Detect horisontal scroll
+       * @type {Boolean}
+       */
+      var isHorisontal = event.wheelDeltaY === 0;
+
+      /**
+       * Dont fire swipe event on small scrolls
+       * @type {Boolean}
+       */
+      var minimumDistance = 30;
+      var swipeEnoughLong = event.wheelDeltaX > minimumDistance || event.wheelDeltaX < -1 * minimumDistance;
+
+      if (isHorisontal && swipeEnoughLong) {
+        if (!this.swiped) {
+          this.swiped = true;
+
+          /**
+           * Pass directionRight parameter. True for right swipe, false for left swipe
+           */
+          this.callback(event.deltaX > 0);
+
+          this.wheelTimeout = window.setTimeout(function () {
+            _this2.swiped = false;
+          }, 1000);
+        }
+      }
+    }
+  }]);
+
+  return SwipeDetector;
+}();
+
+exports.default = SwipeDetector;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Validate module
+ */
+var Validate = function () {
+  function Validate() {
+    _classCallCheck(this, Validate);
+  }
+
+  _createClass(Validate, null, [{
+    key: "email",
+
+
+    /**
+     * Check for email validness
+     *
+     * @param {string} email
+     * @return {boolean}
+     */
+    value: function email(_email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+      return re.test(_email);
+    }
+  }]);
+
+  return Validate;
+}();
+
+exports.default = Validate;
+
+/***/ }),
+/* 17 */,
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
  * CodeX Note ShortCuts class
  * Handles keyDowns on Note.
  *
@@ -2601,145 +2741,6 @@ var ShortCut = function () {
 }();
 
 exports.default = ShortCut;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Two fingers swipe detection class
- */
-var SwipeDetector = function () {
-
-  /**
-  * @constructor
-  *
-  * @param {Element} el          - Element to handle swipe
-  * @param {Function} callback   - Callback for swipe event. Accepts {Boolean} directionRight parameter
-  *
-  *
-  * @property {Element} el
-  * @property {Function} callback
-  * @property {Boolean} swiped         -  Flag user to detect horisontal swipe by mousewheel
-  * @property {Timer} wheelTimeout     - Timer for detect swipe
-  */
-  function SwipeDetector(el, callback) {
-    var _this = this;
-
-    _classCallCheck(this, SwipeDetector);
-
-    this.el = el;
-    this.callback = callback;
-    this.swiped = false;
-    this.wheelTimeout = null;
-
-    this.el.addEventListener('mousewheel', function (event) {
-      _this.detectSwipe(event);
-    });
-  }
-
-  /**
-   * Detects two-fingers swipe and fires callback
-   * @fires this.callback
-   * @param {WheelEvent} event - mouse wheel
-   */
-
-
-  _createClass(SwipeDetector, [{
-    key: 'detectSwipe',
-    value: function detectSwipe(event) {
-      var _this2 = this;
-
-      /**
-       * Detect horisontal scroll
-       * @type {Boolean}
-       */
-      var isHorisontal = event.wheelDeltaY === 0;
-
-      /**
-       * Dont fire swipe event on small scrolls
-       * @type {Boolean}
-       */
-      var minimumDistance = 30;
-      var swipeEnoughLong = event.wheelDeltaX > minimumDistance || event.wheelDeltaX < -1 * minimumDistance;
-
-      if (isHorisontal && swipeEnoughLong) {
-        if (!this.swiped) {
-          this.swiped = true;
-
-          /**
-           * Pass directionRight parameter. True for right swipe, false for left swipe
-           */
-          this.callback(event.deltaX > 0);
-
-          this.wheelTimeout = window.setTimeout(function () {
-            _this2.swiped = false;
-          }, 1000);
-        }
-      }
-    }
-  }]);
-
-  return SwipeDetector;
-}();
-
-exports.default = SwipeDetector;
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Validate module
- */
-var Validate = function () {
-  function Validate() {
-    _classCallCheck(this, Validate);
-  }
-
-  _createClass(Validate, null, [{
-    key: "email",
-
-
-    /**
-     * Check for email validness
-     *
-     * @param {string} email
-     * @return {boolean}
-     */
-    value: function email(_email) {
-      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-      return re.test(_email);
-    }
-  }]);
-
-  return Validate;
-}();
-
-exports.default = Validate;
 
 /***/ })
 /******/ ]);
