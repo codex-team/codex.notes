@@ -510,7 +510,6 @@ var Note = function () {
         name: 'CMD+A',
         on: codex.editor.nodes.redactor,
         callback: function callback(event) {
-          console.log('commnads passed');
           event.preventDefault();
           event.stopImmediatePropagation();
 
