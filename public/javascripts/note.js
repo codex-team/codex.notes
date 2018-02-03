@@ -1,6 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
+const Shortcut = require('./shortcut').default;
 
 /**
  * @typedef {Object} NoteData
@@ -17,16 +18,18 @@ const Dialog = require('./dialog').default;
 
 /**
  * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {ShortCut[]} shortcut
  */
 export default class Note {
 
   /**
    * @constructor
-   *
-   * @property {Element} deleteButton
-   * @property {Element} titleEl
-   * @property {Element} dateEl
-   * @property {Timer} showSavedIndicatorTimer
    */
   constructor() {
     this.deleteButton = $.get('delete-button');
@@ -40,6 +43,8 @@ export default class Note {
     if (!this.autoresizedTitle) {
       this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
     }
+
+    this.shortcuts = [];
   }
 
   /**
@@ -149,6 +154,28 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+
+    /**
+     * create new CMD+A shortcut
+     * bind it on current rendered Note
+     */
+    let shortcut = new Shortcut({
+      name: 'CMD+A',
+      on: codex.editor.nodes.redactor,
+      callback: function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        let range = document.createRange(),
+            selection = window.getSelection();
+
+        range.selectNodeContents(codex.editor.nodes.redactor);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
+
+    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -163,6 +190,11 @@ export default class Note {
 
     // destroy autoresizer
     this.autoresizedTitle.destroy();
+
+    // destroy all shortcuts on note
+    this.shortcuts.forEach((shortcut) => {
+      shortcut.remove();
+    });
   }
 
   /**
