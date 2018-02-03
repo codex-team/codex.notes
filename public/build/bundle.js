@@ -349,7 +349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
-var keyDowns = __webpack_require__(17).default;
+var Shortcut = __webpack_require__(18).default;
 
 /**
  * @typedef {Object} NoteData
@@ -393,9 +393,7 @@ var Note = function () {
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
     }
 
-    if (!this.keyDowns) {
-      this.keyDows = new keyDowns();
-    }
+    this.shortcuts = {};
   }
 
   /**
@@ -504,14 +502,32 @@ var Note = function () {
 
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
 
-      if (this.keyDows) {
-        this.keyDows.destroy();
-      }
-
       /**
-       * subscribe editor to shortcuts
+       * create new CMD+A shortcut
+       * bind it on current rendered Note
        */
-      this.keyDows.on(codex.editor.nodes.redactor, 'shortcuts');
+      this.shortcuts['cmdA'] = new Shortcut({
+        name: 'CMD+A',
+        on: codex.editor.nodes.redactor,
+        callback: function callback(event, target) {
+          if (!(event.ctrlKey || event.metaKey)) {
+            return;
+          }
+
+          // "A" key code is 65
+          if (event.keyCode == 65) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            var range = document.createRange(),
+                selection = window.getSelection();
+
+            range.selectNodeContents(target);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
+      });
     }
 
     /**
@@ -530,8 +546,10 @@ var Note = function () {
       // destroy autoresizer
       this.autoresizedTitle.destroy();
 
-      // destroy keydowns
-      this.keydowns.destroy();
+      // destroy all shortcuts on note
+      for (var name in this.shortcuts) {
+        this.shortcuts[name].remove();
+      }
     }
 
     /**
@@ -2530,7 +2548,8 @@ var Validate = function () {
 exports.default = Validate;
 
 /***/ }),
-/* 17 */
+/* 17 */,
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2545,127 +2564,60 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Codex Note keyDown class
- *
+ * Codex Note ShortCuts class
  * Handles keyDowns on Note.
+ *
+ * Used to create shortcuts on element
  */
 
 /**
- * Module options
- * @type {{SHORTCUTS: string}}
+ * @class ShortCuts
+ * @classdesc Callback will be fired with two params:
+ *   - event: standard keyDown param
+ *   - target: element which registered on shortcut creation
+ *
+ * @typedef {Object} ShortCut
+ * @property {String} name - shortcut name
+ * @property {Element} on - on which element we subscribe shortcut
+ * @property {Function} callback - custom user function
  */
-var options = {
-  SHORTCUTS: 'shortcuts'
-};
-
-var keyCodes = {
-  A: 65
-};
-
-/**
- * @class KeyDowns
- */
-
-var KeyDowns = function () {
+var ShortCuts = function () {
 
   /**
    * Initialize class
+   *
+   * @param {ShortCut} shortcut
    * @constructor
    */
-  function KeyDowns() {
-    _classCallCheck(this, KeyDowns);
+  function ShortCuts(shortcut) {
+    var _this = this;
 
-    this.subscribers = [];
+    _classCallCheck(this, ShortCuts);
+
+    this.name = shortcut.name;
+    this.element = shortcut.on;
+    this.callback = shortcut.callback;
+    this.element.addEventListener('keydown', function (event) {
+      _this.callback.call(null, event, _this.element);
+    }, false);
   }
 
   /**
-   * subscribe elements to keyDown listener
-   * @param element
-   * @param option
+   * remove created shortcut
    */
 
 
-  _createClass(KeyDowns, [{
-    key: 'on',
-    value: function on(element, option) {
-      var _this = this;
-
-      switch (option) {
-        // subscribe to shortcut handlers only
-        case options.SHORTCUTS:
-          element.addEventListener('keydown', function (event) {
-            _this.handleShortCut(event);
-          }, false);
-          break;
-
-        // subscribe to all handlers
-        default:
-          element.addEventListener('keydown', function (event) {
-            _this.handleShortCut(event);
-            // other handler
-          }, false);
-          break;
-      }
-
-      this.subscribers.push(element);
-    }
-
-    /**
-     * shortcut handler
-     * @param {keyDown} event
-     */
-
-  }, {
-    key: 'handleShortCut',
-    value: function handleShortCut(event) {
-      if (!(event.ctrlKey || event.metaKey)) {
-        return;
-      }
-
-      switch (event.keyCode) {
-        case keyCodes.A:
-          this.selectAll(event);
-          break;
-      }
-    }
-
-    /**
-     * Create Range and set Selection range from Editor title to last Editor Block
-     *
-     * @param {keyDown} event
-     */
-
-  }, {
-    key: 'selectAll',
-    value: function selectAll(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      var range = document.createRange(),
-          selection = window.getSelection();
-
-      range.selectNodeContents(codex.editor.nodes.redactor);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-
-    /**
-     * Drop subscribers
-     */
-
-  }, {
-    key: 'destroy',
-    value: function destroy() {
-      for (var i = 0; i < this.subscribers.length; i++) {
-        // this.subscribers[i].removeEventListener('keydown');
-      }
+  _createClass(ShortCuts, [{
+    key: 'remove',
+    value: function remove() {
+      this.element.removeEventListener('keydown', this.callback);
     }
   }]);
 
-  return KeyDowns;
+  return ShortCuts;
 }();
 
-exports.default = KeyDowns;
+exports.default = ShortCuts;
 
 /***/ })
 /******/ ]);

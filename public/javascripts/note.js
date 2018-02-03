@@ -1,7 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
-const keyDowns = require('./keydowns').default;
+const Shortcut = require('./shortcuts').default;
 
 /**
  * @typedef {Object} NoteData
@@ -42,9 +42,7 @@ export default class Note {
       this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
     }
 
-    if (!this.keyDowns) {
-      this.keyDows = new keyDowns();
-    }
+    this.shortcuts = {};
   }
 
   /**
@@ -138,14 +136,32 @@ export default class Note {
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
 
-    if (this.keyDows) {
-      this.keyDows.destroy();
-    }
-
     /**
-     * subscribe editor to shortcuts
+     * create new CMD+A shortcut
+     * bind it on current rendered Note
      */
-    this.keyDows.on(codex.editor.nodes.redactor, 'shortcuts');
+    this.shortcuts['cmdA'] = new Shortcut({
+      name : 'CMD+A',
+      on : codex.editor.nodes.redactor,
+      callback : function (event, target) {
+        if ( !(event.ctrlKey || event.metaKey) ) {
+          return;
+        }
+
+        // "A" key code is 65
+        if ( event.keyCode == 65) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          let range = document.createRange(),
+              selection = window.getSelection();
+
+          range.selectNodeContents(target);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+    });
   }
 
   /**
@@ -161,8 +177,10 @@ export default class Note {
     // destroy autoresizer
     this.autoresizedTitle.destroy();
 
-    // destroy keydowns
-    this.keydowns.destroy();
+    // destroy all shortcuts on note
+    for (let name in this.shortcuts) {
+      this.shortcuts[name].remove();
+    }
   }
 
   /**
