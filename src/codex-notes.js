@@ -157,12 +157,12 @@ class CodexNotes {
          */
         this.syncObserver = new SyncObserver();
 
-        this.syncObserver.on('sync', (data) => {
-          // console.log('\n\n\n\n\n\n\n\n\ndata:',data,'\n\n\n\n\n');
-          // this.user.renew( data.user);
-          this.folders.renew(data.user.folders || []);
-          // this.notes.renew(data.user.notes || []);
-        });
+        // this.syncObserver.on('sync', (data) => {
+        //   // console.log('\n\n\n\n\n\n\n\n\ndata:',data,'\n\n\n\n\n');
+        //   // this.user.renew( data.user);
+        //   this.folders.renew(data.user.folders || []);
+        //   // this.notes.renew(data.user.notes || []);
+        // });
       })
       .then(() => {
         // if (this.user.token) {
@@ -215,11 +215,12 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    console.log(`\n\n
-      ........................... \n\n
-      CodeX Notes runtime error:
-      ........................... \n\n
-      `, error);
-    console.log('\n\n ........................... \n\n');
+    console.log(`\n
+      \n
+      ...........................\n
+      \n
+      CodeX Notes runtime error:`, error, `\n
+      \n
+      ...........................`);
   }
 });

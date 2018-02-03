@@ -110,7 +110,7 @@ class User {
   /**
    * Save new synchronisation date
    * @param {Number} newSyncDate
-   * @return {Promise<Number>}
+   * @return {UserData}
    */
   async setSyncDate(newSyncDate) {
     let user = await db.update(db.USER, {}, {

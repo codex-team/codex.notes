@@ -25,6 +25,12 @@ class Utils {
     return (new Error()).stack.split('\n').splice(3,1).shift().trim();
   }
 
+  /**
+   *
+   */
+  static objJSON(obj) {
+    return JSON.stringify(obj, null, 2);
+  }
 }
 
 module.exports = Utils;

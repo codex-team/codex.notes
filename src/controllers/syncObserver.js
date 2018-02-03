@@ -1,8 +1,16 @@
 const db = require('../utils/database');
-const Notes = require('../models/note');
+
+/**
+ * Load utils
+ *
+ * @type {Utils}
+ */
+const utils = require('../utils/utils');
 
 /**
  * Time helper
+ *
+ * @type {Time}
  */
 const Time = require('../utils/time.js');
 
@@ -21,7 +29,6 @@ const { GraphQLClient } = require('graphql-request');
  *
  * @typedef {SyncObserver} SyncObserver
  * @property {GraphQLClient} api    - GraphQL API client
- * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
 class SyncObserver {
 
@@ -30,7 +37,6 @@ class SyncObserver {
    */
   constructor() {
     this.api = null;
-    this.subscribers = [];
 
     this.refreshClient();
   }
@@ -39,11 +45,12 @@ class SyncObserver {
    * Makes a new GraphQL client with the new auth-token
    * It used by {@link AuthController#googleAuth}
    */
-  refreshClient(){
+  refreshClient() {
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
         /**
-         * Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
+         * Bearer scheme of authorization can be understood
+         *  as 'give access to the bearer of this token'
          */
         Authorization: 'Bearer ' + global.user.token,
       }
@@ -51,47 +58,164 @@ class SyncObserver {
   }
 
   /**
-   * Prepare updates for API during synchronization
-   * @param {Number} lastSyncTimestamp - Date of last synchronisation
-   * @return {{folders: []|null, notes: []|null}}
+   * Sync changes with API server
+   *
+   * 1. Get data from the Cloud
+   *
+   * 2. Update local data if it is Cloud item's
+   *    dtModify is greater than local
+   *
+   * 3. Prepare local updates: local item's
+   *    dtModify is less than user's last sync date
+   *
+   * 4. Create Sync Mutations Sequence
+   *
+   * 5. Update user's last sync date
+   *
+   * @returns {bool}
    */
-  async prepareUpdates(lastSyncTimestamp) {
-    console.log('syncObserver: Prepare updates after', lastSyncTimestamp);
+  async sync() {
     try {
-      let changedFolders = await db.find(db.FOLDERS, {
-        dtModify: {$gte: lastSyncTimestamp}
-      });
+      /**
+       * Get data from the Cloud
+       *
+       * @type {Object}
+       */
+      let dataFromCloud = await this.getDataFromCloud();
 
-      let changedNotes = await db.find(db.NOTES, {
-        dtModify: {$gte: lastSyncTimestamp}
-      });
+      /**
+       * Update local data if it is Cloud item's
+       *    dtModify is greater than local.
+       */
+      let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
 
-      return {
-        folders: changedFolders,
-        notes: changedNotes
-      };
-    } catch (err) {
-      console.log('syncObserver: [catch] error during synchronization prepareUpdates: ', err);
+      /**
+       * Prepare local updates for this moment
+       */
+      let preparedLocalUpdates = await this.getLocalUpdates();
+
+      /**
+       * Create Sync Mutations Sequence
+       */
+      let syncMutations = await this.syncMutationsSequence(preparedLocalUpdates);
+
+      /**
+       * Update user's last sync date
+       */
+      let updatedUser = this.updateUserLastSyncDate();
+
+      /** @todo а тру ли надо вернуть? */
+
+      return true;
+    } catch(e) {
+      console.log('[syncObserver] Error:', e);
       return false;
     }
   }
 
   /**
-   * Sync changes with API server
+   * Requests data from the cloud
+   *
    * @return {Promise<object>}
    */
-  async sync() {
-    console.log('syncObserver: run sync command');
-    let lastSyncDate = await global.user.getSyncDate();
-    let currentTime = Time.now;
+  getDataFromCloud() {
+    console.log('[syncObserver] Get data from the Cloud');
 
     /**
-     * Get new updates from the last sync date
-     * @type {{folders: []|null, notes: []|null}}
+     * Sync Query
+     *
+     * @type {String}
      */
-    let updates = await this.prepareUpdates(lastSyncDate);
+    let query = require('../graphql/sync');
 
-    console.log('syncObserver: updates are ready for sending to the Cloud:\n', updates);
+    let syncVariables = {
+      userId: global.user ? global.user.id : null
+    };
+
+    return this.api.request(query, syncVariables)
+      .then( data => {
+        console.log('( ͡° ͜ʖ ͡°) SyncObserver received data:', (data), '\n');
+        return data;
+      });
+  }
+
+  /**
+   * Update local data
+   *
+   * @param dataFromCloud
+   *
+   * @returns {object}
+   */
+  async saveDataFromCloud(dataFromCloud) {
+    console.log('[syncObserver] Update local data');
+
+    console.log('DATA FROM SERVER:', dataFromCloud);
+
+    let folders = dataFromCloud.user.folders;
+
+    folders.map( folder => {
+
+      /** @todo save folder data */
+      console.log('> save folder', folder);
+
+      let notes = folder.notes;
+
+      notes.map(  note => {
+
+        /** @todo save notes data */
+        console.log('> > save note', note);
+
+      });
+    });
+
+    return dataFromCloud;
+  }
+
+  /**
+   * Prepare local updates for this moment
+   *
+   * @return {{folders: []|null, notes: []|null}}
+   */
+  async getLocalUpdates() {
+    console.log('[syncObserver] Prepare local updates');
+
+    /**
+     * Get last sync date
+     *
+     * @type {Number}
+     */
+    let lastSyncTimestamp = await global.user.getSyncDate();
+
+    /**
+     * Get not synced Folders
+     */
+    let changedFolders = await db.find(db.FOLDERS, {
+      dtModify: {$gte: lastSyncTimestamp}
+    });
+
+    /**
+     * Get not synced Notes
+     */
+    let changedNotes = await db.find(db.NOTES, {
+      dtModify: {$gte: lastSyncTimestamp}
+    });
+
+    return {
+      folders: changedFolders,
+      notes: changedNotes
+    };
+  }
+
+  /**
+   * Send Mutations
+   *
+   * @param updates
+   *
+   * @returns {Promise<Array>}
+   */
+  async syncMutationsSequence(updates) {
+    console.log('[syncObserver] Create Sync Mutations Sequence');
+    // console.log('LOCAL UPDATES:', updates);
 
     /**
      * Sequence of mutations requests
@@ -117,84 +241,28 @@ class SyncObserver {
       }));
     }
 
-    /**
-     * Send mutations sequence and renew synchronisation date when it will be finished
-     */
-    try {
-      await Promise.all(syncMutationsSequence);
-
-      global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('syncObserver: user last sync date renovated:', currentTime);
-      }).catch(e => {
-        console.log('syncObserver: [catch] cannot renovate the sync date: ', e);
-      });
-    } catch (sequenceError) {
-      console.log('syncObserver: [catch] something failed due to mutation sequence', sequenceError);
-    }
-
-    /**
-     * Load updates from the Cloud
-     */
-    let updatesFromCloud = await this.getUpdates();
-
-    return updatesFromCloud;
-  }
-  /**
-   * Requests updates from the cloud
-   * @return {Promise<object>}
-   */
-  async getUpdates() {
-    /**
-     * Sync Query
-     * @type {String}
-     */
-    let query = require('../graphql/sync');
-
-    let syncVariables = {
-      userId: global.user ? global.user.id : null
-    };
-
-    return this.api.request(query, syncVariables)
-      .then( data => {
-        console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data:', data, '\n');
-        this.emit('sync', data);
-        return data;
-      })
-      .catch( error => {
-        console.log('[!] Synchronization failed because of ', error);
-      });
+    return await Promise.all(syncMutationsSequence);
   }
 
   /**
-   * Emit Event to the each subscriber
-   * @param {String} event - Event name
-   * @param {*} data       - Data to pass with Event
+   * Update user's last sync date
+   *
+   * @returns {Object}
    */
-  emit(event, data) {
-    this.subscribers.forEach(sub => {
-      if (sub.event !== event) {
-        return;
-      }
+  async updateUserLastSyncDate() {
+    console.log('[syncObserver] Update user\'s last sync date');
 
-      sub.callback.call(null, data);
-    });
-  }
+    /** Update user's last sync date */
+    let currentTime = Time.now;
 
-  /**
-   * Add subscriber to the passed event
-   * @param {String} event - on what SyncObserver Event you want to subscribe
-   * @param {Function} callback - what callback we should fire with the Event
-   */
-  on(event, callback) {
-    this.subscribers.push({
-      event,
-      callback
-    });
+    return await global.user.setSyncDate(currentTime);
   }
 
   /**
    * Send Folder Mutation
+   *
    * @param {FolderData} folder
+   *
    * @return {Promise<object>}
    */
   sendFolder(folder) {
@@ -211,7 +279,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
@@ -220,7 +288,9 @@ class SyncObserver {
 
   /**
    * Send Notes Mutation
+   *
    * @param {NoteData} note
+   *
    * @return {Promise<object>}
    */
   sendNote(note) {
@@ -239,7 +309,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Note Mutation failed because of ', error);

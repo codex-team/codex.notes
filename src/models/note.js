@@ -133,7 +133,6 @@ class Note {
      */
     if (!this.title) {
       let content = JSON.parse(this.content);
-      // console.log('this.content', content);
 
       if (content.length && content[0].data) {
         let titleFromText = content[0].data.text;
@@ -142,13 +141,11 @@ class Note {
       }
     }
 
-    // console.log('this.title',  this.title);
-
     /**
      * If Note is not included at any Folder, save it to the Root Folder
      */
     if (this.folderId === null) {
-      console.log('model note' + this._id + ': note.folderId is null -> save to root folder')
+      console.log('model note' + this._id + ': note.folderId is null -> save to root folder');
       this.folderId = await db.getRootFolderId();
     }
 
@@ -180,42 +177,46 @@ class Note {
        */
       let currentTimestamp = Time.now;
 
+      console.log('#######\ncurrentTimestamp',currentTimestamp,'\nfor note', utils.objJSON(this));
+
+      updateResponse = await db.update(db.NOTES, { _id: this._id }, {
+        $set: { dtModify: currentTimestamp }
+      }, options);
+
+      savedNote = updateResponse.affectedDocuments;
+
       console.log('now we need to update Folder\'s dtModify for the Note' + this._id, currentTimestamp);
 
       /**
        * Update Folder's modification time
        */
-      await this.updateFolderModifyDate();
-
-      updateResponse = await db.update(db.NOTES, { _id: this._id }, {
-        $set: { dtModify: currentTimestamp}
-      }, options);
-
-      this.dtModify = currentTimestamp;
-
-      savedNote = updateResponse.affectedDocuments;
+      await this.updateFolderModifyDate(currentTimestamp + 100);
     }
 
-    return savedNote;
+    this.data = savedNote;
+
+    return this.data;
   }
 
   /**
    * Update dtModify of parent Folder
    * @return {Promise<void>}
    */
-  async updateFolderModifyDate(){
+  async updateFolderModifyDate(currentTimestamp) {
+    let query = {
+          _id: this.folderId,
+          dtModify: { $lt: currentTimestamp }
+        },
+        data = {
+          $set: { dtModify: currentTimestamp }
+        },
+        options = {
+          returnUpdatedDocs: true
+        };
 
+    let folderUpdated = await db.update(db.FOLDERS, query, data, options);
 
-    let folderUpdated = await db.update(db.FOLDERS, {
-      _id: this.folderId,
-      dtModify : {
-        $lt: this.dtModify
-      }
-    }, {
-      $set: {dtModify: this.dtModify}
-    });
-
-    console.log('> updateFolderModifyDate folderUpdated:', folderUpdated);
+    console.log('> folder updated: ', utils.objJSON(folderUpdated));
 
   }
 

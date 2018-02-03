@@ -144,7 +144,7 @@ class Folder {
      */
     if (data.notes && data.notes.length) {
       console.log('Need to update notes for Folder ' + this._id);
-      this.updateNotes(data.notes); // probably it should be awaited
+      await this.updateNotes(data.notes);
 
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -193,14 +193,15 @@ class Folder {
    * @param {Array|null} notes - save passed Notes instead of this.notes
    * @return {Promise<void>}
    */
-  updateNotes(notes) {
-    console.log('model folder ' + this._id + ': updateNotes:\n', notes, '\n');
+  async updateNotes(notes) {
+    console.log('>>> model folder ' + this._id + ': updateNotes:\n', notes, '\n');
     let notesToUpdate = notes || this.notes;
+
     notesToUpdate.forEach( async (noteData) => {
       let note = new Note(Object.assign(noteData, {folderId: this.id}));
       let savingResult = await note.save();
 
-      // console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
+      console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
     });
   }
 
