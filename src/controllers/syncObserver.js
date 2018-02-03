@@ -3,6 +3,9 @@ const db = require('../utils/database');
 const Folder = require('../models/folder');
 const Note = require('../models/note');
 
+const controllerFolder = require('./folders');
+const controllerNotes = require('./notes');
+
 /**
  * Load utils
  *
@@ -15,7 +18,7 @@ const utils = require('../utils/utils');
  *
  * @type {Time}
  */
-const Time = require('../utils/time.js');
+const Time = require('../utils/time');
 
 /**
  * Simple GraphQL requests provider
@@ -151,11 +154,9 @@ class SyncObserver {
   async saveDataFromCloud(dataFromCloud) {
     console.log('[syncObserver] Update local data');
 
-    // console.log('DATA FROM SERVER:', dataFromCloud);
-
     let folders = dataFromCloud.user.folders;
 
-    await folders.forEach( async folder => {
+    folders = await Promise.all(folders.map( async folder => {
       folder._id = folder.id;
 
       /**
@@ -168,16 +169,16 @@ class SyncObserver {
       /**
        * Save Folder's data
        */
-      await localFolder.save();
+      localFolder = await localFolder.save();
+
+      await controllerFolder.renew(localFolder);
 
       /**
        * Get Folder's Notes
        *
        * @type {*|Array|NotesController}
        */
-      let notes = folder.notes;
-
-      await notes.forEach( async note => {
+      localFolder.notes = await Promise.all(folder.notes.map( async note => {
         note._id = note.id;
 
         /**
@@ -190,11 +191,22 @@ class SyncObserver {
         /**
          * Save Note's data
          */
-        await localNote.save();
-      });
-    });
+        return await localNote.save();
+      }));
 
-    return dataFromCloud;
+      // global.app.mainWindow.webContents.send('notes list - update', {
+      //   notes: localFolder.notes,
+      //   isRootFolder: localFolder.isRoot
+      // });
+
+      return localFolder;
+    }));
+
+    // global.app.mainWindow.webContents.send('update folders list', {userFolders: folders});
+
+
+
+    return folders;
   }
 
   /**
@@ -300,6 +312,7 @@ class SyncObserver {
       title: folder.title || '',
       dtModify: folder.dtModify || null,
       dtCreate: folder.dtCreate || null,
+      isRemoved: folder.isRemoved || null,
       isRoot: folder.isRoot
     };
 
@@ -330,7 +343,7 @@ class SyncObserver {
       content: note.content,
       dtModify: note.dtModify || null,
       dtCreate: note.dtCreate || null,
-      isRemoved: note.isRemoved
+      isRemoved: note.isRemoved || null
     };
 
     return this.api.request(query, variables)

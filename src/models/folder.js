@@ -230,11 +230,8 @@ class Folder {
    * @returns {FolderData} - Folder's data
    */
   static async get(id) {
-    console.log('ID: ', utils.objJSON(id));
 
     let folderFromDB = await db.findOne(db.FOLDERS, {_id: id});
-
-    console.log(folderFromDB);
 
     let folder = new Folder(folderFromDB);
 
