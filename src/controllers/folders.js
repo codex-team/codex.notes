@@ -183,25 +183,25 @@ class FoldersController {
    * @param {FolderData[]} folders - new Folder's list
    * @return {Promise<void>}
    */
-  static async renew(folders) {
-    try {
-      // await folders.forEach(async folderData => {
-      //   try {
-      //     let folder = new Folder(folderData);
-      //     await folder.save();
-      //   } catch (error) {
-      //     console.log('Folder saving error:', error);
-      //   }
-      // });
-
-      let list = new FoldersList();
-      let userFolders = await list.get();
-
-      global.app.mainWindow.webContents.send('update folders list', {userFolders});
-    } catch (err){
-      console.log('Can not renew Folder because of:', err);
-    }
-  }
+  // static async renew(folders) {
+  //   try {
+  //     // await folders.forEach(async folderData => {
+  //     //   try {
+  //     //     let folder = new Folder(folderData);
+  //     //     await folder.save();
+  //     //   } catch (error) {
+  //     //     console.log('Folder saving error:', error);
+  //     //   }
+  //     // });
+  //
+  //     let list = new FoldersList();
+  //     let userFolders = await list.get();
+  //
+  //     global.app.mainWindow.webContents.send('update folders list', {userFolders});
+  //   } catch (err){
+  //     console.log('Can not renew Folder because of:', err);
+  //   }
+  // }
 }
 
 module.exports = FoldersController;
