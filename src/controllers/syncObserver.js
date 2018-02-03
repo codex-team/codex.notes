@@ -152,6 +152,8 @@ class SyncObserver {
    * @returns {object}
    */
   async saveDataFromCloud(dataFromCloud) {
+    console.log('\n\n\n\n\n\n dataFromCloud received ------->>>>>:', utils.objJSON(dataFromCloud) );
+    console.log('Root folder id ----->', await db.getRootFolderId() );
     console.log('[syncObserver] Update local data');
 
     let folders = dataFromCloud.user.folders;

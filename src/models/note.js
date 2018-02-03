@@ -156,9 +156,9 @@ class Note {
        *
        * @returns {object._id} - _id for a new item
        */
-      let createdNoteId = await db.insert(db.NOTES, data);
+      let createdNote = await db.insert(db.NOTES, data);
 
-      this._id = createdNoteId;
+      this._id = createdNote._id;
 
       /**
        * Update Folder's dtModify

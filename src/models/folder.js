@@ -126,9 +126,9 @@ class Folder {
        *
        * @returns {object._id} - _id for a new item
        */
-      let createdFolderId = await db.insert(db.FOLDERS, data);
+      let createdFolder = await db.insert(db.FOLDERS, data);
 
-      this._id = createdFolderId;
+      this._id = createdFolder._id;
 
       /**
        * Return Folder's data

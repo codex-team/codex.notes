@@ -28,6 +28,7 @@ module.exports = `mutation Note(
     dtModify,
     dtCreate,
     isRemoved,   
+    folderId,
     author{
 	    id
 	    name
