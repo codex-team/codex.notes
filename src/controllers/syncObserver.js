@@ -44,8 +44,6 @@ module.exports = class SyncObserver {
         Authorization: 'Bearer ' + global.user.token,
       }
     });
-
-    console.log("API req", this.api);
   }
 
   /**
@@ -61,7 +59,7 @@ module.exports = class SyncObserver {
 
       return {
         folders: changedFolders,
-        notes: null
+        notes: []
       };
 
     } catch (err) {

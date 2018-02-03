@@ -34,6 +34,9 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
 
+    this.drop(true);
+    return;
+
     return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
@@ -98,12 +101,9 @@ class Database {
     let sequence = [];
     [this.FOLDERS, this.NOTES, this.USER].forEach((collection) => {
         console.log('\n\n Drop ', collection.filename, '\n\n');
-        sequence.push(this.remove(collection, {}, {multi: true}));
-        // collection.remove({}, {multi: true}, function (err, numRemoved) {
-        //   collection.loadDatabase(function (err) {
-        //       console.log(collection.filename, ': ', numRemoved, ' docs removed');
-        //   });
-        // });
+        sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
+            console.log(collection.filename, ': ', removedRows, ' docs removed');
+        }));
     });
 
     return Promise.all(sequence);
@@ -211,13 +211,22 @@ class Database {
     });
   }
 
-  async remove(collection, query, options) {
+  /**
+   * Wrapper for neDB remove function
+   * @param {Object} collection - the collection that we apply for an options
+   * @param query - query params
+   * @param {Object} options - additional options
+   * @param {Function} callback - callback after query executed
+   * @return {Promise}
+   */
+  async remove(collection, query, options, callback) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
         }
 
+        callback(numDeleted);
         resolve(numDeleted);
       });
     });

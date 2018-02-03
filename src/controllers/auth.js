@@ -87,12 +87,7 @@ class AuthController {
             token: jwt
           });
 
-          if (!global.app.syncObserver) {
-              global.app.syncObserver = new SyncObserver();
-          } else {
-              global.app.syncObserver.setup();
-          }
-
+          global.app.syncObserver.setup();
           await global.app.syncObserver.sync();
 
           event.returnValue = global.user;
@@ -151,6 +146,8 @@ class AuthController {
 
   /**
    * Log out
+   * Show dialog for confirm log out
+   * In case of confirmation we drop User instance and sync with cloud
    * @return {Promise.<void>}
    */
   async logOut() {
@@ -163,7 +160,7 @@ class AuthController {
           // set flag true if user has folder or note changes
           let updates = await global.app.syncObserver.prepareUpdates(global.user.dt_sync);
 
-          if (updates.folders.length === 0 && !updates.notes) {
+          if (updates.folders.length === 0 && updates.notes.length === 0) {
               hasUpdates = false;
           }
 
@@ -191,7 +188,9 @@ class AuthController {
   }
 
   /**
+   * Before we drop user data, we need to sync updates with cloud.
    *
+   * When folders were dropped we need to create new Root folder and user temporary user
    * @return {Promise.<void>}
    */
   async dropSession() {
