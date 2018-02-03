@@ -156,7 +156,6 @@ class Note {
        *
        * @returns {object._id} - _id for a new item
        */
-      console.log('Note insert ---->', data);
       let createdNote = await db.insert(db.NOTES, data);
 
       this._id = createdNote._id;
@@ -164,7 +163,6 @@ class Note {
       /**
        * Update Folder's dtModify
        */
-      console.log('Note updateFolderModifyDate');
       await this.updateFolderModifyDate(this.dtModify);
 
       /**
@@ -193,8 +191,6 @@ class Note {
        *
        * @returns {object._id} - _id for a new item
        */
-      console.log('Note insert (noteFromLocalDB) ---->', data);
-
       let createdNote = await db.insert(db.NOTES, data);
 
       this._id = createdNote._id;
@@ -202,7 +198,6 @@ class Note {
       /**
        * Update Folder's dtModify
        */
-      console.log('Note updateFolderModifyDate 2');
       await this.updateFolderModifyDate(this.dtModify);
 
       /**
@@ -223,8 +218,6 @@ class Note {
        */
       delete data._id;
 
-      console.log('----> data to set to the Note DB', data);
-
       let updateResponse = await db.update(db.NOTES, query, {$set: data}, options);
 
       this.data = updateResponse.affectedDocuments;
@@ -232,7 +225,6 @@ class Note {
       /**
        * Update Folder's dtModify
        */
-      console.log('Note updateFolderModifyDate 3');
       await this.updateFolderModifyDate(this.dtModify);
     }
 
@@ -240,82 +232,6 @@ class Note {
      * Return Note's data
      */
     return this.data;
-
-
-
-
-
-    // /**
-    //  * Set dates for the new Note
-    //  */
-    // if (!this._id) {
-    //   console.log('model note ' + this._id + ': no _id -> create a new note');
-    //   this.dtCreate = Time.now;
-    //   this.dtModify = Time.now;
-    // } else {
-    //   console.log('model note: update note with id:', this._id);
-    // }
-    //
-    //
-    //
-    // /**
-    //  * If Note is not included at any Folder, save it to the Root Folder
-    //  */
-    // if (this.folderId === null) {
-    //   console.log('model note' + this._id + ': note.folderId is null -> save to root folder');
-    //   this.folderId = await db.getRootFolderId();
-    // }
-    //
-    // data = this.data;
-    //
-    // /**
-    //  * We need to check either something in DB was updated to manually update dtModify.
-    //  * 1. Get current DB value
-    //  *
-    //  * 2. Make nedb upsert (always returns numAffected and affectedDocuments)
-    //  *
-    //  * 3. If previous value is not equals with affectedDocument, it means that something is changed
-    //  *
-    //  * 4. If something is changed, update dtModify
-    //  */
-    // let noteStateBeforeSaving = await db.findOne(db.NOTES, query);
-    // let updateResponse = await db.update(db.NOTES, query, data, options);
-    // let savedNote = updateResponse.affectedDocuments;
-    //
-    // /**
-    //  * Renew Model id with the actual value
-    //  */
-    // if (savedNote._id) {
-    //   this._id = savedNote._id;
-    // }
-    //
-    // let somethingChanged = noteStateBeforeSaving && utils.equals(savedNote, noteStateBeforeSaving);
-    //
-    // if (somethingChanged) {
-    //   /**
-    //    * Update Note's modification time
-    //    */
-    //   let currentTimestamp = Time.now;
-    //
-    //   console.log('#######\ncurrentTimestamp',currentTimestamp,'\nfor note', utils.objJSON(this));
-    //
-    //   updateResponse = await db.update(db.NOTES, { _id: this._id }, {
-    //     $set: { dtModify: currentTimestamp }
-    //   }, options);
-    //
-    //   savedNote = updateResponse.affectedDocuments;
-    //
-    //   console.log('now we need to update Folder\'s dtModify for the Note' + this._id, currentTimestamp);
-    //
-    //   /**
-    //    * Update Folder's modification time
-    //    */
-    //   await this.updateFolderModifyDate(currentTimestamp + 100);
-    // }
-    //
-    // this.data = savedNote;
-    //
-    // return this.data;
   }
 
   /**

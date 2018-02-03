@@ -183,8 +183,6 @@ class Folder {
        */
       delete data._id;
 
-      console.log(' Folder update ---->', data);
-
       let updateResponse = await db.update(db.FOLDERS, query, {$set: data}, options);
 
       this.data = updateResponse.affectedDocuments;
