@@ -276,25 +276,30 @@ class Note {
   }
 
   /**
-   * Get updates action. Make a packet of data changed from last sync date specified.
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
    */
-  async getUpdates(dt_update) {
-    try {
-      let newNotes = await db.find(db.NOTES, {'dt_update': { $gt: dt_update }});
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedItems = await db.find(db.NOTES, {
+      dtModify: {$gt: lastSyncTimestamp}
+    });
 
-      return newNotes;
-    } catch (err) {
-      console.log('getUpdates notes error: ', err);
-      return false;
-    }
+    return notSyncedItems;
   }
 
   /**
-   * Delete note by specified ID.
-   * @returns {Promise.<boolean>}
+   * Delete Note
+   *
+   * @returns {Promise.<NoteData>}
    */
   async delete() {
-    return await db.remove(db.NOTES, {'_id': this._id}, {});
+    this.isRemoved = true;
+    this.dtModify = Time.now;
+
+    return await this.save();
   }
 
 }

@@ -10,7 +10,7 @@ module.exports = `mutation Note(
     $folderId: ID!,
     $dtModify: Int,
     $dtCreate: Int,
-    $isRemoved: Boolean
+    $isRemoved: Boolean = false
   ){
   note(
     id: $id,

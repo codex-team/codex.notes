@@ -9,6 +9,7 @@ module.exports = `mutation Folder(
     $dtModify: Int,
     $dtCreate: Int,
     $isRoot: Boolean = false,
+    $isRemoved: Boolean = false
   ){
   folder(
     id: $id,
@@ -16,12 +17,15 @@ module.exports = `mutation Folder(
     ownerId: $ownerId,
     dtModify: $dtModify,
     dtCreate: $dtCreate,
-    isRoot: $isRoot
+    isRoot: $isRoot,
+    isRemoved: $isRemoved
    ){
     id,
     title,
     dtModify,
     dtCreate,
+    isRemoved,
+    isRoot,
     owner{
       name,
       id

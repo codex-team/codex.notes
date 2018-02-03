@@ -10,7 +10,6 @@ const Time = require('../utils/time.js');
 
 /**
  * @typedef {Object} FolderData
- * @property {String|null} id         - Folder's Database id
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
  * @property {Number} dtModify         - Last modification timestamp
@@ -18,6 +17,7 @@ const Time = require('../utils/time.js');
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
+ * @property {Boolean} isRemoved       - removed state
  */
 
 /**
@@ -32,6 +32,7 @@ const Time = require('../utils/time.js');
  * @property {String} ownerId
  * @property {Note[]} notes
  * @property {Boolean} isRoot
+ * @property {Boolean} isRemoved
  *
  */
 class Folder {
@@ -49,6 +50,7 @@ class Folder {
     this.ownerId = null;
     this.notes = [];
     this.isRoot = false;
+    this.isRemoved = false;
 
     this.data = folderData;
   }
@@ -64,7 +66,8 @@ class Folder {
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
       notes: this.notes,
-      isRoot: this.isRoot
+      isRoot: this.isRoot,
+      isRemoved: this.isRemoved
     };
 
     if (this._id) {
@@ -86,6 +89,7 @@ class Folder {
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
     this.isRoot = folderData.isRoot || false;
+    this.isRemoved = folderData.isRemoved || false;
   }
 
   /**
@@ -195,30 +199,15 @@ class Folder {
   }
 
   /**
-   * Delete Folder from the Database
-   * @returns {Boolean}
+   * Delete Folder
+   *
+   * @returns {Promise.<FolderData>}
    */
   async delete() {
-    /**
-     * @todo Delete folder == set isRemoved=1
-     */
+    this.isRemoved = true;
+    this.dtModify = Time.now;
 
-    /**
-     * 1. Remove all Notes in the Folder
-     */
-    await db.remove(db.NOTES, {folderId: this.id}, {});
-
-    /**
-     * 2. Remove Folder
-     */
-    let deleteFolderResult = await db.remove(db.FOLDERS, {_id: this.id}, {});
-
-    /**
-     * 3. Send Folder Mutation to the API
-     * @todo Sent Folder mutation to the API == run sync
-     */
-
-    return !!deleteFolderResult;
+    return await this.save();
   }
 
 
@@ -230,12 +219,26 @@ class Folder {
    * @returns {FolderData} - Folder's data
    */
   static async get(id) {
-
     let folderFromDB = await db.findOne(db.FOLDERS, {_id: id});
 
     let folder = new Folder(folderFromDB);
 
     return folder;
+  }
+
+  /**
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
+   */
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedItems = await db.find(db.FOLDERS, {
+      dtModify: {$gt: lastSyncTimestamp}
+    });
+
+    return notSyncedItems;
   }
 
   /**

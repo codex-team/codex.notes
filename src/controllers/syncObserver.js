@@ -219,16 +219,12 @@ class SyncObserver {
     /**
      * Get not synced Folders
      */
-    let changedFolders = await db.find(db.FOLDERS, {
-      dtModify: {$gte: lastSyncTimestamp}
-    });
+    let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
 
     /**
      * Get not synced Notes
      */
-    let changedNotes = await db.find(db.NOTES, {
-      dtModify: {$gte: lastSyncTimestamp}
-    });
+    let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
     return {
       folders: changedFolders,
@@ -303,13 +299,13 @@ class SyncObserver {
       title: folder.title || '',
       dtModify: folder.dtModify || null,
       dtCreate: folder.dtCreate || null,
-      isRemoved: folder.isRemoved || null,
+      isRemoved: folder.isRemoved,
       isRoot: folder.isRoot
     };
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
@@ -334,12 +330,12 @@ class SyncObserver {
       content: note.content,
       dtModify: note.dtModify || null,
       dtCreate: note.dtCreate || null,
-      isRemoved: note.isRemoved || null
+      isRemoved: note.isRemoved
     };
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) SyncObserver sends Note Mutation and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Note Mutation failed because of ', error);

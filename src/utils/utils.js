@@ -1,10 +1,14 @@
 /**
- *
+ * Helpers
  */
 class Utils {
 
   /**
+   * Compare some items
    *
+   * @param items
+   *
+   * @returns {boolean}
    */
   static equals(...items) {
     let firstStringified = JSON.stringify(items.shift());
@@ -19,14 +23,20 @@ class Utils {
   }
 
   /**
+   * Show function's caller
    *
+   * @returns {string}
    */
   static get caller() {
     return (new Error()).stack.split('\n').splice(3,1).shift().trim();
   }
 
   /**
+   * Show object beautifier
    *
+   * @param obj
+   *
+   * @returns {string}
    */
   static print(obj) {
     return JSON.stringify(obj, null, 2);

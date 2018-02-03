@@ -125,27 +125,30 @@ class NotesController {
 
       event.returnValue = note;
     } catch (err) {
-      console.log('Note\'s data loading failed because of ', err);
+      console.log('Note\'s data loading failed because of', err);
       event.returnValue = false;
     }
   }
 
   /**
    * Delete Note with specified ID
+   *
    * @param {string} noteId
    * @param {GlobalEvent} event
+   *
    * @returns {Promise.<boolean>}
    */
   async deleteNote(noteId, event) {
     try {
-      let note = new Note({
-        _id: noteId
-      });
-      let result = await note.delete();
+      let note = await Note.get(noteId);
 
-      event.returnValue = !!result;
+      let noteRemovingResult = await note.delete();
+
+      await global.app.syncObserver.sync();
+
+      event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
-      console.log('Note failed because of ', err);
+      console.log('Note failed because of', err);
       event.returnValue = false;
     }
   }

@@ -3,6 +3,7 @@ let {ipcMain} = require('electron');
 
 const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
+const NotesList = require('../models/foldersList');
 
 /**
  * Time helper
@@ -118,15 +119,13 @@ class FoldersController {
    */
   async deleteFolder(event, folderId) {
     try {
-      let folder = new Folder({
-        _id: folderId,
-        ownerId: global.user ? global.user.id : null
-      });
+      let folder = await Folder.get(folderId);
 
       let folderRemovingResult = await folder.delete();
 
-      event.returnValue = !!folderRemovingResult;
-      // console.log('Folder', folderId, 'was successfully removed.');
+      await global.app.syncObserver.sync();
+
+      event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {
       console.log('Folder removing failed because of ',  err);
       event.returnValue = false;

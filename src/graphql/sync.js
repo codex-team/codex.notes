@@ -15,6 +15,7 @@ module.exports = `query Sync($userId: ID!) {
       isRoot,
       dtModify,
       dtCreate,
+      isRemoved,
       notes {
         id,
         title,
