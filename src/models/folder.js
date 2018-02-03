@@ -1,11 +1,7 @@
 'use strict';
 
 const db = require('../utils/database');
-
-/**
- * Note Model
- */
-const Note = require('../models/note.js');
+const utils = require('../utils/utils');
 
 /**
  * Time helper
@@ -14,7 +10,6 @@ const Time = require('../utils/time.js');
 
 /**
  * @typedef {Object} FolderData
- * @property {String|null} id         - Folder's Database id
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
  * @property {Number} dtModify         - Last modification timestamp
@@ -22,6 +17,7 @@ const Time = require('../utils/time.js');
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
+ * @property {Boolean} isRemoved       - removed state
  */
 
 /**
@@ -36,9 +32,10 @@ const Time = require('../utils/time.js');
  * @property {String} ownerId
  * @property {Note[]} notes
  * @property {Boolean} isRoot
+ * @property {Boolean} isRemoved
  *
  */
-module.exports = class Folder {
+class Folder {
 
   /**
    * @constructor
@@ -53,6 +50,7 @@ module.exports = class Folder {
     this.ownerId = null;
     this.notes = [];
     this.isRoot = false;
+    this.isRemoved = false;
 
     this.data = folderData;
   }
@@ -68,7 +66,8 @@ module.exports = class Folder {
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
       notes: this.notes,
-      isRoot: this.isRoot
+      isRoot: this.isRoot,
+      isRemoved: this.isRemoved
     };
 
     if (this._id) {
@@ -83,7 +82,6 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    // console.log('> Setter works with folderData:', folderData);
     this._id = folderData._id || folderData.id || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
@@ -91,152 +89,156 @@ module.exports = class Folder {
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
     this.isRoot = folderData.isRoot || false;
+    this.isRemoved = folderData.isRemoved || false;
   }
 
   /**
    * Saves new Folder into the Database.
    * Update or Insert scheme
-   * @param {Object|null} dataToUpdate  — if you need to update only specified fields,
-   *                                      pass it directly with this parameter
+   *
    * @returns {Promise.<FolderData>}
    */
-  async save(dataToUpdate = null) {
+  async save() {
     let query = {
           _id : this._id
         },
         data = {},
         options = {
-          upsert: true,
           returnUpdatedDocs: true
         };
+
     /**
-     * Set creation date for the new Folder
+     * If Folder has no _id then we should insert it
+     * Runs on creating a new local item
      */
     if (!this._id) {
+      /**
+       * Set Folder's dates
+       */
       this.dtCreate = Time.now;
       this.dtModify = Time.now;
+
+      data = this.data;
+
+      /**
+       * We don't need "notes" field in DB
+       */
+      delete data.notes;
+
+      /**
+       * Insert a new item to local DB
+       *
+       * @returns {object._id} - _id for a new item
+       */
+      let createdFolder = await db.insert(db.FOLDERS, data);
+
+      this._id = createdFolder._id;
+
+      /**
+       * Return Folder's data
+       */
+      return this.data;
     }
 
     /**
-     * Save only passed fields or save the full model data
+     * Try to get item in local DB
+     *
+     * @returns {object|null}
      */
-    if (dataToUpdate) {
-      data = {
-        $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
-      };
-    } else {
+    let folderFromLocalDB = await db.findOne(db.FOLDERS, query);
+
+    data = this.data;
+
+    /**
+     * If we have no Folder in local DB
+     * Runs if you have got a new item from Cloud
+     */
+    if (!folderFromLocalDB) {
+
+      /**
+       * We don't need "notes" field in DB
+       */
+      delete data.notes;
+
+      /**
+       * Insert a new item to local DB
+       *
+       * @returns {object._id} - _id for a new item
+       */
+      let createdFolder = await db.insert(db.FOLDERS, data);
+
+      this._id = createdFolder._id;
+
+      /**
+       * Return Folder's data
+       */
+      return this.data;
+    }
+
+    /**
+     * We need to update Folder if new dtModify
+     * is greater than item's dtModify from DB
+     */
+    if (folderFromLocalDB.dtModify < this.dtModify) {
       data = this.data;
 
       /**
        * We don't need to rewrite an _id field
        */
       delete data._id;
+
+      let updateResponse = await db.update(db.FOLDERS, query, {$set: data}, options);
+
+      this.data = updateResponse.affectedDocuments;
     }
 
     /**
-     * Update Notes
+     * Return Folder's data
      */
-    if (data.notes && data.notes.length) {
-      this.updateNotes(data.notes);
-      /**
-       * Notes array stores in other Collection, we don't need to save them to the Folder document
-       */
-      delete data.notes;
-    }
-
-    /**
-     * We need to check either something in DB was updated to manually update dtModify.
-     * 1. Get current DB value
-     * 2. Make nedb upsert (always returns numAffected and affectedDocuments)
-     * 3. If previous value is not equals with affectedDocument, it means that something is changed
-     * 4. If something is changed, update dtModify
-     */
-    let somethingChanged = false;
-    let folderStateBeforeSaving = await db.findOne(db.FOLDERS, query);
-    let updateResponse = await db.update(db.FOLDERS, query, data, options);
-    let savedFolder = updateResponse.affectedDocuments;
-
-    /**
-     * Renew Model id with the actual value
-     */
-    if (savedFolder._id) {
-      this._id = savedFolder._id;
-    }
-
-    somethingChanged = folderStateBeforeSaving && savedFolder !== folderStateBeforeSaving;
-
-    if (somethingChanged) {
-      console.log('folder: SOMETHING CHANGED. Need to update dtModify.');
-
-      let updateResponse = await db.update(db.FOLDERS, { _id: this._id }, {
-          $set: { dtModify: Time.now}
-      }, options);
-
-      savedFolder = updateResponse.affectedDocuments;
-    }
-
-    return savedFolder;
+    return this.data;
   }
 
   /**
-   * Update each Note in this Folder
-   * @param {Array|null} notes - save passed Notes instead of this.notes
-   * @return {Promise<void>}
+   * Delete Folder
+   *
+   * @returns {Promise.<FolderData>}
    */
-  updateNotes(notes) {
-    let notesToUpdate = notes || this.notes;
-    notesToUpdate.forEach( async (noteData) => {
-      let note = new Note(Object.assign(noteData, {folderId: this.id}));
-      let savingResult = await note.save();
+  async delete() {
+    this.isRemoved = true;
+    this.dtModify = Time.now;
 
-      console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
-    });
+    return await this.save();
   }
 
-
-  /**
-   * Delete Folder from the Database
-   * @returns {Boolean}
-   */
-  async delete () {
-    /**
-     * @todo Delete folder == set isRemoved=1
-     */
-
-    /**
-     * 1. Remove all Notes in the Folder
-     */
-    await db.remove(db.NOTES, {folderId: this.id}, {});
-
-    /**
-     * 2. Remove Folder
-     */
-    let deleteFolderResult = await db.remove(db.FOLDERS, {_id: this.id}, {});
-
-    /**
-     * 3. Send Folder Mutation to the API
-     * @todo Sent Folder mutation to the API == run sync
-     */
-
-    return !!deleteFolderResult;
-  }
 
   /**
    * Get Folder by ID
-   * @param {String|null} id - Folder ID
+   *
+   * @param {String} id - Folder ID
+   *
    * @returns {FolderData} - Folder's data
    */
-  async get(id) {
-    let folder = await db.findOne(db.FOLDERS, {
-      _id: id || this._id || this.id
+  static async get(id) {
+    let folderFromDB = await db.findOne(db.FOLDERS, {_id: id});
+
+    let folder = new Folder(folderFromDB);
+
+    return folder;
+  }
+
+  /**
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
+   */
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedItems = await db.find(db.FOLDERS, {
+      dtModify: {$gt: lastSyncTimestamp}
     });
 
-    if (folder) {
-      this.data = folder;
-      return this.data;
-    } else {
-      return false;
-    }
+    return notSyncedItems;
   }
 
   /**
@@ -252,18 +254,6 @@ module.exports = class Folder {
 
     return true;
   }
+}
 
-  /**
-   * Get updates action. Make a packet of data changed from last sync date specified.
-   */
-  async getUpdates(dt_update) {
-    try {
-      let newFolders = await db.find(db.FOLDERS, {dt_update: { $gt: dt_update }});
-
-      return newFolders;
-    } catch (err) {
-      console.log('getUpdates folders error: ', err);
-      return false;
-    }
-  }
-};
+module.exports =  Folder;
