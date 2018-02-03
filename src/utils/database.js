@@ -12,6 +12,13 @@ class Database {
 
   constructor() {}
 
+  setup() {
+
+      this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+      this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+      this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+  }
+
   /**
    * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
    * - Initialize collections User, Folders and Notes
@@ -29,15 +36,11 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+    this.setup();
 
-    // this.drop();
-    // this.showDB();
-
-
-    this.getRootFolderId()
+    // this.drop(true);
+    // return;
+    return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
       })
@@ -52,7 +55,7 @@ class Database {
           'dtCreate': Time.now,
           'dtModify': Time.now
         }).then(rootFolderCreated => {
-          console.log('\nRoot Folder created: ', rootFolderCreated._id);
+          console.log('\nRoot Folder created: ', rootFolderCreated);
         }).catch(err => {
           console.log('\nCan not create the Rood Folder because of: ', err);
         });
@@ -63,7 +66,7 @@ class Database {
    * Show Folder and Notes collections contents
    * For local-development only
    */
-  showDB(){
+  async showDB(){
     if (process.env.DEBUG !== 'true') {
       throw Error('Datastore dropping is not allowed for current environment');
     }
@@ -89,20 +92,24 @@ class Database {
   /**
    * Drop Folders and Notes collections.
    * For local-development only
+   *
+   * @param {Boolean} force - force drop
    */
-  drop(){
-    if (process.env.DEBUG !== 'true') {
-      throw Error('Datastore dropping is not allowed for current environment');
+  async drop(force = false) {
+    if (process.env.DEBUG !== 'true' || !force) {
+        throw Error('Datastore dropping is not allowed for current environment');
     }
 
-    [this.FOLDERS, this.NOTES].forEach( collection => {
-      console.log('\n\n Drop ', collection.filename, '\n\n');
-      collection.remove({ }, { multi: true }, function (err, numRemoved) {
-        collection.loadDatabase(function (err) {
-          console.log(collection.filename, ': ', numRemoved, ' docs removed');
-        });
-      });
+    await this.showDB();
+    let sequence = [];
+    [this.FOLDERS, this.NOTES, this.USER].forEach((collection) => {
+        console.log('\n\n Drop ', collection.filename, '\n\n');
+        sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
+            console.log(collection.filename, ': ', removedRows, ' docs removed');
+        }));
     });
+
+    return Promise.all(sequence);
   }
 
   /**
@@ -207,13 +214,24 @@ class Database {
     });
   }
 
-  remove(collection, query, options) {
+  /**
+   * Wrapper for neDB remove function
+   * @param {Object} collection - the collection that we apply for an options
+   * @param query - query params
+   * @param {Object} options - additional options
+   * @param {Function|null} callback - callback after query executed
+   * @return {Promise}
+   */
+  async remove(collection, query, options, callback = null) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
         }
 
+        if (callback && typeof callback === 'function') {
+          callback(numDeleted);
+        }
         resolve(numDeleted);
       });
     });

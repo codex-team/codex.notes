@@ -1,9 +1,11 @@
 'use strict';
-const {ipcMain, BrowserWindow} = require('electron');
+const {ipcMain, BrowserWindow, dialog, app} = require('electron');
 const request = require('request-promise');
+const isOnline = require('is-online');
 const url = require('url');
 const API = require('../models/api');
-const UserModel = require('../models/user');
+const User = require('../models/user');
+const db = require('../utils/database');
 
 /**
  * @class AuthController
@@ -73,6 +75,8 @@ class AuthController {
           /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
           payload = JSON.parse(payload);
 
+          console.log('User authorized with following data: ', payload);
+
           await global.user.update({
             id: payload.user_id,
             name: payload.name,
@@ -82,7 +86,10 @@ class AuthController {
             token: jwt
           });
 
-          global.app.syncObserver.sync();
+          console.log("Auth: start sync(): ---- ");
+          global.app.syncObserver.setup();
+          await global.app.syncObserver.sync();
+          console.log("Auth: finished sync(): ---- ");
 
           event.returnValue = global.user;
 
@@ -136,6 +143,75 @@ class AuthController {
 
         break;
     }
+  }
+
+  /**
+   * Log out
+   * Show dialog for confirm log out
+   * In case of confirmation we drop User instance and sync with cloud
+   * @return {Promise.<void>}
+   */
+  async logOut() {
+
+      try {
+          let connection = await isOnline(),
+              hasUpdates = true;
+
+          // get updates
+          // set flag true if user has folder or note changes
+          let updates = await global.app.syncObserver.prepareUpdates(global.user.dt_sync);
+          console.log("<--------updates------------>", updates);
+
+          if (updates.folders.length === 0 && updates.notes.length === 0) {
+              hasUpdates = false;
+          }
+
+          // if there is no internet connection and user has updates show dialog
+          if (!connection && hasUpdates) {
+
+              // show confirmation dialog
+              dialog.showMessageBox({
+                  type: 'Log Out',
+                  buttons: ['Cancel', 'Continue'],
+                  title: 'Confirm',
+                  message: 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
+              }, (confirmed) => {
+                  if (confirmed) {
+                      return this.dropSession();
+                  }
+              });
+          } else {
+              return this.dropSession();
+          }
+
+      } catch (e) {
+          console.log("Error occured while logging out", e);
+      }
+  }
+
+  /**
+   * Before we drop user data, we need to sync updates with cloud.
+   *
+   * When folders were dropped we need to create new Root folder and user temporary user
+   * @return {Promise.<void>}
+   */
+  async dropSession() {
+
+      await global.app.syncObserver.sync(false);
+
+      // force database drop
+      await db.drop(true);
+
+      // create new user instance
+      global.user = new User();
+
+      // reload page
+      global.app.mainWindow.reload();
+
+      db.setup();
+
+      // make initialization again
+      await db.makeInitialSettings(app.getPath('userData'));
   }
 
 }

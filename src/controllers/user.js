@@ -37,6 +37,7 @@ class UserController {
    */
   async sync(event) {
     try {
+      console.log("syncing on User Controller.....");
       let updatesFromCloud = await global.app.syncObserver.sync();
       event.sender.send('sync finished', {result : true, data: updatesFromCloud});
     } catch(e) {

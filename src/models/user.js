@@ -143,6 +143,15 @@ class User {
       this.dt_sync = dt_sync || this.dt_sync || 0;
   }
 
+  /**
+   * Destroy model
+   */
+  destroy() {
+      return db.remove(db.USER, {
+        _id : this.id
+      }, {});
+  }
+
 }
 
 module.exports = User;

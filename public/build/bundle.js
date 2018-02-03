@@ -349,7 +349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(19).default;
+var Shortcut = __webpack_require__(18).default;
 
 /**
  * @typedef {Object} NoteData
@@ -2546,8 +2546,7 @@ exports.default = Validate;
 
 /***/ }),
 /* 17 */,
-/* 18 */,
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

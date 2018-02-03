@@ -31,10 +31,11 @@ export default class ConnectionObserver {
     codex.notes.statusBar.text = 'Syncing';
     codex.notes.statusBar.loading = true;
 
-    this.sync().then(() => {
-      codex.notes.statusBar.text = 'All saved';
-      codex.notes.statusBar.loading = false;
-    });
+    this.sync()
+      .then(() => {
+        codex.notes.statusBar.text = 'All saved';
+        codex.notes.statusBar.loading = false;
+      });
   }
 
   /**

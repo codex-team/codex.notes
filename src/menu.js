@@ -34,13 +34,24 @@ module.exports = function (app) {
     },
     {
       type: 'separator'
-    }, {
+    },
+    {
+      label : 'Log Out',
+      click: function() {
+        // log out only signed in user
+        // if (global.user.token) {
+          global.app.auth.logOut();
+        // }
+      }
+    },
+    {
       label: 'Quit',
       accelerator: 'CmdOrCtrl+Q',
       click: function () {
         app.quit();
       }
-    } ]
+    }
+    ]
   }, {
     label: 'Edit',
     submenu: [ {

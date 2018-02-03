@@ -26,17 +26,24 @@ const { GraphQLClient } = require('graphql-request');
 module.exports = class SyncObserver {
 
   /**
-   * Initialize params for the API
+   * fires observer initialization
+   * @constructor
    */
   constructor() {
+    this.setup();
+    this.subscribers = [];
+  }
+
+  /**
+   * Initialize params for the API
+   */
+  setup() {
     this.api = new GraphQLClient(process.env.API_ENDPOINT, {
       headers: {
         // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
         Authorization: 'Bearer ' + global.user.token,
       }
     });
-
-    this.subscribers = [];
   }
 
   /**
@@ -52,7 +59,7 @@ module.exports = class SyncObserver {
 
       return {
         folders: changedFolders,
-        notes: null
+        notes: []
       };
 
     } catch (err) {
@@ -63,11 +70,19 @@ module.exports = class SyncObserver {
 
   /**
    * Sync changes with API server
-   * @return {Promise<object>}
+   * @return {null|Promise.<object>}
    */
-  async sync() {
+  async sync(emit = true) {
+
+    // if user is not logged in it doesn't make a sense to send request
+    if (!global.user.token) {
+      return;
+    }
+
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = Time.now;
+
+    console.log(db.getRootFolderId());
 
     /**
      * Get new updates from the last sync date
@@ -107,6 +122,9 @@ module.exports = class SyncObserver {
       console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
     }
 
+    if (!emit) {
+      return;
+    }
     /**
      * Load updates from the Cloud
      */
@@ -176,6 +194,11 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   sendFolder(folder){
+
+    // do not allow creating empty folders
+    if (!folder._id || !folder.title) {
+      return;
+    }
 
     let query = require('../graphql/mutations/folder');
 
