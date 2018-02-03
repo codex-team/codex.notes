@@ -145,15 +145,11 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
+        this.syncObserver.on('sync', (data) => {
+          this.folders.renew(data.user.folders);
+        });
 
-        if (global.user.token) {
-
-          this.syncObserver.on('sync', (data) => {
-              this.folders.renew(data.user.folders);
-          });
-
-          return this.syncObserver.sync();
-        }
+        return this.syncObserver.sync();
       })
       .catch(function (err) {
         console.log('Initialization error', err);
