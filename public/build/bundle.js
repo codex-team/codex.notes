@@ -367,6 +367,7 @@ var Shortcut = __webpack_require__(19).default;
 /**
  * Note section module
  *
+ * @typedef {Note} Note
  * @property {Element} deleteButton
  * @property {Element} titleEl
  * @property {Element} dateEl
@@ -2628,7 +2629,7 @@ var supportedCommands = {
  *   - event: standard keyDown param
  *   - target: element which registered on shortcut creation
  *
- * @typedef {Object} ShortCut
+ * @typedef {ShortCut} ShortCut
  * @property {String} name - shortcut name
  * @property {Element} on - element that passed on shortcut creation
  * @property {Function} callback - custom user function

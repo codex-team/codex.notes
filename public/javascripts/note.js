@@ -19,6 +19,7 @@ const Shortcut = require('./shortcut').default;
 /**
  * Note section module
  *
+ * @typedef {Note} Note
  * @property {Element} deleteButton
  * @property {Element} titleEl
  * @property {Element} dateEl

@@ -68,7 +68,7 @@ const supportedCommands = {
  *   - event: standard keyDown param
  *   - target: element which registered on shortcut creation
  *
- * @typedef {Object} ShortCut
+ * @typedef {ShortCut} ShortCut
  * @property {String} name - shortcut name
  * @property {Element} on - element that passed on shortcut creation
  * @property {Function} callback - custom user function
