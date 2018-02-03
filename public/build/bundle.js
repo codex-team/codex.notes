@@ -349,6 +349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
+var keyDowns = __webpack_require__(17).default;
 
 /**
  * @typedef {Object} NoteData
@@ -390,6 +391,10 @@ var Note = function () {
     // when we are creating new note
     if (!this.autoresizedTitle) {
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    if (!this.keyDowns) {
+      this.keyDows = new keyDowns();
     }
   }
 
@@ -468,7 +473,11 @@ var Note = function () {
       codex.editor.content.clear(true);
       this.titleEl.value = note.title;
 
-      var dtModify = new Date(note.dtModify);
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
 
       this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
         day: 'numeric',
@@ -494,6 +503,15 @@ var Note = function () {
       }
 
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
+
+      if (this.keyDows) {
+        this.keyDows.destroy();
+      }
+
+      /**
+       * subscribe editor to shortcuts
+       */
+      this.keyDows.on(codex.editor.nodes.redactor, 'shortcuts');
     }
 
     /**
@@ -511,6 +529,9 @@ var Note = function () {
 
       // destroy autoresizer
       this.autoresizedTitle.destroy();
+
+      // destroy keydowns
+      this.keydowns.destroy();
     }
 
     /**
@@ -2263,15 +2284,11 @@ var Folder = function () {
 
     this.folderTitleElement = $.get('js-folder-title');
 
-    console.log('this._id)', this._id);
-
     /**
      * Load actual Folder's data
      * @type {Object}
      */
     var folderData = window.ipcRenderer.sendSync('folder - get', this._id);
-
-    console.log('folderData', folderData);
 
     this.title = folderData.title;
 
@@ -2511,6 +2528,144 @@ var Validate = function () {
 }();
 
 exports.default = Validate;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Codex Note keyDown class
+ *
+ * Handles keyDowns on Note.
+ */
+
+/**
+ * Module options
+ * @type {{SHORTCUTS: string}}
+ */
+var options = {
+  SHORTCUTS: 'shortcuts'
+};
+
+var keyCodes = {
+  A: 65
+};
+
+/**
+ * @class KeyDowns
+ */
+
+var KeyDowns = function () {
+
+  /**
+   * Initialize class
+   * @constructor
+   */
+  function KeyDowns() {
+    _classCallCheck(this, KeyDowns);
+
+    this.subscribers = [];
+  }
+
+  /**
+   * subscribe elements to keyDown listener
+   * @param element
+   * @param option
+   */
+
+
+  _createClass(KeyDowns, [{
+    key: 'on',
+    value: function on(element, option) {
+      var _this = this;
+
+      switch (option) {
+        // subscribe to shortcut handlers only
+        case options.SHORTCUTS:
+          element.addEventListener('keydown', function (event) {
+            _this.handleShortCut(event);
+          }, false);
+          break;
+
+        // subscribe to all handlers
+        default:
+          element.addEventListener('keydown', function (event) {
+            _this.handleShortCut(event);
+            // other handler
+          }, false);
+          break;
+      }
+
+      this.subscribers.push(element);
+    }
+
+    /**
+     * shortcut handler
+     * @param {keyDown} event
+     */
+
+  }, {
+    key: 'handleShortCut',
+    value: function handleShortCut(event) {
+      if (!(event.ctrlKey || event.metaKey)) {
+        return;
+      }
+
+      switch (event.keyCode) {
+        case keyCodes.A:
+          this.selectAll(event);
+          break;
+      }
+    }
+
+    /**
+     * Create Range and set Selection range from Editor title to last Editor Block
+     *
+     * @param {keyDown} event
+     */
+
+  }, {
+    key: 'selectAll',
+    value: function selectAll(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(codex.editor.nodes.redactor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    /**
+     * Drop subscribers
+     */
+
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      for (var i = 0; i < this.subscribers.length; i++) {
+        // this.subscribers[i].removeEventListener('keydown');
+      }
+    }
+  }]);
+
+  return KeyDowns;
+}();
+
+exports.default = KeyDowns;
 
 /***/ })
 /******/ ]);

@@ -1,6 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
+const keyDowns = require('./keydowns').default;
 
 /**
  * @typedef {Object} NoteData
@@ -39,6 +40,10 @@ export default class Note {
     // when we are creating new note
     if (!this.autoresizedTitle) {
       this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+    }
+
+    if (!this.keyDowns) {
+      this.keyDows = new keyDowns();
     }
   }
 
@@ -132,6 +137,15 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+
+    if (this.keyDows) {
+      this.keyDows.destroy();
+    }
+
+    /**
+     * subscribe editor to shortcuts
+     */
+    this.keyDows.on(codex.editor.nodes.redactor, 'shortcuts');
   }
 
   /**
@@ -146,6 +160,9 @@ export default class Note {
 
     // destroy autoresizer
     this.autoresizedTitle.destroy();
+
+    // destroy keydowns
+    this.keydowns.destroy();
   }
 
   /**
