@@ -171,8 +171,6 @@ class SyncObserver {
        */
       localFolder = await localFolder.save();
 
-      await controllerFolder.renew(localFolder);
-
       /**
        * Get Folder's Notes
        *
@@ -194,17 +192,8 @@ class SyncObserver {
         return await localNote.save();
       }));
 
-      // global.app.mainWindow.webContents.send('notes list - update', {
-      //   notes: localFolder.notes,
-      //   isRootFolder: localFolder.isRoot
-      // });
-
       return localFolder;
     }));
-
-    // global.app.mainWindow.webContents.send('update folders list', {userFolders: folders});
-
-
 
     return folders;
   }
