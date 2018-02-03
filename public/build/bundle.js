@@ -349,7 +349,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(18).default;
+var Shortcut = __webpack_require__(19).default;
 
 /**
  * @typedef {Object} NoteData
@@ -507,25 +507,19 @@ var Note = function () {
        * bind it on current rendered Note
        */
       this.shortcuts['cmdA'] = new Shortcut({
-        name: 'CMD+A',
+        name: 'COMMAND+Shift+A',
         on: codex.editor.nodes.redactor,
-        callback: function callback(event, target) {
-          if (!(event.ctrlKey || event.metaKey)) {
-            return;
-          }
+        callback: function callback(event) {
+          console.log('commnads passed');
+          event.preventDefault();
+          event.stopImmediatePropagation();
 
-          // "A" key code is 65
-          if (event.keyCode == 65) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
+          var range = document.createRange(),
+              selection = window.getSelection();
 
-            var range = document.createRange(),
-                selection = window.getSelection();
-
-            range.selectNodeContents(target);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
+          range.selectNodeContents(codex.editor.nodes.redactor);
+          selection.removeAllRanges();
+          selection.addRange(range);
         }
       });
     }
@@ -2549,7 +2543,8 @@ exports.default = Validate;
 
 /***/ }),
 /* 17 */,
-/* 18 */
+/* 18 */,
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2571,6 +2566,54 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /**
+ * List of key codes
+ */
+var keyCodes = {
+  '0': 48,
+  '1': 49,
+  '2': 50,
+  '3': 51,
+  '4': 52,
+  '5': 53,
+  '6': 54,
+  '7': 55,
+  '8': 56,
+  '9': 57,
+  'A': 65,
+  'B': 66,
+  'C': 67,
+  'D': 68,
+  'E': 69,
+  'F': 70,
+  'G': 71,
+  'H': 72,
+  'I': 73,
+  'J': 74,
+  'K': 75,
+  'L': 76,
+  'M': 77,
+  'N': 78,
+  'O': 79,
+  'P': 80,
+  'Q': 81,
+  'R': 82,
+  'S': 83,
+  'T': 84,
+  'U': 85,
+  'V': 86,
+  'W': 87,
+  'X': 88,
+  'Y': 89,
+  'Z': 90
+};
+
+var supportedCommands = {
+  'CMD': ['CMD', 'CONTROL', 'COMMAND', 'WINDOWS', 'CTRL'],
+  'SHIFT': ['SHIFT'],
+  'ALT': ['ALT', 'OPTION']
+};
+
+/**
  * @class ShortCuts
  * @classdesc Callback will be fired with two params:
  *   - event: standard keyDown param
@@ -2581,42 +2624,111 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @property {Element} on - element that passed on shortcut creation
  * @property {Function} callback - custom user function
  */
-var ShortCuts = function () {
+
+var ShortCut = function () {
 
   /**
    * Create new shortcut
    * @param {ShortCut} shortcut
    * @constructor
    */
-  function ShortCuts(shortcut) {
+  function ShortCut(shortcut) {
     var _this = this;
 
-    _classCallCheck(this, ShortCuts);
+    _classCallCheck(this, ShortCut);
 
-    this.name = shortcut.name;
+    this.commands = {};
+    this.keys = {};
+
+    this.parseShortcutName(shortcut.name);
+
     this.element = shortcut.on;
     this.callback = shortcut.callback;
     this.element.addEventListener('keydown', function (event) {
-      _this.callback.call(null, event, _this.element);
+      _this.executeShortcut(event);
     }, false);
   }
 
   /**
-   * Destroy shortcut: remove listener from element
+   * parses string to get shortcut commands in uppercase
+   * @param {String} shortcut
+   *
+   * @return {Array} keys
    */
 
 
-  _createClass(ShortCuts, [{
+  _createClass(ShortCut, [{
+    key: 'parseShortcutName',
+    value: function parseShortcutName(shortcut) {
+      shortcut = shortcut.split('+');
+
+      for (var key = 0; key < shortcut.length; key++) {
+        shortcut[key] = shortcut[key].toUpperCase();
+
+        if (shortcut[key].length > 1) {
+          for (var command in supportedCommands) {
+            if (supportedCommands[command].includes(shortcut[key])) {
+              this.commands[command] = true;
+            }
+          }
+        } else {
+          this.keys[shortcut[key]] = true;
+        }
+      }
+    }
+
+    /**
+     *
+     * @param event
+     */
+
+  }, {
+    key: 'executeShortcut',
+    value: function executeShortcut(event) {
+      var cmdKey = event.ctrlKey || event.metaKey,
+          shiftKey = event.shiftKey,
+          altKey = event.altKey,
+          passed = {
+        'CMD': cmdKey,
+        'SHIFT': shiftKey,
+        'ALT': altKey
+      };
+
+      console.log('event', event);
+      var command = void 0,
+          allCommandsPassed = true;
+
+      for (command in this.commands) {
+        allCommandsPassed = allCommandsPassed && passed[command];
+      }
+
+      var key = void 0,
+          allKeysPassed = true;
+
+      for (key in this.keys) {
+        allKeysPassed = allKeysPassed && event.keyCode === keyCodes[key];
+      }
+
+      if (allCommandsPassed && allKeysPassed) {
+        this.callback.call(null, event);
+      }
+    }
+
+    /**
+     * Destroy shortcut: remove listener from element
+     */
+
+  }, {
     key: 'remove',
     value: function remove() {
       this.element.removeEventListener('keydown', this.callback);
     }
   }]);
 
-  return ShortCuts;
+  return ShortCut;
 }();
 
-exports.default = ShortCuts;
+exports.default = ShortCut;
 
 /***/ })
 /******/ ]);

@@ -1,7 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
-const Shortcut = require('./shortcuts').default;
+const Shortcut = require('./shortcut').default;
 
 /**
  * @typedef {Object} NoteData
@@ -141,25 +141,19 @@ export default class Note {
      * bind it on current rendered Note
      */
     this.shortcuts['cmdA'] = new Shortcut({
-      name : 'CMD+A',
+      name : 'COMMAND+Shift+A',
       on : codex.editor.nodes.redactor,
-      callback : function (event, target) {
-        if ( !(event.ctrlKey || event.metaKey) ) {
-          return;
-        }
+      callback : function (event) {
+        console.log('commnads passed');
+        event.preventDefault();
+        event.stopImmediatePropagation();
 
-        // "A" key code is 65
-        if ( event.keyCode == 65) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
+        let range = document.createRange(),
+            selection = window.getSelection();
 
-          let range = document.createRange(),
-              selection = window.getSelection();
-
-          range.selectNodeContents(target);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
+        range.selectNodeContents(codex.editor.nodes.redactor);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
     });
   }
