@@ -2578,14 +2578,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * @typedef {Object} ShortCut
  * @property {String} name - shortcut name
- * @property {Element} on - on which element we subscribe shortcut
+ * @property {Element} on - element that passed on shortcut creation
  * @property {Function} callback - custom user function
  */
 var ShortCuts = function () {
 
   /**
-   * Initialize class
-   *
+   * Create new shortcut
    * @param {ShortCut} shortcut
    * @constructor
    */
@@ -2603,7 +2602,7 @@ var ShortCuts = function () {
   }
 
   /**
-   * remove created shortcut
+   * Destroy shortcut: remove listener from element
    */
 
 

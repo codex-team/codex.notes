@@ -13,14 +13,13 @@
  *
  * @typedef {Object} ShortCut
  * @property {String} name - shortcut name
- * @property {Element} on - on which element we subscribe shortcut
+ * @property {Element} on - element that passed on shortcut creation
  * @property {Function} callback - custom user function
  */
 export default class ShortCuts {
 
   /**
-   * Initialize class
-   *
+   * Create new shortcut
    * @param {ShortCut} shortcut
    * @constructor
    */
@@ -34,7 +33,7 @@ export default class ShortCuts {
   }
 
   /**
-   * remove created shortcut
+   * Destroy shortcut: remove listener from element
    */
   remove() {
     this.element.removeEventListener('keydown', this.callback);
