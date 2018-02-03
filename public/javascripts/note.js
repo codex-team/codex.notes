@@ -144,7 +144,6 @@ export default class Note {
       name : 'CMD+A',
       on : codex.editor.nodes.redactor,
       callback : function (event) {
-        console.log('commnads passed');
         event.preventDefault();
         event.stopImmediatePropagation();
 
