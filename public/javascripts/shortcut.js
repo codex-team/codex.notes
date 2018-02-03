@@ -44,7 +44,16 @@ const keyCodes = {
   'W' : 87,
   'X' : 88,
   'Y' : 89,
-  'Z' : 90
+  'Z' : 90,
+  'BACKSPACE' : 8,
+  'ENTER'     : 13,
+  'ESCAPE'    : 27,
+  'LEFT'      : 37,
+  'UP'        : 38,
+  'RIGHT'     : 39,
+  'DOWN'      : 40,
+  'INSERT'    : 45,
+  'DELETE'    : 46
 };
 
 const supportedCommands = {
@@ -79,9 +88,11 @@ export default class ShortCut {
 
     this.element = shortcut.on;
     this.callback = shortcut.callback;
-    this.element.addEventListener('keydown', (event) => {
-      this.executeShortcut(event);
-    }, false);
+
+    this.executeShortcut = (event) => {
+      this.execute(event);
+    };
+    this.element.addEventListener('keydown', this.executeShortcut, false);
   }
 
   /**
@@ -109,10 +120,10 @@ export default class ShortCut {
   }
 
   /**
-   *
+   * Check all passed commands and keys before firing callback
    * @param event
    */
-  executeShortcut(event) {
+  execute(event) {
     let cmdKey = (event.ctrlKey || event.metaKey),
         shiftKey = event.shiftKey,
         altKey = event.altKey,
@@ -122,7 +133,6 @@ export default class ShortCut {
           'ALT': altKey
         };
 
-    console.log('event', event);
     let command,
         allCommandsPassed = true;
 
@@ -146,6 +156,6 @@ export default class ShortCut {
    * Destroy shortcut: remove listener from element
    */
   remove() {
-    this.element.removeEventListener('keydown', this.callback);
+    this.element.removeEventListener('keydown', this.executeShortcut);
   }
 }

@@ -141,7 +141,7 @@ export default class Note {
      * bind it on current rendered Note
      */
     this.shortcuts['cmdA'] = new Shortcut({
-      name : 'COMMAND+Shift+A',
+      name : 'CMD+A',
       on : codex.editor.nodes.redactor,
       callback : function (event) {
         console.log('commnads passed');

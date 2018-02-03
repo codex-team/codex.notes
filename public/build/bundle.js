@@ -507,7 +507,7 @@ var Note = function () {
        * bind it on current rendered Note
        */
       this.shortcuts['cmdA'] = new Shortcut({
-        name: 'COMMAND+Shift+A',
+        name: 'CMD+A',
         on: codex.editor.nodes.redactor,
         callback: function callback(event) {
           console.log('commnads passed');
@@ -2604,7 +2604,16 @@ var keyCodes = {
   'W': 87,
   'X': 88,
   'Y': 89,
-  'Z': 90
+  'Z': 90,
+  'BACKSPACE': 8,
+  'ENTER': 13,
+  'ESCAPE': 27,
+  'LEFT': 37,
+  'UP': 38,
+  'RIGHT': 39,
+  'DOWN': 40,
+  'INSERT': 45,
+  'DELETE': 46
 };
 
 var supportedCommands = {
@@ -2644,9 +2653,11 @@ var ShortCut = function () {
 
     this.element = shortcut.on;
     this.callback = shortcut.callback;
-    this.element.addEventListener('keydown', function (event) {
-      _this.executeShortcut(event);
-    }, false);
+
+    this.executeShortcut = function (event) {
+      _this.execute(event);
+    };
+    this.element.addEventListener('keydown', this.executeShortcut, false);
   }
 
   /**
@@ -2678,13 +2689,13 @@ var ShortCut = function () {
     }
 
     /**
-     *
+     * Check all passed commands and keys before firing callback
      * @param event
      */
 
   }, {
-    key: 'executeShortcut',
-    value: function executeShortcut(event) {
+    key: 'execute',
+    value: function execute(event) {
       var cmdKey = event.ctrlKey || event.metaKey,
           shiftKey = event.shiftKey,
           altKey = event.altKey,
@@ -2694,7 +2705,6 @@ var ShortCut = function () {
         'ALT': altKey
       };
 
-      console.log('event', event);
       var command = void 0,
           allCommandsPassed = true;
 
@@ -2721,7 +2731,7 @@ var ShortCut = function () {
   }, {
     key: 'remove',
     value: function remove() {
-      this.element.removeEventListener('keydown', this.callback);
+      this.element.removeEventListener('keydown', this.executeShortcut);
     }
   }]);
 
