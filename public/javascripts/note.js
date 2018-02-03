@@ -18,16 +18,17 @@ const Shortcut = require('./shortcut').default;
 
 /**
  * Note section module
+ *
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {ShortCut[]} shortcut
  */
 export default class Note {
 
   /**
    * @constructor
-   *
-   * @property {Element} deleteButton
-   * @property {Element} titleEl
-   * @property {Element} dateEl
-   * @property {Timer} showSavedIndicatorTimer
    */
   constructor() {
     this.deleteButton = $.get('delete-button');

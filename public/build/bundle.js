@@ -366,17 +366,18 @@ var Shortcut = __webpack_require__(19).default;
 
 /**
  * Note section module
+ *
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {ShortCut[]} shortcut
  */
 
 var Note = function () {
 
   /**
    * @constructor
-   *
-   * @property {Element} deleteButton
-   * @property {Element} titleEl
-   * @property {Element} dateEl
-   * @property {Timer} showSavedIndicatorTimer
    */
   function Note() {
     _classCallCheck(this, Note);
