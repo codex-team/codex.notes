@@ -97,6 +97,7 @@ class FoldersController {
 
       let savedFolder = await folder.save();
 
+      console.log("syncing on create-folder.....");
       /**
        * Sync with an API
        */
@@ -193,8 +194,10 @@ class FoldersController {
     try {
       await folders.forEach(async folderData => {
         try {
+          console.log("got folder:", folderData);
           let folder = new Folder(folderData);
           let updatedFolder = await folder.save();
+          console.log("saving");
 
           console.log('updatedFolder: ', updatedFolder);
         } catch (error) {

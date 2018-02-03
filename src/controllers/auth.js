@@ -86,8 +86,10 @@ class AuthController {
             token: jwt
           });
 
+          console.log("Auth: start sync(): ---- ");
           global.app.syncObserver.setup();
           await global.app.syncObserver.sync();
+          console.log("Auth: finished sync(): ---- ");
 
           event.returnValue = global.user;
 
@@ -158,6 +160,7 @@ class AuthController {
           // get updates
           // set flag true if user has folder or note changes
           let updates = await global.app.syncObserver.prepareUpdates(global.user.dt_sync);
+          console.log("<--------updates------------>", updates);
 
           if (updates.folders.length === 0 && updates.notes.length === 0) {
               hasUpdates = false;
@@ -194,7 +197,7 @@ class AuthController {
    */
   async dropSession() {
 
-      await global.app.syncObserver.sync();
+      await global.app.syncObserver.sync(false);
 
       // force database drop
       await db.drop(true);
@@ -202,12 +205,13 @@ class AuthController {
       // create new user instance
       global.user = new User();
 
-      // make initialization again
-      await db.makeInitialSettings(app.getPath('userData'));
-
       // reload page
       global.app.mainWindow.reload();
 
+      db.setup();
+
+      // make initialization again
+      await db.makeInitialSettings(app.getPath('userData'));
   }
 
 }

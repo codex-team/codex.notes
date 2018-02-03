@@ -148,8 +148,6 @@ class CodexNotes {
         this.syncObserver.on('sync', (data) => {
           this.folders.renew(data.user.folders);
         });
-
-        return this.syncObserver.sync();
       })
       .catch(function (err) {
         console.log('Initialization error', err);

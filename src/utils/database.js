@@ -12,6 +12,13 @@ class Database {
 
   constructor() {}
 
+  setup() {
+
+      this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+      this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+      this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+  }
+
   /**
    * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
    * - Initialize collections User, Folders and Notes
@@ -29,11 +36,10 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    // this.showDB();
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
-      
+    this.setup();
+
+    // this.drop(true);
+    // return;
     return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
@@ -49,7 +55,7 @@ class Database {
           'dtCreate': Time.now,
           'dtModify': Time.now
         }).then(rootFolderCreated => {
-          console.log('\nRoot Folder created: ', rootFolderCreated._id);
+          console.log('\nRoot Folder created: ', rootFolderCreated);
         }).catch(err => {
           console.log('\nCan not create the Rood Folder because of: ', err);
         });
@@ -213,17 +219,19 @@ class Database {
    * @param {Object} collection - the collection that we apply for an options
    * @param query - query params
    * @param {Object} options - additional options
-   * @param {Function} callback - callback after query executed
+   * @param {Function|null} callback - callback after query executed
    * @return {Promise}
    */
-  async remove(collection, query, options, callback) {
+  async remove(collection, query, options, callback = null) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
         }
 
-        callback(numDeleted);
+        if (callback && typeof callback === 'function') {
+          callback(numDeleted);
+        }
         resolve(numDeleted);
       });
     });

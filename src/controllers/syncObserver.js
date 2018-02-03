@@ -72,7 +72,7 @@ module.exports = class SyncObserver {
    * Sync changes with API server
    * @return {null|Promise.<object>}
    */
-  async sync() {
+  async sync(emit = true) {
 
     // if user is not logged in it doesn't make a sense to send request
     if (!global.user.token) {
@@ -81,6 +81,8 @@ module.exports = class SyncObserver {
 
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = Time.now;
+
+    console.log(db.getRootFolderId());
 
     /**
      * Get new updates from the last sync date
@@ -120,6 +122,9 @@ module.exports = class SyncObserver {
       console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
     }
 
+    if (!emit) {
+      return;
+    }
     /**
      * Load updates from the Cloud
      */
@@ -189,6 +194,11 @@ module.exports = class SyncObserver {
    * @return {Promise<object>}
    */
   sendFolder(folder){
+
+    // do not allow creating empty folders
+    if (!folder._id || !folder.title) {
+      return;
+    }
 
     let query = require('../graphql/mutations/folder');
 
