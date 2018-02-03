@@ -156,6 +156,8 @@ class SyncObserver {
     let folders = dataFromCloud.user.folders;
 
     await folders.forEach( async folder => {
+      folder._id = folder.id;
+
       /**
        * Create Folder model
        *
@@ -176,6 +178,8 @@ class SyncObserver {
       let notes = folder.notes;
 
       await notes.forEach( async note => {
+        note._id = note.id;
+
         /**
          * Create Note model
          *

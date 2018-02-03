@@ -5,6 +5,11 @@ const Note = require('../models/note');
 const NotesList = require('../models/notesList');
 
 /**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
+/**
  * Notes controller.
  * Works with events:
  *  - note - save
@@ -64,20 +69,16 @@ class NotesController {
         folderId: noteData.folderId,
       });
 
+      note.dtModify = Time.now;
+
       let newNote = await note.save();
 
-      if (noteData.dtModify !== newNote.dtModify) {
-        global.app.syncObserver.sync();
-      }
+      global.app.syncObserver.sync();
 
-      // console.log('Note saving result: ', newNote);
-
-      if (newNote) {
-        event.sender.send('note saved', {
-          note: newNote,
-          isRootFolder: !noteData.folderId
-        });
-      }
+      event.sender.send('note saved', {
+        note: newNote,
+        isRootFolder: !noteData.folderId
+      });
     } catch (err) {
       console.log('Note saving failed because of ', err);
     }
@@ -120,10 +121,9 @@ class NotesController {
    */
   async getNote(noteId, event) {
     try {
-      let note = new Note({_id : noteId});
+      let note = await Note.get(noteId);
 
-      let noteData = await note.get();
-      event.returnValue = noteData;
+      event.returnValue = note;
     } catch (err) {
       console.log('Note\'s data loading failed because of ', err);
       event.returnValue = false;

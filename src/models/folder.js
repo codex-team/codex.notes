@@ -131,7 +131,7 @@ class Folder {
       this._id = createdFolderId;
 
       /**
-       * Return Folders data
+       * Return Folder's data
        */
       return this.data;
     }
@@ -166,7 +166,7 @@ class Folder {
       this._id = createdFolderId;
 
       /**
-       * Return Folders data
+       * Return Folder's data
        */
       return this.data;
     }
@@ -221,15 +221,20 @@ class Folder {
     return !!deleteFolderResult;
   }
 
+
   /**
    * Get Folder by ID
    *
-   * @param {String|null} id - Folder ID
+   * @param {String} id - Folder ID
    *
    * @returns {FolderData} - Folder's data
    */
   static async get(id) {
+    console.log('ID: ', utils.objJSON(id));
+
     let folderFromDB = await db.findOne(db.FOLDERS, {_id: id});
+
+    console.log(folderFromDB);
 
     let folder = new Folder(folderFromDB);
 
