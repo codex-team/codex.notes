@@ -99,14 +99,14 @@ class NotesController {
       });
       let notesInFolder = await list.get();
 
-      let retunValue = {
+      let returnValue = {
         notes: notesInFolder,
         isRootFolder: !folderId
       };
 
-      event.returnValue = retunValue;
+      event.returnValue = returnValue;
 
-      event.sender.send('notes list - update', retunValue);
+      event.sender.send('notes list - update', returnValue);
     } catch (err) {
       console.log('Notes list loading failed because of ', err);
       event.returnValue = false;

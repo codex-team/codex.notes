@@ -2327,7 +2327,7 @@ var Folder = function () {
   }, {
     key: 'updateNotesList',
     value: function updateNotesList() {
-      if (!this.notes.length) {
+      if (this.notes.length) {
         this.notesListWrapper.innerHTML = '';
       }
     }
