@@ -52,6 +52,11 @@ const UserController = require('./controllers/user');
 const User = require('./models/user');
 
 /**
+ * Sockets Controller
+ */
+const SocketsController = require('./controller/sockets');
+
+/**
  * Database setup
  */
 const db = require('./utils/database');
@@ -153,6 +158,11 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
 
         this.syncObserver.on('sync', (data) => {
           // this.user.renew(data.user);

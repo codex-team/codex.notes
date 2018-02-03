@@ -196,4 +196,15 @@ module.exports = class SyncObserver {
         console.log('[!] Folder Mutation failed because of ', error);
       });
   }
+
+  /**
+   * Request channel id from the Cloud
+   * Used by Auth Controller to open WebSocket connection for authentication token waiting
+   * @return {Promise<string>}
+   */
+  async getChannel() {
+    let query = require('../graphql/channel');
+
+    return await this.api.request(query);
+  }
 };

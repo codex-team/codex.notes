@@ -5,6 +5,7 @@ const url = require('url');
 const API = require('../models/api');
 const UserModel = require('../models/user');
 
+
 /**
  * @class AuthController
  * @classdesc Work with user`s authentication
@@ -32,6 +33,31 @@ class AuthController {
    *
    */
   async googleAuth(event) {
+
+    console.log('\n\n\n\n\n\n\nTrying to get a Channel id')
+    let channel;
+
+
+    try {
+
+      let channelResponse = await global.app.syncObserver.getChannel();
+
+      channel = channelResponse.channel.id;
+
+      console.log('\n\n\n CHANNEL GOT ---> ', channel, '\n\n\n');
+
+    } catch ( error ) {
+      console.log('[Auth] cannot receive Channel id because of:', error);
+    }
+
+    if (!channel){
+      console.log('[Auth] authentication failed:');
+      event.returnValue = false;
+      return;
+    }
+
+    global.app.sockets.listenChannel(channel);
+
     let window = new BrowserWindow({
       alwaysOnTop: true,
       autoHideMenuBar: true,
@@ -105,7 +131,8 @@ class AuthController {
       '&response_type=code' +
       '&state=' + process.env.GOOGLE_REDIRECT_URI +
       '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
-      '&client_id=' + process.env.GOOGLE_CLIENT_ID);
+      '&client_id=' + process.env.GOOGLE_CLIENT_ID +
+      '&channel=' + channel);
   }
 
   /**
