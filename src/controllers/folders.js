@@ -5,6 +5,11 @@ const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
 
 /**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
+/**
  * Folders controller.
  * Works with events:
  *  - create folder
@@ -69,7 +74,7 @@ class FoldersController {
       let list = new FoldersList();
       let userFolders = await list.get();
 
-      // event.sender.send('update folders list', {userFolders});
+      event.sender.send('update folders list', {userFolders});
     } catch (err) {
       console.log('Folders list loading failed because of ', err);
     }
@@ -97,11 +102,7 @@ class FoldersController {
        */
       global.app.syncObserver.sync();
 
-      event.returnValue = {
-        '_id': savedFolder._id,
-        'title': savedFolder.title,
-        'notes': savedFolder.notes
-      };
+      event.returnValue = savedFolder;
 
     } catch (err) {
       console.log('Folder addition failed because of ', err);
@@ -140,16 +141,12 @@ class FoldersController {
    */
   async changeTitle(event, id, title) {
     try {
-      let folder = new Folder({
-        _id: id,
-        title: title
-      });
+      let folder = await Folder.get(id);
 
-      console.log('changeTitle');
+      folder.title = title;
+      folder.dtModify = Time.now;
 
-      event.returnValue = await folder.save({
-        title: title
-      });
+      event.returnValue = await folder.save();
 
       /**
        * Sync with an API

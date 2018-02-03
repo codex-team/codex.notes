@@ -27,7 +27,9 @@ module.exports = class NotesList {
 
     let notesList = await db.find(db.NOTES, {
       folderId: this.folderId,
-      isRemoved: false
+      isRemoved: {
+        $ne: true
+      }
     });
 
     return notesList.map( note => new Note(note));
