@@ -1,5 +1,5 @@
 /**
- * Codex Note ShortCuts class
+ * CodeX Note ShortCuts class
  * Handles keyDowns on Note.
  *
  * Used to create shortcuts on element

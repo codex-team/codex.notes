@@ -44,7 +44,7 @@ export default class Note {
       this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
     }
 
-    this.shortcuts = {};
+    this.shortcuts = [];
   }
 
   /**
@@ -142,10 +142,10 @@ export default class Note {
      * create new CMD+A shortcut
      * bind it on current rendered Note
      */
-    this.shortcuts['cmdA'] = new Shortcut({
-      name : 'CMD+A',
-      on : codex.editor.nodes.redactor,
-      callback : function (event) {
+    let shortcut = new Shortcut({
+      name: 'CMD+A',
+      on: codex.editor.nodes.redactor,
+      callback: function (event) {
         event.preventDefault();
         event.stopImmediatePropagation();
 
@@ -157,6 +157,8 @@ export default class Note {
         selection.addRange(range);
       }
     });
+
+    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -173,9 +175,9 @@ export default class Note {
     this.autoresizedTitle.destroy();
 
     // destroy all shortcuts on note
-    for (let name in this.shortcuts) {
-      this.shortcuts[name].remove();
-    }
+    this.shortcuts.forEach((shortcut) => {
+      shortcut.remove();
+    });
   }
 
   /**

@@ -395,7 +395,7 @@ var Note = function () {
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
     }
 
-    this.shortcuts = {};
+    this.shortcuts = [];
   }
 
   /**
@@ -508,7 +508,7 @@ var Note = function () {
        * create new CMD+A shortcut
        * bind it on current rendered Note
        */
-      this.shortcuts['cmdA'] = new Shortcut({
+      var shortcut = new Shortcut({
         name: 'CMD+A',
         on: codex.editor.nodes.redactor,
         callback: function callback(event) {
@@ -523,6 +523,8 @@ var Note = function () {
           selection.addRange(range);
         }
       });
+
+      this.shortcuts.push(shortcut);
     }
 
     /**
@@ -542,9 +544,9 @@ var Note = function () {
       this.autoresizedTitle.destroy();
 
       // destroy all shortcuts on note
-      for (var name in this.shortcuts) {
-        this.shortcuts[name].remove();
-      }
+      this.shortcuts.forEach(function (shortcut) {
+        shortcut.remove();
+      });
     }
 
     /**
@@ -2560,7 +2562,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Codex Note ShortCuts class
+ * CodeX Note ShortCuts class
  * Handles keyDowns on Note.
  *
  * Used to create shortcuts on element
