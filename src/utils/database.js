@@ -33,10 +33,7 @@ class Database {
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
-
-    this.drop(true);
-    return;
-
+      
     return this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);

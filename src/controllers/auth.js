@@ -6,7 +6,6 @@ const url = require('url');
 const API = require('../models/api');
 const User = require('../models/user');
 const db = require('../utils/database');
-const SyncObserver = require('./syncObserver');
 
 /**
  * @class AuthController
