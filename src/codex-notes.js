@@ -140,6 +140,10 @@ class CodexNotes {
         this.notes = new NotesController();
         this.userCtrl = new UserController();
         this.auth = new AuthController();
+        
+        /**
+         * @type {SyncObserver}
+         */
         this.syncObserver = new SyncObserver();
 
         if (global.user.token) {
