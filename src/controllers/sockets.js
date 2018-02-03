@@ -2,14 +2,6 @@ const WebSocket = require('ws');
 
 
 
-ws.on('open', function open() {
-  ws.send('something');
-});
-
-ws.on('message', function incoming(data) {
-  console.log(data);
-});
-
 class Sockets {
   constructor(){
     this.listenedChannels = [];
@@ -27,8 +19,20 @@ class Sockets {
 
 class Channel {
   constructor(name){
-    this.ws = new WebSocket('ws://www.host.com/path');
+
+    let channelULR = 'ws://localhost:8081/chan/' + name;// + '.b10'
+    this.ws = new WebSocket(channelULR);
+
+    console.log('trying to listen ' + name);
+    this.ws.on('open', () => {
+      console.log('listenign channel ' + name);
+      // this.ws.send('listenting...');
+    });
+
+    this.ws.on('message', (data) => {
+    });
+
   }
 }
 
-exports.default = Sockets;
+module.exports = Sockets;

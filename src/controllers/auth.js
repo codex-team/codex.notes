@@ -35,26 +35,28 @@ class AuthController {
   async googleAuth(event) {
 
     console.log('\n\n\n\n\n\n\nTrying to get a Channel id')
-    let channel;
+    let channel = 'CDXCHNL';
 
 
-    try {
 
-      let channelResponse = await global.app.syncObserver.getChannel();
 
-      channel = channelResponse.channel.id;
+    // try {
 
-      console.log('\n\n\n CHANNEL GOT ---> ', channel, '\n\n\n');
+      // let channelResponse = await global.app.syncObserver.getChannel();
 
-    } catch ( error ) {
-      console.log('[Auth] cannot receive Channel id because of:', error);
-    }
+      // channel = channelResponse.channel.id;
 
-    if (!channel){
-      console.log('[Auth] authentication failed:');
-      event.returnValue = false;
-      return;
-    }
+    //   console.log('\n\n\n CHANNEL GOT ---> ', channel, '\n\n\n');
+    //
+    // } catch ( error ) {
+    //   console.log('[Auth] cannot receive Channel id because of:', error);
+    // }
+
+    // if (!channel){
+    //   console.log('[Auth] authentication failed:');
+    //   event.returnValue = false;
+    //   return;
+    // }
 
     global.app.sockets.listenChannel(channel);
 

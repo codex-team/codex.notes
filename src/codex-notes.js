@@ -54,7 +54,7 @@ const User = require('./models/user');
 /**
  * Sockets Controller
  */
-const SocketsController = require('./controller/sockets');
+const SocketsController = require('./controllers/sockets');
 
 /**
  * Database setup
