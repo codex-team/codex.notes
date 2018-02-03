@@ -123,7 +123,7 @@ class FoldersController {
 
       let folderRemovingResult = await folder.delete();
 
-      await global.app.syncObserver.sync();
+      global.app.syncObserver.sync();
 
       event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {

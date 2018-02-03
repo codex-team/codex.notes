@@ -144,7 +144,7 @@ class NotesController {
 
       let noteRemovingResult = await note.delete();
 
-      await global.app.syncObserver.sync();
+      global.app.syncObserver.sync();
 
       event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
