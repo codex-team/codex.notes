@@ -109,9 +109,7 @@ class SyncObserver {
        */
       let updatedUser = this.updateUserLastSyncDate();
 
-      /** @todo а тру ли надо вернуть? */
-
-      return dataFromCloud; // fix it later
+      return dataFromCloud;
     } catch(e) {
       console.log('[syncObserver] Error:', e);
       return false;
@@ -152,8 +150,6 @@ class SyncObserver {
    * @returns {object}
    */
   async saveDataFromCloud(dataFromCloud) {
-    console.log('\n\n\n\n\n\n dataFromCloud received ------->>>>>:', utils.objJSON(dataFromCloud) );
-    console.log('Root folder id ----->', await db.getRootFolderId() );
     console.log('[syncObserver] Update local data');
 
     let folders = dataFromCloud.user.folders;
@@ -249,7 +245,6 @@ class SyncObserver {
    */
   async syncMutationsSequence(updates) {
     console.log('[syncObserver] Create Sync Mutations Sequence');
-    // console.log('LOCAL UPDATES:', updates);
 
     /**
      * Sequence of mutations requests

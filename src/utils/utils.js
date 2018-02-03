@@ -28,7 +28,7 @@ class Utils {
   /**
    *
    */
-  static objJSON(obj) {
+  static print(obj) {
     return JSON.stringify(obj, null, 2);
   }
 }
