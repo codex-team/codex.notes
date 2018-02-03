@@ -2298,7 +2298,7 @@ var Folder = function () {
 
       _this.notes = notes;
     }).then(function () {
-      return _this.updateNotesList();
+      return _this.clearNotesList();
     });
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
@@ -2325,11 +2325,9 @@ var Folder = function () {
      */
 
   }, {
-    key: 'updateNotesList',
-    value: function updateNotesList() {
-      if (this.notes.length) {
-        this.notesListWrapper.innerHTML = '';
-      }
+    key: 'clearNotesList',
+    value: function clearNotesList() {
+      this.notesListWrapper.innerHTML = '';
     }
 
     /**

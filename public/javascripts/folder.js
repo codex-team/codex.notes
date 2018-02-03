@@ -36,7 +36,7 @@ export default class Folder {
       .then( ({notes}) => {
         this.notes = notes;
       })
-      .then( () => this.updateNotesList() );
+      .then( () => this.clearNotesList() );
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
@@ -83,10 +83,8 @@ export default class Folder {
   /**
    * Clear list if there is no one note
    */
-  updateNotesList() {
-    if (this.notes.length) {
-      this.notesListWrapper.innerHTML = '';
-    }
+  clearNotesList() {
+    this.notesListWrapper.innerHTML = '';
   }
 
   /**
