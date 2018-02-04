@@ -75,6 +75,8 @@ class AuthController {
     global.app.sockets.listenChannel(channel, async jwt => {
       console.log('jwt ->>', jwt);
 
+      window.close();
+
       /** Decode JWT payload */
       let payload = new Buffer(jwt.split('.')[1], 'base64');
 
@@ -94,7 +96,6 @@ class AuthController {
 
       event.returnValue = global.user;
 
-      window.close();
     });
 
     // return;
