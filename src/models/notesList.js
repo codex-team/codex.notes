@@ -11,7 +11,7 @@ module.exports = class NotesList {
    * @param {string} folderId - from which Folder we need to create Notes List
    */
   constructor({folderId}) {
-      this.folderId = folderId;
+    this.folderId = folderId;
   }
 
   /**
@@ -27,7 +27,9 @@ module.exports = class NotesList {
 
     let notesList = await db.find(db.NOTES, {
       folderId: this.folderId,
-      isRemoved: false
+      isRemoved: {
+        $ne: true
+      }
     });
 
     return notesList.map( note => new Note(note));

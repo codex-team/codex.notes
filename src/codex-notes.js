@@ -148,6 +148,9 @@ class CodexNotes {
       .then(() => {
         console.log('Current user data is: ', this.user);
 
+        /**
+         * @type {User}
+         */
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
@@ -164,15 +167,6 @@ class CodexNotes {
          */
         this.sockets = new SocketsController();
 
-        this.syncObserver.on('sync', (data) => {
-          // this.user.renew(data.user);
-          this.folders.renew(data.user.folders);
-        });
-      })
-      .then(() => {
-        // if (this.user.token) {
-          // return this.syncObserver.sync();
-        // }
       })
       .catch(function (err) {
         console.log('Initialization error', err);
@@ -220,11 +214,12 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    console.log(`\n\n
-      ........................... \n\n
-      CodeX Notes runtime error:
-      ........................... \n\n
-      `, error);
-    console.log('\n\n ........................... \n\n');
+    console.log(`\n
+      \n
+      ...........................\n
+      \n
+      CodeX Notes runtime error:`, error, `\n
+      \n
+      ...........................`);
   }
 });

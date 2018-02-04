@@ -10,9 +10,8 @@ module.exports = class FoldersList {
 
   constructor(query) {
     this.query = query || {
-      isRoot : {
-        $ne: true
-      }
+      isRoot: {$ne: true},
+      isRemoved: {$ne: true}
     };
   }
 
