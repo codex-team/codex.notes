@@ -106,16 +106,26 @@ class Note {
 
   /**
    * Save current Note to the DB
+   *
+   * There are four ways to do with Note's model on save:
+   *
+   * 1. Note has no _id (create local item)
+   * ---> insert a new item to DB with dates
+   *
+   * 2. Note is not in DB (new item from Cloud)
+   * ---> insert a new item to DB
+   *
+   * 3. Model's dtModify is greater than dtModify
+   *   for item's form DB (update local item's data)
+   * ---> update an item
+   *
+   * 4. Try to save not actual data for this moment.
+   *    Note has been modified after lately
+   * ---> do nothing
+   *
+   * @returns {Promise.<NoteData>}
    */
   async save() {
-    let query = {
-          _id : this._id
-        },
-        data,
-        options = {
-          returnUpdatedDocs: true
-        };
-
     /**
      * Make Title from the first Text Block in case when it is not presented.
      *
@@ -135,40 +145,14 @@ class Note {
      * If Note has no folderId then put it into Root Folder
      */
     if (this.folderId === null) {
-        this.folderId = await db.getRootFolderId();
+      this.folderId = await db.getRootFolderId();
     }
 
     /**
-     * If Note has no _id then we should insert it
-     * Runs on creating a new local item
+     * 1. Note has no _id then we should insert it
      */
     if (!this._id) {
-      /**
-       * Set Notes's dates
-       */
-      this.dtCreate = Time.now;
-      this.dtModify = Time.now;
-
-      data = this.data;
-
-      /**
-       * Insert a new item to local DB
-       *
-       * @returns {object._id} - _id for a new item
-       */
-      let createdNote = await db.insert(db.NOTES, data);
-
-      this._id = createdNote._id;
-
-      /**
-       * Update Folder's dtModify
-       */
-      await this.updateFolderModifyDate(this.dtModify);
-
-      /**
-       * Return Note's data
-       */
-      return this.data;
+      return await this.createNewItem();
     }
 
     /**
@@ -176,56 +160,21 @@ class Note {
      *
      * @returns {object|null}
      */
-    let noteFromLocalDB = await db.findOne(db.NOTES, query);
-
-    data = this.data;
+    let noteFromLocalDB = await db.findOne(db.NOTES, {_id: this._id});
 
     /**
-     * If we have no Note in local DB
-     * Runs if you have got a new item from Cloud
+     * 2. If we do not have this Note in local DB
      */
     if (!noteFromLocalDB) {
-
-      /**
-       * Insert a new item to local DB
-       *
-       * @returns {object._id} - _id for a new item
-       */
-      let createdNote = await db.insert(db.NOTES, data);
-
-      this._id = createdNote._id;
-
-      /**
-       * Update Folder's dtModify
-       */
-      await this.updateFolderModifyDate(this.dtModify);
-
-      /**
-       * Return Note's data
-       */
-      return this.data;
+      return await this.createItemFromCloud();
     }
 
     /**
-     * We need to update Note if new dtModify
-     * is greater than item's dtModify from DB
+     * 3. We need to update Note if new dtModify
+     *    is greater than item's dtModify from DB
      */
     if (noteFromLocalDB.dtModify < this.dtModify) {
-      data = this.data;
-
-      /**
-       * We don't need to rewrite an _id field
-       */
-      delete data._id;
-
-      let updateResponse = await db.update(db.NOTES, query, {$set: data}, options);
-
-      this.data = updateResponse.affectedDocuments;
-
-      /**
-       * Update Folder's dtModify
-       */
-      await this.updateFolderModifyDate(this.dtModify);
+      await this.saveUpdatedItem();
     }
 
     /**
@@ -235,11 +184,104 @@ class Note {
   }
 
   /**
+   * Create a new Note: insert a new item to DB with dates
+   *
+   * @returns {Promise<NoteData>}
+   */
+  async createNewItem() {
+    /**
+     * Set Notes's dates
+     */
+    this.dtCreate = Time.now;
+    this.dtModify = Time.now;
+
+    let data = this.data;
+
+    /**
+     * Insert a new item to local DB
+     *
+     * @returns {object._id} - _id for a new item
+     */
+    let createdNote = await db.insert(db.NOTES, data);
+
+    this._id = createdNote._id;
+
+    /**
+     * Update Folder's dtModify
+     */
+    await this.updateFolderModifyDate(this.dtModify);
+
+    /**
+     * Return Note's data
+     */
+    return this.data;
+  }
+
+  /**
+   * New item from Cloud: insert a new item to DB
+   *
+   * @returns {Promise<NoteData>}
+   */
+  async createItemFromCloud() {
+    let data = this.data;
+
+    /**
+     * Insert a new item to local DB
+     *
+     * @returns {object._id} - _id for a new item
+     */
+    let createdNote = await db.insert(db.NOTES, data);
+
+    this._id = createdNote._id;
+
+    /**
+     * Update Folder's dtModify
+     */
+    await this.updateFolderModifyDate(this.dtModify);
+
+    /**
+     * Return Note's data
+     */
+    return this.data;
+  }
+
+  /**
+   * Need to update local item
+   *
+   * @returns {Promise<NoteData>}
+   */
+  async saveUpdatedItem() {
+    let query = {
+          _id: this._id
+        },
+        data = this.data,
+        options = {
+          returnUpdatedDocs: true
+        };
+
+    /**
+     * We don't need to rewrite an _id field
+     */
+    delete data._id;
+
+    let updateResponse = await db.update(db.NOTES, query, {$set: data}, options);
+
+    this.data = updateResponse.affectedDocuments;
+
+    /**
+     * Update Folder's dtModify
+     */
+    await this.updateFolderModifyDate(this.dtModify);
+
+    return this.data;
+  }
+
+  /**
    * Update dtModify of parent Folder
    *
    * @param currentTimestamp
    *
-   *  @returns {Promise<FolderData>}
+   * @returns {Promise<FolderData>}
    */
   async updateFolderModifyDate(currentTimestamp) {
     /**
