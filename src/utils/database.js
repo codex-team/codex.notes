@@ -93,20 +93,24 @@ class Database {
   /**
    * Drop Folders and Notes collections.
    * For local-development only
+   *
+   * @param {Boolean} force - force drop.
    */
-  drop(){
-    if (process.env.DEBUG !== 'true') {
+  drop(force = false){
+    if (process.env.DEBUG !== 'true' || !force) {
       throw Error('Datastore dropping is not allowed for current environment');
     }
 
+    let sequence = [];
+
     [this.USER, this.FOLDERS, this.NOTES].forEach( collection => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
-      collection.remove({ }, { multi: true }, function (err, numRemoved) {
-        collection.loadDatabase(function (err) {
-          console.log(collection.filename, ': ', numRemoved, ' docs removed');
-        });
-      });
+      sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
+          console.log(collection.filename, ': ', removedRows, ' docs removed');
+      }));
     });
+
+    return Promise.all(sequence);
   }
 
   /**
@@ -211,11 +215,15 @@ class Database {
     });
   }
 
-  remove(collection, query, options) {
+  remove(collection, query, options, callback) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
+        }
+
+        if (callback && typeof callback === 'function') {
+          callback(numDeleted);
         }
 
         resolve(numDeleted);
