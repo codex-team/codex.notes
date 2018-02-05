@@ -12,6 +12,12 @@ class Database {
 
   constructor() {}
 
+  refresh() {
+      this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+      this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+      this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+  }
+
   /**
    * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
    * - Initialize collections User, Folders and Notes
@@ -29,13 +35,11 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+    // create database instances
+    this.refresh();
 
     // this.drop();
     // this.showDB();
-
 
     this.getRootFolderId()
       .then(rootFolderId => {
@@ -95,7 +99,7 @@ class Database {
       throw Error('Datastore dropping is not allowed for current environment');
     }
 
-    [this.FOLDERS, this.NOTES].forEach( collection => {
+    [this.USER, this.FOLDERS, this.NOTES].forEach( collection => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
       collection.remove({ }, { multi: true }, function (err, numRemoved) {
         collection.loadDatabase(function (err) {
