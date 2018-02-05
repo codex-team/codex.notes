@@ -110,6 +110,10 @@ class Database {
       }));
     });
 
+    this.USER = null;
+    this.FOLDERS = null;
+    this.NOTES = null;
+
     return Promise.all(sequence);
   }
 
