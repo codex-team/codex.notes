@@ -3,6 +3,8 @@
 const db = require('../utils/database');
 const utils = require('../utils/utils');
 
+const NotesList = require('./notesList');
+
 /**
  * Time helper
  */
@@ -130,10 +132,30 @@ class Folder {
     let folderFromLocalDB = await db.findOne(db.FOLDERS, {_id: this._id});
 
     /**
-     * 2. If we do not have this Folder in local DB
+     * 2. If we do not have this Folder in local DB.
+     *
+     * If this Folder is Root then merge it with local Root Folder
      */
     if (!folderFromLocalDB) {
-      return await this.createItemFromCloud();
+      /**
+       * Get current Root Folder's _id
+       */
+      let currentRootFolderId = await db.getRootFolderId();
+
+      /**
+       * Save new Folder
+       */
+      await this.createItemFromCloud();
+
+      /**
+       * If it is a Root Folder from the Cloud then
+       * merge it with local Root Folder
+       */
+      if (this.isRoot && this._id !== currentRootFolderId) {
+        await this.updateRootFolder(currentRootFolderId);
+      }
+
+      return this.data;
     }
 
     /**
@@ -213,6 +235,39 @@ class Folder {
   }
 
   /**
+   * Have got a new Root Folder item then
+   * - set new folderId (new Root Folder) for all note in local Root
+   * - remove old Root Folder
+   *
+   * @param {String} currentRootFolderId
+   *
+   * @returns {Promise<FolderData>}
+   */
+  async updateRootFolder(currentRootFolderId) {
+    let rootFolderNotesListModel = new NotesList(currentRootFolderId),
+        rootFolderNotesList = await rootFolderNotesListModel.get();
+
+    /**
+     * Update folderId for all current Root Folder notes
+     *
+     * These notes are not in the Cloud yet then
+     * we will have no problem with syncing
+     */
+    await Promise.all(rootFolderNotesList.map( async note => {
+      note.folderId = this._id;
+      note.dtModify = Time.now;
+      return await note.save();
+    }));
+
+    /**
+     * Remove from local DB not synced old Root Folder
+     */
+    let removeOldRootFodlerResult = await db.remove(db.FOLDERS, {_id: currentRootFolderId}, {});
+
+    return this.data;
+  }
+
+  /**
    * Need to update local item
    *
    * @returns {Promise<FolderData>}
@@ -254,7 +309,6 @@ class Folder {
 
     return await this.save();
   }
-
 
   /**
    * Get Folder by ID
