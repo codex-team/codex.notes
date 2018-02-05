@@ -3,7 +3,6 @@ let {ipcMain} = require('electron');
 
 const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
-const NotesList = require('../models/foldersList');
 
 /**
  * Time helper

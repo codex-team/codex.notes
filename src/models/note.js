@@ -13,8 +13,6 @@ const sanitizeHtml = require('sanitize-html');
 const db = require('../utils/database');
 const utils = require('../utils/utils');
 
-const Folder = require('./folder');
-
 /**
  * Time helper
  */
@@ -280,25 +278,28 @@ class Note {
    *
    * @param timestamp
    *
-   * @returns {Promise<FolderData>}
+   * @returns {Promise<Object>}
    */
   async updateFolderModifyDate(timestamp) {
+    let query = {
+          _id: this.folderId,
+          dtModify: {$lt: timestamp}
+        },
+        data = {
+          $set: {dtModify: timestamp}
+        },
+        options = {
+          returnUpdatedDocs: true
+        };
+
     /**
-     * Create Folder's model
+     * Update parent Folder's dtModify it is less than the target timestamp
      *
-     * @type {Folder}
+     * @type {{numAffected: number, affectedDocuments: Object|null}}
      */
-    let folder = await Folder.get(this.folderId);
+    let updatedFolder = await db.update(db.FOLDERS, query, data, options);
 
-    /**
-     * Update Folder's timestamp
-     */
-    folder.dtModify = timestamp;
-
-    /**
-     * Try to save Folder
-     */
-    return await folder.save();
+    return updatedFolder.affectedDocuments;
   }
 
   /**
