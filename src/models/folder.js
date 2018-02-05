@@ -141,7 +141,7 @@ class Folder {
      *    is greater than item's dtModify from DB
      */
     if (folderFromLocalDB.dtModify < this.dtModify) {
-      await this.saveUpdatedItem();
+      return await this.saveUpdatedItem();
     }
 
     /**
@@ -301,4 +301,4 @@ class Folder {
   }
 }
 
-module.exports =  Folder;
+module.exports = Folder;

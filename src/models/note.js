@@ -11,7 +11,6 @@ const sanitizeHtml = require('sanitize-html');
  * @type {Database}
  */
 const db = require('../utils/database');
-
 const utils = require('../utils/utils');
 
 const Folder = require('./folder');
@@ -174,7 +173,7 @@ class Note {
      *    is greater than item's dtModify from DB
      */
     if (noteFromLocalDB.dtModify < this.dtModify) {
-      await this.saveUpdatedItem();
+      return await this.saveUpdatedItem();
     }
 
     /**
@@ -279,11 +278,11 @@ class Note {
   /**
    * Update dtModify of parent Folder
    *
-   * @param currentTimestamp
+   * @param timestamp
    *
    * @returns {Promise<FolderData>}
    */
-  async updateFolderModifyDate(currentTimestamp) {
+  async updateFolderModifyDate(timestamp) {
     /**
      * Create Folder's model
      *
@@ -294,7 +293,7 @@ class Note {
     /**
      * Update Folder's timestamp
      */
-    folder.dtModify = currentTimestamp;
+    folder.dtModify = timestamp;
 
     /**
      * Try to save Folder
