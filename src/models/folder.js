@@ -14,6 +14,11 @@ const SyncObserver = require('../controllers/syncObserver');
 const Note = require('../models/note.js');
 
 /**
+ * Collaborator Model
+ */
+const Collaborator = require('../models/collaborator');
+
+/**
  * @typedef {Object} FolderData
  * @property {String|null} id          - Folder's id
  * @property {String|null} _id         - Folder's Database id
@@ -72,7 +77,7 @@ module.exports = class Folder {
       notes: this.notes
     };
 
-    if (this.id){
+    if (this.id) {
       folderData.id = this.id;
     }
 
@@ -111,6 +116,7 @@ module.exports = class Folder {
     /**
      * Set creation date for the new Folder
      */
+
     if (!this._id) {
       this.dtCreate = +new Date();
     }
@@ -128,7 +134,7 @@ module.exports = class Folder {
       /**
        * On sync, we need to save given id as _id in the DB.
        */
-      if (this.id !== null){
+      if (this.id !== null) {
         data = Object.assign(data, {_id: this.id});
       }
     }
@@ -136,7 +142,7 @@ module.exports = class Folder {
     /**
      * Update Notes
      */
-    if (data.notes){
+    if (data.notes) {
       this.updateNotes(data.notes);
       /**
        * Notes array stores in other Collection, we don't need to save them to the Folder document
@@ -149,7 +155,7 @@ module.exports = class Folder {
     /**
      * Renew Model id with the actual value
      */
-    if (savedFolder._id){
+    if (savedFolder._id) {
       this.id = savedFolder._id;
     }
 
@@ -168,6 +174,7 @@ module.exports = class Folder {
    */
   updateNotes(notes) {
     let notesToUpdate = notes || this.notes;
+
     notesToUpdate.forEach( async (noteData) => {
       let note = new Note(Object.assign(noteData, {folderId: this.id}));
       let savingResult = await note.save();
@@ -224,13 +231,27 @@ module.exports = class Folder {
    * @returns {Boolean}
    */
   async addCollaborator(email) {
+    if (await Collaborator.findByEmail(this.id, email)) {
+      throw Error('Collaborator has been already invited');
+    }
 
-    /**
-     * @todo Send Collaborator Mutation to the API
-     */
-    console.log('Collaborator will be added with email: ', email);
+    let collaborator = new Collaborator({
+      email: email,
+      folderId: this.id,
+      ownerId: global.user.id
+    });
 
-    return true;
+    await collaborator.save();
+
+    await global.app.syncObserver.sendCollaborator(collaborator);
+
+    return {
+      success: true
+    };
+  }
+
+  async getCollaborators() {
+    return db.find(db.COLLABORATORS, {folderId: this.id});
   }
 
   /**

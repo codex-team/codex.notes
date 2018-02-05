@@ -1,11 +1,3 @@
-'use strict';
-let {ipcMain} = require('electron');
-
-const Folder = require('../models/folder');
-const FoldersList = require('../models/foldersList');
-
-
-
 /**
  * Folders controller.
  * Works with events:
@@ -13,6 +5,15 @@ const FoldersList = require('../models/foldersList');
  *  - load folders list
  *  - delete folder
  */
+'use strict';
+let {ipcMain} = require('electron');
+
+const Folder = require('../models/folder');
+const FoldersList = require('../models/foldersList');
+const db = require('../utils/database');
+
+
+
 class FoldersController {
 
   /**
@@ -42,6 +43,10 @@ class FoldersController {
 
     ipcMain.on('folder - collaborator add', (event, {id, email}) => {
       this.addCollaborator(event, id, email);
+    });
+
+    ipcMain.on('folder - get collaborators', (event, {id}) => {
+      this.getCollaborators(event, id);
     });
   }
 
@@ -173,7 +178,10 @@ class FoldersController {
       event.returnValue = await folder.addCollaborator(email);
     } catch (err) {
       console.log('Collaborator invitation failed because of ', err);
-      event.returnValue = false;
+      event.returnValue = {
+        success: false,
+        message: err.message
+      };
     }
   }
 
@@ -195,6 +203,17 @@ class FoldersController {
     let userFolders = await list.get();
 
     global.app.mainWindow.webContents.send('update folders list', {userFolders});
+  }
+
+  async getCollaborators(event, id) {
+
+    let folder = new Folder({
+        id,
+        ownerId: global.user ? global.user.id : null,
+    });
+
+    event.returnValue = await folder.getCollaborators();
+
   }
 }
 

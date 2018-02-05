@@ -51,7 +51,6 @@ module.exports = class SyncObserver {
         folders: changedFolders,
         notes: null
       };
-
     } catch (err) {
       console.log('Error during synchronization prepareUpdates: ', err);
       return false;
@@ -62,7 +61,6 @@ module.exports = class SyncObserver {
    * Sync changes with API server
    */
   async sync() {
-
     let lastSyncDate = await global.user.getSyncDate();
     let currentTime = +new Date();
 
@@ -112,8 +110,7 @@ module.exports = class SyncObserver {
   /**
    * Requests updates from the cloud
    */
-  getUpdates(){
-
+  getUpdates() {
     /**
      * Sync Query
      * @type {String}
@@ -140,7 +137,6 @@ module.exports = class SyncObserver {
    * @param {*} data       - Data to pass with Event
    */
   emit(event, data) {
-
     this.subscribers.forEach(sub => {
       if (sub.event !== event) {
         return;
@@ -148,7 +144,6 @@ module.exports = class SyncObserver {
 
       sub.callback.call(null, data);
     });
-
   }
 
   /**
@@ -168,7 +163,7 @@ module.exports = class SyncObserver {
    * @param {FolderData} folder
    * @return {Promise<object>}
    */
-  sendFolder(folder){
+  sendFolder(folder) {
     let query = require('../graphql/mutations/folder');
 
     let variables = {
@@ -186,5 +181,23 @@ module.exports = class SyncObserver {
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
       });
+  }
+
+  sendCollaborator(collaborator) {
+    let query = require('../graphql/mutations/invite');
+
+    let variables = {
+      email: collaborator.email,
+      ownerId: global.user ? global.user.id : null,
+      folderId: collaborator.folderId,
+    };
+
+    return this.api.request(query, variables)
+        .then(data => {
+          console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+        })
+        .catch(error => {
+          console.log('[!] InviteCollaborator Mutation failed because of ', error);
+        });
   }
 };

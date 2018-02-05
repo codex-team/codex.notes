@@ -52,6 +52,18 @@ export default class FolderSettings {
     document.body.classList.add(FolderSettings.CSS.panelOpenedModifier);
     this.opened = true;
 
+
+    this.membersList.innerHTML = '';
+
+    let id = codex.notes.aside.currentFolder.id,
+        collaborators = window.ipcRenderer.sendSync('folder - get collaborators', {id});
+
+    console.log(collaborators);
+
+    collaborators.forEach(collaborator => {
+      this.addCollaborator(collaborator);
+    });
+
     /**
      * Fill Folder's title input
      */
@@ -155,17 +167,25 @@ export default class FolderSettings {
      */
     let result = window.ipcRenderer.sendSync('folder - collaborator add', { id, email });
 
-    if (!result) {
-      Dialog.error('Error while adding a collaborator to the folder');
-      return false;
-    }
-
     // Clear input field
     input.value = '';
 
+    if (!result.success) {
+      Dialog.error(result.message ? result.message : 'Error while adding a collaborator to the folder');
+      return false;
+    }
+
+    this.addCollaborator({email});
+  }
+
+  /**
+   *
+   * @param collaborator
+   */
+  addCollaborator(collaborator) {
     // Add item to list of Collaborators
     let newMemberItem = $.make('P', [], {
-      innerHTML: email
+      innerHTML: collaborator.email
     });
 
     $.append(this.membersList, newMemberItem);

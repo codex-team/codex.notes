@@ -31,6 +31,7 @@ class Database {
     this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true });
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true });
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true });
+    this.COLLABORATORS = new Datastore({ filename: path.join(this.appFolder, 'collaborators.db'), autoload: true });
 
     // this.drop();
     // this.showDB();
