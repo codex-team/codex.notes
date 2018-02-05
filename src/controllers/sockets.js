@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 class Sockets {
   constructor(){
-    this.listenedChannels = [];
+    this.channels = [];
   }
 
   /**
@@ -12,7 +12,7 @@ class Sockets {
    * @param channel
    */
   listenChannel(channel, callback){
-    this.listenedChannels.push(new Channel(channel, callback));
+    this.channels.push(new Channel(channel, callback));
   }
 }
 
@@ -26,8 +26,6 @@ class Channel {
       /** Disable a negotiate a compression algorithm {@link https://github.com/websockets/ws#websocket-compression} */
       perMessageDeflate: false
     });
-
-    console.log('trying to listen ' + this.name);
 
     this.ws.on('open', () => {
       this.opened();
@@ -43,15 +41,15 @@ class Channel {
 
   }
 
-  opened(){
+  opened() {
     console.log('listening channel ' + this.name);
   }
 
-  closed(){
+  closed() {
     console.log('disconnected from ' + this.name);
   }
 
-  onMessage(data){
+  onMessage(data) {
     this.callback(data);
   }
 
