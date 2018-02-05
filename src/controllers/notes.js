@@ -94,9 +94,7 @@ class NotesController {
    */
   async loadNotesList(folderId, event) {
     try {
-      let list = new NotesList({
-        folderId
-      });
+      let list = new NotesList(folderId);
       let notesInFolder = await list.get();
 
       let returnValue = {

@@ -11,10 +11,7 @@ const sanitizeHtml = require('sanitize-html');
  * @type {Database}
  */
 const db = require('../utils/database');
-
 const utils = require('../utils/utils');
-
-const Folder = require('./folder');
 
 /**
  * Time helper
@@ -174,7 +171,7 @@ class Note {
      *    is greater than item's dtModify from DB
      */
     if (noteFromLocalDB.dtModify < this.dtModify) {
-      await this.saveUpdatedItem();
+      return await this.saveUpdatedItem();
     }
 
     /**
@@ -279,27 +276,30 @@ class Note {
   /**
    * Update dtModify of parent Folder
    *
-   * @param currentTimestamp
+   * @param timestamp
    *
-   * @returns {Promise<FolderData>}
+   * @returns {Promise<Object>}
    */
-  async updateFolderModifyDate(currentTimestamp) {
+  async updateFolderModifyDate(timestamp) {
+    let query = {
+          _id: this.folderId,
+          dtModify: {$lt: timestamp}
+        },
+        data = {
+          $set: {dtModify: timestamp}
+        },
+        options = {
+          returnUpdatedDocs: true
+        };
+
     /**
-     * Create Folder's model
+     * Update parent Folder's dtModify it is less than the target timestamp
      *
-     * @type {Folder}
+     * @type {{numAffected: number, affectedDocuments: Object|null}}
      */
-    let folder = await Folder.get(this.folderId);
+    let updatedFolder = await db.update(db.FOLDERS, query, data, options);
 
-    /**
-     * Update Folder's timestamp
-     */
-    folder.dtModify = currentTimestamp;
-
-    /**
-     * Try to save Folder
-     */
-    return await folder.save();
+    return updatedFolder.affectedDocuments;
   }
 
   /**
