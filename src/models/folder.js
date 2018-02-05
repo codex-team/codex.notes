@@ -254,9 +254,13 @@ class Folder {
      * we will have no problem with syncing
      */
     await Promise.all(rootFolderNotesList.map( async note => {
-      note.folderId = this._id;
-      note.dtModify = Time.now;
-      return await note.save();
+      try {
+        note.folderId = this._id;
+        note.dtModify = Time.now;
+        return await note.save();
+      } catch (e) {
+        console.log('Error while moving notes to the new Root Folder:', e);
+      }
     }));
 
     /**
