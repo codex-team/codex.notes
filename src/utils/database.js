@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Datastore = require('nedb');
+const Time = require('../utils/time.js');
 
 /**
  * Database class. neDB - https://github.com/louischatriot/nedb.
@@ -36,6 +37,7 @@ class Database {
     // this.drop();
     // this.showDB();
 
+
     this.getRootFolderId()
       .then(rootFolderId => {
         console.log('\nRoot Folder found: ', rootFolderId);
@@ -45,9 +47,11 @@ class Database {
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
+          'ownerId': null,
           'title': 'Root Folder',
-          // '_id': 0, // nedb does not works properly with _id = 0
-          'notes': []
+          'notes': [],
+          'dtCreate': Time.now,
+          'dtModify': Time.now
         }).then(rootFolderCreated => {
           console.log('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {

@@ -1,6 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
+const Shortcut = require('./shortcut').default;
 
 /**
  * @typedef {Object} NoteData
@@ -17,16 +18,18 @@ const Dialog = require('./dialog').default;
 
 /**
  * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {ShortCut[]} shortcut
  */
 export default class Note {
 
   /**
    * @constructor
-   *
-   * @property {Element} deleteButton
-   * @property {Element} titleEl
-   * @property {Element} dateEl
-   * @property {Timer} showSavedIndicatorTimer
    */
   constructor() {
     this.deleteButton = $.get('delete-button');
@@ -40,6 +43,8 @@ export default class Note {
     if (!this.autoresizedTitle) {
       this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
     }
+
+    this.shortcuts = [];
   }
 
   /**
@@ -55,6 +60,10 @@ export default class Note {
     let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
     codex.editor.saver.save()
+      .then(noteData => {
+        this.validate(noteData);
+        return noteData;
+      })
       .then( noteData => {
         let note = {
           data: noteData,
@@ -76,7 +85,20 @@ export default class Note {
 
         window.ipcRenderer.send('note - save', {note});
       })
-      .catch( err => console.log('Error while saving note: ', err) );
+      .catch( err => {
+        console.log('Error while saving note: ', err);
+      } );
+  }
+
+  /**
+   * Validate Note data before saving
+   * @param {object} noteData
+   * @throws {Error}
+   */
+  validate(noteData) {
+    if (!noteData.items.length) {
+      throw Error('Article is empty');
+    }
   }
 
   /**
@@ -102,7 +124,11 @@ export default class Note {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
 
-    let dtModify = new Date(note.dtModify);
+    /**
+     * We store all times in a Seconds to correspond server-format
+     * @type {Date}
+     */
+    let dtModify = new Date(note.dtModify * 1000);
 
     this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',
@@ -113,7 +139,7 @@ export default class Note {
     });
     codex.editor.content.load({
       id: note._id,
-      items: note.content,
+      items: JSON.parse(note.content),
       time: note.dtModify,
       version: note.editorVersion,
     });
@@ -128,6 +154,28 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+
+    /**
+     * create new CMD+A shortcut
+     * bind it on current rendered Note
+     */
+    let shortcut = new Shortcut({
+      name: 'CMD+A',
+      on: codex.editor.nodes.redactor,
+      callback: function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        let range = document.createRange(),
+            selection = window.getSelection();
+
+        range.selectNodeContents(codex.editor.nodes.redactor);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
+
+    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -142,6 +190,11 @@ export default class Note {
 
     // destroy autoresizer
     this.autoresizedTitle.destroy();
+
+    // destroy all shortcuts on note
+    this.shortcuts.forEach((shortcut) => {
+      shortcut.remove();
+    });
   }
 
   /**

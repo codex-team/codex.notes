@@ -783,13 +783,6 @@ template {
             opacity: 0.2;
         }
 
-.status-panel {
-    margin-top: 5px;
-    font-size: 12.4px;
-    letter-spacing: 0.035em;
-    color: rgba(222, 230, 252, 0.5);
-}
-
 .authorization-button {
     display: inline-block;
     margin-top: 15px;
@@ -1166,6 +1159,46 @@ template {
 .folder-settings-opened .aside-swiper__right .aside__scrollable {
         visibility: hidden;
     }
+
+.status-bar {
+  margin-top: 2px;
+  font-size: 13.2px;
+  letter-spacing: 0.038em;
+  font-weight: normal;
+  color: rgba(222, 230, 252, 0.5);
+  transition: color 250ms cubic-bezier(0.32,-0.01, 0, 0.99);
+}
+
+.status-bar--blinked{
+    color: #dee6fc
+  }
+
+.status-bar--loading::after {
+    content: '...';
+    display: inline-block;
+    -webkit-animation: loading 1000ms infinite;
+            animation: loading 1000ms infinite;
+    overflow: hidden;
+    vertical-align: text-bottom;
+}
+
+@-webkit-keyframes loading {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 12px;
+  }
+}
+
+@keyframes loading {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 12px;
+  }
+}
 
 body {
     height: 100vh;

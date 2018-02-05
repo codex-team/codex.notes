@@ -5,6 +5,11 @@ const Note = require('../models/note');
 const NotesList = require('../models/notesList');
 
 /**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
+
+/**
  * Notes controller.
  * Works with events:
  *  - note - save
@@ -56,24 +61,24 @@ class NotesController {
   async saveNote(noteData, event) {
     try {
       let note = new Note({
+        _id: noteData.data.id || null,
         title: noteData.title,
+        content: JSON.stringify(noteData.data.items),
         editorVersion: noteData.data.version,
-        dtModify: +new Date(),
         authorId: global.user ? global.user.id : null,
         folderId: noteData.folderId,
-        content: noteData.data.items,
-        _id: noteData.data.id || null,
       });
+
+      note.dtModify = Time.now;
+
       let newNote = await note.save();
 
-      console.log('Note saving result: ', newNote);
+      global.app.syncObserver.sync();
 
-      if (newNote) {
-        event.sender.send('note saved', {
-          note: newNote,
-          isRootFolder: !noteData.folderId
-        });
-      }
+      event.sender.send('note saved', {
+        note: newNote,
+        isRootFolder: !noteData.folderId
+      });
     } catch (err) {
       console.log('Note saving failed because of ', err);
     }
@@ -94,14 +99,14 @@ class NotesController {
       });
       let notesInFolder = await list.get();
 
-      let retunValue = {
+      let returnValue = {
         notes: notesInFolder,
         isRootFolder: !folderId
       };
 
-      event.returnValue = retunValue;
+      event.returnValue = returnValue;
 
-      event.sender.send('notes list - update', retunValue);
+      event.sender.send('notes list - update', returnValue);
     } catch (err) {
       console.log('Notes list loading failed because of ', err);
       event.returnValue = false;
@@ -116,32 +121,34 @@ class NotesController {
    */
   async getNote(noteId, event) {
     try {
-      let note = new Note({_id : noteId});
+      let note = await Note.get(noteId);
 
-      let noteData = await note.get();
-      event.returnValue = noteData;
+      event.returnValue = note;
     } catch (err) {
-      console.log('Note\'s data loading failed because of ', err);
+      console.log('Note\'s data loading failed because of', err);
       event.returnValue = false;
     }
   }
 
   /**
    * Delete Note with specified ID
+   *
    * @param {string} noteId
    * @param {GlobalEvent} event
+   *
    * @returns {Promise.<boolean>}
    */
   async deleteNote(noteId, event) {
     try {
-      let note = new Note({
-        _id: noteId
-      });
-      let result = await note.delete();
+      let note = await Note.get(noteId);
 
-      event.returnValue = !!result;
+      let noteRemovingResult = await note.delete();
+
+      global.app.syncObserver.sync();
+
+      event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
-      console.log('Note failed because of ', err);
+      console.log('Note failed because of', err);
       event.returnValue = false;
     }
   }

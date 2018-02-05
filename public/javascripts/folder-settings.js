@@ -114,7 +114,7 @@ export default class FolderSettings {
 
     let input = event.target,
         title = input.value.trim(),
-        id = codex.notes.aside.currentFolder.id;
+        id = codex.notes.aside.currentFolder._id;
 
     if (!title) {
       return;
@@ -155,7 +155,7 @@ export default class FolderSettings {
 
     let input = event.target,
         email = input.value.trim(),
-        id = codex.notes.aside.currentFolder.id;
+        id = codex.notes.aside.currentFolder._id;
 
     if (!email || !Validate.email(email)) {
       return;

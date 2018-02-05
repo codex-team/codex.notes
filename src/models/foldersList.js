@@ -9,7 +9,10 @@ const Folder = require('./folder.js');
 module.exports = class FoldersList {
 
   constructor(query) {
-    this.query = query || {};
+    this.query = query || {
+      isRoot: {$ne: true},
+      isRemoved: {$ne: true}
+    };
   }
 
   /**

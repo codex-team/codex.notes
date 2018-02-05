@@ -1,17 +1,12 @@
 'use strict';
 
 const db = require('../utils/database');
+const utils = require('../utils/utils');
 
 /**
- * Synchronization controller
+ * Time helper
  */
-const SyncObserver = require('../controllers/syncObserver');
-
-
-/**
- * Note Model
- */
-const Note = require('../models/note.js');
+const Time = require('../utils/time.js');
 
 /**
  * Collaborator Model
@@ -20,7 +15,6 @@ const Collaborator = require('../models/collaborator');
 
 /**
  * @typedef {Object} FolderData
- * @property {String|null} id          - Folder's id
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
  * @property {Number} dtModify         - Last modification timestamp
@@ -28,6 +22,7 @@ const Collaborator = require('../models/collaborator');
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
+ * @property {Boolean} isRemoved       - removed state
  */
 
 /**
@@ -35,16 +30,17 @@ const Collaborator = require('../models/collaborator');
  * @classdesc Folder's model type
  *
  * @typedef {Folder} Folder
- * @property {String} id
+ * @property {String} _id
  * @property {String|null} title
  * @property {Number} dtModify
  * @property {Number} dtCreate
  * @property {String} ownerId
  * @property {Note[]} notes
  * @property {Boolean} isRoot
+ * @property {Boolean} isRemoved
  *
  */
-module.exports = class Folder {
+class Folder {
 
   /**
    * @constructor
@@ -52,16 +48,16 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   constructor(folderData = {}) {
-    this.id = null;
+    this._id = null;
     this.title = null;
     this.dtModify = null;
     this.dtCreate = null;
     this.ownerId = null;
     this.notes = [];
+    this.isRoot = false;
+    this.isRemoved = false;
 
     this.data = folderData;
-
-    this.syncObserver = new SyncObserver();
   }
 
   /**
@@ -74,11 +70,13 @@ module.exports = class Folder {
       ownerId: this.ownerId,
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
-      notes: this.notes
+      notes: this.notes,
+      isRoot: this.isRoot,
+      isRemoved: this.isRemoved
     };
 
-    if (this.id) {
-      folderData.id = this.id;
+    if (this._id) {
+      folderData._id = this._id;
     }
 
     return folderData;
@@ -89,140 +87,209 @@ module.exports = class Folder {
    * @param {FolderData} folderData
    */
   set data(folderData) {
-    this.id = folderData.id || folderData._id || null;
+    this._id = folderData._id || folderData.id || null;
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
+    this.isRoot = folderData.isRoot || false;
+    this.isRemoved = folderData.isRemoved || false;
   }
 
   /**
    * Saves new Folder into the Database.
    * Update or Insert scheme
-   * @param {Object|null} dataToUpdate  — if you need to update only specified fields,
-   *                                      pass it directly with this parameter
+   *
+   * There are four ways to do with Folder's model on save:
+   *
+   * 1. Folder has no _id (create local item)
+   * ---> insert a new item to DB with dates
+   *
+   * 2. Folder is not in DB (new item from Cloud)
+   * ---> insert a new item to DB
+   *
+   * 3. Model's dtModify is greater than dtModify
+   *   for item's form DB (update local item's data)
+   * ---> update an item
+   *
+   * 4. Try to save not actual data for this moment.
+   *    Folder has been modified after lately
+   * ---> do nothing
+   *
    * @returns {Promise.<FolderData>}
    */
-  async save(dataToUpdate = null) {
-    let query = {
-          _id : this.id
-        },
-        data = {},
-        options = {
-          upsert: true,
-          returnUpdatedDocs: true
-        };
+  async save() {
     /**
-     * Set creation date for the new Folder
+     * 1. Folder has no _id then we should insert it
      */
 
     if (!this._id) {
-      this.dtCreate = +new Date();
+      return await this.createNewItem();
     }
 
     /**
-     * Save only passed fields or save the full model data
+     * Try to get item in local DB
+     *
+     * @returns {object|null}
      */
-    if (dataToUpdate) {
-      data = {
-        $set: dataToUpdate // we use $set modifier to update only passed values end keep other saved fields
-      };
-    } else {
-      data = this.data;
+    let folderFromLocalDB = await db.findOne(db.FOLDERS, {_id: this._id});
 
-      /**
-       * On sync, we need to save given id as _id in the DB.
-       */
-      if (this.id !== null) {
-        data = Object.assign(data, {_id: this.id});
-      }
+    /**
+     * 2. If we do not have this Folder in local DB
+     */
+    if (!folderFromLocalDB) {
+      return await this.createItemFromCloud();
     }
 
     /**
-     * Update Notes
+     * 3. We need to update Folder if new dtModify
+     *    is greater than item's dtModify from DB
      */
-    if (data.notes) {
-      this.updateNotes(data.notes);
-      /**
-       * Notes array stores in other Collection, we don't need to save them to the Folder document
-       */
-      delete data.notes;
-    }
-
-    let savedFolder = await db.update(db.FOLDERS, query, data, options);
-
-    /**
-     * Renew Model id with the actual value
-     */
-    if (savedFolder._id) {
-      this.id = savedFolder._id;
+    if (folderFromLocalDB.dtModify < this.dtModify) {
+      await this.saveUpdatedItem();
     }
 
     /**
-     * Sync with API
+     * Return Folder's data
      */
-    this.syncObserver.sync();
-
-    return savedFolder.affectedDocuments;
+    return this.data;
   }
 
   /**
-   * Update each Note in this Folder
-   * @param {Array|null} notes - save passed Notes instead of this.notes
-   * @return {Promise<void>}
+   * Create a new Folder: insert a new item to DB with dates
+   *
+   * @returns {Promise<FolderData>}
    */
-  updateNotes(notes) {
-    let notesToUpdate = notes || this.notes;
+  async createNewItem() {
+    /**
+     * Set Folder's dates
+     */
+    this.dtCreate = Time.now;
+    this.dtModify = Time.now;
 
-    notesToUpdate.forEach( async (noteData) => {
-      let note = new Note(Object.assign(noteData, {folderId: this.id}));
-      let savingResult = await note.save();
+    let data = this.data;
 
-      console.log('Note', savingResult._id, 'updated due to Folder', this.id, 'saving');
-    });
+    /**
+     * We don't need "notes" field in DB
+     */
+    delete data.notes;
+
+    /**
+     * Insert a new item to local DB
+     *
+     * @returns {object._id} - _id for a new item
+     */
+    let createdFolder = await db.insert(db.FOLDERS, data);
+
+    this._id = createdFolder._id;
+
+    /**
+     * Return Folder's data
+     */
+    return this.data;
   }
 
+  /**
+   * New item from Cloud: insert a new item to DB
+   *
+   * @returns {Promise<FolderData>}
+   */
+  async createItemFromCloud() {
+    let data = this.data;
+
+    /**
+     * We don't need "notes" field in DB
+     */
+    delete data.notes;
+
+    /**
+     * Insert a new item to local DB
+     *
+     * @returns {object._id} - _id for a new item
+     */
+    let createdFolder = await db.insert(db.FOLDERS, data);
+
+    this._id = createdFolder._id;
+
+    /**
+     * Return Folder's data
+     */
+    return this.data;
+  }
 
   /**
-   * Delete Folder from the Database
-   * @returns {Boolean}
+   * Need to update local item
+   *
+   * @returns {Promise<FolderData>}
+   */
+  async saveUpdatedItem() {
+    let query = {
+          _id: this._id
+        },
+        data = this.data,
+        options = {
+          returnUpdatedDocs: true
+        };
+
+    /**
+     * We don't need "notes" field in DB
+     */
+    delete data.notes;
+
+    /**
+     * We don't need to rewrite an _id field
+     */
+    delete data._id;
+
+    let updateResponse = await db.update(db.FOLDERS, query, {$set: data}, options);
+
+    this.data = updateResponse.affectedDocuments;
+
+    return this.data;
+  }
+
+  /**
+   * Delete Folder
+   *
+   * @returns {Promise.<FolderData>}
    */
   async delete() {
-    /**
-     * 1. Remove all Notes in the Folder
-     */
-    await db.remove(db.NOTES, {folderId: this.id}, {});
+    this.isRemoved = true;
+    this.dtModify = Time.now;
 
-    /**
-     * 2. Remove Folder
-     */
-    let deleteFolderResult = await db.remove(db.FOLDERS, {_id: this.id}, {});
-
-    /**
-     * 3. Send Folder Mutation to the API
-     * @todo Sent Folder mutation to the API
-     */
-
-    return !!deleteFolderResult;
+    return await this.save();
   }
+
 
   /**
    * Get Folder by ID
-   * @param {String|null} id - Folder ID
+   *
+   * @param {String} id - Folder ID
+   *
    * @returns {FolderData} - Folder's data
    */
-  async get(id) {
-    let folder = await db.findOne(db.FOLDERS, {
-      _id: id || this._id || this.id
+  static async get(id) {
+    let folderFromDB = await db.findOne(db.FOLDERS, {_id: id});
+
+    let folder = new Folder(folderFromDB);
+
+    return folder;
+  }
+
+  /**
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
+   */
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedItems = await db.find(db.FOLDERS, {
+      dtModify: {$gt: lastSyncTimestamp}
     });
 
-    if (folder) {
-      this.data = folder;
-      return this.data;
-    } else {
-      return false;
-    }
+    return notSyncedItems;
   }
 
   /**
@@ -253,18 +320,6 @@ module.exports = class Folder {
   async getCollaborators() {
     return db.find(db.COLLABORATORS, {folderId: this.id});
   }
+}
 
-  /**
-   * Get updates action. Make a packet of data changed from last sync date specified.
-   */
-  async getUpdates(dt_update) {
-    try {
-      let newFolders = await db.find(db.FOLDERS, {dt_update: { $gt: dt_update }});
-
-      return newFolders;
-    } catch (err) {
-      console.log('getUpdates folders error: ', err);
-      return false;
-    }
-  }
-};
+module.exports =  Folder;

@@ -82,7 +82,10 @@ class AuthController {
             token: jwt
           });
 
-          global.app.syncObserver.sync();
+          /**
+           * Refresh API client with the new token at the authorisation header;
+           */
+          global.app.syncObserver.refreshClient();
 
           event.returnValue = global.user;
 

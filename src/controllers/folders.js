@@ -10,9 +10,12 @@ let {ipcMain} = require('electron');
 
 const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
-const db = require('../utils/database');
+const NotesList = require('../models/foldersList');
 
-
+/**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
 
 class FoldersController {
 
@@ -58,10 +61,7 @@ class FoldersController {
    */
   async getFolderData(event, folderId){
     try {
-      let folder = new Folder({
-        _id: folderId
-      });
-      event.returnValue = await folder.get();
+      event.returnValue = await Folder.get(folderId);
     } catch (err) {
       console.log('Cannot load Folder data because of: ', err);
       event.returnValue = false;
@@ -97,17 +97,17 @@ class FoldersController {
     try {
       let folder = new Folder({
         title: folderTitle,
-        dtModify: +new Date(),
         ownerId: global.user ? global.user.id : null
       });
 
       let savedFolder = await folder.save();
 
-      event.returnValue = {
-        'id': savedFolder._id,
-        'title': savedFolder.title,
-        'notes': savedFolder.notes
-      };
+      /**
+       * Sync with an API
+       */
+      global.app.syncObserver.sync();
+
+      event.returnValue = savedFolder;
 
     } catch (err) {
       console.log('Folder addition failed because of ', err);
@@ -123,15 +123,13 @@ class FoldersController {
    */
   async deleteFolder(event, folderId) {
     try {
-
-      let folder = new Folder({
-        id: folderId,
-        ownerId: global.user ? global.user.id : null
-      });
+      let folder = await Folder.get(folderId);
 
       let folderRemovingResult = await folder.delete();
 
-      event.returnValue = !!folderRemovingResult;
+      global.app.syncObserver.sync();
+
+      event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {
       console.log('Folder removing failed because of ',  err);
       event.returnValue = false;
@@ -146,16 +144,18 @@ class FoldersController {
    */
   async changeTitle(event, id, title) {
     try {
-      let folder = new Folder({
-        id,
-        ownerId: global.user ? global.user.id : null,
-        title: title
-      });
+      let folder = await Folder.get(id);
+
+      folder.title = title;
+      folder.dtModify = Time.now;
+
+      event.returnValue = await folder.save();
 
       /**
-       * @todo Check for fields (dtModify, etc) override
+       * Sync with an API
        */
-      event.returnValue = await folder.save();
+      global.app.syncObserver.sync();
+
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
       event.returnValue = false;
@@ -171,7 +171,7 @@ class FoldersController {
   async addCollaborator(event, id, email) {
     try {
       let folder = new Folder({
-        id,
+        _id: id,
         ownerId: global.user ? global.user.id : null,
       });
 
@@ -190,31 +190,25 @@ class FoldersController {
    * @param {FolderData[]} folders - new Folder's list
    * @return {Promise<void>}
    */
-  async renew(folders){
-    await folders.forEach( async folderData => {
-
-      let folder = new Folder(folderData);
-      let updatedFolder = await folder.save();
-
-      console.log('updatedFolder: ', updatedFolder);
-    });
-
-    let list = new FoldersList();
-    let userFolders = await list.get();
-
-    global.app.mainWindow.webContents.send('update folders list', {userFolders});
-  }
-
-  async getCollaborators(event, id) {
-
-    let folder = new Folder({
-        id,
-        ownerId: global.user ? global.user.id : null,
-    });
-
-    event.returnValue = await folder.getCollaborators();
-
-  }
+  // static async renew(folders) {
+  //   try {
+  //     // await folders.forEach(async folderData => {
+  //     //   try {
+  //     //     let folder = new Folder(folderData);
+  //     //     await folder.save();
+  //     //   } catch (error) {
+  //     //     console.log('Folder saving error:', error);
+  //     //   }
+  //     // });
+  //
+  //     let list = new FoldersList();
+  //     let userFolders = await list.get();
+  //
+  //     global.app.mainWindow.webContents.send('update folders list', {userFolders});
+  //   } catch (err){
+  //     console.log('Can not renew Folder because of:', err);
+  //   }
+  // }
 }
 
 module.exports = FoldersController;

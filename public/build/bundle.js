@@ -64,7 +64,7 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -347,8 +347,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(10).default;
+var AutoResizer = __webpack_require__(12).default;
 var Dialog = __webpack_require__(1).default;
+var Shortcut = __webpack_require__(15).default;
 
 /**
  * @typedef {Object} NoteData
@@ -365,17 +366,19 @@ var Dialog = __webpack_require__(1).default;
 
 /**
  * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {ShortCut[]} shortcut
  */
 
 var Note = function () {
 
   /**
    * @constructor
-   *
-   * @property {Element} deleteButton
-   * @property {Element} titleEl
-   * @property {Element} dateEl
-   * @property {Timer} showSavedIndicatorTimer
    */
   function Note() {
     _classCallCheck(this, Note);
@@ -391,6 +394,8 @@ var Note = function () {
     if (!this.autoresizedTitle) {
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
     }
+
+    this.shortcuts = [];
   }
 
   /**
@@ -412,6 +417,9 @@ var Note = function () {
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
       codex.editor.saver.save().then(function (noteData) {
+        _this.validate(noteData);
+        return noteData;
+      }).then(function (noteData) {
         var note = {
           data: noteData,
           title: _this.titleEl.value.trim(),
@@ -432,8 +440,22 @@ var Note = function () {
 
         window.ipcRenderer.send('note - save', { note: note });
       }).catch(function (err) {
-        return console.log('Error while saving note: ', err);
+        console.log('Error while saving note: ', err);
       });
+    }
+
+    /**
+     * Validate Note data before saving
+     * @param {object} noteData
+     * @throws {Error}
+     */
+
+  }, {
+    key: 'validate',
+    value: function validate(noteData) {
+      if (!noteData.items.length) {
+        throw Error('Article is empty');
+      }
     }
 
     /**
@@ -468,7 +490,11 @@ var Note = function () {
       codex.editor.content.clear(true);
       this.titleEl.value = note.title;
 
-      var dtModify = new Date(note.dtModify);
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
 
       this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
         day: 'numeric',
@@ -479,7 +505,7 @@ var Note = function () {
       });
       codex.editor.content.load({
         id: note._id,
-        items: note.content,
+        items: JSON.parse(note.content),
         time: note.dtModify,
         version: note.editorVersion
       });
@@ -494,6 +520,28 @@ var Note = function () {
       }
 
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
+
+      /**
+       * create new CMD+A shortcut
+       * bind it on current rendered Note
+       */
+      var shortcut = new Shortcut({
+        name: 'CMD+A',
+        on: codex.editor.nodes.redactor,
+        callback: function callback(event) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          var range = document.createRange(),
+              selection = window.getSelection();
+
+          range.selectNodeContents(codex.editor.nodes.redactor);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      });
+
+      this.shortcuts.push(shortcut);
     }
 
     /**
@@ -511,6 +559,11 @@ var Note = function () {
 
       // destroy autoresizer
       this.autoresizedTitle.destroy();
+
+      // destroy all shortcuts on note
+      this.shortcuts.forEach(function (shortcut) {
+        shortcut.remove();
+      });
     }
 
     /**
@@ -592,7 +645,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _folder = __webpack_require__(12);
+var _folder = __webpack_require__(14);
 
 var _folder2 = _interopRequireDefault(_folder);
 
@@ -600,7 +653,7 @@ var _note = __webpack_require__(2);
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(11);
+var _folderSettings = __webpack_require__(13);
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -608,7 +661,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(9).default;
+var AsideSwiper = __webpack_require__(11).default;
 var $ = __webpack_require__(0).default;
 
 /**
@@ -632,8 +685,8 @@ var menuItemTitleMaxLength = 68;
 var Aside = function () {
 
   /**
-  * @constructor
-  */
+   * @constructor
+   */
   function Aside() {
     var _this = this;
 
@@ -901,7 +954,7 @@ var Aside = function () {
 
       if (isRootFolder) {
         notesMenu = document.querySelector('[name="js-notes-menu"]');
-      } else if (this.currentFolder && noteData.folderId === this.currentFolder.id) {
+      } else if (this.currentFolder && noteData.folderId === this.currentFolder._id) {
         notesMenu = document.querySelector('[name="js-folder-notes-menu"]');
       } else {
         console.log('Note added to closed folder: %o', noteData.folderId);
@@ -932,7 +985,7 @@ var Aside = function () {
      *
      * @param {object} folder
      * @param {string} folder.title
-     * @param {number} folder.id
+     * @param {number} folder._id
      */
 
   }, {
@@ -945,7 +998,7 @@ var Aside = function () {
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
-      var item = this.makeMenuItem(folder.title, { folderId: folder.id });
+      var item = this.makeMenuItem(folder.title, { folderId: folder._id });
 
       foldersMenu.insertAdjacentElement('afterbegin', item);
 
@@ -1205,6 +1258,115 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * @module ConnectionObserver
+ *
+ * Detects Online and Offline statuses and update state in the Aside
+ *
+ * @typedef {ConnectionObserver} ConnectionObserver
+ */
+var ConnectionObserver = function () {
+  /**
+   * @constructor
+   */
+  function ConnectionObserver() {
+    var _this = this;
+
+    _classCallCheck(this, ConnectionObserver);
+
+    if (window.navigator.onLine) {
+      this.online();
+    } else {
+      this.offline();
+    }
+
+    window.addEventListener('online', function () {
+      _this.online();
+    });
+    window.addEventListener('offline', function () {
+      _this.offline();
+    });
+  }
+
+  /**
+   * Fired when the Application goes Online
+   */
+
+
+  _createClass(ConnectionObserver, [{
+    key: 'online',
+    value: function online() {
+      codex.notes.statusBar.text = 'Syncing';
+      codex.notes.statusBar.loading = true;
+
+      this.sync().then(function () {
+        codex.notes.statusBar.text = 'All saved';
+        codex.notes.statusBar.loading = false;
+      });
+    }
+
+    /**
+     * Send sync event
+     * @return {Promise<Object>} - updates from the Cloud
+     */
+
+  }, {
+    key: 'sync',
+    value: function sync() {
+      return new Promise(function (resolve) {
+        console.time('Syncing...');
+        window.ipcRenderer.send('user - sync');
+        window.ipcRenderer.once('sync finished', function (event, returnedData) {
+          console.timeEnd('Syncing...');
+          resolve(returnedData);
+        });
+      });
+    }
+
+    /**
+     * Fired when the Application goes Offline
+     */
+
+  }, {
+    key: 'offline',
+    value: function offline() {
+      codex.notes.statusBar.text = 'Offline';
+
+      this.reconnect();
+    }
+
+    /**
+     * Start reconnection process
+     */
+
+  }, {
+    key: 'reconnect',
+    value: function reconnect() {
+      codex.notes.statusBar.text = 'Reconnection';
+      codex.notes.statusBar.loading = true;
+    }
+  }]);
+
+  return ConnectionObserver;
+}();
+
+exports.default = ConnectionObserver;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var $ = __webpack_require__(0).default;
 
 /**
@@ -1371,7 +1533,104 @@ var Editor = function () {
 exports.default = Editor;
 
 /***/ }),
-/* 6 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @module StatusBar
+ * @description Module for working with Aside Status Bar
+ *
+ * @typedef {StatusBar} StatusBar
+ * @property {Element} statusBar - Status Bar Element
+ */
+var StatusBar = function () {
+
+  /**
+   * @constructor
+   * Find status bar Element, init all stuff
+   */
+  function StatusBar() {
+    _classCallCheck(this, StatusBar);
+
+    this.statusBar = _dom2.default.get('status-bar');
+  }
+
+  /**
+   * CSS class names
+   */
+
+
+  _createClass(StatusBar, [{
+    key: 'text',
+
+
+    /**
+     * Update text in the Status Bar
+     * @param {string} statusText - new text
+     */
+    set: function set(statusText) {
+      var _this = this;
+
+      this.statusBar.textContent = statusText;
+
+      this.statusBar.classList.add(StatusBar.CSS.blinked);
+      window.setTimeout(function () {
+        _this.statusBar.classList.remove(StatusBar.CSS.blinked);
+      }, 400);
+    }
+
+    /**
+     * Status Bar text getter
+     */
+    ,
+    get: function get() {
+      return this.statusBar.textContent;
+    }
+
+    /**
+     * Set loading state
+     * @param {boolean} state - true|false
+     */
+
+  }, {
+    key: 'loading',
+    set: function set(state) {
+      this.statusBar.classList.toggle(StatusBar.CSS.loading, state);
+    }
+  }], [{
+    key: 'CSS',
+    get: function get() {
+      return {
+        blinked: 'status-bar--blinked',
+        loading: 'status-bar--loading'
+      };
+    }
+  }]);
+
+  return StatusBar;
+}();
+
+exports.default = StatusBar;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1438,6 +1697,7 @@ var User = function () {
 
       if (authResponse && authResponse.token) {
         this.fillUserPanel(authResponse);
+        window.ipcRenderer.send('user - sync');
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
       }
@@ -1456,13 +1716,10 @@ var User = function () {
     value: function fillUserPanel(user) {
       if (!user.name) return;
 
-      var userStatus = _dom2.default.get('user-status'),
-          userPanel = _dom2.default.get('user-panel'),
+      var userPanel = _dom2.default.get('user-panel'),
           photo = _dom2.default.get('user-photo');
 
       userPanel.classList.add('aside__header-avatar--filled');
-
-      userStatus.textContent = 'Online';
       photo.style.backgroundImage = 'url(' + user.photo + ')';
     }
   }]);
@@ -1473,13 +1730,13 @@ var User = function () {
 exports.default = User;
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1489,14 +1746,26 @@ exports.default = User;
  * Load libraries
  */
 
-var _user = __webpack_require__(6);
+var _user = __webpack_require__(8);
 
 var _user2 = _interopRequireDefault(_user);
+
+var _statusBar = __webpack_require__(7);
+
+var _statusBar2 = _interopRequireDefault(_statusBar);
+
+var _connectionObserver = __webpack_require__(5);
+
+var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var electron = __webpack_require__(3);
-var Editor = __webpack_require__(5).default;
+var Editor = __webpack_require__(6).default;
+
+/**
+ * Load components
+ */
 var Aside = __webpack_require__(4).default;
 var Note = __webpack_require__(2).default;
 
@@ -1513,7 +1782,7 @@ electron.webFrame.setZoomLevelLimits(1, 1);
 /**
  * Load CSS
  */
-__webpack_require__(7);
+__webpack_require__(9);
 
 /**
  * Document ready callback
@@ -1527,6 +1796,8 @@ var documentReady = function documentReady() {
   codex.notes.aside = new Aside();
   codex.notes.note = new Note();
   codex.notes.user = new _user2.default();
+  codex.notes.statusBar = new _statusBar2.default();
+  codex.notes.connectionObserver = new _connectionObserver2.default();
 
   /**
    * New note saving handler
@@ -1565,7 +1836,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1579,7 +1850,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(13).default;
+var SwipeDetector = __webpack_require__(16).default;
 
 /**
  * Aside swiper class
@@ -1657,7 +1928,7 @@ var AsideSwiper = function () {
 exports.default = AsideSwiper;
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1776,7 +2047,7 @@ var Autoresizer = function () {
 exports.default = Autoresizer;
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1792,7 +2063,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(14).default;
+var Validate = __webpack_require__(17).default;
 
 /**
  * Folder Settings panel module
@@ -1928,7 +2199,7 @@ var FolderSettings = function () {
 
       var input = event.target,
           title = input.value.trim(),
-          id = codex.notes.aside.currentFolder.id;
+          id = codex.notes.aside.currentFolder._id;
 
       if (!title) {
         return;
@@ -1972,7 +2243,7 @@ var FolderSettings = function () {
 
       var input = event.target,
           email = input.value.trim(),
-          id = codex.notes.aside.currentFolder.id;
+          id = codex.notes.aside.currentFolder._id;
 
       if (!email || !Validate.email(email)) {
         return;
@@ -2025,7 +2296,7 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2083,7 +2354,7 @@ var Folder = function () {
 
       _this.notes = notes;
     }).then(function () {
-      return _this.updateNotesList();
+      return _this.clearNotesList();
     });
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
@@ -2110,11 +2381,9 @@ var Folder = function () {
      */
 
   }, {
-    key: 'updateNotesList',
-    value: function updateNotesList() {
-      if (!this.notes.length) {
-        this.notesListWrapper.innerHTML = '';
-      }
+    key: 'clearNotesList',
+    value: function clearNotesList() {
+      this.notesListWrapper.innerHTML = '';
     }
 
     /**
@@ -2177,7 +2446,204 @@ var Folder = function () {
 exports.default = Folder;
 
 /***/ }),
-/* 13 */
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * CodeX Note ShortCuts class
+ * Handles keyDowns on Note.
+ *
+ * Used to create shortcuts on element
+ */
+
+/**
+ * List of key codes
+ */
+var keyCodes = {
+  '0': 48,
+  '1': 49,
+  '2': 50,
+  '3': 51,
+  '4': 52,
+  '5': 53,
+  '6': 54,
+  '7': 55,
+  '8': 56,
+  '9': 57,
+  'A': 65,
+  'B': 66,
+  'C': 67,
+  'D': 68,
+  'E': 69,
+  'F': 70,
+  'G': 71,
+  'H': 72,
+  'I': 73,
+  'J': 74,
+  'K': 75,
+  'L': 76,
+  'M': 77,
+  'N': 78,
+  'O': 79,
+  'P': 80,
+  'Q': 81,
+  'R': 82,
+  'S': 83,
+  'T': 84,
+  'U': 85,
+  'V': 86,
+  'W': 87,
+  'X': 88,
+  'Y': 89,
+  'Z': 90,
+  'BACKSPACE': 8,
+  'ENTER': 13,
+  'ESCAPE': 27,
+  'LEFT': 37,
+  'UP': 38,
+  'RIGHT': 39,
+  'DOWN': 40,
+  'INSERT': 45,
+  'DELETE': 46
+};
+
+var supportedCommands = {
+  'CMD': ['CMD', 'CONTROL', 'COMMAND', 'WINDOWS', 'CTRL'],
+  'SHIFT': ['SHIFT'],
+  'ALT': ['ALT', 'OPTION']
+};
+
+/**
+ * @class ShortCuts
+ * @classdesc Callback will be fired with two params:
+ *   - event: standard keyDown param
+ *   - target: element which registered on shortcut creation
+ *
+ * @typedef {ShortCut} ShortCut
+ * @property {String} name - shortcut name
+ * @property {Element} on - element that passed on shortcut creation
+ * @property {Function} callback - custom user function
+ */
+
+var ShortCut = function () {
+
+  /**
+   * Create new shortcut
+   * @param {ShortCut} shortcut
+   * @constructor
+   */
+  function ShortCut(shortcut) {
+    var _this = this;
+
+    _classCallCheck(this, ShortCut);
+
+    this.commands = {};
+    this.keys = {};
+
+    this.parseShortcutName(shortcut.name);
+
+    this.element = shortcut.on;
+    this.callback = shortcut.callback;
+
+    this.executeShortcut = function (event) {
+      _this.execute(event);
+    };
+    this.element.addEventListener('keydown', this.executeShortcut, false);
+  }
+
+  /**
+   * parses string to get shortcut commands in uppercase
+   * @param {String} shortcut
+   *
+   * @return {Array} keys
+   */
+
+
+  _createClass(ShortCut, [{
+    key: 'parseShortcutName',
+    value: function parseShortcutName(shortcut) {
+      shortcut = shortcut.split('+');
+
+      for (var key = 0; key < shortcut.length; key++) {
+        shortcut[key] = shortcut[key].toUpperCase();
+
+        if (shortcut[key].length > 1) {
+          for (var command in supportedCommands) {
+            if (supportedCommands[command].includes(shortcut[key])) {
+              this.commands[command] = true;
+            }
+          }
+        } else {
+          this.keys[shortcut[key]] = true;
+        }
+      }
+    }
+
+    /**
+     * Check all passed commands and keys before firing callback
+     * @param event
+     */
+
+  }, {
+    key: 'execute',
+    value: function execute(event) {
+      var cmdKey = event.ctrlKey || event.metaKey,
+          shiftKey = event.shiftKey,
+          altKey = event.altKey,
+          passed = {
+        'CMD': cmdKey,
+        'SHIFT': shiftKey,
+        'ALT': altKey
+      };
+
+      var command = void 0,
+          allCommandsPassed = true;
+
+      for (command in this.commands) {
+        allCommandsPassed = allCommandsPassed && passed[command];
+      }
+
+      var key = void 0,
+          allKeysPassed = true;
+
+      for (key in this.keys) {
+        allKeysPassed = allKeysPassed && event.keyCode === keyCodes[key];
+      }
+
+      if (allCommandsPassed && allKeysPassed) {
+        this.callback.call(null, event);
+      }
+    }
+
+    /**
+     * Destroy shortcut: remove listener from element
+     */
+
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.element.removeEventListener('keydown', this.executeShortcut);
+    }
+  }]);
+
+  return ShortCut;
+}();
+
+exports.default = ShortCut;
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2271,7 +2737,7 @@ var SwipeDetector = function () {
 exports.default = SwipeDetector;
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -1,6 +1,24 @@
 const db = require('../utils/database');
-const Notes = require('../models/note');
 
+const Folder = require('../models/folder');
+const Note = require('../models/note');
+
+const controllerFolder = require('./folders');
+const controllerNotes = require('./notes');
+
+/**
+ * Load utils
+ *
+ * @type {Utils}
+ */
+const utils = require('../utils/utils');
+
+/**
+ * Time helper
+ *
+ * @type {Time}
+ */
+const Time = require('../utils/time');
 
 /**
  * Simple GraphQL requests provider
@@ -15,62 +33,214 @@ const { GraphQLClient } = require('graphql-request');
  * Accepts changes from the API server
  *
  * @typedef {SyncObserver} SyncObserver
- * @property {Directory} folders    - Folders Model
- * @property {Notes} notes          - Notes Model
  * @property {GraphQLClient} api    - GraphQL API client
- * @property {Array} subscribers    - Provides simple EventEmitter {@link SyncObserver#on}
  */
-module.exports = class SyncObserver {
+class SyncObserver {
 
   /**
    * Initialize params for the API
    */
   constructor() {
-    this.api = new GraphQLClient(process.env.API_ENDPOINT, {
-      headers: {
-        // Bearer scheme of authorization can be understood as 'give access to the bearer of this token'
-        Authorization: 'Bearer ' + global.user.token,
-      }
-    });
+    this.api = null;
 
-    this.subscribers = [];
+    this.refreshClient();
   }
 
   /**
-   * Prepare updates for API during synchronization
-   * @param {Number} lastSyncDate - Date of last synchronisation
-   * @return {{folders: []|null, notes: []|null}}
+   * Makes a new GraphQL client with the new auth-token
+   * It used by {@link AuthController#googleAuth}
    */
-  async prepareUpdates(lastSyncDate) {
-    try {
-      let changedFolders = await db.find(db.FOLDERS, {
-        dtModify: {$gte: lastSyncDate}
-      });
+  refreshClient() {
+    this.api = new GraphQLClient(process.env.API_ENDPOINT, {
+      headers: {
+        /**
+         * Bearer scheme of authorization can be understood
+         *  as 'give access to the bearer of this token'
+         */
+        Authorization: 'Bearer ' + global.user.token,
+      }
+    });
+  }
 
-      return {
-        folders: changedFolders,
-        notes: null
-      };
-    } catch (err) {
-      console.log('Error during synchronization prepareUpdates: ', err);
+  /**
+   * Sync changes with API server
+   *
+   * 1. Get data from the Cloud
+   *
+   * 2. Update local data if Cloud item's
+   *    dtModify is greater than local
+   *
+   * 3. Prepare local updates: local item's
+   *    dtModify is greater than user's last sync date
+   *
+   * 4. Create Sync Mutations Sequence
+   *
+   * 5. Update user's last sync date
+   *
+   * @returns {bool}
+   */
+  async sync() {
+    try {
+      /**
+       * Get data from the Cloud
+       *
+       * @type {Object}
+       */
+      let dataFromCloud = await this.getDataFromCloud();
+
+      /**
+       * Update local data if Cloud item's
+       *    dtModify is greater than local.
+       */
+      let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
+
+      /**
+       * Prepare local updates for this moment
+       */
+      let preparedLocalUpdates = await this.getLocalUpdates();
+
+      /**
+       * Create Sync Mutations Sequence
+       */
+      let syncMutations = await this.syncMutationsSequence(preparedLocalUpdates);
+
+      /**
+       * Update user's last sync date
+       */
+      let updatedUser = this.updateUserLastSyncDate();
+
+      return dataFromCloud;
+    } catch(e) {
+      console.log('[syncObserver] Error:', e);
       return false;
     }
   }
 
   /**
-   * Sync changes with API server
+   * Requests data from the cloud
+   *
+   * @return {Promise<object>}
    */
-  async sync() {
-    let lastSyncDate = await global.user.getSyncDate();
-    let currentTime = +new Date();
+  getDataFromCloud() {
+    console.log('[syncObserver] Get data from the Cloud');
 
     /**
-     * Get new updates from the last sync date
-     * @type {{folders: []|null, notes: []|null}}
+     * Sync Query
+     *
+     * @type {String}
      */
-    let updates = await this.prepareUpdates(lastSyncDate);
+    let query = require('../graphql/sync');
 
-    console.log('SyncObserver: updates are ready for sending to the Cloud:', updates);
+    let syncVariables = {
+      userId: global.user ? global.user.id : null
+    };
+
+    return this.api.request(query, syncVariables)
+      .then( data => {
+        console.log('( ͡° ͜ʖ ͡°) SyncObserver received data:', (data), '\n');
+        return data;
+      });
+  }
+
+  /**
+   * Update local data
+   *
+   * @param dataFromCloud
+   *
+   * @returns {object}
+   */
+  async saveDataFromCloud(dataFromCloud) {
+    console.log('[syncObserver] Update local data');
+
+    let folders = dataFromCloud.user.folders;
+
+    folders = await Promise.all(folders.map( async folder => {
+      folder._id = folder.id;
+
+      /**
+       * Create Folder model
+       *
+       * @type {Folder}
+       */
+      let localFolder = new Folder(folder);
+
+      /**
+       * Save Folder's data
+       */
+      localFolder = await localFolder.save();
+
+      /**
+       * Get Folder's Notes
+       *
+       * @type {*|Array|NotesController}
+       */
+      localFolder.notes = await Promise.all(folder.notes.map( async note => {
+        note._id = note.id;
+
+        /**
+         * Create Note model
+         *
+         * @type {Note}
+         */
+        let localNote = new Note(note);
+
+        /**
+         * We does not receive note.folderId from the Sync Query
+         */
+        localNote.folderId = folder._id;
+
+        /**
+         * Save Note's data
+         */
+        return await localNote.save();
+      }));
+
+      return localFolder;
+    }));
+
+    return folders;
+  }
+
+  /**
+   * Prepare local updates for this moment
+   *
+   * @return {{folders: []|null, notes: []|null}}
+   */
+  async getLocalUpdates() {
+    console.log('[syncObserver] Prepare local updates');
+
+    /**
+     * Get last sync date
+     *
+     * @type {Number}
+     */
+    let lastSyncTimestamp = await global.user.getSyncDate();
+
+    /**
+     * Get not synced Folders
+     */
+    let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
+
+    /**
+     * Get not synced Notes
+     */
+    let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
+
+    return {
+      folders: changedFolders,
+      notes: changedNotes
+    };
+  }
+
+  /**
+   * Send Mutations
+   *
+   * @param updates
+   *
+   * @returns {Promise[]}
+   */
+  async syncMutationsSequence(updates) {
+    console.log('[syncObserver] Create Sync Mutations Sequence');
 
     /**
      * Sequence of mutations requests
@@ -81,86 +251,43 @@ module.exports = class SyncObserver {
     /**
      * Push Folders mutations to the Sync Mutations Sequence
      */
-    if (updates.folders) {
+    if (updates.folders.length) {
       syncMutationsSequence.push(...updates.folders.map( folder => {
         return this.sendFolder(folder);
       }));
     }
 
     /**
-     * Send mutations sequence and renew synchronisation date when it will be finished
+     * Push Notes mutations to the Sync Mutations Sequence
      */
-    try {
-      await Promise.all(syncMutationsSequence);
-
-      global.user.setSyncDate(currentTime).then((resp) => {
-        console.log('Synchronisation\'s date renovated', currentTime, resp);
-      }).catch(e => {
-        console.log('SyncObserver cannot renovate the sync date: ', e);
-      });
-    } catch (sequenceError) {
-      console.log('SyncObserver: something failed due to mutation sequence', sequenceError);
+    if (updates.notes.length) {
+      syncMutationsSequence.push(...updates.notes.map( note => {
+        return this.sendNote(note);
+      }));
     }
 
-    /**
-     * Load updates from the Cloud
-     */
-    this.getUpdates();
-  }
-  /**
-   * Requests updates from the cloud
-   */
-  getUpdates() {
-    /**
-     * Sync Query
-     * @type {String}
-     */
-    let query = require('../graphql/sync');
-
-    let syncVariables = {
-      userId: global.user ? global.user.id : null
-    };
-
-    this.api.request(query, syncVariables)
-      .then( data => {
-        console.log('\n( ͡° ͜ʖ ͡°) SyncObserver received data: \n\n', data);
-        this.emit('sync', data);
-      })
-      .catch( error => {
-        console.log('[!] Synchronization failed because of ', error);
-      });
+    return await Promise.all(syncMutationsSequence);
   }
 
   /**
-   * Emit Event to the each subscriber
-   * @param {String} event - Event name
-   * @param {*} data       - Data to pass with Event
+   * Update user's last sync date
+   *
+   * @returns {Object}
    */
-  emit(event, data) {
-    this.subscribers.forEach(sub => {
-      if (sub.event !== event) {
-        return;
-      }
+  async updateUserLastSyncDate() {
+    console.log('[syncObserver] Update user\'s last sync date');
 
-      sub.callback.call(null, data);
-    });
-  }
+    /** Update user's last sync date */
+    let currentTime = Time.now;
 
-  /**
-   * Add subscriber to the passed event
-   * @param {String} event - on what SyncObserver Event you want to subscribe
-   * @param {Function} callback - what callback we should fire with the Event
-   */
-  on(event, callback) {
-    this.subscribers.push({
-      event,
-      callback
-    });
+    return await global.user.setSyncDate(currentTime);
   }
 
   /**
    * Send Folder Mutation
+   *
    * @param {FolderData} folder
+   *
    * @return {Promise<object>}
    */
   sendFolder(folder) {
@@ -170,13 +297,15 @@ module.exports = class SyncObserver {
       ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
-      dtModify: folder.dtModify ? parseInt(folder.dtModify / 1000, 10) : null,
-      dtCreate: folder.dtCreate ? parseInt(folder.dtCreate / 1000, 10): null
+      dtModify: folder.dtModify || null,
+      dtCreate: folder.dtCreate || null,
+      isRemoved: folder.isRemoved,
+      isRoot: folder.isRoot
     };
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation and received a data: \n\n', data);
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
@@ -200,4 +329,36 @@ module.exports = class SyncObserver {
           console.log('[!] InviteCollaborator Mutation failed because of ', error);
         });
   }
+
+  /**
+   * Send Notes Mutation
+   *
+   * @param {NoteData} note
+   *
+   * @return {Promise<object>}
+   */
+  sendNote(note) {
+    let query = require('../graphql/mutations/note');
+
+    let variables = {
+      id: note._id,
+      authorId: global.user ? global.user.id : null,
+      folderId: note.folderId,
+      title: note.title || '',
+      content: note.content,
+      dtModify: note.dtModify || null,
+      dtCreate: note.dtCreate || null,
+      isRemoved: note.isRemoved
+    };
+
+    return this.api.request(query, variables)
+      .then( data => {
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
+      })
+      .catch( error => {
+        console.log('[!] Note Mutation failed because of ', error);
+      });
+  }
 };
+
+module.exports = SyncObserver;
