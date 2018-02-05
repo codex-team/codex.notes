@@ -33,6 +33,15 @@ module.exports = function (app) {
       role: 'unhide'
     },
     {
+      label : 'Log Out',
+      click: function() {
+        // log out only signed in user
+        if (global.user.token) {
+          global.app.auth.logOut();
+        }
+      }
+    },
+    {
       type: 'separator'
     }, {
       label: 'Quit',
