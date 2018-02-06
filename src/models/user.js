@@ -38,7 +38,7 @@ class User {
   async init() {
     try {
       let user = await this.get(),
-          connection = isOnline();
+          connection = await isOnline();
 
       if (!connection && fs.existsSync(this.localPhoto)) {
         this.photo = this.localPhoto;
