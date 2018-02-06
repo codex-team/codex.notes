@@ -4,7 +4,10 @@ let {ipcMain} = require('electron');
 const Folder = require('../models/folder');
 const FoldersList = require('../models/foldersList');
 
-
+/**
+ * Time helper
+ */
+const Time = require('../utils/time.js');
 
 /**
  * Folders controller.
@@ -53,10 +56,7 @@ class FoldersController {
    */
   async getFolderData(event, folderId){
     try {
-      let folder = new Folder({
-        _id: folderId
-      });
-      event.returnValue = await folder.get();
+      event.returnValue = await Folder.get(folderId);
     } catch (err) {
       console.log('Cannot load Folder data because of: ', err);
       event.returnValue = false;
@@ -102,11 +102,7 @@ class FoldersController {
        */
       global.app.syncObserver.sync();
 
-      event.returnValue = {
-        '_id': savedFolder._id,
-        'title': savedFolder.title,
-        'notes': savedFolder.notes
-      };
+      event.returnValue = savedFolder;
 
     } catch (err) {
       console.log('Folder addition failed because of ', err);
@@ -122,15 +118,13 @@ class FoldersController {
    */
   async deleteFolder(event, folderId) {
     try {
-      let folder = new Folder({
-        _id: folderId,
-        ownerId: global.user ? global.user.id : null
-      });
+      let folder = await Folder.get(folderId);
 
       let folderRemovingResult = await folder.delete();
 
-      event.returnValue = !!folderRemovingResult;
-      console.log('Folder', folderId, 'was successfully removed.');
+      global.app.syncObserver.sync();
+
+      event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {
       console.log('Folder removing failed because of ',  err);
       event.returnValue = false;
@@ -145,13 +139,12 @@ class FoldersController {
    */
   async changeTitle(event, id, title) {
     try {
-      let folder = new Folder({
-        _id: id,
-      });
+      let folder = await Folder.get(id);
 
-      event.returnValue = await folder.save({
-        title: title
-      });
+      folder.title = title;
+      folder.dtModify = Time.now;
+
+      event.returnValue = await folder.save();
 
       /**
        * Sync with an API
@@ -189,29 +182,25 @@ class FoldersController {
    * @param {FolderData[]} folders - new Folder's list
    * @return {Promise<void>}
    */
-  async renew(folders) {
-    try {
-      await folders.forEach(async folderData => {
-        try {
-          let folder = new Folder(folderData);
-          let updatedFolder = await folder.save();
-
-          console.log('updatedFolder: ', updatedFolder);
-        } catch (error) {
-          console.log('Folder saving error:', error);
-        }
-      });
-
-      let list = new FoldersList();
-      let userFolders = await list.get();
-
-      console.log('Folders were renewed. Updating list on the client');
-
-      global.app.mainWindow.webContents.send('update folders list', {userFolders});
-    } catch (err){
-      console.log('Can not renew Folder because of:', err);
-    }
-  }
+  // static async renew(folders) {
+  //   try {
+  //     // await folders.forEach(async folderData => {
+  //     //   try {
+  //     //     let folder = new Folder(folderData);
+  //     //     await folder.save();
+  //     //   } catch (error) {
+  //     //     console.log('Folder saving error:', error);
+  //     //   }
+  //     // });
+  //
+  //     let list = new FoldersList();
+  //     let userFolders = await list.get();
+  //
+  //     global.app.mainWindow.webContents.send('update folders list', {userFolders});
+  //   } catch (err){
+  //     console.log('Can not renew Folder because of:', err);
+  //   }
+  // }
 }
 
 module.exports = FoldersController;

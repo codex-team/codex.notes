@@ -37,6 +37,7 @@ export default class User {
 
     if (authResponse && authResponse.token) {
       this.fillUserPanel(authResponse);
+      window.ipcRenderer.send('user - sync');
     } else {
       Dialog.error('Authentication failed. Please, try again.');
     }

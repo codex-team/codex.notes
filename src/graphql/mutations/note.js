@@ -2,33 +2,35 @@
  * Sync Query
  * @type {string}
  */
-module.exports = `mutation Folder(
+module.exports = `mutation Note(
     $id: ID!,
-    $title: String!,
-    $ownerId: ID!,
+    $title: String!, 
+    $content: String!,
+    $authorId: ID!,  
+    $folderId: ID!,
     $dtModify: Int,
     $dtCreate: Int,
-    $isRoot: Boolean = false,
     $isRemoved: Boolean = false
   ){
-  folder(
+  note(
     id: $id,
     title: $title,
-    ownerId: $ownerId,
+    content: $content,
+    folderId: $folderId, 
+    authorId: $authorId,
     dtModify: $dtModify,
     dtCreate: $dtCreate,
-    isRoot: $isRoot,
     isRemoved: $isRemoved
    ){
     id,
     title,
+    content,
     dtModify,
     dtCreate,
-    isRemoved,
-    isRoot,
-    owner{
-      name,
-      id
+    isRemoved,   
+    author{
+	    id
+	    name
     }
   }
 }`;

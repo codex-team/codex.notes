@@ -33,17 +33,18 @@ class UserController {
 
   /**
    * Perform synchronisation by request from the Client
+   *
    * @param {GlobalEvent} event
    */
   async sync(event) {
     try {
       let updatesFromCloud = await global.app.syncObserver.sync();
+
       event.sender.send('sync finished', {result : true, data: updatesFromCloud});
     } catch(e) {
       event.sender.send('sync finished', {result : false, error: e});
     }
   }
-
 }
 
 module.exports = UserController;

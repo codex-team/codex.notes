@@ -84,7 +84,7 @@ class CodexNotes {
      */
     this.appProtocol = 'codex';
 
-    this.mainWindow = new BrowserWindow({
+    let windowParams = {
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,
@@ -95,7 +95,19 @@ class CodexNotes {
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
-    });
+    }
+
+    /**
+     * Show small half screen window for debugging
+     */
+    if (process.env.DEBUG === 'true') {
+      windowParams.x = 10;
+      windowParams.y = 50;
+      windowParams.width = 740;
+      windowParams.minWidth = 600;
+    }
+
+    this.mainWindow = new BrowserWindow(windowParams);
 
     /**
      * @todo make crossplaform menu
@@ -143,6 +155,9 @@ class CodexNotes {
       .then(() => {
         console.log('Current user data is: ', this.user);
 
+        /**
+         * @type {User}
+         */
         global.user = this.user;
         this.folders = new FoldersController();
         this.notes = new NotesController();
@@ -153,16 +168,6 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
-
-        this.syncObserver.on('sync', (data) => {
-          // this.user.renew(data.user);
-          this.folders.renew(data.user.folders);
-        });
-      })
-      .then(() => {
-        // if (this.user.token) {
-          // return this.syncObserver.sync();
-        // }
       })
       .catch(function (err) {
         console.log('Initialization error', err);
@@ -210,11 +215,12 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    console.log(`\n\n
-      ........................... \n\n
-      CodeX Notes runtime error:
-      ........................... \n\n
-      `, error);
-    console.log('\n\n ........................... \n\n');
+    console.log(`\n
+      \n
+      ...........................\n
+      \n
+      CodeX Notes runtime error:`, error, `\n
+      \n
+      ...........................`);
   }
 });

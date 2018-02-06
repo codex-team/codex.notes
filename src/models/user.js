@@ -6,22 +6,28 @@ const db = require('../utils/database'),
 
 /**
  * Model for current user representation.
+ * @typedef {User} User
+ * @property {string} id – unique user ID
+ * @property {string} google_id – unique user ID passed by Google
+ * @property {string} name – user name
+ * @property {string} photo – avatar string URL
+ * @property {string} token – user's authorization JWT
+ * @property {number} dt_sync – last synchronization timestamp
  */
 class User {
 
   /**
-   * User model {
-   *  {string} id – unique user ID
-   *  {string} google_id – unique user ID passed by Google
-   *  {string} name – user name
-   *  {string} photo – avatar string URL
-   *  {string} token – user's authorization JWT
-   *  {number} dt_sync – last synchronization timestamp
-   * }
-   *
    * @param {UserData} userData
    */
   constructor(userData = {}) {
+    this.id = null;
+    this.name = null;
+    this.photo = null;
+    this.email = null;
+    this.dt_sync = null;
+    this.google_id = null;
+    this.token = null;
+
     this.data = userData;
   }
 
@@ -123,7 +129,7 @@ class User {
   /**
    * Save new synchronisation date
    * @param {Number} newSyncDate
-   * @return {Promise<Number>}
+   * @return {UserData}
    */
   async setSyncDate(newSyncDate) {
     let user = await db.update(db.USER, {}, {
@@ -151,15 +157,15 @@ class User {
    * @param {UserData} userData
    */
   set data(userData) {
-      let {id, name, photo, email, token, google_id, dt_sync} = userData;
+    let {id, name, photo, email, token, google_id, dt_sync} = userData;
 
-      this.id = id || this.id || null;
-      this.name = name || this.name || null;
-      this.photo = photo || this.photo || null;
-      this.email = email || this.email || null;
-      this.token = token || this.token || null;
-      this.google_id = google_id || this.google_id || null;
-      this.dt_sync = dt_sync || this.dt_sync || 0;
+    this.id = id || this.id || null;
+    this.name = name || this.name || null;
+    this.photo = photo || this.photo || null;
+    this.email = email || this.email || null;
+    this.token = token || this.token || null;
+    this.google_id = google_id || this.google_id || null;
+    this.dt_sync = dt_sync || this.dt_sync || 0;
   }
 
 }
