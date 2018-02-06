@@ -95,7 +95,7 @@ class CodexNotes {
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
-    }
+    };
 
     /**
      * Show small half screen window for debugging

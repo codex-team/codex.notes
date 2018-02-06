@@ -12,6 +12,12 @@ class Database {
 
   constructor() {}
 
+  refresh() {
+    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+  }
+
   /**
    * - Create codex.notes directory in user's «App Data» (relative on the OS) folder
    * - Initialize collections User, Folders and Notes
@@ -19,7 +25,6 @@ class Database {
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
-
     console.log('Making initial database settings...');
 
     this.appFolder = appFolder;
@@ -29,13 +34,11 @@ class Database {
     }
     console.log(`Local data storage is in "${this.appFolder}" directory`);
 
-    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
-    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
-    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+    // create database instances
+    this.refresh();
 
     // this.drop();
     // this.showDB();
-
 
     this.getRootFolderId()
       .then(rootFolderId => {
@@ -63,7 +66,7 @@ class Database {
    * Show Folder and Notes collections contents
    * For local-development only
    */
-  showDB(){
+  showDB() {
     if (process.env.DEBUG !== 'true') {
       throw Error('Datastore dropping is not allowed for current environment');
     }
@@ -83,26 +86,33 @@ class Database {
         console.log('\n');
       });
     });
-
   }
 
   /**
    * Drop Folders and Notes collections.
    * For local-development only
+   *
+   * @param {Boolean} force - force drop.
    */
-  drop(){
-    if (process.env.DEBUG !== 'true') {
+  drop(force = false) {
+    if (process.env.DEBUG !== 'true' || !force) {
       throw Error('Datastore dropping is not allowed for current environment');
     }
 
-    [this.FOLDERS, this.NOTES].forEach( collection => {
+    let sequence = [];
+
+    [this.USER, this.FOLDERS, this.NOTES].forEach( collection => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
-      collection.remove({ }, { multi: true }, function (err, numRemoved) {
-        collection.loadDatabase(function (err) {
-          console.log(collection.filename, ': ', numRemoved, ' docs removed');
-        });
-      });
+      sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
+        console.log(collection.filename, ': ', removedRows, ' docs removed');
+      }));
     });
+
+    this.USER = null;
+    this.FOLDERS = null;
+    this.NOTES = null;
+
+    return Promise.all(sequence);
   }
 
   /**
@@ -207,11 +217,15 @@ class Database {
     });
   }
 
-  remove(collection, query, options) {
+  remove(collection, query, options, callback) {
     return new Promise((resolve, reject) => {
       collection.remove(query, options, function (err, numDeleted) {
         if (err) {
           reject(err);
+        }
+
+        if (callback && typeof callback === 'function') {
+          callback(numDeleted);
         }
 
         resolve(numDeleted);
