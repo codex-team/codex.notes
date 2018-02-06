@@ -13,9 +13,9 @@ class Database {
   constructor() {}
 
   refresh() {
-      this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
-      this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
-      this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
+    this.USER = new Datastore({ filename: path.join(this.appFolder, 'user.db'), autoload: true});
+    this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
+    this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
   }
 
   /**
@@ -25,7 +25,6 @@ class Database {
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
-
     console.log('Making initial database settings...');
 
     this.appFolder = appFolder;
@@ -67,7 +66,7 @@ class Database {
    * Show Folder and Notes collections contents
    * For local-development only
    */
-  showDB(){
+  showDB() {
     if (process.env.DEBUG !== 'true') {
       throw Error('Datastore dropping is not allowed for current environment');
     }
@@ -87,7 +86,6 @@ class Database {
         console.log('\n');
       });
     });
-
   }
 
   /**
@@ -96,7 +94,7 @@ class Database {
    *
    * @param {Boolean} force - force drop.
    */
-  drop(force = false){
+  drop(force = false) {
     if (process.env.DEBUG !== 'true' || !force) {
       throw Error('Datastore dropping is not allowed for current environment');
     }
@@ -106,7 +104,7 @@ class Database {
     [this.USER, this.FOLDERS, this.NOTES].forEach( collection => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
-          console.log(collection.filename, ': ', removedRows, ' docs removed');
+        console.log(collection.filename, ': ', removedRows, ' docs removed');
       }));
     });
 

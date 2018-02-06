@@ -150,7 +150,6 @@ class AuthController {
    * @return {Promise.<void>}
    **/
   async logOut() {
-
     try {
       let connection = await isOnline(),
           hasUpdates = true;
@@ -163,24 +162,21 @@ class AuthController {
 
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {
-
         dialog.showMessageBox({
           type: 'Log Out',
           buttons : ['Cancel', 'Continue'],
           title : 'Confirm',
           message : 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
         }, (confirmed) => {
-
-            if (confirmed) {
-              return this.dropSession();
-            }
+          if (confirmed) {
+            return this.dropSession();
+          }
         });
-
       } else {
         return this.dropSession();
       }
     } catch (e) {
-      console.log("Error occured while logging out due to the: ", e);
+      console.log('Error occured while logging out due to the: ', e);
     }
   }
 
