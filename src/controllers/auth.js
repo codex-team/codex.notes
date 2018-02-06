@@ -159,10 +159,6 @@ class AuthController {
       if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
       }
-
-      console.log("updates", updates);
-      console.log("connection", connection);
-      console.log("hasUpdates", hasUpdates);
         
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {
