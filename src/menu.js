@@ -33,6 +33,9 @@ module.exports = function (app) {
       role: 'unhide'
     },
     {
+      type: 'separator'
+    },
+    {
       label : 'Log Out',
       click: function() {
         // log out only signed in user
