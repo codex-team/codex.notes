@@ -26,6 +26,7 @@ class User {
     this.dt_sync = null;
     this.google_id = null;
     this.token = null;
+    this.localPhoto = 'assets/icons/avatars/avatar.jpg';
 
     this.data = userData;
   }
@@ -94,13 +95,12 @@ class User {
   /**
    * Save google photo at the app storage
    */
-  async save() {
+  async saveAvatar() {
 
-    let uri = this.photo,
-        filename = 'assets/icons/avatars/avatar.jpg';
+    let uri = this.photo;
 
     await requestPromise(uri)
-            .pipe(fs.createWriteStream(filename))
+            .pipe(fs.createWriteStream(this.localPhoto))
             .then(function() {
               console.log('File saved');
             })

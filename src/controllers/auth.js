@@ -82,7 +82,7 @@ class AuthController {
             token: jwt
           });
 
-          await global.user.save();
+          await global.user.saveAvatar();
 
           /**
            * Refresh API client with the new token at the authorisation header;
