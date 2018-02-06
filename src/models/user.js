@@ -1,8 +1,7 @@
 'use strict';
 const db = require('../utils/database'),
       fs = require('fs'),
-      request = require('request'),
-      rp = require('request-promise');
+      requestPromise = require('request-promise');
 
 /**
  * Model for current user representation.
@@ -93,19 +92,21 @@ class User {
   }
 
   /**
-   * Save the avatar on local of user
+   * Save google photo at the app storage
    */
   async save() {
-    let uri = this.photo,
-        filename = 'assets/icons/avatars/' + this.name + '.jpeg';
 
-    rp.head(uri)
-      .then(request(uri).pipe(fs.createWriteStream(filename)).on('close', function(){
-        console.log('File saved');
-      }))
-      .catch(function(err) {
-        console.log('Error: ', err);
-      });
+    let uri = this.photo,
+        filename = 'assets/icons/avatars/avatar.jpg';
+
+    await requestPromise(uri)
+            .pipe(fs.createWriteStream(filename))
+            .then(function() {
+              console.log('File saved');
+            })
+            .catch(function(err) {
+              console.log('Error: ', err);
+            });
   }
 
   /**
