@@ -12,6 +12,7 @@ const Editor = require('./editor').default;
  */
 const Aside = require('./aside').default;
 const Note = require('./note').default;
+const Searcher = require('./searcher').default;
 
 import User from './user';
 import StatusBar from './status-bar';
@@ -46,6 +47,7 @@ let documentReady = () => {
   codex.notes.user = new User();
   codex.notes.statusBar = new StatusBar();
   codex.notes.connectionObserver = new ConnectionObserver();
+  codex.notes.searcher = new Searcher();
 
   /**
    * New note saving handler
