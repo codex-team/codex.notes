@@ -160,10 +160,14 @@ class AuthController {
         hasUpdates = false;
       }
 
+      console.log("updates", updates);
+      console.log("connection", connection);
+      console.log("hasUpdates", hasUpdates);
+        
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {
         dialog.showMessageBox({
-          type: 'Log Out',
+          type: 'info',
           buttons : ['Cancel', 'Continue'],
           title : 'Confirm',
           message : 'You have notes that was not synchronized yet. They will be lost after logout, because you have not connected to the Internet. Are you sure you want to continue?'
