@@ -3,7 +3,9 @@ const {ipcMain, BrowserWindow, dialog, app} = require('electron');
 const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
-const UserModel = require('../models/user');
+const User = require('../models/user');
+const isOnline = require('is-online');
+const db = require('../utils/database');
 
 /**
  * @class AuthController
@@ -153,9 +155,9 @@ class AuthController {
       let connection = await isOnline(),
           hasUpdates = true;
 
-      let updates = await global.app.syncObserver.prepareUpdate(global.user.dt.sync);
+      let updates = await global.app.syncObserver.getLocalUpdates();
 
-      if (updates.foldes.length === 0 && updates.notes.length === 0) {
+      if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
       }
 
