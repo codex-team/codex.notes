@@ -114,7 +114,6 @@ class AuthController {
   }
 
   /**
-   *
    * Send `verify collaborator` request to API
    *
    * @param event
@@ -148,7 +147,7 @@ class AuthController {
    * Show dialog for confirm log out
    * In case of confirmation we drop User instance and sync with cloud
    * @return {Promise.<void>}
-   **/
+   */
   async logOut() {
     try {
       let connection = await isOnline(),
@@ -159,7 +158,7 @@ class AuthController {
       if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
       }
-        
+
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {
         dialog.showMessageBox({
@@ -183,7 +182,7 @@ class AuthController {
   /**
    * Before we drop user data, we need to sync updates with cloud.
    *
-   + When folders were dropped we need to create new Root folder and user temporary user
+   * When folders were dropped we need to create new Root folder and user temporary user
    * @return {Promise.<void>}
    */
   async dropSession() {
