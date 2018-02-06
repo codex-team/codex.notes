@@ -1,7 +1,8 @@
 'use strict';
 const db = require('../utils/database'),
       fs = require('fs'),
-      requestPromise = require('request-promise');
+      request = require('request'),
+      isOnline = require('is-online');
 
 /**
  * Model for current user representation.
@@ -36,7 +37,12 @@ class User {
    */
   async init() {
     try {
-      let user = await this.get();
+      let user = await this.get(),
+          connection = isOnline();
+
+      if (!connection) {
+        this.photo = this.localPhoto;
+      }
 
       if (user) {
         user.id = user._id;
@@ -99,14 +105,14 @@ class User {
 
     let uri = this.photo;
 
-    await requestPromise(uri)
+    await request(uri)
             .pipe(fs.createWriteStream(this.localPhoto))
-            .then(function() {
+            .on('error', function(err) {
+              console.log(err)
+            })
+            .on('close', function() {
               console.log('File saved');
             })
-            .catch(function(err) {
-              console.log('Error: ', err);
-            });
   }
 
   /**
