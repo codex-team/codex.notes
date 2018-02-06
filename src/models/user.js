@@ -27,7 +27,7 @@ class User {
     this.dt_sync = null;
     this.google_id = null;
     this.token = null;
-    this.localPhoto = 'assets/icons/avatars/avatar.jpg';
+    this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
 
     this.data = userData;
   }
@@ -40,7 +40,7 @@ class User {
       let user = await this.get(),
           connection = isOnline();
 
-      if (!connection) {
+      if (!connection && fs.existsSync(this.localPhoto)) {
         this.photo = this.localPhoto;
       }
 
@@ -105,14 +105,16 @@ class User {
 
     let uri = this.photo;
 
-    await request(uri)
-            .pipe(fs.createWriteStream(this.localPhoto))
-            .on('error', function(err) {
-              console.log(err)
-            })
-            .on('close', function() {
-              console.log('File saved');
-            })
+    return new Promise((resolve, reject) => {
+      request(uri)
+        .pipe(fs.createWriteStream(this.localPhoto))
+        .on('error', function(err) {
+          reject(err);
+        })
+        .on('close', function() {
+          resolve('File saved');
+        })
+    })
   }
 
   /**
