@@ -22,7 +22,6 @@ class NotesController {
    * Setup event handlers
    */
   constructor() {
-
     ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
     });
