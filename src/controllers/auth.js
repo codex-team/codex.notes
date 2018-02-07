@@ -4,7 +4,7 @@ const request = require('request-promise');
 const url = require('url');
 const API = require('../models/api');
 const UserModel = require('../models/user');
-
+const utils = require('../utils/utils');
 
 /**
  * @class AuthController
@@ -34,9 +34,17 @@ class AuthController {
    */
   async googleAuth(event) {
 
-    let channel = 'CDXCHNL';
+    /**
+     * Compose random name for auth-channel. We will get JWT from this.
+     * @type {Promise<string>}
+     */
+    let channel = utils.uniqId();
 
-    let window = new BrowserWindow({
+    /**
+     * Open new window with Google Authorisation
+     * @type {Electron.BrowserWindow}
+     */
+    let authWindow = new BrowserWindow({
       alwaysOnTop: true,
       autoHideMenuBar: true,
       webPreferences: {
@@ -44,10 +52,33 @@ class AuthController {
       }
     });
 
+    /**
+     * User can close auth-window
+     */
+    authWindow.on('closed', () => {
+      if (event.returnValue === undefined) {
+        event.returnValue = false;
+      }
+    });
+
+    /**
+     * Start to load Google Auth form
+     */
+    authWindow.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
+      'client_id=' + process.env.GOOGLE_CLIENT_ID +
+      '&scope=email profile' +
+      '&response_type=code' +
+      '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
+      '&state=' + channel // state parameter will be passed to the redirect_uri
+    );
+
+    /**
+     * Start to listen auth-channel. API will send JWT to this after User's authorisation
+     */
     global.app.sockets.listenChannel(channel, async jwt => {
       console.log('jwt ->>', jwt);
 
-      window.close();
+      authWindow.close();
 
       /** Decode JWT payload */
       let payload = new Buffer(jwt.split('.')[1], 'base64');
@@ -73,18 +104,7 @@ class AuthController {
 
     });
 
-    window.on('closed', () => {
-      if (event.returnValue === undefined) {
-        event.returnValue = false;
-      }
-    });
 
-    window.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
-      'scope=email profile' +
-      '&response_type=code' +
-      '&state=' + channel +
-      '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
-      '&client_id=' + process.env.GOOGLE_CLIENT_ID);
   }
 
   /**

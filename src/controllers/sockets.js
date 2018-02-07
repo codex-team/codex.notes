@@ -1,27 +1,46 @@
+/**
+ *  WebSocket implementation.
+ * {@link https://github.com/websockets/ws}
+ * @type {*|WebSocket}
+ */
 const WebSocket = require('ws');
 
-
-
+/**
+ * Communicates with the Cloud by Sockets
+ */
 class Sockets {
+
+  /**
+   * @constructor
+   */
   constructor(){
     this.channels = [];
   }
 
   /**
    * Starts to listen passed channel
-   * @param channel
+   * @param {string} channel - Channel's name
+   * @param {Function} callback - Messages handler
    */
   listenChannel(channel, callback){
     this.channels.push(new Channel(channel, callback));
   }
 }
 
+/**
+ * Socket channel subscription
+ */
 class Channel {
-  constructor(name, callback){
 
+  /**
+   * Subsribe on a Channel
+   * @param {string} name - Channel name
+   * @param callback - Message handler
+   */
+  constructor(name, callback){
     this.name = name;
     this.callback = callback;
-    this.url = 'ws://localhost:8081/chan/' + this.name;// + '.b10'
+    this.url = process.env.REALTIME_DAEMON + this.name; // + '.b10'
     this.ws = new WebSocket(this.url, {
       /** Disable a negotiate a compression algorithm {@link https://github.com/websockets/ws#websocket-compression} */
       perMessageDeflate: false
@@ -51,6 +70,14 @@ class Channel {
 
   onMessage(data) {
     this.callback(data);
+  }
+
+  destroy(){
+    this.name = null;
+    this.callback = null;
+    this.url = null;
+    this.ws.terminate();
+    this.ws = null;
   }
 
 }

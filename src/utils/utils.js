@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 /**
  * Helpers
  */
@@ -40,6 +42,24 @@ class Utils {
    */
   static print(obj) {
     return JSON.stringify(obj, null, 2);
+  }
+
+  /**
+   * Generates cryptographically strong pseudo-random data.
+   * {@link https://nodejs.org/api/crypto.html#crypto_crypto_randombytes_size_callback}
+   * @param {number} [size] - Number of bytes to generate.
+   * @return {Promise<string>}
+   */
+  static async uniqId(size = 20){
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(size, (err, buf) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(buf.toString('hex'));
+      });
+    });
   }
 }
 
