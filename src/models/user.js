@@ -2,7 +2,8 @@
 const db = require('../utils/database'),
       fs = require('fs'),
       request = require('request'),
-      isOnline = require('is-online');
+      isOnline = require('is-online'),
+      path = require('path');
 
 /**
  * Model for current user representation.
