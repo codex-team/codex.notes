@@ -6,6 +6,7 @@ const API = require('../models/api');
 const User = require('../models/user');
 const isOnline = require('is-online');
 const db = require('../utils/database');
+const fs = require('fs');
 
 /**
  * @class AuthController
@@ -159,6 +160,10 @@ class AuthController {
 
       if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
+      }
+
+      if (fs.existsSync(global.user.localPhoto)) {
+        fs.unlinkSync(global.user.localPhoto);
       }
 
       // if there is no internet connection and user has updates show dialog
