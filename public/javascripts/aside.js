@@ -425,6 +425,7 @@ export default class Aside {
     }
 
     this.currentFolder = null;
+    this.folderSettings.close();
   }
 
   /**
