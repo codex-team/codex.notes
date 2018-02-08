@@ -34,6 +34,18 @@ module.exports = function (app) {
     },
     {
       type: 'separator'
+    },
+    {
+      label : 'Log Out',
+      click: function() {
+        // log out only signed in user
+        if (global.user.token) {
+          global.app.auth.logOut();
+        }
+      }
+    },
+    {
+      type: 'separator'
     }, {
       label: 'Quit',
       accelerator: 'CmdOrCtrl+Q',

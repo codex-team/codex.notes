@@ -34,17 +34,16 @@ class ApiController {
   async sendRequest(action, data) {
     await isOnline()
         .then((connection) => {
+          if (!connection) {
+            return true;
+          }
 
-            if (!connection) {
-              return true;
-            }
-
-            return request({
-                url: this.url + action,
-                method: 'POST',
-                body: data,
-                json: true
-            });
+          return request({
+            url: this.url + action,
+            method: 'POST',
+            body: data,
+            json: true
+          });
         });
   }
 }

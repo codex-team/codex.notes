@@ -70,6 +70,11 @@ class SyncObserver {
    */
   async sync() {
     try {
+      // if user is not authorized
+      if (!global.user.token) {
+        return;
+      }
+
       /**
        * Get data from the Cloud
        *
