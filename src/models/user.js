@@ -2,7 +2,6 @@
 const db = require('../utils/database'),
       fs = require('fs'),
       request = require('request'),
-      isOnline = require('is-online'),
       path = require('path');
 
 /**
@@ -68,7 +67,7 @@ class User {
    * Delete user's avatar
    */
   async deleteAvatar() {
-    fs.unlink(global.user.localPhoto, err => {
+    fs.unlink(this.localPhoto, err => {
       console.log('Failed to remove avatar because ', err);
     });
   }
