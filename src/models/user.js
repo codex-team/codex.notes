@@ -69,12 +69,7 @@ class User {
    */
   async deleteAvatar() {
     fs.unlink(global.user.localPhoto, err => {
-      if (err) {
-        if (err.code === 'ENOENT') {
-          console.log('File doesn\'t exists');
-          return;
-        }
-      }
+      console.log('Failed to remove avatar because ', err);
     });
   }
 
