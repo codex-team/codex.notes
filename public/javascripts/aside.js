@@ -245,6 +245,8 @@ export default class Aside {
       return;
     }
 
+    codex.notes.searcher.pushData(noteData);
+
     let notesMenu;
 
     if (isRootFolder) {
@@ -337,7 +339,10 @@ export default class Aside {
     notesMenu.forEach( menu => {
       let existingNote = menu.querySelector('[data-id="' + itemId + '"]');
 
-      if (existingNote) existingNote.remove();
+      if (existingNote)      {
+        existingNote.remove();
+        codex.notes.searcher.removeData(itemId);
+      }
     });
   }
 

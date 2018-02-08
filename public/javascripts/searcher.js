@@ -16,26 +16,52 @@ export default class Searcher {
      * Where to search
      * @type {Array}
      */
-    this.dataset = null;
+    this.dataset = [];
   }
 
   /**
-   * Set data where search will be done
-   * @param {Array} data - array to set
+   * Push note data to array where search will be done
+   * @param {Object} data - data to push to the dataset
    */
-  set data( data ) {
-    this.dataset = data;
+  pushData( data ) {
+    let existingDataIndex = this.dataset.length;
+
+    this.dataset.forEach((item, index) => {
+      if (item._id == data._id)      {
+        existingDataIndex = index;
+        return;
+      }
+    });
+
+    this.dataset.splice(existingDataIndex, 1, data);
   }
 
   /**
-   * Set data where search will be done
-   * @param {Array} data - array to set
+   * Remove note data from array where search will be done
+   * @param {Object} data - data to remove from the dataset
+   */
+  removeData( dataId ) {
+    let existingDataIndex = this.dataset.length;
+
+    this.dataset.forEach((item, index) => {
+      if (item._id == dataId)      {
+        existingDataIndex = index;
+        return;
+      }
+    });
+
+    this.dataset.splice(existingDataIndex, 1);
+  }
+
+  /**
+   * Find data in the dataset array
+   * @param {String} item - item to find
    */
   search( item ) {
     let found = [];
 
     this.dataset.forEach((element) => {
-      if (element.indexOf(item) == 0)      {
+      if (element.title.indexOf(item) == 0)      {
         found.push(element);
       }
     });
