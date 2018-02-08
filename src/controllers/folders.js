@@ -181,6 +181,12 @@ class FoldersController {
     }
   }
 
+  /**
+   * Get Collaborator's list for current Folder
+   *
+   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {String} id         - current Folder's id
+   */
   async getCollaborators(event, id) {
     try {
       let folder = new Folder({

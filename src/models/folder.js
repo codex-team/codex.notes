@@ -380,6 +380,11 @@ class Folder {
     };
   }
 
+  /**
+   * Get Folder's Collaborators data
+   *
+   * @returns {Promise.<CollaboratorData[]>}
+   */
   async getCollaborators() {
     return db.find(db.COLLABORATORS, {folderId: this._id});
   }

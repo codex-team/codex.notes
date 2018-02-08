@@ -266,7 +266,6 @@ class SyncObserver {
   async syncMutationsSequence(updates) {
     console.log('[syncObserver] Create Sync Mutations Sequence');
 
-    console.log(updates);
     /**
      * Sequence of mutations requests
      * @type {Array}
@@ -346,6 +345,13 @@ class SyncObserver {
       });
   }
 
+    /**
+     * Send CollaboratorInvite Mutation
+     *
+     * @param {Collaborator} collaborator - Collaborator to send
+     *
+     * @return {Promise<object>}
+     */
   sendCollaboratorInvite(collaborator) {
     let query = require('../graphql/mutations/invite');
 
