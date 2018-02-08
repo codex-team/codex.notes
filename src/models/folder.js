@@ -373,7 +373,7 @@ class Folder {
 
     await collaborator.save();
 
-    await global.app.syncObserver.sendCollaboratorInvite(collaborator);
+    global.app.syncObserver.sendCollaboratorInvite(collaborator);
 
     return {
       success: true
