@@ -8,7 +8,7 @@ export default class Searcher {
    */
   constructor() {
     this.DOM = {
-      serchField: document.getElementsByClassName('searcher__searchField')[0],
+      searchField: document.getElementsByClassName('searcher__searchField')[0],
       found: document.getElementsByClassName('searcher__found')[0],
     };
 
@@ -17,6 +17,16 @@ export default class Searcher {
      * @type {Array}
      */
     this.dataset = [];
+
+    /**
+     * Filtered results
+     * @type {Array}
+     */
+    this.found = [];
+
+    this.DOM.searchField.addEventListener('keyup', () => {
+      this.search(this.DOM.searchField.value);
+    });
   }
 
   /**
@@ -55,18 +65,16 @@ export default class Searcher {
 
   /**
    * Find data in the dataset array
-   * @param {String} item - item to find
+   * @param {String} title - key to find data
    */
-  search( item ) {
+  search( title ) {
     let found = [];
 
     this.dataset.forEach((element) => {
-      if (element.title.indexOf(item) == 0)      {
+      if (element.title.indexOf(title) == 0)      {
         found.push(element);
       }
     });
-
-    return found;
   }
 
 }
