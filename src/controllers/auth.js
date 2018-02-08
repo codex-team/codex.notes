@@ -84,6 +84,8 @@ class AuthController {
             token: jwt
           });
 
+          global.user.saveAvatar();
+
           /**
            * Refresh API client with the new token at the authorisation header;
            */
@@ -158,6 +160,8 @@ class AuthController {
       if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
       }
+
+      global.user.deleteAvatar();
 
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {
