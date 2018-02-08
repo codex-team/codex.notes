@@ -162,9 +162,7 @@ class AuthController {
         hasUpdates = false;
       }
 
-      if (fs.existsSync(global.user.localPhoto)) {
-        fs.unlinkSync(global.user.localPhoto);
-      }
+      global.user.deleteAvatar();
 
       // if there is no internet connection and user has updates show dialog
       if (!connection && hasUpdates) {

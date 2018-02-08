@@ -65,6 +65,15 @@ class User {
   }
 
   /**
+   * Delete user's avatar
+   */
+  deleteAvatar() {
+    if (fs.existsSync(global.user.localPhoto)) {
+      fs.unlinkSync(global.user.localPhoto);
+    }
+  }
+
+  /**
    * Update user's data
    *
    * @param {UserData} userData
