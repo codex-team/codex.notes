@@ -22,7 +22,6 @@ class FoldersController {
    * Setup event handlers
    */
   constructor() {
-
     ipcMain.on('folder - get', (event, folderId) => {
       this.getFolderData(event, folderId);
     });
@@ -54,7 +53,7 @@ class FoldersController {
    * @param {string} folderId
    * @return {Promise<void>}
    */
-  async getFolderData(event, folderId){
+  async getFolderData(event, folderId) {
     try {
       event.returnValue = await Folder.get(folderId);
     } catch (err) {
@@ -103,7 +102,6 @@ class FoldersController {
       global.app.syncObserver.sync();
 
       event.returnValue = savedFolder;
-
     } catch (err) {
       console.log('Folder addition failed because of ', err);
     }
@@ -150,7 +148,6 @@ class FoldersController {
        * Sync with an API
        */
       global.app.syncObserver.sync();
-
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
       event.returnValue = false;

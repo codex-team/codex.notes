@@ -103,7 +103,6 @@ class User {
    * Save google photo at the app storage
    */
   async saveAvatar() {
-
     let uri = this.photo;
 
     return new Promise((resolve, reject) => {
