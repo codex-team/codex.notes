@@ -8,8 +8,8 @@ export default class Searcher {
    */
   constructor() {
     this.DOM = {
-      parent: null,
-      serchField: null
+      serchField: document.getElementsByClassName('searcher__searchField')[0],
+      found: document.getElementsByClassName('searcher__found')[0],
     };
 
     /**
