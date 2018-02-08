@@ -6,7 +6,6 @@ const API = require('../models/api');
 const User = require('../models/user');
 const isOnline = require('is-online');
 const db = require('../utils/database');
-const fs = require('fs');
 
 /**
  * @class AuthController
