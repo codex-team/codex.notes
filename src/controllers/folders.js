@@ -46,8 +46,8 @@ class FoldersController {
       this.addCollaborator(event, id, email);
     });
 
-    ipcMain.on('folder - get collaborators', (event, {id}) => {
-      this.getCollaborators(event, id);
+    ipcMain.on('folder - get collaborators', (event, {folder}) => {
+      this.getCollaborators(event, folder);
     });
   }
 
@@ -194,10 +194,11 @@ class FoldersController {
         ownerId: global.user ? global.user.id : null
       });
 
-      event.returnValue = await folder.getCollaborators();
+      let collaborators = await folder.getCollaborators();
+
+      event.sender.send('folder - collaborators list', {collaborators});
     } catch (err) {
-      console.log('Cant\'t get folder collaborator because of ', err);
-      event.returnValue = false;
+      console.log('Collaborators list loading failed because of ', err);
     }
   }
 

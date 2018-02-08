@@ -8,6 +8,7 @@ const Dialog = require('./dialog').default;
  * @property {Number}    id                 - Folder's id
  * @property {string}    title              - Folder's title
  * @property {Array}     notes              - Notes list
+ * @property {Array}     collaborators      - Collaborators list
  * @property {Element}   notesListWrapper   - Notes list holder
  */
 export default class Folder {
@@ -32,6 +33,15 @@ export default class Folder {
 
     this.title = folderData.title;
 
+    window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
+    window.ipcRenderer.on('folder - collaborators list', (event, {collaborators}) => {
+      this.collaborators = collaborators;
+      codex.notes.aside.folderSettings.showCollaborators(this.collaborators);
+    });
+
+    /**
+     * @todo asynchronous notes load
+     */
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;

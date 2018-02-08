@@ -2121,19 +2121,8 @@ var FolderSettings = function () {
      * Open panel and change state
      */
     value: function open() {
-      var _this2 = this;
-
       document.body.classList.add(FolderSettings.CSS.panelOpenedModifier);
       this.opened = true;
-
-      this.membersList.innerHTML = '';
-
-      var id = codex.notes.aside.currentFolder.id,
-          collaborators = window.ipcRenderer.sendSync('folder - get collaborators', { id: id });
-
-      collaborators.forEach(function (collaborator) {
-        _this2.addCollaborator(collaborator);
-      });
 
       /**
        * Fill Folder's title input
@@ -2257,7 +2246,7 @@ var FolderSettings = function () {
       input.value = '';
 
       if (!result.success) {
-        Dialog.error(result.message ? result.message : 'Error while adding a collaborator to the folder');
+        Dialog.error(result.message || 'Error while adding a collaborator to the folder');
         return false;
       }
 
@@ -2265,6 +2254,25 @@ var FolderSettings = function () {
     }
 
     /**
+     * Add Collaborators to folder-settings panel
+     *
+     * @param {Array} collaborators
+     */
+
+  }, {
+    key: 'showCollaborators',
+    value: function showCollaborators(collaborators) {
+      var _this2 = this;
+
+      this.membersList.innerHTML = '';
+
+      collaborators.forEach(function (collaborator) {
+        _this2.addCollaborator(collaborator);
+      });
+    }
+
+    /**
+     * Add Collaborator to the Collaborators list at folder-settings panel
      *
      * @param collaborator
      */
@@ -2272,7 +2280,6 @@ var FolderSettings = function () {
   }, {
     key: 'addCollaborator',
     value: function addCollaborator(collaborator) {
-      // Add item to list of Collaborators
       var newMemberItem = $.make('P', [], {
         innerHTML: collaborator.email
       });
@@ -2318,6 +2325,7 @@ var Dialog = __webpack_require__(1).default;
  * @property {Number}    id                 - Folder's id
  * @property {string}    title              - Folder's title
  * @property {Array}     notes              - Notes list
+ * @property {Array}     collaborators      - Collaborators list
  * @property {Element}   notesListWrapper   - Notes list holder
  */
 
@@ -2347,8 +2355,19 @@ var Folder = function () {
 
     this.title = folderData.title;
 
-    codex.notes.aside.loadNotes(id).then(function (_ref) {
-      var notes = _ref.notes;
+    window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
+    window.ipcRenderer.on('folder - collaborators list', function (event, _ref) {
+      var collaborators = _ref.collaborators;
+
+      _this.collaborators = collaborators;
+      codex.notes.aside.folderSettings.showCollaborators(_this.collaborators);
+    });
+
+    /**
+     * @todo asynchronous notes load
+     */
+    codex.notes.aside.loadNotes(id).then(function (_ref2) {
+      var notes = _ref2.notes;
 
       _this.notes = notes;
     }).then(function () {
