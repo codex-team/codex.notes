@@ -1918,6 +1918,7 @@ var AsideSwiper = function () {
     key: 'close',
     value: function close() {
       this.wrapper.classList.remove(this.CSS.toggled);
+      codex.notes.aside.folderSettings.close();
       this.closed();
     }
   }]);
