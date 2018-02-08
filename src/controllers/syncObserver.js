@@ -1,17 +1,6 @@
-const db = require('../utils/database');
-
 const Folder = require('../models/folder');
 const Note = require('../models/note');
-
-const controllerFolder = require('./folders');
-const controllerNotes = require('./notes');
-
-/**
- * Load utils
- *
- * @type {Utils}
- */
-const utils = require('../utils/utils');
+const Collaborator = require('../models/collaborator');
 
 /**
  * Time helper
@@ -195,6 +184,30 @@ class SyncObserver {
         return await localNote.save();
       }));
 
+      /**
+       * Get Folder's Collaborators
+       *
+       * @type {Array}
+       */
+      localFolder.collaborators = await Promise.all(folder.collaborators.map( async collaborator => {
+        collaborator._id = collaborator.id;
+
+        /**
+         * Create Collaborator model
+         *
+         * @type {Collaborator}
+         */
+        let localCollaborator = new Collaborator(collaborator);
+
+        localCollaborator.folderId = folder._id;
+        localCollaborator.ownerId = folder.owner.id;
+
+        /**
+         * Save Collaborator's data
+         */
+        return await localCollaborator.save();
+      }));
+
       return localFolder;
     }));
 
@@ -226,9 +239,15 @@ class SyncObserver {
      */
     let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
+    /**
+     * Get not synced Collaborators
+     */
+    let changedCollaborators = await Collaborator.prepareUpdates(lastSyncTimestamp);
+
     return {
       folders: changedFolders,
-      notes: changedNotes
+      notes: changedNotes,
+      collaborators: changedCollaborators
     };
   }
 
@@ -242,6 +261,7 @@ class SyncObserver {
   async syncMutationsSequence(updates) {
     console.log('[syncObserver] Create Sync Mutations Sequence');
 
+    console.log(updates);
     /**
      * Sequence of mutations requests
      * @type {Array}
@@ -263,6 +283,15 @@ class SyncObserver {
     if (updates.notes.length) {
       syncMutationsSequence.push(...updates.notes.map( note => {
         return this.sendNote(note);
+      }));
+    }
+
+    /**
+     * Push Collaborators mutations to the Sync Mutations Sequence
+     */
+    if (updates.collaborators.length) {
+      syncMutationsSequence.push(...updates.collaborators.map( collaborator => {
+        return this.sendCollaboratorInvite(collaborator);
       }));
     }
 
@@ -312,13 +341,15 @@ class SyncObserver {
       });
   }
 
-  sendCollaborator(collaborator) {
+  sendCollaboratorInvite(collaborator) {
     let query = require('../graphql/mutations/invite');
 
     let variables = {
+      id: collaborator._id,
       email: collaborator.email,
       ownerId: global.user ? global.user.id : null,
       folderId: collaborator.folderId,
+      dtInvite: collaborator.dtInvite
     };
 
     return this.api.request(query, variables)
@@ -359,6 +390,6 @@ class SyncObserver {
         console.log('[!] Note Mutation failed because of ', error);
       });
   }
-};
+}
 
 module.exports = SyncObserver;

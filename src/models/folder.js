@@ -21,6 +21,7 @@ const Collaborator = require('../models/collaborator');
  * @property {Number} dtCreate         - Folder's creation date
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
+ * @property {Array} collaborators     - Folder's Collaborators list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
  * @property {Boolean} isRemoved       - removed state
  */
@@ -36,6 +37,7 @@ const Collaborator = require('../models/collaborator');
  * @property {Number} dtCreate
  * @property {String} ownerId
  * @property {Note[]} notes
+ * @property {Collaborator[]} collaborators
  * @property {Boolean} isRoot
  * @property {Boolean} isRemoved
  *
@@ -54,6 +56,7 @@ class Folder {
     this.dtCreate = null;
     this.ownerId = null;
     this.notes = [];
+    this.collaborators = [];
     this.isRoot = false;
     this.isRemoved = false;
 
@@ -71,6 +74,7 @@ class Folder {
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
       notes: this.notes,
+      collaborators: this.collaborators,
       isRoot: this.isRoot,
       isRemoved: this.isRemoved
     };
@@ -93,6 +97,7 @@ class Folder {
     this.dtCreate = folderData.dtCreate || null;
     this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
+    this.collaborators = folderData.collaborators || [];
     this.isRoot = folderData.isRoot || false;
     this.isRemoved = folderData.isRemoved || false;
   }
@@ -304,13 +309,13 @@ class Folder {
 
     let collaborator = new Collaborator({
       email: email,
-      folderId: this.id,
+      folderId: this._id,
       ownerId: global.user.id
     });
 
     await collaborator.save();
 
-    await global.app.syncObserver.sendCollaborator(collaborator);
+    await global.app.syncObserver.sendCollaboratorInvite(collaborator);
 
     return {
       success: true
@@ -318,7 +323,7 @@ class Folder {
   }
 
   async getCollaborators() {
-    return db.find(db.COLLABORATORS, {folderId: this.id});
+    return db.find(db.COLLABORATORS, {folderId: this._id});
   }
 }
 

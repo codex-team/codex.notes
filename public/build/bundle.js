@@ -2131,8 +2131,6 @@ var FolderSettings = function () {
       var id = codex.notes.aside.currentFolder.id,
           collaborators = window.ipcRenderer.sendSync('folder - get collaborators', { id: id });
 
-      console.log(collaborators);
-
       collaborators.forEach(function (collaborator) {
         _this2.addCollaborator(collaborator);
       });

@@ -58,8 +58,6 @@ export default class FolderSettings {
     let id = codex.notes.aside.currentFolder.id,
         collaborators = window.ipcRenderer.sendSync('folder - get collaborators', {id});
 
-    console.log(collaborators);
-
     collaborators.forEach(collaborator => {
       this.addCollaborator(collaborator);
     });
