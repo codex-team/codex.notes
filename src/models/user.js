@@ -116,11 +116,11 @@ class User {
     return new Promise((resolve, reject) => {
       request(uri)
         .pipe(fs.createWriteStream(this.localPhoto))
-        .on('error', function(err) {
+        .on('error', err => {
           reject(err);
         })
-        .on('close', function() {
-          resolve('File saved');
+        .on('close', () => {
+          resolve(this.localPhoto);
         })
     })
   }
