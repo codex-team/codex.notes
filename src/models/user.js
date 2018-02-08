@@ -67,10 +67,15 @@ class User {
   /**
    * Delete user's avatar
    */
-  deleteAvatar() {
-    if (fs.existsSync(global.user.localPhoto)) {
-      fs.unlinkSync(global.user.localPhoto);
-    }
+  async deleteAvatar() {
+    fs.unlink(global.user.localPhoto, err => {
+      if (err) {
+        if (err.code === 'ENOENT') {
+          console.log('File doesn\'t exists');
+          return;
+        }
+      }
+    });
   }
 
   /**
