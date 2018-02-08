@@ -51,7 +51,6 @@ export default class AsideSwiper {
    */
   close() {
     this.wrapper.classList.remove(this.CSS.toggled);
-    codex.notes.aside.folderSettings.close();
     this.closed();
   }
 }
