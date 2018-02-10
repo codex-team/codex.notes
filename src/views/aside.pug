@@ -48,30 +48,33 @@
             //-
             //- Folder header
             //-
-            .folder-header(id="folder-header")
-                .folder-header__close(id="folder-close-zone")
+            #folder-header.folder-header
+                #folder-close-zone.folder-header__close
                     include ../../public/svg/arrow-left.svg
-                .folder-header__name(id="js-folder-title") Folder Title
-                .folder-header__settings(id="js-folder-settings-toggler") Settings
+                #js-folder-title.folder-header__name Folder Title
+                #js-folder-settings-toggler.folder-header__settings Settings
 
                 .folder-settings
                     .aside__section-title Folder Settings
-                    .folder-settings__close(id="js-close-folder")
+                    #js-close-folder.folder-settings__close
                         include ../../public/svg/close-folder.svg
 
                     fieldset.aside__input
                         input(placeholder="Change Folder title", type="text", name="folder-title")
                         include ../../public/svg/arrow-right.svg
 
-                    .folder-settings__delete(id='js-delete-folder')
+                    #js-delete-folder.folder-settings__delete
                         include ../../public/svg/trash.svg
                         | Delete folder
 
                     .aside__section-title Collaborators
 
-                    .members-list(id="js-members-list")
+                    #js-members-list.members-list
 
-                    fieldset.aside__input
+                    #folder-login-button.folder-settings__login-button
+                        img(src="../../public/svg/google.svg")
+                        span Login with Google <br /> to enable sharing features
+                    fieldset#folder-new-member-input.aside__input.hide
                         input(placeholder="Invite member", type="text", name="new-member")
                         include ../../public/svg/arrow-right.svg
 

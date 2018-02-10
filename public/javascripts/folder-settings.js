@@ -17,7 +17,8 @@ export default class FolderSettings {
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
     this.folderTitleInput = document.getElementsByName('folder-title')[0];
-    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.newMemberInput = $.get('folder-new-member-input');
+    this.loginButton = $.get('folder-login-button');
     this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', () => {
@@ -34,6 +35,9 @@ export default class FolderSettings {
 
     this.folderTitleInput.addEventListener('keydown', event => this.changeTitleKeydown(event) );
     this.newMemberInput.addEventListener('keydown', event => this.inviteMemberKeydown(event) );
+    this.loginButton.addEventListener('click', event => {
+      codex.notes.user.showAuth();
+    });
   }
 
   /**
@@ -41,7 +45,8 @@ export default class FolderSettings {
    */
   static get CSS() {
     return {
-      panelOpenedModifier: 'folder-settings-opened'
+      panelOpenedModifier: 'folder-settings-opened',
+      wobble: 'wobble'
     };
   }
 
@@ -143,10 +148,16 @@ export default class FolderSettings {
     }
 
     let input = event.target,
+        fieldset = input.parentNode,
         email = input.value.trim(),
         id = codex.notes.aside.currentFolder._id;
 
     if (!email || !Validate.email(email)) {
+      fieldset.classList.add(FolderSettings.CSS.wobble);
+      window.setTimeout(() => {
+        fieldset.classList.remove(FolderSettings.CSS.wobble);
+      }, 100);
+
       return;
     }
 
@@ -191,6 +202,21 @@ export default class FolderSettings {
     });
 
     $.append(this.membersList, newMemberItem);
+  }
+
+  /**
+   * Toggle visibility of login button and new collaborator input
+   */
+  toggleCollaboratorInput() {
+    console.log(codex.notes.user.authObserver.loggedIn);
+    if (codex.notes.user.authObserver.loggedIn) {
+      this.loginButton.classList.add('hide');
+      this.newMemberInput.classList.remove('hide');
+      return;
+    }
+
+    this.loginButton.classList.remove('hide');
+    this.newMemberInput.classList.add('hide');
   }
 
 }

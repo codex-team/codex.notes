@@ -347,9 +347,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(12).default;
+var AutoResizer = __webpack_require__(13).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(15).default;
+var Shortcut = __webpack_require__(16).default;
 
 /**
  * @typedef {Object} NoteData
@@ -645,7 +645,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _folder = __webpack_require__(14);
+var _folder = __webpack_require__(15);
 
 var _folder2 = _interopRequireDefault(_folder);
 
@@ -653,7 +653,7 @@ var _note = __webpack_require__(2);
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(13);
+var _folderSettings = __webpack_require__(14);
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -1653,6 +1653,10 @@ var _dialog = __webpack_require__(1);
 
 var _dialog2 = _interopRequireDefault(_dialog);
 
+var _authObserver = __webpack_require__(12);
+
+var _authObserver2 = _interopRequireDefault(_authObserver);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1674,11 +1678,17 @@ var User = function () {
 
     _classCallCheck(this, User);
 
-    this.authButton = document.getElementById('js-auth-button');
+    this.authButton = _dom2.default.get('js-auth-button');
 
     var userData = window.ipcRenderer.sendSync('user - get');
 
-    this.fillUserPanel(userData);
+    this.authObserver = new _authObserver2.default({
+      user: userData,
+      onLogin: function onLogin(user) {
+        _this.fillUserPanel(user);
+        codex.notes.aside.folderSettings.toggleCollaboratorInput();
+      }
+    });
 
     this.authButton.addEventListener('click', function () {
       _this.showAuth();
@@ -1696,7 +1706,7 @@ var User = function () {
       var authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
       if (authResponse && authResponse.token) {
-        this.fillUserPanel(authResponse);
+        this.authObserver.login(authResponse);
         window.ipcRenderer.send('user - sync');
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
@@ -1850,7 +1860,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(16).default;
+var SwipeDetector = __webpack_require__(17).default;
 
 /**
  * Aside swiper class
@@ -1929,6 +1939,101 @@ exports.default = AsideSwiper;
 
 /***/ }),
 /* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @class AuthObserver
+ * @classdesc Store user's auth state
+ */
+var AuthObserver = function () {
+
+  /**
+   * @constructor
+   *
+   * @param onLogin - callback to fire when user is logged in
+   * @param onLogout - callback to fire when user is logged out
+   * @param user - pass if user is logged in on app's initialization
+   */
+  function AuthObserver(_ref) {
+    var _ref$onLogin = _ref.onLogin,
+        onLogin = _ref$onLogin === undefined ? function () {} : _ref$onLogin,
+        _ref$onLogout = _ref.onLogout,
+        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout,
+        _ref$user = _ref.user,
+        user = _ref$user === undefined ? {} : _ref$user;
+
+    _classCallCheck(this, AuthObserver);
+
+    this.user = null;
+    this._loggedIn = false;
+    this.onLogin = onLogin;
+    this.onLogout = onLogout;
+
+    if (user.token) {
+      this.login(user);
+    }
+  }
+
+  /**
+   * Store logged in user state.
+   * Fires onLogin callback
+   *
+   * @param user - logged user
+   */
+
+
+  _createClass(AuthObserver, [{
+    key: "login",
+    value: function login(user) {
+      this.user = user;
+      this._loggedIn = true;
+      this.onLogin(user);
+    }
+
+    /**
+     * Store logged out user state.
+     * Fires onLogout callback
+     */
+
+  }, {
+    key: "logout",
+    value: function logout() {
+      this._loggedIn = false;
+      this.onLogout(this.user);
+      this.user = null;
+    }
+
+    /**
+     * Get current login state
+     *
+     * @returns {boolean}
+     */
+
+  }, {
+    key: "loggedIn",
+    get: function get() {
+      return this._loggedIn;
+    }
+  }]);
+
+  return AuthObserver;
+}();
+
+exports.default = AuthObserver;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2047,7 +2152,7 @@ var Autoresizer = function () {
 exports.default = Autoresizer;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2063,7 +2168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(17).default;
+var Validate = __webpack_require__(18).default;
 
 /**
  * Folder Settings panel module
@@ -2085,7 +2190,8 @@ var FolderSettings = function () {
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
     this.folderTitleInput = document.getElementsByName('folder-title')[0];
-    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.newMemberInput = $.get('folder-new-member-input');
+    this.loginButton = $.get('folder-login-button');
     this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', function () {
@@ -2105,6 +2211,9 @@ var FolderSettings = function () {
     });
     this.newMemberInput.addEventListener('keydown', function (event) {
       return _this.inviteMemberKeydown(event);
+    });
+    this.loginButton.addEventListener('click', function (event) {
+      codex.notes.user.showAuth();
     });
   }
 
@@ -2229,10 +2338,16 @@ var FolderSettings = function () {
       }
 
       var input = event.target,
+          fieldset = input.parentNode,
           email = input.value.trim(),
           id = codex.notes.aside.currentFolder._id;
 
       if (!email || !Validate.email(email)) {
+        fieldset.classList.add(FolderSettings.CSS.wobble);
+        window.setTimeout(function () {
+          fieldset.classList.remove(FolderSettings.CSS.wobble);
+        }, 100);
+
         return;
       }
 
@@ -2286,11 +2401,30 @@ var FolderSettings = function () {
 
       $.append(this.membersList, newMemberItem);
     }
+
+    /**
+     * Toggle visibility of login button and new collaborator input
+     */
+
+  }, {
+    key: 'toggleCollaboratorInput',
+    value: function toggleCollaboratorInput() {
+      console.log(codex.notes.user.authObserver.loggedIn);
+      if (codex.notes.user.authObserver.loggedIn) {
+        this.loginButton.classList.add('hide');
+        this.newMemberInput.classList.remove('hide');
+        return;
+      }
+
+      this.loginButton.classList.remove('hide');
+      this.newMemberInput.classList.add('hide');
+    }
   }], [{
     key: 'CSS',
     get: function get() {
       return {
-        panelOpenedModifier: 'folder-settings-opened'
+        panelOpenedModifier: 'folder-settings-opened',
+        wobble: 'wobble'
       };
     }
   }]);
@@ -2301,7 +2435,7 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2463,7 +2597,7 @@ var Folder = function () {
 exports.default = Folder;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2660,7 +2794,7 @@ var ShortCut = function () {
 exports.default = ShortCut;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2754,7 +2888,7 @@ var SwipeDetector = function () {
 exports.default = SwipeDetector;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
