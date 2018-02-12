@@ -1,5 +1,6 @@
 'use strict';
 const db = require('../utils/database'),
+      fs = require('fs'),
       request = require('request'),
       path = require('path');
 
