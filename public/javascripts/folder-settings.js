@@ -35,7 +35,7 @@ export default class FolderSettings {
 
     this.folderTitleInput.addEventListener('keydown', event => this.changeTitleKeydown(event) );
     this.newMemberInput.addEventListener('keydown', event => this.inviteMemberKeydown(event) );
-    this.loginButton.addEventListener('click', event => {
+    this.loginButton.addEventListener('click', () => {
       codex.notes.user.showAuth();
     });
   }
@@ -208,7 +208,6 @@ export default class FolderSettings {
    * Toggle visibility of login button and new collaborator input
    */
   toggleCollaboratorInput() {
-    console.log(codex.notes.user.authObserver.loggedIn);
     if (codex.notes.user.authObserver.loggedIn) {
       this.loginButton.classList.add('hide');
       this.newMemberInput.classList.remove('hide');

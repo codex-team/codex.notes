@@ -47,6 +47,8 @@ let documentReady = () => {
   codex.notes.statusBar = new StatusBar();
   codex.notes.connectionObserver = new ConnectionObserver();
 
+  codex.notes.user.authObserver.login(codex.notes.user.userData);
+
   /**
    * New note saving handler
    */

@@ -21,10 +21,9 @@ export default class User {
   constructor() {
     this.authButton = $.get('js-auth-button');
 
-    let userData = window.ipcRenderer.sendSync('user - get');
+    this.userData = window.ipcRenderer.sendSync('user - get');
 
     this.authObserver = new AuthObserver({
-      user: userData,
       onLogin: (user) => {
         this.fillUserPanel(user);
         codex.notes.aside.folderSettings.toggleCollaboratorInput();

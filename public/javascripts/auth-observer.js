@@ -9,17 +9,12 @@ export default class AuthObserver {
    *
    * @param onLogin - callback to fire when user is logged in
    * @param onLogout - callback to fire when user is logged out
-   * @param user - pass if user is logged in on app's initialization
    */
-  constructor({onLogin = function () {}, onLogout = function () {}, user = {}}) {
+  constructor({onLogin = function () {}, onLogout = function () {}}) {
     this.user = null;
     this._loggedIn = false;
     this.onLogin = onLogin;
     this.onLogout = onLogout;
-
-    if (user.token) {
-      this.login(user);
-    }
   }
 
   /**
@@ -29,6 +24,8 @@ export default class AuthObserver {
    * @param user - logged user
    */
   login(user) {
+    if (!user.token) return;
+
     this.user = user;
     this._loggedIn = true;
     this.onLogin(user);

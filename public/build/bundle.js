@@ -1680,10 +1680,9 @@ var User = function () {
 
     this.authButton = _dom2.default.get('js-auth-button');
 
-    var userData = window.ipcRenderer.sendSync('user - get');
+    this.userData = window.ipcRenderer.sendSync('user - get');
 
     this.authObserver = new _authObserver2.default({
-      user: userData,
       onLogin: function onLogin(user) {
         _this.fillUserPanel(user);
         codex.notes.aside.folderSettings.toggleCollaboratorInput();
@@ -1808,6 +1807,8 @@ var documentReady = function documentReady() {
   codex.notes.user = new _user2.default();
   codex.notes.statusBar = new _statusBar2.default();
   codex.notes.connectionObserver = new _connectionObserver2.default();
+
+  codex.notes.user.authObserver.login(codex.notes.user.userData);
 
   /**
    * New note saving handler
@@ -1963,15 +1964,12 @@ var AuthObserver = function () {
    *
    * @param onLogin - callback to fire when user is logged in
    * @param onLogout - callback to fire when user is logged out
-   * @param user - pass if user is logged in on app's initialization
    */
   function AuthObserver(_ref) {
     var _ref$onLogin = _ref.onLogin,
         onLogin = _ref$onLogin === undefined ? function () {} : _ref$onLogin,
         _ref$onLogout = _ref.onLogout,
-        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout,
-        _ref$user = _ref.user,
-        user = _ref$user === undefined ? {} : _ref$user;
+        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout;
 
     _classCallCheck(this, AuthObserver);
 
@@ -1979,10 +1977,6 @@ var AuthObserver = function () {
     this._loggedIn = false;
     this.onLogin = onLogin;
     this.onLogout = onLogout;
-
-    if (user.token) {
-      this.login(user);
-    }
   }
 
   /**
@@ -1996,6 +1990,8 @@ var AuthObserver = function () {
   _createClass(AuthObserver, [{
     key: "login",
     value: function login(user) {
+      if (!user.token) return;
+
       this.user = user;
       this._loggedIn = true;
       this.onLogin(user);
@@ -2212,7 +2208,7 @@ var FolderSettings = function () {
     this.newMemberInput.addEventListener('keydown', function (event) {
       return _this.inviteMemberKeydown(event);
     });
-    this.loginButton.addEventListener('click', function (event) {
+    this.loginButton.addEventListener('click', function () {
       codex.notes.user.showAuth();
     });
   }
@@ -2409,7 +2405,6 @@ var FolderSettings = function () {
   }, {
     key: 'toggleCollaboratorInput',
     value: function toggleCollaboratorInput() {
-      console.log(codex.notes.user.authObserver.loggedIn);
       if (codex.notes.user.authObserver.loggedIn) {
         this.loginButton.classList.add('hide');
         this.newMemberInput.classList.remove('hide');
