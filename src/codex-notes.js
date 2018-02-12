@@ -89,7 +89,7 @@ class CodexNotes {
      */
     this.appProtocol = 'codex';
 
-    this.mainWindow = new BrowserWindow({
+    let windowParams = {
       title: pkg.productName,
       icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,
@@ -100,7 +100,19 @@ class CodexNotes {
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
-    });
+    };
+
+    /**
+     * Show small half screen window for debugging
+     */
+    if (process.env.DEBUG === 'true') {
+      windowParams.x = 10;
+      windowParams.y = 50;
+      windowParams.width = 740;
+      windowParams.minWidth = 600;
+    }
+
+    this.mainWindow = new BrowserWindow(windowParams);
 
     /**
      * @todo make crossplaform menu

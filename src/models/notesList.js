@@ -5,12 +5,12 @@ const Note = require('./note.js');
  * @typedef {NotesList} NotesList
  * @property {string} folderId - in which Folder we should to find Notes
  */
-module.exports = class NotesList {
+class NotesList {
 
   /**
    * @param {string} folderId - from which Folder we need to create Notes List
    */
-  constructor({folderId}) {
+  constructor(folderId) {
     this.folderId = folderId;
   }
 
@@ -20,8 +20,7 @@ module.exports = class NotesList {
    * @return {Promise.<Note[]>}
    */
   async get() {
-
-    if (!this.folderId){
+    if (!this.folderId) {
       this.folderId = await db.getRootFolderId();
     }
 
@@ -34,5 +33,6 @@ module.exports = class NotesList {
 
     return notesList.map( note => new Note(note));
   }
+}
 
-};
+module.exports = NotesList;

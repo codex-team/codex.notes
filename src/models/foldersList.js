@@ -6,7 +6,7 @@ const Folder = require('./folder.js');
  * @property {Object} query - search query to compose Folders List
  * @type {module.FoldersList}
  */
-module.exports = class FoldersList {
+class FoldersList {
 
   constructor(query) {
     this.query = query || {
@@ -25,5 +25,6 @@ module.exports = class FoldersList {
 
     return foldersList.map( folder => new Folder(folder));
   }
+}
 
-};
+module.exports = FoldersList;
