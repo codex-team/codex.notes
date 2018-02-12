@@ -34,7 +34,6 @@ class AuthController {
    *
    */
   async googleAuth(event) {
-
     /**
      * Compose random name for auth-channel. We will get JWT from this.
      * @type {Promise<string>}
@@ -77,7 +76,14 @@ class AuthController {
      * Start to listen auth-channel. API will send JWT to this after User's authorisation
      */
     global.app.sockets.listenChannel(channel, async jwt => {
-      console.log('jwt ->>', jwt);
+      /**
+       * Remove commas
+       * "jwt" -> jwt
+       */
+      jwt = jwt.replace(/"/g, '');
+
+      /** Trim spaces */
+      jwt = jwt.trim();
 
       /** Decode JWT payload */
       let payload = new Buffer(jwt.split('.')[1], 'base64');
