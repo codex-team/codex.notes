@@ -92,6 +92,17 @@ class AuthController {
         '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
         '&state=' + channel // state parameter will be passed to the redirect_uri
       );
+
+      /**
+       * In case of server errors, close auth window
+       */
+      authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
+        if (httpResponseCode !== 200){
+          authWindow.close();
+          global.app.sockets.leaveChannel(channel);
+        }
+      });
+
       /**
        * Start to listen auth-channel. API will send JWT to this after User's authorisation
        */
