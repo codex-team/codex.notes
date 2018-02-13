@@ -361,7 +361,7 @@ class Folder {
    * @returns {Boolean}
    */
   async addCollaborator(email) {
-    if (await Collaborator.findByEmail(this.id, email)) {
+    if (await Collaborator.findByEmail(this._id, email)) {
       throw Error('Collaborator has been already invited');
     }
 
