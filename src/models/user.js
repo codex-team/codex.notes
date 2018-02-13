@@ -120,8 +120,8 @@ class User {
         })
         .on('close', () => {
           resolve(this.localPhoto);
-        })
-    })
+        });
+    });
   }
 
   /**

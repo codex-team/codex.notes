@@ -346,6 +346,6 @@ class SyncObserver {
         console.log('[!] Note Mutation failed because of ', error);
       });
   }
-};
+}
 
 module.exports = SyncObserver;
