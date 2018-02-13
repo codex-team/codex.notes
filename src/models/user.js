@@ -1,5 +1,8 @@
 'use strict';
-const db = require('../utils/database');
+const db = require('../utils/database'),
+      fs = require('fs'),
+      request = require('request'),
+      path = require('path');
 
 /**
  * Model for current user representation.
@@ -24,6 +27,7 @@ class User {
     this.dt_sync = null;
     this.google_id = null;
     this.token = null;
+    this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
 
     this.data = userData;
   }
@@ -34,6 +38,10 @@ class User {
   async init() {
     try {
       let user = await this.get();
+
+      if (fs.existsSync(this.localPhoto)) {
+        this.photo = this.localPhoto;
+      }
 
       if (user) {
         user.id = user._id;
@@ -53,6 +61,15 @@ class User {
     } catch (err) {
       console.log('User register error: ', err);
     }
+  }
+
+  /**
+   * Delete user's avatar
+   */
+  async deleteAvatar() {
+    fs.unlink(this.localPhoto, err => {
+      console.log('Failed to remove avatar because ', err);
+    });
   }
 
   /**
@@ -87,6 +104,24 @@ class User {
       dataToInsert._id = this.id;
       await db.insert(db.USER, dataToInsert);
     }
+  }
+
+  /**
+   * Save google photo at the app storage
+   */
+  async saveAvatar() {
+    let uri = this.photo;
+
+    return new Promise((resolve, reject) => {
+      request(uri)
+        .pipe(fs.createWriteStream(this.localPhoto))
+        .on('error', err => {
+          reject(err);
+        })
+        .on('close', () => {
+          resolve(this.localPhoto);
+        });
+    });
   }
 
   /**

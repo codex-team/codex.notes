@@ -45,7 +45,8 @@
     "nedb": "^1.8.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
-    "sanitize-html": "^1.17.0"
+    "sanitize-html": "^1.17.0",
+    "ws": "^4.0.0"
   },
   "devDependencies": {
     "asar": "^0.13.1",

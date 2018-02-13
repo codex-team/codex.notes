@@ -57,6 +57,11 @@ const AppProtocol = require('./controllers/app-protocol');
 const User = require('./models/user');
 
 /**
+ * Sockets Controller
+ */
+const SocketsController = require('./controllers/sockets');
+
+/**
  * Database setup
  */
 const db = require('./utils/database');
@@ -176,6 +181,12 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
+
       })
       .catch(function (err) {
         console.log('Initialization error', err);

@@ -1162,6 +1162,7 @@ var Aside = function () {
       }
 
       this.currentFolder = null;
+      this.folderSettings.close();
     }
 
     /**
