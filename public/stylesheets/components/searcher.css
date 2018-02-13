@@ -1,7 +1,11 @@
 .searcher {
 
     &__input {
-
+        background: none;
+    }
+    
+    &__input:focus {
+        outline: none;
     }
 
 }

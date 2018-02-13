@@ -7,6 +7,10 @@ export default class Searcher {
    * @constructor
    */
   constructor() {
+    /**
+     * DOM tree of class
+     * @type {Object}
+     */
     this.DOM = {
       input: document.getElementsByClassName('searcher__input')[0],
       foldersContainer: document.getElementsByName('js-folders-container')[0],
@@ -15,6 +19,12 @@ export default class Searcher {
         found: document.getElementsByName('js-found-notes-menu')[0]
       }
     };
+
+    /**
+     * Default value in the search input form
+     * @type {String}
+     */
+    this.defaultInputValue = 'Search';
 
     /**
      * Where to search
@@ -27,6 +37,12 @@ export default class Searcher {
      * @type {Array}
      */
     this.found = [];
+
+    this.DOM.input.addEventListener('focus', () => {
+      if (this.DOM.input.value == this.defaultInputValue) {
+        this.DOM.input.value = '';
+      }
+    });
 
     this.DOM.input.addEventListener('keyup', () => {
       this.search(this.DOM.input.value);
