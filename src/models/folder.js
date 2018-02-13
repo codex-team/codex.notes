@@ -97,11 +97,16 @@ class Folder {
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
-    this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
     this.collaborators = folderData.collaborators || [];
     this.isRoot = folderData.isRoot || false;
     this.isRemoved = folderData.isRemoved || false;
+
+    if (folderData.owner && folderData.owner.id) {
+      this.ownerId = folderData.owner.id;
+    } else {
+      this.ownerId = folderData.ownerId || null;
+    }
   }
 
   /**

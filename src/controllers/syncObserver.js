@@ -327,7 +327,6 @@ class SyncObserver {
     let query = require('../graphql/mutations/folder');
 
     let variables = {
-      ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
       dtModify: folder.dtModify || null,
@@ -335,6 +334,14 @@ class SyncObserver {
       isRemoved: folder.isRemoved,
       isRoot: folder.isRoot
     };
+
+    if (folder.ownerId){
+      variables.ownerId = folder.ownerId;
+    } else if (global.user) {
+      variables.ownerId = global.user.id;
+    } else {
+      variables.ownerId = null;
+    }
 
     return this.api.request(query, variables)
       .then( data => {
@@ -378,7 +385,7 @@ class SyncObserver {
    * @param {string} ownerId - id of Folder's owner
    * @param {string} folderId - Folder's id
    * @param {string} token - Collaborator's invitation token
-   * 
+   *
    * @return {Promise<object>}
    */
   sendVerifyCollaborator(ownerId, folderId, token) {
