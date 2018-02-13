@@ -12,6 +12,13 @@
     color: var(--aside-color);
     font-size: 13.7px;
     letter-spacing: 0.3px;
+  
+    &__content-wrap {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        margin-top: 15px;
+    }
 
     &__header {
         position: relative;

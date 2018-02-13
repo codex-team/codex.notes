@@ -12,6 +12,12 @@
             span.add-note-button(name="js-new-note-button")
                 include ../../public/svg/pencil.svg
                 | New note
+            
+            //-
+            //- Search
+            //-
+            .searcher
+                input.searcher__input
 
             //-
             //- Scrollable zone
@@ -19,28 +25,35 @@
             .aside__scrollable
                 .aside__scrollable-content(name="js-scrollable")
 
-                    .aside__section-title Folders
+                    .aside__content-wrap(name="js-folders-container")
+                        .aside__section-title Folders
 
-                    section#folders-section
+                        section#folders-section
+
+                            .notes-list
+                                ul.notes-list__content(name="js-folders-menu")
+
+                            .aside__add-button(name="js-new-folder-button")
+                                include ../../public/svg/plus.svg
+                                | Add folder
+
+                            fieldset.aside__input.hide(name="js-new-folder-field")
+                                input(placeholder="Enter title", type="text")
+                                include ../../public/svg/arrow-right.svg
+
+                    .aside__content-wrap(name="js-notes-container")
+                        .aside__section-title Notes
 
                         .notes-list
-                            ul.notes-list__content(name="js-folders-menu")
-
-                        .aside__add-button(name="js-new-folder-button")
-                            include ../../public/svg/plus.svg
-                            | Add folder
-
-                        fieldset.aside__input.hide(name="js-new-folder-field")
-                            input(placeholder="Enter title", type="text")
-                            include ../../public/svg/arrow-right.svg
-
-                    .aside__section-title Notes
-
-                    .notes-list
-                        ul.notes-list__content(name="js-notes-menu")
-                        //-
-                        //- div.notes-list__scroll
-                        //-
+                            ul.notes-list__content(name="js-notes-menu")
+                            //-
+                            //- div.notes-list__scroll
+                            //-
+                            ul.notes-list__content(name="js-found-notes-menu")
+                            //-
+                            //- div.notes-list__scroll
+                            //-
+                            
 
 
         .aside-swiper__right
@@ -90,11 +103,3 @@
                     .aside__section-title Notes
                     .notes-list
                         ul.notes-list__content(name="js-folder-notes-menu")
-
-
-    //-
-    //- Search
-    //-
-    .searcher
-        input.searcher__searchField
-        .searcher__found

@@ -8,8 +8,12 @@ export default class Searcher {
    */
   constructor() {
     this.DOM = {
-      searchField: document.getElementsByClassName('searcher__searchField')[0],
-      found: document.getElementsByClassName('searcher__found')[0],
+      input: document.getElementsByClassName('searcher__input')[0],
+      foldersContainer: document.getElementsByName('js-folders-container')[0],
+      notes: {
+        created: document.getElementsByName('js-notes-menu')[0],
+        found: document.getElementsByName('js-found-notes-menu')[0]
+      }
     };
 
     /**
@@ -24,8 +28,8 @@ export default class Searcher {
      */
     this.found = [];
 
-    this.DOM.searchField.addEventListener('keyup', () => {
-      this.search(this.DOM.searchField.value);
+    this.DOM.input.addEventListener('keyup', () => {
+      this.search(this.DOM.input.value);
     });
   }
 
@@ -75,6 +79,8 @@ export default class Searcher {
         found.push(element);
       }
     });
+
+    console.log(found);
   }
 
 }
