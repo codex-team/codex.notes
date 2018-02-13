@@ -36,6 +36,7 @@ export default class Note {
 
     this.titleEl = document.getElementById('note-title');
     this.dateEl  = document.getElementById('note-date');
+    this.editor  = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
 
@@ -45,6 +46,31 @@ export default class Note {
     }
 
     this.shortcuts = [];
+
+    /**
+     * create new CMD+A shortcut
+     * bind it keydowns on editor area
+     */
+    let shortcut = new Shortcut({
+      name: 'CMD+A',
+      on: this.editor,
+      callback: function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        let range = document.createRange(),
+            selection = window.getSelection();
+
+        range.selectNodeContents(codex.editor.nodes.redactor);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // need to copy manually because we prevent default behaviour
+        // document.execCommand('copy');
+      }
+    });
+
+    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -154,28 +180,6 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
-
-    /**
-     * create new CMD+A shortcut
-     * bind it on current rendered Note
-     */
-    let shortcut = new Shortcut({
-      name: 'CMD+A',
-      on: codex.editor.nodes.redactor,
-      callback: function (event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        let range = document.createRange(),
-            selection = window.getSelection();
-
-        range.selectNodeContents(codex.editor.nodes.redactor);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    });
-
-    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -190,11 +194,6 @@ export default class Note {
 
     // destroy autoresizer
     this.autoresizedTitle.destroy();
-
-    // destroy all shortcuts on note
-    this.shortcuts.forEach((shortcut) => {
-      shortcut.remove();
-    });
   }
 
   /**

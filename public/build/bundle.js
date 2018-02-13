@@ -387,6 +387,7 @@ var Note = function () {
 
     this.titleEl = document.getElementById('note-title');
     this.dateEl = document.getElementById('note-date');
+    this.editor = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
 
@@ -396,6 +397,31 @@ var Note = function () {
     }
 
     this.shortcuts = [];
+
+    /**
+     * create new CMD+A shortcut
+     * bind it keydowns on editor area
+     */
+    var shortcut = new Shortcut({
+      name: 'CMD+A',
+      on: this.editor,
+      callback: function callback(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        var range = document.createRange(),
+            selection = window.getSelection();
+
+        range.selectNodeContents(codex.editor.nodes.redactor);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // need to copy manually because we prevent default behaviour
+        // document.execCommand('copy');
+      }
+    });
+
+    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -520,28 +546,6 @@ var Note = function () {
       }
 
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
-
-      /**
-       * create new CMD+A shortcut
-       * bind it on current rendered Note
-       */
-      var shortcut = new Shortcut({
-        name: 'CMD+A',
-        on: codex.editor.nodes.redactor,
-        callback: function callback(event) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-
-          var range = document.createRange(),
-              selection = window.getSelection();
-
-          range.selectNodeContents(codex.editor.nodes.redactor);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-      });
-
-      this.shortcuts.push(shortcut);
     }
 
     /**
@@ -559,11 +563,6 @@ var Note = function () {
 
       // destroy autoresizer
       this.autoresizedTitle.destroy();
-
-      // destroy all shortcuts on note
-      this.shortcuts.forEach(function (shortcut) {
-        shortcut.remove();
-      });
     }
 
     /**
