@@ -19,7 +19,21 @@ class AuthController {
    * Bind events
    */
   constructor() {
-    ipcMain.on('auth - google auth', this.googleAuth);
+    ipcMain.on('auth - google auth', event => {
+      this.auth(event);
+    });
+  }
+
+  /**
+   * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   */
+  async auth(event) {
+    try {
+      event.returnValue = await this.googleAuth();
+    } catch (e) {
+      console.log('Auth failed ', e);
+      event.returnValue = false;
+    }
   }
 
   /**
@@ -30,46 +44,47 @@ class AuthController {
    * 3. Server gets token and profile info and render page with JWT
    * 4. Using WebContents Main Process gets JWT from popup
    *
-   * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   *
    */
-  async googleAuth(event) {
-    let window = new BrowserWindow({
-      alwaysOnTop: true,
-      autoHideMenuBar: true,
-      webPreferences: {
-        nodeIntegration: false
-      }
-    });
-
-    /**
-     * See {@link https://github.com/electron/electron/blob/master/docs/api/web-contents.md}
-     * @type {Electron.WebContents}
-     */
-    let webContents = window.webContents;
-
-    /**
-     * Fires when popup page is refreshed
-     * @param {Event} loadEvent – onload event
-     */
-    webContents.on('did-finish-load', loadEvent => {
-      let sender = loadEvent.sender,
-          currentPage = sender.history[sender.currentIndex],
-          parsedUrl = url.parse(currentPage),
-          path = parsedUrl.protocol + '//' + parsedUrl.host + parsedUrl.pathname;
+  async googleAuth() {
+    return new Promise((resolve, reject) => {
+      let window = new BrowserWindow({
+        alwaysOnTop: true,
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false
+        }
+      });
 
       /**
-       * If current page uri equal to GOOGLE_REDIRECT_URI, tha means we on page with JWT.
-       * Else we should just do nothing.
+       * See {@link https://github.com/electron/electron/blob/master/docs/api/web-contents.md}
+       * @type {Electron.WebContents}
        */
-      if (process.env.GOOGLE_REDIRECT_URI !== path) return;
+      let webContents = window.webContents,
+          success = false;
 
       /**
-       * Just get content from div with "jwt" id, contains user`s JWT
+       * Fires when popup page is refreshed
+       * @param {Event} loadEvent – onload event
        */
-      webContents.executeJavaScript('document.body.textContent')
-        .then(async (jwt) => {
-            /** Decode JWT payload */
+      webContents.on('did-finish-load', async (loadEvent) => {
+        let sender = loadEvent.sender,
+            currentPage = sender.history[sender.currentIndex],
+            parsedUrl = url.parse(currentPage),
+            path = parsedUrl.protocol + '//' + parsedUrl.host + parsedUrl.pathname;
+
+        /**
+         * If current page uri equal to GOOGLE_REDIRECT_URI, tha means we on page with JWT.
+         * Else we should just do nothing.
+         */
+        if (process.env.GOOGLE_REDIRECT_URI !== path) return;
+
+        try {
+          /**
+           * Just get content from div with "jwt" id, contains user`s JWT
+           */
+          let jwt = await webContents.executeJavaScript('document.body.textContent');
+
+          /** Decode JWT payload */
           let payload = new Buffer(jwt.split('.')[1], 'base64');
 
           /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
@@ -89,57 +104,56 @@ class AuthController {
            */
           global.app.syncObserver.refreshClient();
 
-          event.returnValue = global.user;
-
+          success = true;
           window.close();
-        })
-        .catch (function (e) {
+        } catch (e) {
           console.log('Google OAuth failed because of ', e);
+          success = false;
           window.close();
-        });
-    });
+        }
+      });
 
-    window.on('closed', () => {
-      if (event.returnValue === undefined) {
-        event.returnValue = false;
-      }
-    });
+      window.on('closed', () => {
+        if (success) {
+          resolve(global.user);
+        } else {
+          reject();
+        }
+      });
 
-    window.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
-      'scope=email profile' +
-      '&response_type=code' +
-      '&state=' + process.env.GOOGLE_REDIRECT_URI +
-      '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
-      '&client_id=' + process.env.GOOGLE_CLIENT_ID);
+      window.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
+        'scope=email profile' +
+        '&response_type=code' +
+        '&state=' + process.env.GOOGLE_REDIRECT_URI +
+        '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
+        '&client_id=' + process.env.GOOGLE_CLIENT_ID);
+    });
   }
 
   /**
-   * Send `verify collaborator` request to API
+   * Send CollaboratorJoin mutation to API
    *
-   * @param event
-   * @param inviteUrl
+   * @param {string} ownerId - id of Folder's owner
+   * @param {string} folderId - Folder's id
+   * @param {string} token - Collaborator's invitation token
    */
-  async verifyCollaborator(event, inviteUrl) {
-    let urlParts = url.parse(inviteUrl);
-
-    switch (urlParts.hostname) {
-      case 'join':
-        let email, token;
-
-        [email, token] = urlParts.path.slice(1).split('/');
-
-        let api = new API();
-
-        await api.sendRequest('folder/verifyCollaborator', {
-          email: email,
-          token: token,
-          user: global.user.id
+  async verifyCollaborator(ownerId, folderId, token) {
+    if (!global.user.token) {
+      try {
+        await this.googleAuth();
+      } catch(e) {
+        dialog.showMessageBox({
+          type: 'error',
+          title: 'Please, login',
+          message: 'You should login with your google account to get access to shared folders'
         });
-
-        /** @todo fill user's shared folders */
-
-        break;
+        return;
+      }
     }
+
+    await global.app.syncObserver.sendVerifyCollaborator(ownerId, folderId, token);
+
+    global.app.syncObserver.sync();
   }
 
   /**

@@ -345,13 +345,13 @@ class SyncObserver {
       });
   }
 
-    /**
-     * Send CollaboratorInvite Mutation
-     *
-     * @param {Collaborator} collaborator - Collaborator to send
-     *
-     * @return {Promise<object>}
-     */
+  /**
+   * Send CollaboratorInvite Mutation
+   *
+   * @param {Collaborator} collaborator - Collaborator to send
+   *
+   * @return {Promise<object>}
+   */
   sendCollaboratorInvite(collaborator) {
     let query = require('../graphql/mutations/invite');
 
@@ -370,6 +370,34 @@ class SyncObserver {
         .catch(error => {
           console.log('[!] InviteCollaborator Mutation failed because of ', error);
         });
+  }
+
+  /**
+   * Send CollaboratorInvite Mutation
+   *
+   * @param {string} ownerId - id of Folder's owner
+   * @param {string} folderId - Folder's id
+   * @param {string} token - Collaborator's invitation token
+   * 
+   * @return {Promise<object>}
+   */
+  sendVerifyCollaborator(ownerId, folderId, token) {
+    let query = require('../graphql/mutations/join');
+
+    let variables = {
+      userId: global.user ? global.user.id : null,
+      ownerId: ownerId,
+      folderId: folderId,
+      token: token
+    };
+
+    return this.api.request(query, variables)
+      .then(data => {
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
+      })
+      .catch(error => {
+        console.log('[!] CollaboratorJoin Mutation failed because of ', error);
+      });
   }
 
   /**
