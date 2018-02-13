@@ -15,8 +15,7 @@ class Sockets {
   /**
    * @constructor
    */
-  constructor(){
-
+  constructor() {
     /**
      * @type {array} - opened channels buffer
      */
@@ -28,7 +27,7 @@ class Sockets {
    * @param {string} channel - Channel's name
    * @param {Function} callback - Messages handler
    */
-  listenChannel(channel, callback){
+  listenChannel(channel, callback) {
     this.channels.push(new Channel(channel, callback));
   }
 
@@ -75,7 +74,7 @@ class Channel {
    * @param {string} name - Channel name
    * @param callback - Message handler
    */
-  constructor(name, callback){
+  constructor(name, callback) {
     this.name = name;
     this.callback = callback;
     this.url = process.env.REALTIME_DAEMON + '/chan/' + this.name; // + '.b10'
@@ -133,7 +132,6 @@ class Channel {
     this.ws.terminate();
     this.ws = null;
   }
-
 }
 
 module.exports = Sockets;

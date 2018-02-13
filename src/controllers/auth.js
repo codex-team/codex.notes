@@ -77,7 +77,7 @@ class AuthController {
      */
     global.app.sockets.listenChannel(channel, async jwt => {
       /**
-       * Remove commas
+       * Remove quotes
        * "jwt" -> jwt
        */
       jwt = jwt.replace(/"/g, '');
