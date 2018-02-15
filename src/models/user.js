@@ -25,6 +25,8 @@ class User {
     this.photo = null;
     this.email = null;
     this.dt_sync = null;
+    this.dt_reg = null;
+    this.dtModify = null;
     this.google_id = null;
     this.token = null;
     this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
@@ -52,6 +54,8 @@ class User {
           photo: this.photo,
           email: this.email,
           dt_sync: this.dt_sync,
+          dt_reg: this.dt_reg,
+          dtModify: this.dtModify,
           google_id: this.google_id,
           token: this.token
         });
@@ -87,7 +91,9 @@ class User {
       token: this.token,
       email: this.email,
       google_id: this.google_id,
-      dt_sync: this.dt_sync
+      dt_sync: this.dt_sync,
+      dt_reg: this.dt_reg,
+      dtModify: this.dtModify
     };
 
     /**
@@ -160,6 +166,21 @@ class User {
   }
 
   /**
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
+   */
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedItems = await db.find(db.USER, {
+      dtModify: {$gt: lastSyncTimestamp}
+    });
+
+    return notSyncedItems;
+  }
+
+  /**
    *
    * @typedef {Object} UserData
    * @property {string} id – unique user ID
@@ -182,6 +203,8 @@ class User {
     this.token = token || this.token || null;
     this.google_id = google_id || this.google_id || null;
     this.dt_sync = dt_sync || this.dt_sync || 0;
+    this.dt_reg = dt_reg || this.dt_reg || 0;
+    this.dtModify = dtModify || this.dtModify || 0;
   }
 
 }

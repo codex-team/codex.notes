@@ -222,6 +222,11 @@ class SyncObserver {
     let lastSyncTimestamp = await global.user.getSyncDate();
 
     /**
+     * Get not synced User
+     */
+    let changedUser = await User.prepareUpdates(lastSyncTimestamp);
+
+    /**
      * Get not synced Folders
      */
     let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
@@ -232,6 +237,7 @@ class SyncObserver {
     let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
     return {
+      user: changedUser,
       folders: changedFolders,
       notes: changedNotes
     };
@@ -252,6 +258,15 @@ class SyncObserver {
      * @type {Array}
      */
     let syncMutationsSequence = [];
+
+    /**
+     * Push Users mutations to the Sync Mutations Sequence
+     */
+    if (updates.user.length) {
+      syncMutationsSequence.push(...updates.user.map( folder => {
+        return this.sendUser(user);
+      }));
+    }
 
     /**
      * Push Folders mutations to the Sync Mutations Sequence
@@ -286,6 +301,36 @@ class SyncObserver {
     let currentTime = Time.now;
 
     return await global.user.setSyncDate(currentTime);
+  }
+
+  /**
+   * Send User Mutation
+   *
+   * @param {UserData} user
+   * 
+   * @return {Promise<object}
+   */
+  sendUser(user) {
+    let query = require('../graphql/mutations/user');
+
+    let variables = {
+      id: user.id,
+      name: user.name,
+      photo: user.photo,
+      email: user.email,
+      dt_sync: user.dt_sync,
+      dt_reg: user.dt_reg,
+      dt_modify: user.dt_modify,
+      google_id: user.google_id
+    }
+
+    return this.api.request(query, variables)
+      .then( data => {
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
+      })
+      .catch( error => {
+        console.log('[!] Folder Mutation failed because of ', error);
+      });
   }
 
   /**
