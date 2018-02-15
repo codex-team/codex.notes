@@ -194,7 +194,7 @@ class User {
    * @param {UserData} userData
    */
   set data(userData) {
-    let {id, name, photo, email, token, google_id, dt_sync} = userData;
+    let {id, name, photo, email, token, google_id, dt_sync, dt_reg, dtModify} = userData;
 
     this.id = id || this.id || null;
     this.name = name || this.name || null;
