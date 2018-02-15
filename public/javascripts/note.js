@@ -2,6 +2,7 @@ const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
+const Clipboard = require('electron').clipboard;
 
 /**
  * @typedef {Object} NoteData
@@ -47,11 +48,13 @@ export default class Note {
 
     this.shortcuts = [];
 
+    let editorContentSelected = false;
+
     /**
      * create new CMD+A shortcut
      * bind it keydowns on editor area
      */
-    let shortcut = new Shortcut({
+    let selectAllShortcut = new Shortcut({
       name: 'CMD+A',
       on: this.editor,
       callback: (event) => {
@@ -65,12 +68,34 @@ export default class Note {
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // need to copy manually because we prevent default behaviour
-        // document.execCommand('copy');
+        editorContentSelected = true;
       }
     });
 
-    this.shortcuts.push(shortcut);
+    let copySelectedShortcut = new Shortcut({
+      name: 'CMD+C',
+      on: this.editor,
+      callback: (event) => {
+        if (!editorContentSelected) {
+          return;
+        }
+
+        // prevent default behavior and copy selection
+        event.preventDefault();
+        document.execCommand('copy');
+
+        let copied = Clipboard.readHTML();
+
+        // split two strings
+        Clipboard.writeHTML( this.titleEl.value + copied );
+
+        // do not allow copy twice
+        editorContentSelected = false;
+      }
+    });
+
+    this.shortcuts.push(selectAllShortcut);
+    this.shortcuts.push(copySelectedShortcut);
   }
 
   /**

@@ -263,7 +263,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var remote = __webpack_require__(3).remote;
+var remote = __webpack_require__(2).remote;
 
 /**
  *
@@ -333,6 +333,12 @@ exports.default = Dialog;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -350,6 +356,7 @@ var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(13).default;
 var Dialog = __webpack_require__(1).default;
 var Shortcut = __webpack_require__(10).default;
+var Clipboard = __webpack_require__(2).clipboard;
 
 /**
  * @typedef {Object} NoteData
@@ -400,11 +407,13 @@ var Note = function () {
 
     this.shortcuts = [];
 
+    var editorContentSelected = false;
+
     /**
      * create new CMD+A shortcut
      * bind it keydowns on editor area
      */
-    var shortcut = new Shortcut({
+    var selectAllShortcut = new Shortcut({
       name: 'CMD+A',
       on: this.editor,
       callback: function callback(event) {
@@ -418,12 +427,34 @@ var Note = function () {
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // need to copy manually because we prevent default behaviour
-        // document.execCommand('copy');
+        editorContentSelected = true;
       }
     });
 
-    this.shortcuts.push(shortcut);
+    var copySelectedShortcut = new Shortcut({
+      name: 'CMD+C',
+      on: this.editor,
+      callback: function callback(event) {
+        if (!editorContentSelected) {
+          return;
+        }
+
+        // prevent default behavior and copy selection
+        event.preventDefault();
+        document.execCommand('copy');
+
+        var copied = Clipboard.readHTML();
+
+        // split two strings
+        Clipboard.writeHTML(_this.titleEl.value + copied);
+
+        // do not allow copy twice
+        editorContentSelected = false;
+      }
+    });
+
+    this.shortcuts.push(selectAllShortcut);
+    this.shortcuts.push(copySelectedShortcut);
   }
 
   /**
@@ -628,12 +659,6 @@ var Note = function () {
 exports.default = Note;
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-module.exports = require("electron");
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -650,7 +675,7 @@ var _folder = __webpack_require__(15);
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(2);
+var _note = __webpack_require__(3);
 
 var _note2 = _interopRequireDefault(_note);
 
@@ -1775,14 +1800,14 @@ var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var electron = __webpack_require__(3);
+var electron = __webpack_require__(2);
 var Editor = __webpack_require__(6).default;
 
 /**
  * Load components
  */
 var Aside = __webpack_require__(4).default;
-var Note = __webpack_require__(2).default;
+var Note = __webpack_require__(3).default;
 
 /**
  * Save render proccess to the ipdRender global propery
