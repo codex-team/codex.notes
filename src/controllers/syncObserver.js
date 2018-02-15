@@ -260,7 +260,7 @@ class SyncObserver {
     let syncMutationsSequence = [];
 
     /**
-     * Push Users mutations to the Sync Mutations Sequence
+     * Push User mutations to the Sync Mutations Sequence
      */
     if (updates.user.length) {
       syncMutationsSequence.push(...updates.user.map( user => {
@@ -329,7 +329,7 @@ class SyncObserver {
         console.log('(ღ˘⌣˘ღ) SyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
-        console.log('[!] Folder Mutation failed because of ', error);
+        console.log('[!] User Mutation failed because of ', error);
       });
   }
 
