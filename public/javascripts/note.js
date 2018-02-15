@@ -1,7 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
-const Shortcut = require('./shortcut').default;
+const Shortcut = require('@codexteam/shortcuts').default;
 
 /**
  * @typedef {Object} NoteData
