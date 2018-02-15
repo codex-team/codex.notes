@@ -337,9 +337,18 @@
     }
 }
 
+/**
+ * Collaborators
+ */
 .member-list {
-    &--waiting {
-        opacity: 0.6;
+    &__item {
+        font-size: 13.8px;
+        list-style: none;
+        margin-bottom: 10px;
+
+        &--waiting {
+            opacity: 0.6;
+        }
     }
 }
 

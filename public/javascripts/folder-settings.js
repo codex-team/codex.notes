@@ -197,7 +197,7 @@ export default class FolderSettings {
    * @param collaborator
    */
   addCollaborator(collaborator) {
-    let newMemberItem = $.make('P', [], {}),
+    let newMemberItem = $.make('LI', [ 'member-list__item' ], {}),
         ava,
         memberEmailClasses = [];
 
@@ -212,7 +212,7 @@ export default class FolderSettings {
         src: '../../public/svg/envelope.svg'
       });
 
-      memberEmailClasses.push('member-list--waiting');
+      memberEmailClasses.push('member-list__item--waiting');
     }
 
     /** Add ava block */

@@ -2392,7 +2392,7 @@ var FolderSettings = function () {
   }, {
     key: 'addCollaborator',
     value: function addCollaborator(collaborator) {
-      var newMemberItem = $.make('P', [], {}),
+      var newMemberItem = $.make('LI', ['member-list__item'], {}),
           ava = void 0,
           memberEmailClasses = [];
 
@@ -2407,7 +2407,7 @@ var FolderSettings = function () {
           src: '../../public/svg/envelope.svg'
         });
 
-        memberEmailClasses.push('member-list--waiting');
+        memberEmailClasses.push('member-list__item--waiting');
       }
 
       /** Add ava block */

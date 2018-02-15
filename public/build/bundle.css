@@ -850,9 +850,19 @@ template {
     height: 15px;
 }
 
-.member-list--waiting {
-        opacity: 0.6;
+/**
+ * Collaborators
+ */
+
+.member-list__item {
+        font-size: 13.8px;
+        list-style: none;
+        margin-bottom: 10px;
     }
+
+.member-list__item--waiting {
+            opacity: 0.6;
+        }
 
 .content {
     -webkit-box-flex: 1;
@@ -1182,7 +1192,7 @@ template {
     }
 
 .collaborator-photo {
-     margin-right: 10px;
+     margin-right: 9px;
      width: 12px;
      height: 12px;
      vertical-align: middle;
