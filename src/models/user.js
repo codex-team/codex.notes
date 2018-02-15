@@ -1,8 +1,8 @@
 'use strict';
 const db = require('../utils/database'),
-      fs = require('fs'),
-      request = require('request'),
-      path = require('path');
+    fs = require('fs'),
+    request = require('request'),
+    path = require('path');
 
 /**
  * Model for current user representation.

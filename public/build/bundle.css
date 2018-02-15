@@ -1177,6 +1177,17 @@ template {
         visibility: hidden;
     }
 
+.collaborator-photo {
+     margin-right: 10px;
+     width: 12px;
+     height: 12px;
+     vertical-align: middle;
+}
+
+.collaborator-photo--circled {
+        border-radius: 50%;
+    }
+
 .status-bar {
   margin-top: 2px;
   font-size: 13.2px;
@@ -1340,4 +1351,5 @@ svg {
     -webkit-animation-iteration-count: 1;
             animation-iteration-count: 1;
 }
+
 /*# sourceMappingURL=bundle.css.map*/

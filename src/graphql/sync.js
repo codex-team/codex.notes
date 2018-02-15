@@ -35,7 +35,10 @@ module.exports = `query Sync($userId: ID!) {
         token,
         email
         user {
-          id
+          id,
+          name,
+          email,
+          photo
         },
         dtInvite
       }

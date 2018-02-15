@@ -197,10 +197,30 @@ export default class FolderSettings {
    * @param collaborator
    */
   addCollaborator(collaborator) {
-    let newMemberItem = $.make('P', [], {
+    let newMemberItem = $.make('P', [], {}),
+        ava;
+
+    if (collaborator.user && collaborator.user.photo) {
+      ava = $.make('IMG', ['collaborator-photo', 'collaborator-photo--circled'], {
+        src: collaborator.user.photo
+      });
+    } else {
+      ava = $.make('IMG', [ 'collaborator-photo' ], {
+        src: '../../public/svg/envelope.svg'
+      });
+    }
+
+    $.append(newMemberItem, ava);
+
+    let newMemberEmail = $.make('SPAN', [], {
       innerHTML: collaborator.email
     });
 
+    $.append(newMemberItem, newMemberEmail);
+
+    /**
+     * Add new row
+     */
     $.append(this.membersList, newMemberItem);
   }
 

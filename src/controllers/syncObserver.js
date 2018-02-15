@@ -9,6 +9,8 @@ const Collaborator = require('../models/collaborator');
  */
 const Time = require('../utils/time');
 
+const _ = require('../utils/utils');
+
 /**
  * Simple GraphQL requests provider
  * {@link https://github.com/graphcool/graphql-request}
@@ -335,7 +337,7 @@ class SyncObserver {
       isRoot: folder.isRoot
     };
 
-    if (folder.ownerId){
+    if (folder.ownerId) {
       variables.ownerId = folder.ownerId;
     } else if (global.user) {
       variables.ownerId = global.user.id;

@@ -82,3 +82,14 @@
         visibility: hidden;
     }
 }
+
+.collaborator-photo {
+     margin-right: 10px;
+     width: 12px;
+     height: 12px;
+     vertical-align: middle;
+
+    &--circled {
+        border-radius: 50%;
+    }
+}

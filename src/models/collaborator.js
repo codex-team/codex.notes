@@ -8,6 +8,7 @@ const Time = require('../utils/time');
  * @property {String} token         — Collaborator's invitation token
  * @property {String} folderId      - Shared Folder's id
  * @property {String} ownerId       - Shared Folder owner's id
+ * @property {String} userId        - if user has accepted the invitation then we have his id there
  * @property {Number} dtInvite      - timestamp of invitation
  */
 
@@ -74,14 +75,16 @@ class Collaborator {
      * @param token
      * @param email
      * @param ownerId
+     * @param userId
      * @param folderId
      * @param dtInvite
      */
-  set data({_id, token, email, ownerId, folderId, dtInvite}) {
+  set data({_id, token, email, ownerId, user, folderId, dtInvite}) {
     this._id = _id || this._id || null;
     this.token = token || this.token || null;
     this.email = email || this.email || null;
     this.ownerId = ownerId || this.ownerId || null;
+    this.user = user || this.user || null;
     this.folderId = folderId || this.folderId || null;
     this.dtInvite = dtInvite || this.dtInvite || Time.now;
   }
@@ -97,6 +100,7 @@ class Collaborator {
       token: this.token,
       email: this.email,
       ownerId: this.ownerId,
+      user: this.user,
       folderId: this.folderId,
       dtInvite: this.dtInvite
     };
