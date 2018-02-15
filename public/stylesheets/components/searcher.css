@@ -1,5 +1,9 @@
 .searcher {
 
+    &__hidden {
+        display: none;
+    }
+
     &__input {
         background: none;
     }

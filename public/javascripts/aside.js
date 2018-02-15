@@ -239,13 +239,32 @@ export default class Aside {
    *
    * @param {Boolean} isRootFolder - true if Note is included to the Root Folder
    */
-  addMenuItem(noteData, isRootFolder) {
+  addMenuItem(noteData, isRootFolder, isSearch) {
+    /**
+     * Creating note DOM
+     * @param {String} title   - name of the note
+     * @param {Object} dataset - dataset of the root DOM note element
+     */
+    let createNoteDOM = (title, dataset) => {
+      let item = this.makeMenuItem(title, dataset);
+
+      notesMenu.insertAdjacentElement('afterbegin', item);
+
+      item.addEventListener('click', event => this.menuItemClicked(event) );
+    };
+
     if (!noteData.title) {
       console.warn('Can not add Note to the Aside because it has no title', noteData);
       return;
     }
 
-    codex.notes.searcher.pushData(noteData);
+    if (isSearch) {
+      notesMenu = document.querySelector('[name="js-found-notes-menu"]');
+      createNoteDOM(noteData.title, {id: noteData._id});
+      return;
+    } else {
+      codex.notes.searcher.pushData(noteData);
+    }
 
     let notesMenu;
 
@@ -268,11 +287,7 @@ export default class Aside {
       return;
     }
 
-    let item = this.makeMenuItem(noteData.title, {id: noteData._id});
-
-    notesMenu.insertAdjacentElement('afterbegin', item);
-
-    item.addEventListener('click', event => this.menuItemClicked(event) );
+    createNoteDOM(noteData.title, {id: noteData._id});
   }
 
   /**

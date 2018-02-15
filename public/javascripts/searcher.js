@@ -21,6 +21,14 @@ export default class Searcher {
     };
 
     /**
+     * CSS classes for DOM
+     * @type {Object}
+     */
+    this.CSS = {
+      hidden: 'searcher__hidden'
+    };
+
+    /**
      * Default value in the search input form
      * @type {String}
      */
@@ -33,20 +41,46 @@ export default class Searcher {
     this.dataset = [];
 
     /**
-     * Filtered results
-     * @type {Array}
+     * Keyword from search field saved after search mode was disabled
+     * @type {Strng}
      */
-    this.found = [];
+    this.lastSearch = '';
 
     this.DOM.input.addEventListener('focus', () => {
-      if (this.DOM.input.value == this.defaultInputValue) {
-        this.DOM.input.value = '';
+      this.DOM.notes.created.classList.add(this.CSS.hidden);
+      this.DOM.notes.found.classList.remove(this.CSS.hidden);
+      this.DOM.foldersContainer.classList.add(this.CSS.hidden);
+
+      this.DOM.input.value = this.lastSearch;
+    });
+
+    this.DOM.input.addEventListener('blur', (event) => {
+      if (event.relatedTarget != this.DOM.notes.found) {
+        this.DOM.notes.found.classList.add(this.CSS.hidden);
+        this.DOM.notes.found.classList.add(this.CSS.hidden);
+        this.DOM.notes.created.classList.remove(this.CSS.hidden);
+        this.DOM.foldersContainer.classList.remove(this.CSS.hidden);
+
+        this.lastSearch = this.DOM.input.value;
+        this.DOM.input.value = this.defaultInputValue;
       }
     });
 
     this.DOM.input.addEventListener('keyup', () => {
       this.search(this.DOM.input.value);
     });
+  }
+
+  /**
+   * Cleans search results
+   * @param {Object} data - data to push to the dataset
+   */
+  reset() {
+    let found = this.DOM.notes.found,
+        parent = found.parentNode;
+
+    this.DOM.notes.found = parent.removeChild(found).cloneNode(false);
+    parent.appendChild(this.DOM.notes.found);
   }
 
   /**
@@ -88,15 +122,13 @@ export default class Searcher {
    * @param {String} title - key to find data
    */
   search( title ) {
-    let found = [];
+    this.reset();
 
     this.dataset.forEach((element) => {
       if (element.title.indexOf(title) == 0)      {
-        found.push(element);
+        codex.notes.aside.addMenuItem(element, true, true);
       }
     });
-
-    console.log(found);
   }
 
 }
