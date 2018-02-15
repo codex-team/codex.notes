@@ -443,10 +443,17 @@ var Note = function () {
         event.preventDefault();
         document.execCommand('copy');
 
-        var copied = Clipboard.readHTML();
+        var copiedHTML = Clipboard.readHTML();
+        var copiedText = Clipboard.readText();
+
+        copiedText = copiedText.replace(/\n/g, '\n\n');
+
+        console.log('text ', copiedText);
+        console.log('html ', copiedHTML);
 
         // split two strings
-        Clipboard.writeHTML(_this.titleEl.value + copied);
+        Clipboard.writeText(_this.titleEl.value + copiedText);
+        // Clipboard.writeHTML( this.titleEl.value + copiedHTML );
 
         // do not allow copy twice
         editorContentSelected = false;

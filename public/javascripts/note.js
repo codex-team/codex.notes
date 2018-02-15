@@ -84,10 +84,17 @@ export default class Note {
         event.preventDefault();
         document.execCommand('copy');
 
-        let copied = Clipboard.readHTML();
+        let copiedHTML = Clipboard.readHTML();
+        let copiedText = Clipboard.readText();
+
+        copiedText = copiedText.replace(/\n/g, '\n\n');
+
+        console.log('text ', copiedText);
+        console.log('html ', copiedHTML);
 
         // split two strings
-        Clipboard.writeHTML( this.titleEl.value + copied );
+        Clipboard.writeText( this.titleEl.value + copiedText );
+        // Clipboard.writeHTML( this.titleEl.value + copiedHTML );
 
         // do not allow copy twice
         editorContentSelected = false;
