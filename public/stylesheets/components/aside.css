@@ -337,4 +337,9 @@
     }
 }
 
+.member-list {
+    &--waiting {
+        opacity: 0.6;
+    }
+}
 

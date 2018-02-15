@@ -850,6 +850,10 @@ template {
     height: 15px;
 }
 
+.member-list--waiting {
+        opacity: 0.6;
+    }
+
 .content {
     -webkit-box-flex: 1;
         -ms-flex-positive: 1;

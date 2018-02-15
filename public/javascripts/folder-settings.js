@@ -198,21 +198,28 @@ export default class FolderSettings {
    */
   addCollaborator(collaborator) {
     let newMemberItem = $.make('P', [], {}),
-        ava;
+        ava,
+        memberEmailClasses = [];
 
     if (collaborator.user && collaborator.user.photo) {
+      /** Add User's photo */
       ava = $.make('IMG', ['collaborator-photo', 'collaborator-photo--circled'], {
         src: collaborator.user.photo
       });
     } else {
+      /** Add envelope icon */
       ava = $.make('IMG', [ 'collaborator-photo' ], {
         src: '../../public/svg/envelope.svg'
       });
+
+      memberEmailClasses.push('member-list--waiting');
     }
 
+    /** Add ava block */
     $.append(newMemberItem, ava);
 
-    let newMemberEmail = $.make('SPAN', [], {
+    /** Create block with User's email */
+    let newMemberEmail = $.make('SPAN', memberEmailClasses, {
       innerHTML: collaborator.email
     });
 
