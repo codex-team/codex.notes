@@ -9,8 +9,6 @@ const Collaborator = require('../models/collaborator');
  */
 const Time = require('../utils/time');
 
-const _ = require('../utils/utils');
-
 /**
  * Simple GraphQL requests provider
  * {@link https://github.com/graphcool/graphql-request}

@@ -3,13 +3,21 @@ const Time = require('../utils/time');
 
 /**
  * @typedef {Object} CollaboratorData
- * @property {String} _id           — Collaborator's id
- * @property {String} email         — Collaborator's email
- * @property {String} token         — Collaborator's invitation token
- * @property {String} folderId      - Shared Folder's id
- * @property {String} ownerId       - Shared Folder owner's id
- * @property {String} userId        - if user has accepted the invitation then we have his id there
- * @property {Number} dtInvite      - timestamp of invitation
+ * @property {String} _id            — Collaborator's id
+ * @property {String} email          — Collaborator's email
+ * @property {String} token          — Collaborator's invitation token
+ * @property {String} folderId       - Shared Folder's id
+ * @property {String} ownerId        - Shared Folder owner's id
+ * @property {CollaboratorUser} user - Collaborator User's model from server
+ * @property {Number} dtInvite       - timestamp of invitation
+ */
+
+/**
+ * @typedef {Object} CollaboratorUser
+ * @property {String} id
+ * @property {String} email
+ * @property {String} name
+ * @property {String} photo
  */
 
 /**
@@ -75,7 +83,7 @@ class Collaborator {
      * @param token
      * @param email
      * @param ownerId
-     * @param userId
+     * @param user
      * @param folderId
      * @param dtInvite
      */
