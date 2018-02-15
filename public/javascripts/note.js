@@ -54,14 +54,14 @@ export default class Note {
     let shortcut = new Shortcut({
       name: 'CMD+A',
       on: this.editor,
-      callback: function (event) {
+      callback: (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
 
         let range = document.createRange(),
             selection = window.getSelection();
 
-        range.selectNodeContents(codex.editor.nodes.redactor);
+        range.selectNodeContents(this.editor);
         selection.removeAllRanges();
         selection.addRange(range);
 

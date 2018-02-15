@@ -381,6 +381,8 @@ var Note = function () {
    * @constructor
    */
   function Note() {
+    var _this = this;
+
     _classCallCheck(this, Note);
 
     this.deleteButton = $.get('delete-button');
@@ -412,7 +414,7 @@ var Note = function () {
         var range = document.createRange(),
             selection = window.getSelection();
 
-        range.selectNodeContents(codex.editor.nodes.redactor);
+        range.selectNodeContents(_this.editor);
         selection.removeAllRanges();
         selection.addRange(range);
 
@@ -433,7 +435,7 @@ var Note = function () {
   _createClass(Note, [{
     key: 'save',
     value: function save() {
-      var _this = this;
+      var _this2 = this;
 
       this.deleteButton.classList.remove('hide');
 
@@ -443,24 +445,24 @@ var Note = function () {
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
       codex.editor.saver.save().then(function (noteData) {
-        _this.validate(noteData);
+        _this2.validate(noteData);
         return noteData;
       }).then(function (noteData) {
         var note = {
           data: noteData,
-          title: _this.titleEl.value.trim(),
+          title: _this2.titleEl.value.trim(),
           folderId: folderId
         };
 
         var saveIndicator = document.getElementById('save-indicator');
 
-        if (_this.showSavedIndicatorTimer) {
-          window.clearTimeout(_this.showSavedIndicatorTimer);
+        if (_this2.showSavedIndicatorTimer) {
+          window.clearTimeout(_this2.showSavedIndicatorTimer);
         }
 
         saveIndicator.classList.add('saved');
 
-        _this.showSavedIndicatorTimer = window.setTimeout(function () {
+        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
           saveIndicator.classList.remove('saved');
         }, 500);
 
