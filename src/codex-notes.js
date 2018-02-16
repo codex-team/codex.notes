@@ -186,7 +186,6 @@ class CodexNotes {
          * @type {Sockets}
          */
         this.sockets = new SocketsController();
-
       })
       .catch(function (err) {
         console.log('Initialization error', err);

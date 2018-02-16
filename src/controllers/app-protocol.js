@@ -14,7 +14,6 @@ class AppProtocol {
    * @returns void
    */
   static async process(event, url) {
-
     console.log('Processing url ', url);
 
     let urlParts = parser.parse(url),

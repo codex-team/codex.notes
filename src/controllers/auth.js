@@ -97,7 +97,7 @@ class AuthController {
        * In case of server errors, close auth window
        */
       authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
-        if (httpResponseCode !== 200){
+        if (httpResponseCode !== 200) {
           authWindow.close();
           global.app.sockets.leaveChannel(channel);
         }

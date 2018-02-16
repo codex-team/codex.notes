@@ -3,12 +3,21 @@ const Time = require('../utils/time');
 
 /**
  * @typedef {Object} CollaboratorData
- * @property {String} _id           — Collaborator's id
- * @property {String} email         — Collaborator's email
- * @property {String} token         — Collaborator's invitation token
- * @property {String} folderId      - Shared Folder's id
- * @property {String} ownerId       - Shared Folder owner's id
- * @property {Number} dtInvite      - timestamp of invitation
+ * @property {String} _id            — Collaborator's id
+ * @property {String} email          — Collaborator's email
+ * @property {String} token          — Collaborator's invitation token
+ * @property {String} folderId       - Shared Folder's id
+ * @property {String} ownerId        - Shared Folder owner's id
+ * @property {CollaboratorUser} user - Collaborator User's model from server
+ * @property {Number} dtInvite       - timestamp of invitation
+ */
+
+/**
+ * @typedef {Object} CollaboratorUser
+ * @property {String} id
+ * @property {String} email
+ * @property {String} name
+ * @property {String} photo
  */
 
 /**
@@ -70,18 +79,20 @@ class Collaborator {
     /**
      * Set CollaboratorData {@see CollaboratorData}
      *
-     * @param _id
-     * @param token
-     * @param email
-     * @param ownerId
-     * @param folderId
-     * @param dtInvite
+     * @param {String} _id
+     * @param {String} token
+     * @param {String} email
+     * @param {String} ownerId
+     * @param {CollaboratorUser} user
+     * @param {String} folderId
+     * @param {Number} dtInvite
      */
-  set data({_id, token, email, ownerId, folderId, dtInvite}) {
+  set data({_id, token, email, ownerId, user, folderId, dtInvite}) {
     this._id = _id || this._id || null;
     this.token = token || this.token || null;
     this.email = email || this.email || null;
     this.ownerId = ownerId || this.ownerId || null;
+    this.user = user || this.user || null;
     this.folderId = folderId || this.folderId || null;
     this.dtInvite = dtInvite || this.dtInvite || Time.now;
   }
@@ -97,6 +108,7 @@ class Collaborator {
       token: this.token,
       email: this.email,
       ownerId: this.ownerId,
+      user: this.user,
       folderId: this.folderId,
       dtInvite: this.dtInvite
     };

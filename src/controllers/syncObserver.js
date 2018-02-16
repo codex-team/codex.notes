@@ -335,7 +335,7 @@ class SyncObserver {
       isRoot: folder.isRoot
     };
 
-    if (folder.ownerId){
+    if (folder.ownerId) {
       variables.ownerId = folder.ownerId;
     } else if (global.user) {
       variables.ownerId = global.user.id;

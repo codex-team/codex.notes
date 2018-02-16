@@ -2392,10 +2392,37 @@ var FolderSettings = function () {
   }, {
     key: 'addCollaborator',
     value: function addCollaborator(collaborator) {
-      var newMemberItem = $.make('P', [], {
+      var newMemberItem = $.make('LI', ['member-list__item'], {}),
+          ava = void 0,
+          memberEmailClasses = [];
+
+      if (collaborator.user && collaborator.user.photo) {
+        /** Add User's photo */
+        ava = $.make('IMG', ['member-list__item-photo', 'member-list__item-photo--circled'], {
+          src: collaborator.user.photo
+        });
+      } else {
+        /** Add envelope icon */
+        ava = $.make('IMG', ['member-list__item-photo'], {
+          src: '../../public/svg/envelope.svg'
+        });
+
+        memberEmailClasses.push('member-list__item--waiting');
+      }
+
+      /** Add ava block */
+      $.append(newMemberItem, ava);
+
+      /** Create block with User's email */
+      var newMemberEmail = $.make('SPAN', memberEmailClasses, {
         innerHTML: collaborator.email
       });
 
+      $.append(newMemberItem, newMemberEmail);
+
+      /**
+       * Add new row
+       */
       $.append(this.membersList, newMemberItem);
     }
 

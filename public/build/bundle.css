@@ -850,6 +850,31 @@ template {
     height: 15px;
 }
 
+/**
+ * Collaborators
+ */
+
+.member-list__item {
+        font-size: 13.8px;
+        list-style: none;
+        margin-bottom: 10px;
+    }
+
+.member-list__item--waiting {
+            opacity: 0.6;
+        }
+
+.member-list__item-photo {
+             margin-right: 9px;
+             width: 12px;
+             height: 12px;
+             vertical-align: middle;
+        }
+
+.member-list__item-photo--circled {
+                 border-radius: 50%;
+             }
+
 .content {
     -webkit-box-flex: 1;
         -ms-flex-positive: 1;
@@ -1340,4 +1365,5 @@ svg {
     -webkit-animation-iteration-count: 1;
             animation-iteration-count: 1;
 }
+
 /*# sourceMappingURL=bundle.css.map*/

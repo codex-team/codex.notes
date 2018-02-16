@@ -37,7 +37,7 @@ module.exports = function (app) {
     },
     {
       label : 'Log Out',
-      click: function() {
+      click: function () {
         // log out only signed in user
         if (global.user.token) {
           global.app.auth.logOut();
