@@ -349,6 +349,17 @@
         &--waiting {
             opacity: 0.6;
         }
+
+        &-photo {
+             margin-right: 9px;
+             width: 12px;
+             height: 12px;
+             vertical-align: middle;
+
+             &--circled {
+                 border-radius: 50%;
+             }
+        }
     }
 }
 

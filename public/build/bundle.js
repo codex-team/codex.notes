@@ -2398,12 +2398,12 @@ var FolderSettings = function () {
 
       if (collaborator.user && collaborator.user.photo) {
         /** Add User's photo */
-        ava = $.make('IMG', ['collaborator-photo', 'collaborator-photo--circled'], {
+        ava = $.make('IMG', ['member-list__item-photo', 'member-list__item-photo--circled'], {
           src: collaborator.user.photo
         });
       } else {
         /** Add envelope icon */
-        ava = $.make('IMG', ['collaborator-photo'], {
+        ava = $.make('IMG', ['member-list__item-photo'], {
           src: '../../public/svg/envelope.svg'
         });
 

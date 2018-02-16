@@ -79,13 +79,13 @@ class Collaborator {
     /**
      * Set CollaboratorData {@see CollaboratorData}
      *
-     * @param _id
-     * @param token
-     * @param email
-     * @param ownerId
-     * @param user
-     * @param folderId
-     * @param dtInvite
+     * @param {String} _id
+     * @param {String} token
+     * @param {String} email
+     * @param {String} ownerId
+     * @param {CollaboratorUser} user
+     * @param {String} folderId
+     * @param {Number} dtInvite
      */
   set data({_id, token, email, ownerId, user, folderId, dtInvite}) {
     this._id = _id || this._id || null;

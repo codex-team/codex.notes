@@ -864,6 +864,17 @@ template {
             opacity: 0.6;
         }
 
+.member-list__item-photo {
+             margin-right: 9px;
+             width: 12px;
+             height: 12px;
+             vertical-align: middle;
+        }
+
+.member-list__item-photo--circled {
+                 border-radius: 50%;
+             }
+
 .content {
     -webkit-box-flex: 1;
         -ms-flex-positive: 1;
@@ -1189,17 +1200,6 @@ template {
 
 .folder-settings-opened .aside-swiper__right .aside__scrollable {
         visibility: hidden;
-    }
-
-.collaborator-photo {
-     margin-right: 9px;
-     width: 12px;
-     height: 12px;
-     vertical-align: middle;
-}
-
-.collaborator-photo--circled {
-        border-radius: 50%;
     }
 
 .status-bar {
