@@ -309,7 +309,6 @@ class SyncObserver {
       email: user.email,
       dtReg: user.dt_reg,
       dtModify: user.dt_modify,
-      googleId: user.google_id
     };
 
     return this.api.request(query, variables)

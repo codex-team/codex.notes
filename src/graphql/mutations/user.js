@@ -9,7 +9,6 @@ module.exports = `mutation User(
     $email: String!,
     $dtReg: int!,
     $dtModify: int!,
-    $googleId: String!
   ){
   user(
     id: $id,
@@ -18,7 +17,6 @@ module.exports = `mutation User(
     email: $email,
     dtReg: $dtReg,
     dtModify: $dtModify,
-    googleId: $googleId
    ){
     id,
     name,
@@ -26,6 +24,5 @@ module.exports = `mutation User(
     email,
     dtReg,
     dtModify,
-    googleId
   }
 }`;
