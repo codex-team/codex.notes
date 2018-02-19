@@ -101,7 +101,7 @@ class SyncObserver {
       /**
        * Update user's last sync date
        */
-      let updatedUser = this.updateUserLastSyncDate();
+      let updatedUser = await this.updateUserLastSyncDate();
 
       return dataFromCloud;
     } catch(e) {
@@ -308,7 +308,7 @@ class SyncObserver {
       photo: user.photo,
       email: user.email,
       dtReg: user.dt_reg,
-      dtModify: user.dt_modify,
+      dtModify: user.dtModify,
     };
 
     return this.api.request(query, variables)

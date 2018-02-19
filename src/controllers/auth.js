@@ -91,6 +91,8 @@ class AuthController {
       /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
       payload = JSON.parse(payload);
 
+      console.log('\n\n\n\n\n', payload);
+
       await global.user.update({
         id: payload.user_id,
         name: payload.name,

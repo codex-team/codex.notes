@@ -1,5 +1,8 @@
 'use strict';
+
 const db = require('../utils/database'),
+      Time = require('../utils/time'),
+      _ = require('../utils/utils'),
       fs = require('fs'),
       request = require('request'),
       path = require('path');
@@ -96,19 +99,32 @@ class User {
       dtModify: this.dtModify
     };
 
+    let currentUser = await this.get();
+
     /**
      * Using nedb we can't change document's _id.
      * If new id is passed, we should delete old document first
      */
     if (!userData.id) {
-      await db.update(db.USER, {}, {
+      console.log('>> >> >> > > update locallly');
+      let updatedUser = await db.update(db.USER, {}, {
         $set: dataToInsert
-      });
-    } else {
-      await db.remove(db.USER, {}, {});
+      }, { returnUpdatedDocs: true });
 
-      dataToInsert._id = this.id;
-      await db.insert(db.USER, dataToInsert);
+      if (!_.equals(updatedUser.affectedDocuments, currentUser)) {
+        dataToInsert.dtModify = Time.now;
+        await db.update(db.USER, {}, {
+          $set: { dtModify: Time.now }
+        });
+      }
+    } else {
+      console.log('>> >> >> > > update from cloud');
+      if (currentUser.dtModify < dataToInsert.dtModify) {
+        await db.remove(db.USER, {}, {});
+
+        dataToInsert._id = this.id;
+        await db.insert(db.USER, dataToInsert);
+      }
     }
   }
 
