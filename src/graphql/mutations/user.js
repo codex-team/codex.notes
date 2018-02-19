@@ -7,28 +7,25 @@ module.exports = `mutation User(
     $name: String!,
     $photo: String!,
     $email: String!,
-    $dt_sync: int!,
-    $dt_reg: int!,
-    $dt_modify: int!,
-    $google_id: String!
+    $dtReg: int!,
+    $dtModify: int!,
+    $googleId: String!
   ){
   user(
     id: $id,
     name: $name,
     photo: $photo,
     email: $email,
-    dt_sync: $dt_sync,
-    dt_reg: $dt_reg,
-    dt_modify: $dt_modify,
-    google_id: $google_id
+    dtReg: $dtReg,
+    dtModify: $dtModify,
+    googleId: $googleId
    ){
     id,
     name,
     photo,
     email,
-    dt_sync,
-    dt_reg,
-    dt_modify,
-    google_id
+    dtReg,
+    dtModify,
+    googleId
   }
 }`;

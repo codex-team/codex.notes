@@ -1,17 +1,6 @@
-const db = require('../utils/database');
-
 const Folder = require('../models/folder');
 const Note = require('../models/note');
-
-const controllerFolder = require('./folders');
-const controllerNotes = require('./notes');
-
-/**
- * Load utils
- *
- * @type {Utils}
- */
-const utils = require('../utils/utils');
+const User = require('../models/user');
 
 /**
  * Time helper
@@ -307,7 +296,7 @@ class SyncObserver {
    * Send User Mutation
    *
    * @param {UserData} user
-   * 
+   *
    * @return {Promise<object}
    */
   sendUser(user) {
@@ -318,11 +307,10 @@ class SyncObserver {
       name: user.name,
       photo: user.photo,
       email: user.email,
-      dt_sync: user.dt_sync,
-      dt_reg: user.dt_reg,
-      dt_modify: user.dt_modify,
-      google_id: user.google_id
-    }
+      dtReg: user.dt_reg,
+      dtModify: user.dt_modify,
+      googleId: user.google_id
+    };
 
     return this.api.request(query, variables)
       .then( data => {
