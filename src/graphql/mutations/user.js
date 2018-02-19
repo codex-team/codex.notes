@@ -23,6 +23,6 @@ module.exports = `mutation User(
     photo,
     email,
     dtReg,
-    dtModify,
+    dtModify
   }
 }`;
