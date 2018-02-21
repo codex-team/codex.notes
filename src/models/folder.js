@@ -203,9 +203,10 @@ class Folder {
     let data = this.data;
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * Insert a new item to local DB
@@ -231,9 +232,10 @@ class Folder {
     let data = this.data;
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * Insert a new item to local DB
@@ -302,9 +304,10 @@ class Folder {
         };
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * We don't need to rewrite an _id field
