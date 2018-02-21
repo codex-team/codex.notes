@@ -201,17 +201,15 @@ class User {
    * @returns {Promise.<Array>}
    */
   static async prepareUpdates(lastSyncTimestamp) {
-    let notSyncedItems = await db.find(db.USER, {
+    let notSyncedUserModel = await db.findOne(db.USER, {
       dtModify: {$gt: lastSyncTimestamp}
     });
 
-    notSyncedItems = notSyncedItems.map(user => {
-      user.id = user._id;
+    if (notSyncedUserModel) {
+      notSyncedUserModel.id = notSyncedUserModel._id;
+    }
 
-      return user;
-    });
-
-    return notSyncedItems;
+    return notSyncedUserModel;
   }
 
   /**

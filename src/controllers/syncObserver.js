@@ -251,10 +251,8 @@ class SyncObserver {
     /**
      * Push User mutations to the Sync Mutations Sequence
      */
-    if (updates.user.length) {
-      syncMutationsSequence.push(...updates.user.map( user => {
-        return this.sendUser(user);
-      }));
+    if (updates.user) {
+      syncMutationsSequence.push(this.sendUser(user));
     }
 
     /**
