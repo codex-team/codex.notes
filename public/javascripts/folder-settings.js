@@ -235,7 +235,7 @@ export default class FolderSettings {
    * Toggle visibility of login button and new collaborator input
    */
   toggleCollaboratorInput() {
-    if (codex.notes.user.authObserver.loggedIn) {
+    if (codex.notes.authObserver.loggedIn) {
       this.loginButton.classList.add('hide');
       this.newMemberInput.classList.remove('hide');
       return;

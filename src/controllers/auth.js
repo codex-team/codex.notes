@@ -80,6 +80,7 @@ class AuthController {
         } else {
           reject();
         }
+        global.app.sockets.leaveChannel(channel);
       });
 
       /**
@@ -99,7 +100,6 @@ class AuthController {
       authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
         if (httpResponseCode !== 200) {
           authWindow.close();
-          global.app.sockets.leaveChannel(channel);
         }
       });
 
@@ -139,7 +139,6 @@ class AuthController {
 
         authSucceeded = true;
         authWindow.close();
-        global.app.sockets.leaveChannel(channel);
       });
     });
   }
@@ -159,7 +158,7 @@ class AuthController {
         dialog.showMessageBox({
           type: 'error',
           title: 'Please, login',
-          message: 'You should login with your google account to get access to shared folders'
+          message: 'You should login to get access to shared folders'
         });
         return;
       }

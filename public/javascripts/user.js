@@ -4,7 +4,6 @@
 import $ from './dom';
 
 import Dialog from './dialog';
-import AuthObserver from './auth-observer';
 
 /**
  * @class       User
@@ -12,6 +11,7 @@ import AuthObserver from './auth-observer';
  *
  * @typedef {User} User
  * @property {Element} authButton - button 'Login with Google'
+ * @property {Object} userData — current user`s data
  */
 export default class User {
 
@@ -22,13 +22,6 @@ export default class User {
     this.authButton = $.get('js-auth-button');
 
     this.userData = window.ipcRenderer.sendSync('user - get');
-
-    this.authObserver = new AuthObserver({
-      onLogin: (user) => {
-        this.fillUserPanel(user);
-        codex.notes.aside.folderSettings.toggleCollaboratorInput();
-      }
-    });
 
     this.authButton.addEventListener('click', () => {
       this.showAuth();

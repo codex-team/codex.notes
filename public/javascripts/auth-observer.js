@@ -1,6 +1,14 @@
 /**
  * @class AuthObserver
  * @classdesc Store user's auth state
+ *
+ * Class uses to observe user`s auth state
+ *
+ * @usage
+ * const authObserver = new AuthObserver();
+ * authObserver.login(userData);
+ *
+ * authObserver.loggedIn === true
  */
 export default class AuthObserver {
 
@@ -10,18 +18,22 @@ export default class AuthObserver {
    * @param onLogin - callback to fire when user is logged in
    * @param onLogout - callback to fire when user is logged out
    */
-  constructor({onLogin = function () {}, onLogout = function () {}}) {
-    this.user = null;
+  constructor({onLogin = function () {}, onLogout = function () {}, user = null}) {
+    this.user = user;
     this._loggedIn = false;
     this.onLogin = onLogin;
     this.onLogout = onLogout;
+
+    if (this.user) {
+      this.login(this.user);
+    }
   }
 
   /**
    * Store logged in user state.
    * Fires onLogin callback
    *
-   * @param user - logged user
+   * @param {Object} user - logged user
    */
   login(user) {
     if (!user.token) return;

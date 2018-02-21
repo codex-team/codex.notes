@@ -64,7 +64,7 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -263,7 +263,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var remote = __webpack_require__(3).remote;
+var remote = __webpack_require__(4).remote;
 
 /**
  *
@@ -333,6 +333,110 @@ exports.default = Dialog;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @class AuthObserver
+ * @classdesc Store user's auth state
+ *
+ * Class uses to observe user`s auth state
+ *
+ * @usage
+ * const authObserver = new AuthObserver();
+ * authObserver.login(userData);
+ *
+ * authObserver.loggedIn === true
+ */
+var AuthObserver = function () {
+
+  /**
+   * @constructor
+   *
+   * @param onLogin - callback to fire when user is logged in
+   * @param onLogout - callback to fire when user is logged out
+   */
+  function AuthObserver(_ref) {
+    var _ref$onLogin = _ref.onLogin,
+        onLogin = _ref$onLogin === undefined ? function () {} : _ref$onLogin,
+        _ref$onLogout = _ref.onLogout,
+        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout,
+        _ref$user = _ref.user,
+        user = _ref$user === undefined ? null : _ref$user;
+
+    _classCallCheck(this, AuthObserver);
+
+    this.user = user;
+    this._loggedIn = false;
+    this.onLogin = onLogin;
+    this.onLogout = onLogout;
+
+    if (this.user) {
+      this.login(this.user);
+    }
+  }
+
+  /**
+   * Store logged in user state.
+   * Fires onLogin callback
+   *
+   * @param {Object} user - logged user
+   */
+
+
+  _createClass(AuthObserver, [{
+    key: "login",
+    value: function login(user) {
+      if (!user.token) return;
+
+      this.user = user;
+      this._loggedIn = true;
+      this.onLogin(user);
+    }
+
+    /**
+     * Store logged out user state.
+     * Fires onLogout callback
+     */
+
+  }, {
+    key: "logout",
+    value: function logout() {
+      this._loggedIn = false;
+      this.onLogout(this.user);
+      this.user = null;
+    }
+
+    /**
+     * Get current login state
+     *
+     * @returns {boolean}
+     */
+
+  }, {
+    key: "loggedIn",
+    get: function get() {
+      return this._loggedIn;
+    }
+  }]);
+
+  return AuthObserver;
+}();
+
+exports.default = AuthObserver;
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -627,13 +731,13 @@ var Note = function () {
 exports.default = Note;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 module.exports = require("electron");
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -649,7 +753,7 @@ var _folder = __webpack_require__(15);
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(2);
+var _note = __webpack_require__(3);
 
 var _note2 = _interopRequireDefault(_note);
 
@@ -661,7 +765,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(11).default;
+var AsideSwiper = __webpack_require__(12).default;
 var $ = __webpack_require__(0).default;
 
 /**
@@ -1245,7 +1349,7 @@ var Aside = function () {
 exports.default = Aside;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1354,7 +1458,7 @@ var ConnectionObserver = function () {
 exports.default = ConnectionObserver;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1534,7 +1638,7 @@ var Editor = function () {
 exports.default = Editor;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1631,7 +1735,7 @@ var StatusBar = function () {
 exports.default = StatusBar;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1654,10 +1758,6 @@ var _dialog = __webpack_require__(1);
 
 var _dialog2 = _interopRequireDefault(_dialog);
 
-var _authObserver = __webpack_require__(12);
-
-var _authObserver2 = _interopRequireDefault(_authObserver);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1668,6 +1768,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * @typedef {User} User
  * @property {Element} authButton - button 'Login with Google'
+ * @property {Object} userData — current user`s data
  */
 var User = function () {
 
@@ -1682,13 +1783,6 @@ var User = function () {
     this.authButton = _dom2.default.get('js-auth-button');
 
     this.userData = window.ipcRenderer.sendSync('user - get');
-
-    this.authObserver = new _authObserver2.default({
-      onLogin: function onLogin(user) {
-        _this.fillUserPanel(user);
-        codex.notes.aside.folderSettings.toggleCollaboratorInput();
-      }
-    });
 
     this.authButton.addEventListener('click', function () {
       _this.showAuth();
@@ -1740,13 +1834,13 @@ var User = function () {
 exports.default = User;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1756,28 +1850,32 @@ exports.default = User;
  * Load libraries
  */
 
-var _user = __webpack_require__(8);
+var _user = __webpack_require__(9);
 
 var _user2 = _interopRequireDefault(_user);
 
-var _statusBar = __webpack_require__(7);
+var _statusBar = __webpack_require__(8);
 
 var _statusBar2 = _interopRequireDefault(_statusBar);
 
-var _connectionObserver = __webpack_require__(5);
+var _connectionObserver = __webpack_require__(6);
 
 var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
 
+var _authObserver = __webpack_require__(2);
+
+var _authObserver2 = _interopRequireDefault(_authObserver);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var electron = __webpack_require__(3);
-var Editor = __webpack_require__(6).default;
+var electron = __webpack_require__(4);
+var Editor = __webpack_require__(7).default;
 
 /**
  * Load components
  */
-var Aside = __webpack_require__(4).default;
-var Note = __webpack_require__(2).default;
+var Aside = __webpack_require__(5).default;
+var Note = __webpack_require__(3).default;
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -1792,7 +1890,7 @@ electron.webFrame.setZoomLevelLimits(1, 1);
 /**
  * Load CSS
  */
-__webpack_require__(9);
+__webpack_require__(10);
 
 /**
  * Document ready callback
@@ -1808,8 +1906,14 @@ var documentReady = function documentReady() {
   codex.notes.user = new _user2.default();
   codex.notes.statusBar = new _statusBar2.default();
   codex.notes.connectionObserver = new _connectionObserver2.default();
+  codex.notes.authObserver = new _authObserver2.default({
+    onLogin: function onLogin(user) {
+      codex.notes.user.fillUserPanel(user);
+      codex.notes.aside.folderSettings.toggleCollaboratorInput();
+    }
+  });
 
-  codex.notes.user.authObserver.login(codex.notes.user.userData);
+  codex.notes.authObserver.login(codex.notes.user.userData);
 
   /**
    * New note saving handler
@@ -1848,7 +1952,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1938,96 +2042,6 @@ var AsideSwiper = function () {
 }();
 
 exports.default = AsideSwiper;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @class AuthObserver
- * @classdesc Store user's auth state
- */
-var AuthObserver = function () {
-
-  /**
-   * @constructor
-   *
-   * @param onLogin - callback to fire when user is logged in
-   * @param onLogout - callback to fire when user is logged out
-   */
-  function AuthObserver(_ref) {
-    var _ref$onLogin = _ref.onLogin,
-        onLogin = _ref$onLogin === undefined ? function () {} : _ref$onLogin,
-        _ref$onLogout = _ref.onLogout,
-        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout;
-
-    _classCallCheck(this, AuthObserver);
-
-    this.user = null;
-    this._loggedIn = false;
-    this.onLogin = onLogin;
-    this.onLogout = onLogout;
-  }
-
-  /**
-   * Store logged in user state.
-   * Fires onLogin callback
-   *
-   * @param user - logged user
-   */
-
-
-  _createClass(AuthObserver, [{
-    key: "login",
-    value: function login(user) {
-      if (!user.token) return;
-
-      this.user = user;
-      this._loggedIn = true;
-      this.onLogin(user);
-    }
-
-    /**
-     * Store logged out user state.
-     * Fires onLogout callback
-     */
-
-  }, {
-    key: "logout",
-    value: function logout() {
-      this._loggedIn = false;
-      this.onLogout(this.user);
-      this.user = null;
-    }
-
-    /**
-     * Get current login state
-     *
-     * @returns {boolean}
-     */
-
-  }, {
-    key: "loggedIn",
-    get: function get() {
-      return this._loggedIn;
-    }
-  }]);
-
-  return AuthObserver;
-}();
-
-exports.default = AuthObserver;
 
 /***/ }),
 /* 13 */
@@ -2433,7 +2447,7 @@ var FolderSettings = function () {
   }, {
     key: 'toggleCollaboratorInput',
     value: function toggleCollaboratorInput() {
-      if (codex.notes.user.authObserver.loggedIn) {
+      if (codex.notes.authObserver.loggedIn) {
         this.loginButton.classList.add('hide');
         this.newMemberInput.classList.remove('hide');
         return;

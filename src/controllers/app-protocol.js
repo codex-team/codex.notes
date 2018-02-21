@@ -2,7 +2,9 @@ const parser = require('url');
 
 /**
  * @class AppProtocol
- * @classdesc Class to process urls with custom app protocol
+ * @classdesc Class to handle URLs with the custom protocol
+ *
+ * For example: codex://join/john@doe.com
  */
 class AppProtocol {
 
@@ -14,8 +16,6 @@ class AppProtocol {
    * @returns void
    */
   static async process(event, url) {
-    console.log('Processing url ', url);
-
     let urlParts = parser.parse(url),
         args = urlParts.path.slice(1).split('/');
 
