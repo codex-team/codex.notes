@@ -76,17 +76,17 @@ class Collaborator {
     await db.update(db.COLLABORATORS, {_id: this._id}, {$set: data});
   }
 
-    /**
-     * Set CollaboratorData {@see CollaboratorData}
-     *
-     * @param {String} _id
-     * @param {String} token
-     * @param {String} email
-     * @param {String} ownerId
-     * @param {CollaboratorUser} user
-     * @param {String} folderId
-     * @param {Number} dtInvite
-     */
+  /**
+   * Set CollaboratorData {@see CollaboratorData}
+   *
+   * @param {String} _id
+   * @param {String} token
+   * @param {String} email
+   * @param {String} ownerId
+   * @param {CollaboratorUser} user
+   * @param {String} folderId
+   * @param {Number} dtInvite
+   */
   set data({_id, token, email, ownerId, user, folderId, dtInvite}) {
     this._id = _id || this._id || null;
     this.token = token || this.token || null;
@@ -97,11 +97,11 @@ class Collaborator {
     this.dtInvite = dtInvite || this.dtInvite || Time.now;
   }
 
-    /**
-     * Get CollaboratorData
-     *
-     * @returns {CollaboratorData}
-     */
+  /**
+   * Get CollaboratorData
+   *
+   * @returns {CollaboratorData}
+   */
   get data() {
     return {
       _id: this._id,
