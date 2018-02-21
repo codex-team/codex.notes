@@ -1,5 +1,8 @@
 'use strict';
+
 const db = require('../utils/database'),
+      Time = require('../utils/time'),
+      _ = require('../utils/utils'),
       fs = require('fs'),
       request = require('request'),
       path = require('path');
@@ -8,7 +11,7 @@ const db = require('../utils/database'),
  * Model for current user representation.
  * @typedef {User} User
  * @property {string} id – unique user ID
- * @property {string} google_id – unique user ID passed by Google
+ * @property {string} googleId – unique user ID passed by Google
  * @property {string} name – user name
  * @property {string} photo – avatar string URL
  * @property {string} token – user's authorization JWT
@@ -25,7 +28,9 @@ class User {
     this.photo = null;
     this.email = null;
     this.dt_sync = null;
-    this.google_id = null;
+    this.dt_reg = null;
+    this.dtModify = null;
+    this.googleId = null;
     this.token = null;
     this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
 
@@ -52,7 +57,9 @@ class User {
           photo: this.photo,
           email: this.email,
           dt_sync: this.dt_sync,
-          google_id: this.google_id,
+          dt_reg: this.dt_reg,
+          dtModify: this.dtModify,
+          googleId: this.googleId,
           token: this.token
         });
 
@@ -79,30 +86,57 @@ class User {
    * @returns {Promise.<void>}
    */
   async update(userData = {}) {
-    this.data = userData;
+    try {
+      this.data = userData;
 
-    let dataToInsert = {
-      name: this.name,
-      photo: this.photo,
-      token: this.token,
-      email: this.email,
-      google_id: this.google_id,
-      dt_sync: this.dt_sync
-    };
+      let dataToInsert = {
+        name: this.name,
+        photo: this.photo,
+        token: this.token,
+        email: this.email,
+        googleId: this.googleId,
+        dt_sync: this.dt_sync,
+        dt_reg: this.dt_reg,
+        dtModify: this.dtModify
+      };
 
-    /**
-     * Using nedb we can't change document's _id.
-     * If new id is passed, we should delete old document first
-     */
-    if (!userData.id) {
-      await db.update(db.USER, {}, {
-        $set: dataToInsert
-      });
-    } else {
-      await db.remove(db.USER, {}, {});
+      let currentUser = await this.get();
 
-      dataToInsert._id = this.id;
-      await db.insert(db.USER, dataToInsert);
+      /**
+       * Using nedb we can't change document's _id.
+       * If new id is passed, we should delete old document first
+       */
+      if (!userData.id) {
+        /**
+         * Update local data
+         */
+        let updatedUser = await db.update(db.USER, {}, {
+          $set: dataToInsert
+        }, {returnUpdatedDocs: true});
+
+        /**
+         * Check if we need to update dtModify
+         */
+        if (!_.equals(updatedUser.affectedDocuments, currentUser)) {
+          dataToInsert.dtModify = Time.now;
+          await db.update(db.USER, {}, {
+            $set: {dtModify: Time.now}
+          });
+        }
+      } else {
+        /**
+         * We have got a data from Cloud
+         * Need to check if we need to update local data
+         */
+        if (currentUser.dtModify < dataToInsert.dtModify) {
+          await db.remove(db.USER, {}, {});
+
+          dataToInsert._id = this.id;
+          await db.insert(db.USER, dataToInsert);
+        }
+      }
+    } catch (e) {
+      console.log('Error while updating user data:', e);
     }
   }
 
@@ -160,10 +194,29 @@ class User {
   }
 
   /**
+   * Prepare updates for target time
+   *
+   * @param lastSyncTimestamp
+   *
+   * @returns {Promise.<Array>}
+   */
+  static async prepareUpdates(lastSyncTimestamp) {
+    let notSyncedUserModel = await db.findOne(db.USER, {
+      dtModify: {$gt: lastSyncTimestamp}
+    });
+
+    if (notSyncedUserModel) {
+      notSyncedUserModel.id = notSyncedUserModel._id;
+    }
+
+    return notSyncedUserModel;
+  }
+
+  /**
    *
    * @typedef {Object} UserData
    * @property {string} id – unique user ID
-   * @property {string} google_id – unique user ID passed by Google
+   * @property {string} googleId – unique user ID passed by Google
    * @property {string} name – user name
    * @property {string} email – user email
    * @property {string} photo – avatar string URL
@@ -173,15 +226,17 @@ class User {
    * @param {UserData} userData
    */
   set data(userData) {
-    let {id, name, photo, email, token, google_id, dt_sync} = userData;
+    let {id, name, photo, email, token, googleId, dt_sync, dt_reg, dtModify} = userData;
 
     this.id = id || this.id || null;
     this.name = name || this.name || null;
     this.photo = photo || this.photo || null;
     this.email = email || this.email || null;
     this.token = token || this.token || null;
-    this.google_id = google_id || this.google_id || null;
+    this.googleId = googleId || this.googleId || null;
     this.dt_sync = dt_sync || this.dt_sync || 0;
+    this.dt_reg = dt_reg || this.dt_reg || 0;
+    this.dtModify = dtModify || this.dtModify || 0;
   }
 
 }
