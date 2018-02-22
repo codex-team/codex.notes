@@ -122,12 +122,16 @@ export default class Searcher {
    * @param {String} title - key to find data
    */
   search( title ) {
+    this.reset();
+
+    if (title == '')    {
+      return;
+    }
+
     let highlight = {
       start: 0,
       end: 0
     };
-
-    this.reset();
 
     this.dataset.forEach((element) => {
       highlight.start = element.title.indexOf(title);
