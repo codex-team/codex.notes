@@ -122,11 +122,19 @@ export default class Searcher {
    * @param {String} title - key to find data
    */
   search( title ) {
+    let highlight = {
+      start: 0,
+      end: 0
+    };
+
     this.reset();
 
     this.dataset.forEach((element) => {
-      if (element.title.indexOf(title) == 0)      {
-        codex.notes.aside.addMenuItem(element, true, true);
+      highlight.start = element.title.indexOf(title);
+
+      if (highlight.start > -1)      {
+        highlight.end = highlight.start + title.length;
+        codex.notes.aside.addMenuItem(element, true, {highlight: highlight});
       }
     });
   }

@@ -238,15 +238,17 @@ export default class Aside {
    * @param {number} noteData.folderId
    *
    * @param {Boolean} isRootFolder - true if Note is included to the Root Folder
+   * @param {Object} searchData    - object with search data
    */
-  addMenuItem(noteData, isRootFolder, isSearch) {
+  addMenuItem(noteData, isRootFolder, searchData) {
     /**
      * Creating note DOM
-     * @param {String} title   - name of the note
-     * @param {Object} dataset - dataset of the root DOM note element
+     * @param {String} title     - name of the note
+     * @param {Object} dataset   - dataset of the root DOM note element
+     * @param {Object} highlight - object with coords of highlight for search
      */
-    let createNoteDOM = (title, dataset) => {
-      let item = this.makeMenuItem(title, dataset);
+    let createNoteDOM = (title, dataset, highlight) => {
+      let item = this.makeMenuItem(title, dataset, highlight);
 
       notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -258,9 +260,9 @@ export default class Aside {
       return;
     }
 
-    if (isSearch) {
+    if (searchData) {
       notesMenu = document.querySelector('[name="js-found-notes-menu"]');
-      createNoteDOM(noteData.title, {id: noteData._id});
+      createNoteDOM(noteData.title, {id: noteData._id}, searchData.highlight);
       return;
     } else {
       codex.notes.searcher.pushData({title: noteData.title, _id: noteData._id});
@@ -312,16 +314,23 @@ export default class Aside {
 
   /**
    * Makes aside menu item
-   * @param  {String} title   - item title
-   * @param  {object} dataset - data to store in dataset
+   * @param  {String} title     - item title
+   * @param  {Object} dataset   - data to store in dataset
+   * @param  {Object} highlight - pointers to part of title text to highlight
    * @return {Element}
    */
-  makeMenuItem(title, dataset) {
+  makeMenuItem(title, dataset, highlight) {
     title = this.createMenuItemTitle(title);
 
-    let item = $.make('li', null, {
-      textContent: title
-    });
+    let item = $.make('li');
+
+    if (highlight) {
+      item.innerHTML = title.substring(0, highlight.start) +
+        '<span>' + title.substring(highlight.start, highlight.end) + '</span>'
+        + title.substring(highlight.end);
+    } else {
+      item.textContent = title;
+    }
 
     for (let key in dataset) {
       item.dataset[key] = dataset[key];
