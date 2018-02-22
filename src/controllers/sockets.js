@@ -49,7 +49,7 @@ class Sockets {
       }
     });
 
-    if (openedChannel){
+    if (openedChannel) {
       openedChannel.destroy();
       /**
        * Remove channel from the buffer
@@ -125,7 +125,7 @@ class Channel {
   /**
    * Destroys the Channel, terminate Socket connection
    */
-  destroy(){
+  destroy() {
     this.name = null;
     this.callback = null;
     this.url = null;

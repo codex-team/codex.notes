@@ -4,6 +4,7 @@
  */
 module.exports = `query Sync($userId: ID!) {
   user(id: $userId){
+    id,
     name,
     email,
     photo,
@@ -33,6 +34,18 @@ module.exports = `query Sync($userId: ID!) {
           email
         },
         isRemoved
+      },
+      collaborators {
+        id, 
+        token,
+        email
+        user {
+          id,
+          name,
+          email,
+          photo
+        },
+        dtInvite
       }
     }
   }

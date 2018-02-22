@@ -30,7 +30,7 @@ class Utils {
    * @returns {string}
    */
   static get caller() {
-    return (new Error()).stack.split('\n').splice(3,1).shift().trim();
+    return (new Error()).stack.split('\n').splice(3, 1).shift().trim();
   }
 
   /**
@@ -50,7 +50,7 @@ class Utils {
    * @param {number} [size] - Number of bytes to generate.
    * @return {Promise<string>}
    */
-  static async uniqId(size = 20){
+  static async uniqId(size = 20) {
     return new Promise((resolve, reject) => {
       crypto.randomBytes(size, (err, buf) => {
         if (err) {

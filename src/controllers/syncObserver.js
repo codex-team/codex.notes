@@ -1,5 +1,6 @@
 const Folder = require('../models/folder');
 const Note = require('../models/note');
+const Collaborator = require('../models/collaborator');
 const User = require('../models/user');
 
 /**
@@ -189,6 +190,30 @@ class SyncObserver {
         return await localNote.save();
       }));
 
+      /**
+       * Get Folder's Collaborators
+       *
+       * @type {Array}
+       */
+      localFolder.collaborators = await Promise.all(folder.collaborators.map( async collaborator => {
+        collaborator._id = collaborator.id;
+
+        /**
+         * Create Collaborator model
+         *
+         * @type {Collaborator}
+         */
+        let localCollaborator = new Collaborator(collaborator);
+
+        localCollaborator.folderId = folder._id;
+        localCollaborator.ownerId = folder.owner.id;
+
+        /**
+         * Save Collaborator's data
+         */
+        return await localCollaborator.save();
+      }));
+
       return localFolder;
     }));
 
@@ -225,10 +250,16 @@ class SyncObserver {
      */
     let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
+    /**
+     * Get not synced Collaborators
+     */
+    let changedCollaborators = await Collaborator.prepareUpdates(lastSyncTimestamp);
+
     return {
       user: changedUser,
       folders: changedFolders,
-      notes: changedNotes
+      notes: changedNotes,
+      collaborators: changedCollaborators
     };
   }
 
@@ -270,6 +301,15 @@ class SyncObserver {
     if (updates.notes.length) {
       syncMutationsSequence.push(...updates.notes.map( note => {
         return this.sendNote(note);
+      }));
+    }
+
+    /**
+     * Push Collaborators mutations to the Sync Mutations Sequence
+     */
+    if (updates.collaborators.length) {
+      syncMutationsSequence.push(...updates.collaborators.map( collaborator => {
+        return this.sendCollaboratorInvite(collaborator);
       }));
     }
 
@@ -329,7 +369,6 @@ class SyncObserver {
     let query = require('../graphql/mutations/folder');
 
     let variables = {
-      ownerId: global.user ? global.user.id : null,
       id: folder._id,
       title: folder.title || '',
       dtModify: folder.dtModify || null,
@@ -338,12 +377,75 @@ class SyncObserver {
       isRoot: folder.isRoot
     };
 
+    if (folder.ownerId) {
+      variables.ownerId = folder.ownerId;
+    } else if (global.user) {
+      variables.ownerId = global.user.id;
+    } else {
+      variables.ownerId = null;
+    }
+
     return this.api.request(query, variables)
       .then( data => {
         console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
+      });
+  }
+
+  /**
+   * Send CollaboratorInvite Mutation
+   *
+   * @param {Collaborator} collaborator - Collaborator to send
+   *
+   * @return {Promise<object>}
+   */
+  sendCollaboratorInvite(collaborator) {
+    let query = require('../graphql/mutations/invite');
+
+    let variables = {
+      id: collaborator._id,
+      email: collaborator.email,
+      ownerId: global.user ? global.user.id : null,
+      folderId: collaborator.folderId,
+      dtInvite: collaborator.dtInvite
+    };
+
+    return this.api.request(query, variables)
+        .then(data => {
+          console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+        })
+        .catch(error => {
+          console.log('[!] InviteCollaborator Mutation failed because of ', error);
+        });
+  }
+
+  /**
+   * Send CollaboratorInvite Mutation
+   *
+   * @param {string} ownerId - id of Folder's owner
+   * @param {string} folderId - Folder's id
+   * @param {string} token - Collaborator's invitation token
+   *
+   * @return {Promise<object>}
+   */
+  sendVerifyCollaborator(ownerId, folderId, token) {
+    let query = require('../graphql/mutations/join');
+
+    let variables = {
+      userId: global.user ? global.user.id : null,
+      ownerId: ownerId,
+      folderId: folderId,
+      token: token
+    };
+
+    return this.api.request(query, variables)
+      .then(data => {
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
+      })
+      .catch(error => {
+        console.log('[!] CollaboratorJoin Mutation failed because of ', error);
       });
   }
 

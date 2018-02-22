@@ -16,6 +16,7 @@ const Note = require('./note').default;
 import User from './user';
 import StatusBar from './status-bar';
 import ConnectionObserver from './connection-observer';
+import AuthObserver from './auth-observer';
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -46,6 +47,14 @@ let documentReady = () => {
   codex.notes.user = new User();
   codex.notes.statusBar = new StatusBar();
   codex.notes.connectionObserver = new ConnectionObserver();
+  codex.notes.authObserver = new AuthObserver({
+    onLogin: (user) => {
+      codex.notes.user.fillUserPanel(user);
+      codex.notes.aside.folderSettings.toggleCollaboratorInput();
+    },
+  });
+
+  codex.notes.authObserver.login(codex.notes.user.userData);
 
   /**
    * New note saving handler

@@ -1,4 +1,5 @@
 'use strict';
+
 const {ipcMain, BrowserWindow, dialog, app} = require('electron');
 const url = require('url');
 const API = require('../models/api');
@@ -19,7 +20,21 @@ class AuthController {
    * Bind events
    */
   constructor() {
-    ipcMain.on('auth - google auth', this.googleAuth);
+    ipcMain.on('auth - google auth', event => {
+      this.auth(event);
+    });
+  }
+
+  /**
+   * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   */
+  async auth(event) {
+    try {
+      event.returnValue = await this.googleAuth();
+    } catch (e) {
+      console.log('Auth failed ', e);
+      event.returnValue = false;
+    }
   }
 
   /**
@@ -29,120 +44,130 @@ class AuthController {
    * 2. Google redirect to API server with oauth code
    * 3. Server gets token and profile info and render page with JWT
    * 4. Using WebContents Main Process gets JWT from popup
-   *
-   * @param {Event} event — see {@link https://electronjs.org/docs/api/ipc-main#event-object}
-   *
    */
-  async googleAuth(event) {
+  async googleAuth() {
     /**
      * Compose random name for auth-channel. We will get JWT from this.
      * @type {Promise<string>}
      */
     let channel = await utils.uniqId();
 
-    /**
-     * Open new window with Google Authorisation
-     * @type {Electron.BrowserWindow}
-     */
-    let authWindow = new BrowserWindow({
-      alwaysOnTop: true,
-      autoHideMenuBar: true,
-      webPreferences: {
-        nodeIntegration: false
-      }
-    });
-
-    /**
-     * User can close auth-window
-     */
-    authWindow.on('closed', () => {
-      if (event.returnValue === undefined) {
-        event.returnValue = false;
-      }
-    });
-
-    /**
-     * Start to load Google Auth form
-     */
-    authWindow.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
-      'client_id=' + process.env.GOOGLE_CLIENT_ID +
-      '&scope=email profile' +
-      '&response_type=code' +
-      '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
-      '&state=' + channel // state parameter will be passed to the redirect_uri
-    );
-
-    /**
-     * Start to listen auth-channel. API will send JWT to this after User's authorisation
-     */
-    global.app.sockets.listenChannel(channel, async jwt => {
+    return new Promise((resolve, reject) => {
       /**
-       * Remove quotes
-       * "jwt" -> jwt
+       * Turns true after successful auth
+       * @type {boolean}
        */
-      jwt = jwt.replace(/"/g, '');
+      let authSucceeded = false;
 
-      /** Trim spaces */
-      jwt = jwt.trim();
-
-      /** Decode JWT payload */
-      let payload = new Buffer(jwt.split('.')[1], 'base64');
-
-      /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
-      payload = JSON.parse(payload);
-
-      await global.user.update({
-        id: payload.user_id,
-        name: payload.name,
-        photo: payload.photo,
-        googleId: payload.googleId,
-        email: payload.email,
-        token: jwt,
-        dtModify: payload.dtModify
+      /**
+       * Open new window with Google Authorisation
+       * @type {Electron.BrowserWindow}
+       */
+      let authWindow = new BrowserWindow({
+        alwaysOnTop: true,
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false
+        }
       });
 
       /**
-       * Refresh API client with the new token at the authorisation header;
+       * User can close auth-window
        */
-      global.app.syncObserver.refreshClient();
-      global.user.saveAvatar();
+      authWindow.on('closed', () => {
+        if (authSucceeded) {
+          resolve(global.user);
+        } else {
+          reject();
+        }
+        global.app.sockets.leaveChannel(channel);
+      });
 
-      event.returnValue = global.user;
+      /**
+       * Start to load Google Auth form
+       */
+      authWindow.loadURL('https://accounts.google.com/o/oauth2/v2/auth?' +
+        'client_id=' + process.env.GOOGLE_CLIENT_ID +
+        '&scope=email profile' +
+        '&response_type=code' +
+        '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
+        '&state=' + channel // state parameter will be passed to the redirect_uri
+      );
 
-      authWindow.close();
-      global.app.sockets.leaveChannel(channel);
+      /**
+       * In case of server errors, close auth window
+       */
+      authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
+        if (httpResponseCode !== 200) {
+          authWindow.close();
+        }
+      });
+
+      /**
+       * Start to listen auth-channel. API will send JWT to this after User's authorisation
+       */
+      global.app.sockets.listenChannel(channel, async jwt => {
+        /**
+         * Remove quotes
+         * "jwt" -> jwt
+         */
+        jwt = jwt.replace(/"/g, '');
+
+        /** Trim spaces */
+        jwt = jwt.trim();
+
+        /** Decode JWT payload */
+        let payload = new Buffer(jwt.split('.')[1], 'base64');
+
+        /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
+        payload = JSON.parse(payload);
+
+        await global.user.update({
+          'id': payload.user_id,
+          'name': payload.name,
+          'photo': payload.photo,
+          'googleId': payload.googleId,
+          'email': payload.email,
+          'token': jwt,
+          'dtModify': payload.dtModify
+        });
+
+        /**
+         * Refresh API client with the new token at the authorisation header;
+         */
+        global.app.syncObserver.refreshClient();
+        global.user.saveAvatar();
+
+        authSucceeded = true;
+        authWindow.close();
+      });
     });
-
-
   }
 
   /**
-   * Send `verify collaborator` request to API
+   * Send CollaboratorJoin mutation to API
    *
-   * @param event
-   * @param inviteUrl
+   * @param {string} ownerId - id of Folder's owner
+   * @param {string} folderId - Folder's id
+   * @param {string} token - Collaborator's invitation token
    */
-  async verifyCollaborator(event, inviteUrl) {
-    let urlParts = url.parse(inviteUrl);
-
-    switch (urlParts.hostname) {
-      case 'join':
-        let email, token;
-
-        [email, token] = urlParts.path.slice(1).split('/');
-
-        let api = new API();
-
-        await api.sendRequest('folder/verifyCollaborator', {
-          email: email,
-          token: token,
-          user: global.user.id
+  async verifyCollaborator(ownerId, folderId, token) {
+    if (!global.user.token) {
+      try {
+        await this.googleAuth();
+      } catch(e) {
+        dialog.showMessageBox({
+          type: 'error',
+          title: 'Please, login',
+          message: 'You should login to get access to shared folders'
         });
-
-        /** @todo fill user's shared folders */
-
-        break;
+        return;
+      }
     }
+
+    await global.app.syncObserver.sendVerifyCollaborator(ownerId, folderId, token);
+
+    global.app.syncObserver.sync();
   }
 
   /**
@@ -206,8 +231,6 @@ class AuthController {
     // reload page
     global.app.mainWindow.reload();
   }
-
 }
-
 
 module.exports = AuthController;

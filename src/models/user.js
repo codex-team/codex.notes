@@ -1,11 +1,10 @@
 'use strict';
-
 const db = require('../utils/database'),
-      Time = require('../utils/time'),
-      _ = require('../utils/utils'),
-      fs = require('fs'),
-      request = require('request'),
-      path = require('path');
+    Time = require('../utils/time'),
+    _ = require('../utils/utils'),
+    fs = require('fs'),
+    request = require('request'),
+    path = require('path');
 
 /**
  * Model for current user representation.

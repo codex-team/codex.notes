@@ -11,6 +11,7 @@ import Dialog from './dialog';
  *
  * @typedef {User} User
  * @property {Element} authButton - button 'Login with Google'
+ * @property {Object} userData — current user`s data
  */
 export default class User {
 
@@ -18,11 +19,9 @@ export default class User {
    * @constructor
    */
   constructor() {
-    this.authButton = document.getElementById('js-auth-button');
+    this.authButton = $.get('js-auth-button');
 
-    let userData = window.ipcRenderer.sendSync('user - get');
-
-    this.fillUserPanel(userData);
+    this.userData = window.ipcRenderer.sendSync('user - get');
 
     this.authButton.addEventListener('click', () => {
       this.showAuth();
@@ -36,7 +35,7 @@ export default class User {
     let authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
     if (authResponse && authResponse.token) {
-      this.fillUserPanel(authResponse);
+      this.authObserver.login(authResponse);
       window.ipcRenderer.send('user - sync');
     } else {
       Dialog.error('Authentication failed. Please, try again.');
