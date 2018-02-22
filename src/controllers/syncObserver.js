@@ -1,6 +1,7 @@
 const Folder = require('../models/folder');
 const Note = require('../models/note');
 const Collaborator = require('../models/collaborator');
+const User = require('../models/user');
 
 /**
  * Time helper
@@ -101,7 +102,7 @@ class SyncObserver {
       /**
        * Update user's last sync date
        */
-      let updatedUser = this.updateUserLastSyncDate();
+      let updatedUser = await this.updateUserLastSyncDate();
 
       return dataFromCloud;
     } catch(e) {
@@ -235,6 +236,11 @@ class SyncObserver {
     let lastSyncTimestamp = await global.user.getSyncDate();
 
     /**
+     * Get not synced User
+     */
+    let changedUser = await User.prepareUpdates(lastSyncTimestamp);
+
+    /**
      * Get not synced Folders
      */
     let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
@@ -250,6 +256,7 @@ class SyncObserver {
     let changedCollaborators = await Collaborator.prepareUpdates(lastSyncTimestamp);
 
     return {
+      user: changedUser,
       folders: changedFolders,
       notes: changedNotes,
       collaborators: changedCollaborators
@@ -271,6 +278,13 @@ class SyncObserver {
      * @type {Array}
      */
     let syncMutationsSequence = [];
+
+    /**
+     * Push User mutations to the Sync Mutations Sequence
+     */
+    if (updates.user) {
+      syncMutationsSequence.push(this.sendUser(user));
+    }
 
     /**
      * Push Folders mutations to the Sync Mutations Sequence
@@ -314,6 +328,34 @@ class SyncObserver {
     let currentTime = Time.now;
 
     return await global.user.setSyncDate(currentTime);
+  }
+
+  /**
+   * Send User Mutation
+   *
+   * @param {UserData} user
+   *
+   * @return {Promise<object}
+   */
+  sendUser(user) {
+    let query = require('../graphql/mutations/user');
+
+    let variables = {
+      id: user.id,
+      name: user.name,
+      photo: user.photo,
+      email: user.email,
+      dtReg: user.dt_reg,
+      dtModify: user.dtModify,
+    };
+
+    return this.api.request(query, variables)
+      .then( data => {
+        console.log('(ღ˘⌣˘ღ) SyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
+      })
+      .catch( error => {
+        console.log('[!] User Mutation failed because of ', error);
+      });
   }
 
   /**

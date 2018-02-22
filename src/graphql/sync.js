@@ -6,6 +6,11 @@ module.exports = `query Sync($userId: ID!) {
   user(id: $userId){
     id,
     name,
+    email,
+    photo,
+    googleId,
+    dtReg,
+    dtModify,
     folders {
       id,
       title,

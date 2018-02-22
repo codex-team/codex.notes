@@ -126,9 +126,10 @@ class AuthController {
           'id': payload.user_id,
           'name': payload.name,
           'photo': payload.photo,
-          'google_id': payload.google_id,
+          'googleId': payload.googleId,
           'email': payload.email,
-          'token': jwt
+          'token': jwt,
+          'dtModify': payload.dtModify
         });
 
         /**
@@ -220,10 +221,12 @@ class AuthController {
     // force database drop
     await db.drop(true);
 
-    global.user = new User();
-
     // make initialization again
     await db.makeInitialSettings(app.getPath('userData'));
+
+    // Initiate a new user
+    global.user = new User();
+    await global.user.init();
 
     // reload page
     global.app.mainWindow.reload();
