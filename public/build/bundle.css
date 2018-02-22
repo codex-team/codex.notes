@@ -1168,13 +1168,13 @@ template {
 .folder-settings__login-button img {
             float: left;
             margin-right: 10px;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
 .folder-settings__login-button span {
             display: inline-block;
             width: 80%;
-            font-size: 13px;
+            font-size: 12.1px;
             line-height: 1.3em;
         }
 
