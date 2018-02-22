@@ -35,7 +35,7 @@ export default class User {
     let authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
     if (authResponse && authResponse.token) {
-      this.authObserver.login(authResponse);
+      codex.notes.authObserver.login(authResponse);
       window.ipcRenderer.send('user - sync');
     } else {
       Dialog.error('Authentication failed. Please, try again.');

@@ -1800,7 +1800,7 @@ var User = function () {
       var authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
       if (authResponse && authResponse.token) {
-        this.authObserver.login(authResponse);
+        codex.notes.authObserver.login(authResponse);
         window.ipcRenderer.send('user - sync');
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
