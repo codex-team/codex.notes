@@ -263,7 +263,7 @@ export default class Aside {
       createNoteDOM(noteData.title, {id: noteData._id});
       return;
     } else {
-      codex.notes.searcher.pushData(noteData);
+      codex.notes.searcher.pushData({title: noteData.title, _id: noteData._id});
     }
 
     let notesMenu;

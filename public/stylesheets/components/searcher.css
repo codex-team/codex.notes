@@ -4,11 +4,21 @@
         display: none;
     }
 
+    &__container {
+        margin-bottom: 15px;
+    }
+
     &__input {
+        padding: 5px 0px;
+        border: none;
+        border-bottom: 2px solid rgba(130,156,176,.42);
+        color: #63758c;
         background: none;
     }
     
     &__input:focus {
+        color: white;
+        border-bottom-color: white;
         outline: none;
     }
 

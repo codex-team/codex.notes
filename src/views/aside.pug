@@ -7,16 +7,17 @@
         .aside-swiper__left
 
             //-
+            //- Search
+            //-
+            .searcher__container
+                input.searcher__input(value="Search")
+
+            //-
             //- Header
             //-
             span.add-note-button(name="js-new-note-button")
                 include ../../public/svg/pencil.svg
                 | New note
-            
-            //-
-            //- Search
-            //-
-            input.searcher__input.add-note-button(value="Search")
 
             //-
             //- Scrollable zone

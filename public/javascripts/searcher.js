@@ -102,7 +102,7 @@ export default class Searcher {
 
   /**
    * Remove note data from array where search will be done
-   * @param {Object} data - data to remove from the dataset
+   * @param {Object} dataId - the id of data to remove from the dataset
    */
   removeData( dataId ) {
     let existingDataIndex = this.dataset.length;
