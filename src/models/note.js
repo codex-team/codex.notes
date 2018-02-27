@@ -53,6 +53,7 @@ class Note {
     this.folderId = null;
     this.isRemoved = false;
     this.editorVersion = null;
+    this.visited = false;
 
     this.data = noteData;
   }

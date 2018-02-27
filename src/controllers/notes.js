@@ -3,6 +3,7 @@ let {ipcMain} = require('electron');
 
 const Note = require('../models/note');
 const NotesList = require('../models/notesList');
+const Visits = require('../models/visits');
 
 /**
  * Time helper
@@ -22,6 +23,8 @@ class NotesController {
    * Setup event handlers
    */
   constructor() {
+    this.visits = new Visits();
+
     ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
     });
@@ -32,6 +35,9 @@ class NotesController {
 
     ipcMain.on('note - get', (event, {id}) => {
       this.getNote(id, event);
+
+      // set note as visited
+      this.visits.touch(id);
     });
 
     ipcMain.on('note - delete', (event, {id}) => {
@@ -96,6 +102,18 @@ class NotesController {
       let list = new NotesList(folderId);
       let notesInFolder = await list.get();
 
+      await this.visits.syncVisits();
+
+      /**
+       * set up note visits
+       */
+      notesInFolder.forEach( async (note) => {
+          if ( this.visits.visitedNotes[note._id] >= note.dtModify ) {
+            note.visited = true;
+          }
+      });
+
+      console.log(notesInFolder);
       let returnValue = {
         notes: notesInFolder,
         isRootFolder: !folderId
