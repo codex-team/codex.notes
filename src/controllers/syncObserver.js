@@ -398,11 +398,11 @@ class SyncObserver {
    * Send CollaboratorInvite Mutation
    *
    * @param {Collaborator} collaborator - Collaborator to send
-   * @param {boolean} isNewCollaborator - should we send an invite email message
+   * @param {boolean} needSendEmail - should we send an invite email message
    *
    * @return {Promise<void>}
    */
-  sendCollaboratorInvite(collaborator, isNewCollaborator = false) {
+  sendCollaboratorInvite(collaborator, needSendEmail = false) {
     let query = require('../graphql/mutations/invite');
 
     let variables = {
@@ -411,7 +411,7 @@ class SyncObserver {
       ownerId: global.user ? global.user.id : null,
       folderId: collaborator.folderId,
       dtInvite: collaborator.dtInvite,
-      isNew: isNewCollaborator
+      needSendEmail: needSendEmail
     };
 
     return this.api.request(query, variables)
