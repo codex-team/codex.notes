@@ -9,8 +9,8 @@ class SeenStateObserver {
 
     constructor() { }
 
-    async getVisits(noteIds) {
-        return await db.findOne(db.VISITS, {
+    async getSeenNotes(noteIds) {
+        return await db.find(db.VISITS, {
             noteId : {
                 $in : noteIds
             }
@@ -36,4 +36,4 @@ class SeenStateObserver {
     }
 }
 
-module.exports = Visits;
+module.exports = SeenStateObserver;

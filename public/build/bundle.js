@@ -2549,7 +2549,7 @@ var Folder = function () {
         noteIds.push(note._id);
       });
 
-      window.ipcRenderer.send('notes - get seen', { noteIds: noteIds });
+      window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
       window.ipcRenderer.once('notes - seen', function (event, _ref3) {
         var data = _ref3.data;
 

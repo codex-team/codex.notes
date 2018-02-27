@@ -53,7 +53,7 @@ export default class Folder {
           noteIds.push(note._id);
         });
 
-        window.ipcRenderer.send('notes - get seen', { noteIds });
+        window.ipcRenderer.send('notes - seen', { noteIds });
         window.ipcRenderer.once('notes - seen', (event, {data}) => {
           console.log('server', data);
           console.log('nodes', notes);

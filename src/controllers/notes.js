@@ -45,7 +45,8 @@ class NotesController {
     });
 
     ipcMain.on('notes - seen', async (event, {noteIds}) => {
-      let a = await this.visits.getVisits(noteIds);
+      console.log("here");
+      let a = await this.SeenStateObserver.getSeenNotes(noteIds);
       event.sender.send('notes - seen', {
         data: a
       });
