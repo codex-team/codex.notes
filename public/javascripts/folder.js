@@ -34,10 +34,12 @@ export default class Folder {
     this.title = folderData.title;
 
     window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
-    window.ipcRenderer.on('folder - collaborators list', (event, {collaborators}) => {
+    window.ipcRenderer.once('folder - collaborators list', (event, {collaborators}) => {
       this.collaborators = collaborators;
       codex.notes.aside.folderSettings.showCollaborators(this.collaborators);
     });
+
+    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
     /**
      * @todo asynchronous notes load
@@ -45,10 +47,20 @@ export default class Folder {
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
+        let noteIds = [];
+
+        notes.forEach( (note) => {
+          noteIds.push(note._id);
+        });
+
+        window.ipcRenderer.send('notes - get seen', { noteIds });
+        window.ipcRenderer.once('notes - seen', (event, {data}) => {
+          console.log('server', data);
+          console.log('nodes', notes);
+          console.log('found', this.notesListWrapper.querySelector(`[data-id='${data.noteId}']`));
+        });
       })
       .then( () => this.clearNotesList() );
-
-    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
 
   /**
@@ -108,7 +120,6 @@ export default class Folder {
         return true;
       }
     }
-
     Dialog.error('Folder removing failed');
     return false;
   }

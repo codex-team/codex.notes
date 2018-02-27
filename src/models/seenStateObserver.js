@@ -5,26 +5,15 @@
 const db = require('../utils/database'),
     Time = require('../utils/time');
 
-class Visits {
+class SeenStateObserver {
 
-    constructor() {
-        this.visitedNotes = {};
-    }
+    constructor() { }
 
-    /**
-     * sync visits
-     * @return {Promise.<*>}
-     */
-    async syncVisits() {
-        let allNotes = await db.find(db.VISITS, {});
-        allNotes.forEach( (note) => {
-            this.visitedNotes[note.noteId] = note.lastSeen;
-        });
-    }
-
-    async getNoteVisit(noteId) {
+    async getVisits(noteIds) {
         return await db.findOne(db.VISITS, {
-            noteId : noteId
+            noteId : {
+                $in : noteIds
+            }
         });
     }
 

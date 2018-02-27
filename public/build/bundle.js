@@ -2527,12 +2527,14 @@ var Folder = function () {
     this.title = folderData.title;
 
     window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
-    window.ipcRenderer.on('folder - collaborators list', function (event, _ref) {
+    window.ipcRenderer.once('folder - collaborators list', function (event, _ref) {
       var collaborators = _ref.collaborators;
 
       _this.collaborators = collaborators;
       codex.notes.aside.folderSettings.showCollaborators(_this.collaborators);
     });
+
+    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
     /**
      * @todo asynchronous notes load
@@ -2541,11 +2543,23 @@ var Folder = function () {
       var notes = _ref2.notes;
 
       _this.notes = notes;
+      var noteIds = [];
+
+      notes.forEach(function (note) {
+        noteIds.push(note._id);
+      });
+
+      window.ipcRenderer.send('notes - get seen', { noteIds: noteIds });
+      window.ipcRenderer.once('notes - seen', function (event, _ref3) {
+        var data = _ref3.data;
+
+        console.log('server', data);
+        console.log('nodes', notes);
+        console.log('found', _this.notesListWrapper.querySelector('[data-id=\'' + data.noteId + '\']'));
+      });
     }).then(function () {
       return _this.clearNotesList();
     });
-
-    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
 
   /**
@@ -2588,7 +2602,6 @@ var Folder = function () {
           return true;
         }
       }
-
       Dialog.error('Folder removing failed');
       return false;
     }
