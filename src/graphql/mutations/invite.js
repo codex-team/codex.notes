@@ -8,7 +8,7 @@ module.exports = `mutation InviteCollaborator(
     $folderId: ID!,
     $ownerId: ID!,
     $dtInvite: Int,
-    $isNew: Boolean = false
+    $needSendEmail: Boolean = false
   ){
   invite(
     id: $id,
@@ -16,7 +16,7 @@ module.exports = `mutation InviteCollaborator(
     ownerId: $ownerId,
     folderId: $folderId,
     dtInvite: $dtInvite,
-    isNew: $isNew
+    needSendEmail: $needSendEmail
    ){
     token,
     email
