@@ -19,6 +19,11 @@ const utils = require('../utils/utils');
 const Time = require('../utils/time.js');
 
 /**
+ * Max length for intro text
+ */
+const INTRO_TEXT_MAX_LENGTH = 150;
+
+/**
  * @typedef {Object} NoteData
  * @property {String} _id           — Note's id
  * @property {String} id            — similar to _id. Uses for filling Model from the GraphQL query which is 'id'
@@ -357,6 +362,10 @@ class Note {
       }
     } else {
       name = this.title;
+    }
+
+    if (name.length > INTRO_TEXT_MAX_LENGTH) {
+      name = name.substring(0, INTRO_TEXT_MAX_LENGTH) + '…';
     }
 
     return name;
