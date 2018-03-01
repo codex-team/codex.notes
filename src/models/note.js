@@ -90,7 +90,7 @@ class Note {
       authorId: this.authorId,
       folderId: this.folderId,
       title: this.title,
-      titleLabel: this.getNoteName(),
+      titleLabel: this.titleLabel,
       content: this.content,
       dtCreate: this.dtCreate,
       dtModify: this.dtModify,
