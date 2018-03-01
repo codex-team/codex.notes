@@ -78,7 +78,7 @@ class Note {
       this.authorId = noteData.author.id;
     }
 
-    this.titleLabel = this.getNoteName();
+    this.titleLabel = this.introText;
   }
 
   /**
@@ -335,11 +335,11 @@ class Note {
   }
 
   /**
-   * Get label for Note from title or content
+   * Get intro text for Note from title or content
    *
    * @returns {string}
    */
-  getNoteName() {
+  get introText() {
     let name = '';
 
     /**
