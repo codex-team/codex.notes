@@ -945,7 +945,7 @@ var Aside = function () {
     value: function addMenuItem(noteData, isRootFolder) {
       var _this2 = this;
 
-      if (!noteData.title) {
+      if (!noteData.titleLabel) {
         console.warn('Can not add Note to the Aside because it has no title', noteData);
         return;
       }
@@ -967,11 +967,11 @@ var Aside = function () {
       var existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
       if (existingNote) {
-        existingNote.textContent = this.createMenuItemTitle(noteData.title);
+        existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
         return;
       }
 
-      var item = this.makeMenuItem(noteData.title, { id: noteData._id });
+      var item = this.makeMenuItem(noteData.titleLabel, { id: noteData._id });
 
       notesMenu.insertAdjacentElement('afterbegin', item);
 
