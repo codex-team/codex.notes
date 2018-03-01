@@ -240,7 +240,7 @@ export default class Aside {
    * @param {Boolean} isRootFolder - true if Note is included to the Root Folder
    */
   addMenuItem(noteData, isRootFolder) {
-    if (!noteData.title) {
+    if (!noteData.titleLabel) {
       console.warn('Can not add Note to the Aside because it has no title', noteData);
       return;
     }
@@ -262,11 +262,11 @@ export default class Aside {
     let existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
     if (existingNote) {
-      existingNote.textContent = this.createMenuItemTitle(noteData.title);
+      existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
       return;
     }
 
-    let item = this.makeMenuItem(noteData.title, {id: noteData._id});
+    let item = this.makeMenuItem(noteData.titleLabel, {id: noteData._id});
 
     notesMenu.insertAdjacentElement('afterbegin', item);
 

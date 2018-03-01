@@ -23,6 +23,7 @@ const Time = require('../utils/time.js');
  * @property {String} _id           — Note's id
  * @property {String} id            — similar to _id. Uses for filling Model from the GraphQL query which is 'id'
  * @property {String} title         — Note's title
+ * @property {String} titleLabel    — Note's label from title or content
  * @property {String} authorId      — Note's Author id
  * @property {String} folderId      - Note's Folder id
  * @property {String} content       - JSON with Note's body
@@ -46,6 +47,7 @@ class Note {
   constructor(noteData = {}) {
     this._id = null;
     this.title = null;
+    this.titleLabel = null;
     this.content = null;
     this.dtCreate = null;
     this.dtModify = null;
@@ -75,6 +77,8 @@ class Note {
     if (noteData.author && noteData.author.id) {
       this.authorId = noteData.author.id;
     }
+
+    this.titleLabel = this.getNoteName();
   }
 
   /**
@@ -86,6 +90,7 @@ class Note {
       authorId: this.authorId,
       folderId: this.folderId,
       title: this.title,
+      titleLabel: this.getNoteName(),
       content: this.content,
       dtCreate: this.dtCreate,
       dtModify: this.dtModify,
@@ -123,21 +128,6 @@ class Note {
    * @returns {Promise.<NoteData>}
    */
   async save() {
-    /**
-     * Make Title from the first Text Block in case when it is not presented.
-     *
-     * @todo find first Text block, not any first-Tool
-     */
-    if (!this.title) {
-      let content = JSON.parse(this.content);
-
-      if (content.length && content[0].data) {
-        let titleFromText = content[0].data.text;
-
-        this.title = sanitizeHtml(titleFromText, {allowedTags: []});
-      }
-    }
-
     /**
      * If Note has no folderId then put it into Root Folder
      */
@@ -344,6 +334,33 @@ class Note {
     return await this.save();
   }
 
+  /**
+   * Get label for Note from title or content
+   *
+   * @returns {string}
+   */
+  getNoteName() {
+    let name = '';
+
+    /**
+     * Make Title from the first Text Block in case when it is not presented.
+     *
+     * @todo find first Text block, not any first-Tool
+     */
+    if (!this.title) {
+      let content = JSON.parse(this.content);
+
+      if (content.length && content[0].data) {
+        let titleFromText = content[0].data.text;
+
+        name = sanitizeHtml(titleFromText, {allowedTags: []});
+      }
+    } else {
+      name = this.title;
+    }
+
+    return name;
+  }
 }
 
 module.exports = Note;
