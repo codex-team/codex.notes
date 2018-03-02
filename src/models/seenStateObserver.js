@@ -10,11 +10,19 @@ class SeenStateObserver {
     constructor() { }
 
     async getSeenNotes(noteIds) {
-        return await db.find(db.VISITS, {
+        let notes = await db.find(db.VISITS, {
             noteId : {
                 $in : noteIds
             }
         });
+
+        let response = {};
+
+        notes.forEach( (note) => {
+            response[note.noteId] = note.lastSeen;
+        });
+
+        return response;
     }
 
     async touch(noteId) {

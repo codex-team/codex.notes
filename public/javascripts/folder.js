@@ -55,8 +55,15 @@ export default class Folder {
 
         window.ipcRenderer.send('notes - seen', { noteIds });
         window.ipcRenderer.once('notes - seen', (event, {data}) => {
-          console.log('server', data);
-          console.log('nodes', notes);
+          notes.forEach( (note) => {
+            let noteId = note._id,
+                lastSeen = data[noteId];
+
+            if (note.dtModify > lastSeen) {
+              // @todo highlight note
+            }
+          });
+
           console.log('found', this.notesListWrapper.querySelector(`[data-id='${data.noteId}']`));
         });
       })

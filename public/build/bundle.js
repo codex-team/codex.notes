@@ -2553,8 +2553,15 @@ var Folder = function () {
       window.ipcRenderer.once('notes - seen', function (event, _ref3) {
         var data = _ref3.data;
 
-        console.log('server', data);
-        console.log('nodes', notes);
+        notes.forEach(function (note) {
+          var noteId = note._id,
+              lastSeen = data[noteId];
+
+          if (note.dtModify > lastSeen) {
+            // @todo highlight note
+          }
+        });
+
         console.log('found', _this.notesListWrapper.querySelector('[data-id=\'' + data.noteId + '\']'));
       });
     }).then(function () {
