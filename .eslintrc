@@ -92,6 +92,7 @@
         "global": true,
         "app": true,
         "process": true,
-        "__dirname": true
+        "__dirname": true,
+        "Buffer": true
     }
 }

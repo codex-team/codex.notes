@@ -64,7 +64,7 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -353,9 +353,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(13).default;
+var AutoResizer = __webpack_require__(14).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(10).default;
+var Shortcut = __webpack_require__(11).default;
 var Clipboard = __webpack_require__(2).clipboard;
 
 /**
@@ -678,7 +678,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _folder = __webpack_require__(15);
+var _folder = __webpack_require__(16);
 
 var _folder2 = _interopRequireDefault(_folder);
 
@@ -686,7 +686,7 @@ var _note = __webpack_require__(3);
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(14);
+var _folderSettings = __webpack_require__(15);
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -694,7 +694,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(12).default;
+var AsideSwiper = __webpack_require__(13).default;
 var $ = __webpack_require__(0).default;
 
 /**
@@ -978,7 +978,7 @@ var Aside = function () {
     value: function addMenuItem(noteData, isRootFolder) {
       var _this2 = this;
 
-      if (!noteData.title) {
+      if (!noteData.titleLabel) {
         console.warn('Can not add Note to the Aside because it has no title', noteData);
         return;
       }
@@ -1000,11 +1000,11 @@ var Aside = function () {
       var existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
       if (existingNote) {
-        existingNote.textContent = this.createMenuItemTitle(noteData.title);
+        existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
         return;
       }
 
-      var item = this.makeMenuItem(noteData.title, { id: noteData._id });
+      var item = this.makeMenuItem(noteData.titleLabel, { id: noteData._id });
 
       notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -1293,6 +1293,110 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
+ * @class AuthObserver
+ * @classdesc Store user's auth state
+ *
+ * Class uses to observe user`s auth state
+ *
+ * @usage
+ * const authObserver = new AuthObserver();
+ * authObserver.login(userData);
+ *
+ * authObserver.loggedIn === true
+ */
+var AuthObserver = function () {
+
+  /**
+   * @constructor
+   *
+   * @param onLogin - callback to fire when user is logged in
+   * @param onLogout - callback to fire when user is logged out
+   */
+  function AuthObserver(_ref) {
+    var _ref$onLogin = _ref.onLogin,
+        onLogin = _ref$onLogin === undefined ? function () {} : _ref$onLogin,
+        _ref$onLogout = _ref.onLogout,
+        onLogout = _ref$onLogout === undefined ? function () {} : _ref$onLogout,
+        _ref$user = _ref.user,
+        user = _ref$user === undefined ? null : _ref$user;
+
+    _classCallCheck(this, AuthObserver);
+
+    this.user = user;
+    this._loggedIn = false;
+    this.onLogin = onLogin;
+    this.onLogout = onLogout;
+
+    if (this.user) {
+      this.login(this.user);
+    }
+  }
+
+  /**
+   * Store logged in user state.
+   * Fires onLogin callback
+   *
+   * @param {Object} user - logged user
+   */
+
+
+  _createClass(AuthObserver, [{
+    key: "login",
+    value: function login(user) {
+      if (!user.token) return;
+
+      this.user = user;
+      this._loggedIn = true;
+      this.onLogin(user);
+    }
+
+    /**
+     * Store logged out user state.
+     * Fires onLogout callback
+     */
+
+  }, {
+    key: "logout",
+    value: function logout() {
+      this._loggedIn = false;
+      this.onLogout(this.user);
+      this.user = null;
+    }
+
+    /**
+     * Get current login state
+     *
+     * @returns {boolean}
+     */
+
+  }, {
+    key: "loggedIn",
+    get: function get() {
+      return this._loggedIn;
+    }
+  }]);
+
+  return AuthObserver;
+}();
+
+exports.default = AuthObserver;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
  * @module ConnectionObserver
  *
  * Detects Online and Offline statuses and update state in the Aside
@@ -1387,7 +1491,7 @@ var ConnectionObserver = function () {
 exports.default = ConnectionObserver;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1567,7 +1671,7 @@ var Editor = function () {
 exports.default = Editor;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1664,7 +1768,7 @@ var StatusBar = function () {
 exports.default = StatusBar;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1697,6 +1801,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * @typedef {User} User
  * @property {Element} authButton - button 'Login with Google'
+ * @property {Object} userData — current user`s data
  */
 var User = function () {
 
@@ -1708,11 +1813,9 @@ var User = function () {
 
     _classCallCheck(this, User);
 
-    this.authButton = document.getElementById('js-auth-button');
+    this.authButton = _dom2.default.get('js-auth-button');
 
-    var userData = window.ipcRenderer.sendSync('user - get');
-
-    this.fillUserPanel(userData);
+    this.userData = window.ipcRenderer.sendSync('user - get');
 
     this.authButton.addEventListener('click', function () {
       _this.showAuth();
@@ -1730,7 +1833,7 @@ var User = function () {
       var authResponse = window.ipcRenderer.sendSync('auth - google auth');
 
       if (authResponse && authResponse.token) {
-        this.fillUserPanel(authResponse);
+        codex.notes.authObserver.login(authResponse);
         window.ipcRenderer.send('user - sync');
       } else {
         _dialog2.default.error('Authentication failed. Please, try again.');
@@ -1764,13 +1867,13 @@ var User = function () {
 exports.default = User;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -1783,7 +1886,7 @@ exports.default = User;
 !function(e,t){if(true)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}("undefined"!=typeof self?self:this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};return t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=0)}([function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),i={0:48,1:49,2:50,3:51,4:52,5:53,6:54,7:55,8:56,9:57,A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,U:85,V:86,W:87,X:88,Y:89,Z:90,BACKSPACE:8,ENTER:13,ESCAPE:27,LEFT:37,UP:38,RIGHT:39,DOWN:40,INSERT:45,DELETE:46},u={CMD:["CMD","CONTROL","COMMAND","WINDOWS","CTRL"],SHIFT:["SHIFT"],ALT:["ALT","OPTION"]},c=function(){function e(t){var n=this;r(this,e),this.commands={},this.keys={},this.parseShortcutName(t.name),this.element=t.on,this.callback=t.callback,this.executeShortcut=function(e){n.execute(e)},this.element.addEventListener("keydown",this.executeShortcut,!1)}return o(e,[{key:"parseShortcutName",value:function(e){e=e.split("+");for(var t=0;t<e.length;t++)if(e[t]=e[t].toUpperCase(),e[t].length>1)for(var n in u)u[n].includes(e[t])&&(this.commands[n]=!0);else this.keys[e[t]]=!0}},{key:"execute",value:function(e){var t=e.ctrlKey||e.metaKey,n=e.shiftKey,r=e.altKey,o={CMD:t,SHIFT:n,ALT:r},u=void 0,c=!0;for(u in this.commands)c=c&&o[u];var a=void 0,s=!0;for(a in this.keys)s=s&&e.keyCode===i[a];c&&s&&this.callback(e)}},{key:"remove",value:function(){this.element.removeEventListener("keydown",this.executeShortcut)}}]),e}();t.default=c}])});
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1793,22 +1896,26 @@ exports.default = User;
  * Load libraries
  */
 
-var _user = __webpack_require__(8);
+var _user = __webpack_require__(9);
 
 var _user2 = _interopRequireDefault(_user);
 
-var _statusBar = __webpack_require__(7);
+var _statusBar = __webpack_require__(8);
 
 var _statusBar2 = _interopRequireDefault(_statusBar);
 
-var _connectionObserver = __webpack_require__(5);
+var _connectionObserver = __webpack_require__(6);
 
 var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
+
+var _authObserver = __webpack_require__(5);
+
+var _authObserver2 = _interopRequireDefault(_authObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var electron = __webpack_require__(2);
-var Editor = __webpack_require__(6).default;
+var Editor = __webpack_require__(7).default;
 
 /**
  * Load components
@@ -1829,7 +1936,7 @@ electron.webFrame.setZoomLevelLimits(1, 1);
 /**
  * Load CSS
  */
-__webpack_require__(9);
+__webpack_require__(10);
 
 /**
  * Document ready callback
@@ -1845,6 +1952,14 @@ var documentReady = function documentReady() {
   codex.notes.user = new _user2.default();
   codex.notes.statusBar = new _statusBar2.default();
   codex.notes.connectionObserver = new _connectionObserver2.default();
+  codex.notes.authObserver = new _authObserver2.default({
+    onLogin: function onLogin(user) {
+      codex.notes.user.fillUserPanel(user);
+      codex.notes.aside.folderSettings.toggleCollaboratorInput();
+    }
+  });
+
+  codex.notes.authObserver.login(codex.notes.user.userData);
 
   /**
    * New note saving handler
@@ -1883,7 +1998,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1897,7 +2012,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(16).default;
+var SwipeDetector = __webpack_require__(17).default;
 
 /**
  * Aside swiper class
@@ -1975,7 +2090,7 @@ var AsideSwiper = function () {
 exports.default = AsideSwiper;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2094,7 +2209,7 @@ var Autoresizer = function () {
 exports.default = Autoresizer;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2110,7 +2225,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(17).default;
+var Validate = __webpack_require__(18).default;
 
 /**
  * Folder Settings panel module
@@ -2132,7 +2247,8 @@ var FolderSettings = function () {
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
     this.folderTitleInput = document.getElementsByName('folder-title')[0];
-    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.newMemberInput = $.get('folder-new-member-input');
+    this.loginButton = $.get('folder-login-button');
     this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', function () {
@@ -2152,6 +2268,9 @@ var FolderSettings = function () {
     });
     this.newMemberInput.addEventListener('keydown', function (event) {
       return _this.inviteMemberKeydown(event);
+    });
+    this.loginButton.addEventListener('click', function () {
+      codex.notes.user.showAuth();
     });
   }
 
@@ -2276,10 +2395,16 @@ var FolderSettings = function () {
       }
 
       var input = event.target,
+          fieldset = input.parentNode,
           email = input.value.trim(),
           id = codex.notes.aside.currentFolder._id;
 
       if (!email || !Validate.email(email)) {
+        fieldset.classList.add(FolderSettings.CSS.wobble);
+        window.setTimeout(function () {
+          fieldset.classList.remove(FolderSettings.CSS.wobble);
+        }, 100);
+
         return;
       }
 
@@ -2289,26 +2414,100 @@ var FolderSettings = function () {
        */
       var result = window.ipcRenderer.sendSync('folder - collaborator add', { id: id, email: email });
 
-      if (!result) {
-        Dialog.error('Error while adding a collaborator to the folder');
-        return false;
-      }
-
       // Clear input field
       input.value = '';
 
-      // Add item to list of Collaborators
-      var newMemberItem = $.make('P', [], {
-        innerHTML: email
+      if (!result.success) {
+        Dialog.error(result.message || 'Error while adding a collaborator to the folder');
+        return false;
+      }
+
+      this.addCollaborator({ email: email });
+    }
+
+    /**
+     * Add Collaborators to folder-settings panel
+     *
+     * @param {Array} collaborators
+     */
+
+  }, {
+    key: 'showCollaborators',
+    value: function showCollaborators(collaborators) {
+      var _this2 = this;
+
+      this.membersList.innerHTML = '';
+
+      collaborators.forEach(function (collaborator) {
+        _this2.addCollaborator(collaborator);
+      });
+    }
+
+    /**
+     * Add Collaborator to the Collaborators list at folder-settings panel
+     *
+     * @param collaborator
+     */
+
+  }, {
+    key: 'addCollaborator',
+    value: function addCollaborator(collaborator) {
+      var newMemberItem = $.make('LI', ['member-list__item'], {}),
+          ava = void 0,
+          memberEmailClasses = [];
+
+      if (collaborator.user && collaborator.user.photo) {
+        /** Add User's photo */
+        ava = $.make('IMG', ['member-list__item-photo', 'member-list__item-photo--circled'], {
+          src: collaborator.user.photo
+        });
+      } else {
+        /** Add envelope icon */
+        ava = $.make('IMG', ['member-list__item-photo'], {
+          src: '../../public/svg/envelope.svg'
+        });
+
+        memberEmailClasses.push('member-list__item--waiting');
+      }
+
+      /** Add ava block */
+      $.append(newMemberItem, ava);
+
+      /** Create block with User's email */
+      var newMemberEmail = $.make('SPAN', memberEmailClasses, {
+        innerHTML: collaborator.email
       });
 
+      $.append(newMemberItem, newMemberEmail);
+
+      /**
+       * Add new row
+       */
       $.append(this.membersList, newMemberItem);
+    }
+
+    /**
+     * Toggle visibility of login button and new collaborator input
+     */
+
+  }, {
+    key: 'toggleCollaboratorInput',
+    value: function toggleCollaboratorInput() {
+      if (codex.notes.authObserver.loggedIn) {
+        this.loginButton.classList.add('hide');
+        this.newMemberInput.classList.remove('hide');
+        return;
+      }
+
+      this.loginButton.classList.remove('hide');
+      this.newMemberInput.classList.add('hide');
     }
   }], [{
     key: 'CSS',
     get: function get() {
       return {
-        panelOpenedModifier: 'folder-settings-opened'
+        panelOpenedModifier: 'folder-settings-opened',
+        wobble: 'wobble'
       };
     }
   }]);
@@ -2319,7 +2518,7 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2343,6 +2542,7 @@ var Dialog = __webpack_require__(1).default;
  * @property {Number}    id                 - Folder's id
  * @property {string}    title              - Folder's title
  * @property {Array}     notes              - Notes list
+ * @property {Array}     collaborators      - Collaborators list
  * @property {Element}   notesListWrapper   - Notes list holder
  */
 
@@ -2372,8 +2572,19 @@ var Folder = function () {
 
     this.title = folderData.title;
 
-    codex.notes.aside.loadNotes(id).then(function (_ref) {
-      var notes = _ref.notes;
+    window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
+    window.ipcRenderer.on('folder - collaborators list', function (event, _ref) {
+      var collaborators = _ref.collaborators;
+
+      _this.collaborators = collaborators;
+      codex.notes.aside.folderSettings.showCollaborators(_this.collaborators);
+    });
+
+    /**
+     * @todo asynchronous notes load
+     */
+    codex.notes.aside.loadNotes(id).then(function (_ref2) {
+      var notes = _ref2.notes;
 
       _this.notes = notes;
     }).then(function () {
@@ -2469,7 +2680,7 @@ var Folder = function () {
 exports.default = Folder;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2563,7 +2774,7 @@ var SwipeDetector = function () {
 exports.default = SwipeDetector;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

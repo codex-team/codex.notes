@@ -1,3 +1,10 @@
+/**
+ * Folders controller.
+ * Works with events:
+ *  - create folder
+ *  - load folders list
+ *  - delete folder
+ */
 'use strict';
 let {ipcMain} = require('electron');
 
@@ -9,13 +16,6 @@ const FoldersList = require('../models/foldersList');
  */
 const Time = require('../utils/time.js');
 
-/**
- * Folders controller.
- * Works with events:
- *  - create folder
- *  - load folders list
- *  - delete folder
- */
 class FoldersController {
 
   /**
@@ -44,6 +44,10 @@ class FoldersController {
 
     ipcMain.on('folder - collaborator add', (event, {id, email}) => {
       this.addCollaborator(event, id, email);
+    });
+
+    ipcMain.on('folder - get collaborators', (event, {folder}) => {
+      this.getCollaborators(event, folder);
     });
   }
 
@@ -170,7 +174,31 @@ class FoldersController {
       event.returnValue = await folder.addCollaborator(email);
     } catch (err) {
       console.log('Collaborator invitation failed because of ', err);
-      event.returnValue = false;
+      event.returnValue = {
+        success: false,
+        message: err.message
+      };
+    }
+  }
+
+  /**
+   * Get Collaborator's list for current Folder
+   *
+   * @param {GlobalEvent} event - {@link https://electronjs.org/docs/api/ipc-main#event-object}
+   * @param {String} id         - current Folder's id
+   */
+  async getCollaborators(event, id) {
+    try {
+      let folder = new Folder({
+        _id: id,
+        ownerId: global.user ? global.user.id : null
+      });
+
+      let collaborators = await folder.getCollaborators();
+
+      event.sender.send('folder - collaborators list', {collaborators});
+    } catch (err) {
+      console.log('Collaborators list loading failed because of ', err);
     }
   }
 

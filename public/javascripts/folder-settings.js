@@ -17,7 +17,8 @@ export default class FolderSettings {
     this.closeButton = $.get('js-close-folder');
     this.removeFolderButton = $.get('js-delete-folder');
     this.folderTitleInput = document.getElementsByName('folder-title')[0];
-    this.newMemberInput = document.getElementsByName('new-member')[0];
+    this.newMemberInput = $.get('folder-new-member-input');
+    this.loginButton = $.get('folder-login-button');
     this.membersList = $.get('js-members-list');
 
     this.toggler.addEventListener('click', () => {
@@ -34,6 +35,9 @@ export default class FolderSettings {
 
     this.folderTitleInput.addEventListener('keydown', event => this.changeTitleKeydown(event) );
     this.newMemberInput.addEventListener('keydown', event => this.inviteMemberKeydown(event) );
+    this.loginButton.addEventListener('click', () => {
+      codex.notes.user.showAuth();
+    });
   }
 
   /**
@@ -41,7 +45,8 @@ export default class FolderSettings {
    */
   static get CSS() {
     return {
-      panelOpenedModifier: 'folder-settings-opened'
+      panelOpenedModifier: 'folder-settings-opened',
+      wobble: 'wobble'
     };
   }
 
@@ -51,6 +56,7 @@ export default class FolderSettings {
   open() {
     document.body.classList.add(FolderSettings.CSS.panelOpenedModifier);
     this.opened = true;
+
 
     /**
      * Fill Folder's title input
@@ -142,10 +148,16 @@ export default class FolderSettings {
     }
 
     let input = event.target,
+        fieldset = input.parentNode,
         email = input.value.trim(),
         id = codex.notes.aside.currentFolder._id;
 
     if (!email || !Validate.email(email)) {
+      fieldset.classList.add(FolderSettings.CSS.wobble);
+      window.setTimeout(() => {
+        fieldset.classList.remove(FolderSettings.CSS.wobble);
+      }, 100);
+
       return;
     }
 
@@ -155,20 +167,82 @@ export default class FolderSettings {
      */
     let result = window.ipcRenderer.sendSync('folder - collaborator add', { id, email });
 
-    if (!result) {
-      Dialog.error('Error while adding a collaborator to the folder');
-      return false;
-    }
-
     // Clear input field
     input.value = '';
 
-    // Add item to list of Collaborators
-    let newMemberItem = $.make('P', [], {
-      innerHTML: email
+    if (!result.success) {
+      Dialog.error(result.message || 'Error while adding a collaborator to the folder');
+      return false;
+    }
+
+    this.addCollaborator({email});
+  }
+
+  /**
+   * Add Collaborators to folder-settings panel
+   *
+   * @param {Array} collaborators
+   */
+  showCollaborators(collaborators) {
+    this.membersList.innerHTML = '';
+
+    collaborators.forEach(collaborator => {
+      this.addCollaborator(collaborator);
+    });
+  }
+
+  /**
+   * Add Collaborator to the Collaborators list at folder-settings panel
+   *
+   * @param collaborator
+   */
+  addCollaborator(collaborator) {
+    let newMemberItem = $.make('LI', [ 'member-list__item' ], {}),
+        ava,
+        memberEmailClasses = [];
+
+    if (collaborator.user && collaborator.user.photo) {
+      /** Add User's photo */
+      ava = $.make('IMG', ['member-list__item-photo', 'member-list__item-photo--circled'], {
+        src: collaborator.user.photo
+      });
+    } else {
+      /** Add envelope icon */
+      ava = $.make('IMG', [ 'member-list__item-photo' ], {
+        src: '../../public/svg/envelope.svg'
+      });
+
+      memberEmailClasses.push('member-list__item--waiting');
+    }
+
+    /** Add ava block */
+    $.append(newMemberItem, ava);
+
+    /** Create block with User's email */
+    let newMemberEmail = $.make('SPAN', memberEmailClasses, {
+      innerHTML: collaborator.email
     });
 
+    $.append(newMemberItem, newMemberEmail);
+
+    /**
+     * Add new row
+     */
     $.append(this.membersList, newMemberItem);
+  }
+
+  /**
+   * Toggle visibility of login button and new collaborator input
+   */
+  toggleCollaboratorInput() {
+    if (codex.notes.authObserver.loggedIn) {
+      this.loginButton.classList.add('hide');
+      this.newMemberInput.classList.remove('hide');
+      return;
+    }
+
+    this.loginButton.classList.remove('hide');
+    this.newMemberInput.classList.add('hide');
   }
 
 }

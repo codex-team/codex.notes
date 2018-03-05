@@ -11,6 +11,11 @@ const NotesList = require('./notesList');
 const Time = require('../utils/time.js');
 
 /**
+ * Collaborator Model
+ */
+const Collaborator = require('../models/collaborator');
+
+/**
  * @typedef {Object} FolderData
  * @property {String|null} _id         - Folder's Database id
  * @property {String|null} title       - Folder's title
@@ -18,6 +23,7 @@ const Time = require('../utils/time.js');
  * @property {Number} dtCreate         - Folder's creation date
  * @property {String} ownerId          - Folder owner's id
  * @property {Array} notes             - Folder's Notes list
+ * @property {Array} collaborators     - Folder's Collaborators list
  * @property {Boolean} isRoot          - Root Folder used for Notes on the first level of Aside
  * @property {Boolean} isRemoved       - removed state
  */
@@ -33,6 +39,7 @@ const Time = require('../utils/time.js');
  * @property {Number} dtCreate
  * @property {String} ownerId
  * @property {Note[]} notes
+ * @property {Collaborator[]} collaborators
  * @property {Boolean} isRoot
  * @property {Boolean} isRemoved
  *
@@ -51,6 +58,7 @@ class Folder {
     this.dtCreate = null;
     this.ownerId = null;
     this.notes = [];
+    this.collaborators = [];
     this.isRoot = false;
     this.isRemoved = false;
 
@@ -68,6 +76,7 @@ class Folder {
       dtModify: this.dtModify,
       dtCreate: this.dtCreate,
       notes: this.notes,
+      collaborators: this.collaborators,
       isRoot: this.isRoot,
       isRemoved: this.isRemoved
     };
@@ -88,10 +97,16 @@ class Folder {
     this.title = folderData.title || null;
     this.dtModify = folderData.dtModify || null;
     this.dtCreate = folderData.dtCreate || null;
-    this.ownerId = folderData.ownerId || null;
     this.notes = folderData.notes || [];
+    this.collaborators = folderData.collaborators || [];
     this.isRoot = folderData.isRoot || false;
     this.isRemoved = folderData.isRemoved || false;
+
+    if (folderData.owner && folderData.owner.id) {
+      this.ownerId = folderData.owner.id;
+    } else {
+      this.ownerId = folderData.ownerId || null;
+    }
   }
 
   /**
@@ -120,6 +135,7 @@ class Folder {
     /**
      * 1. Folder has no _id then we should insert it
      */
+
     if (!this._id) {
       return await this.createNewItem();
     }
@@ -187,9 +203,10 @@ class Folder {
     let data = this.data;
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * Insert a new item to local DB
@@ -215,9 +232,10 @@ class Folder {
     let data = this.data;
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * Insert a new item to local DB
@@ -286,9 +304,10 @@ class Folder {
         };
 
     /**
-     * We don't need "notes" field in DB
+     * We don't need "notes" and "collaborators" fields in DB
      */
     delete data.notes;
+    delete data.collaborators;
 
     /**
      * We don't need to rewrite an _id field
@@ -350,12 +369,32 @@ class Folder {
    * @returns {Boolean}
    */
   async addCollaborator(email) {
-    /**
-     * @todo Send Collaborator Mutation to the API
-     */
-    console.log('Collaborator will be added with email: ', email);
+    if (await Collaborator.findByEmail(this._id, email)) {
+      throw Error('Collaborator has been already invited');
+    }
 
-    return true;
+    let collaborator = new Collaborator({
+      email: email,
+      folderId: this._id,
+      ownerId: global.user.id
+    });
+
+    await collaborator.save();
+
+    global.app.syncObserver.sendCollaboratorInvite(collaborator, true);
+
+    return {
+      success: true
+    };
+  }
+
+  /**
+   * Get Folder's Collaborators data
+   *
+   * @returns {Promise.<CollaboratorData[]>}
+   */
+  async getCollaborators() {
+    return db.find(db.COLLABORATORS, {folderId: this._id});
   }
 }
 

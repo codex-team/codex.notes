@@ -47,9 +47,19 @@ const AuthController = require('./controllers/auth');
 const UserController = require('./controllers/user');
 
 /**
+ * AppProtocol Controller
+ */
+const AppProtocol = require('./controllers/app-protocol');
+
+/**
  * User model
  */
 const User = require('./models/user');
+
+/**
+ * Sockets Controller
+ */
+const SocketsController = require('./controllers/sockets');
 
 /**
  * Database setup
@@ -142,6 +152,9 @@ class CodexNotes {
      */
       .then(() => {
         this.setAppProtocol();
+      })
+      .catch((e) => {
+        console.log('App initialization failed because of ', e);
       });
   }
 
@@ -168,6 +181,11 @@ class CodexNotes {
          * @type {SyncObserver}
          */
         this.syncObserver = new SyncObserver();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
       })
       .catch(function (err) {
         console.log('Initialization error', err);
@@ -196,7 +214,7 @@ class CodexNotes {
    */
   setAppProtocol() {
     app.setAsDefaultProtocolClient(this.appProtocol);
-    app.on('open-url', this.auth.verifyCollaborator);
+    app.on('open-url', AppProtocol.process);
   }
 
   /**
