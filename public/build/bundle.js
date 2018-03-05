@@ -357,6 +357,7 @@ var AutoResizer = __webpack_require__(14).default;
 var Dialog = __webpack_require__(1).default;
 var Shortcut = __webpack_require__(11).default;
 var Clipboard = __webpack_require__(2).clipboard;
+var clipboardUtil = __webpack_require__(18).default;
 
 /**
  * @typedef {Object} NoteData
@@ -409,6 +410,11 @@ var Note = function () {
 
     var editorContentSelected = false;
 
+    // any click on body prevents content selection
+    document.body.addEventListener('click', function () {
+      editorContentSelected = false;
+    }, false);
+
     /**
      * create new CMD+A shortcut
      * bind it keydowns on editor area
@@ -439,24 +445,17 @@ var Note = function () {
           return;
         }
 
-        // prevent default behavior and copy selection
-        event.preventDefault();
-        document.execCommand('copy');
+        var selectionText = Clipboard.readText();
 
-        var copiedHTML = Clipboard.readHTML();
-        var copiedText = Clipboard.readText();
+        clipboardUtil.copy(selectionText);
 
-        copiedText = copiedText.replace(/\n/g, '\n\n');
+        // @todo create function - selectEditorContents() and use in CMD+A
+        var range = document.createRange(),
+            selection = window.getSelection();
 
-        console.log('text ', copiedText);
-        console.log('html ', copiedHTML);
-
-        // split two strings
-        Clipboard.writeText(_this.titleEl.value + copiedText);
-        // Clipboard.writeHTML( this.titleEl.value + copiedHTML );
-
-        // do not allow copy twice
-        editorContentSelected = false;
+        range.selectNodeContents(_this.editor);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
     });
 
@@ -2225,7 +2224,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(18).default;
+var Validate = __webpack_require__(19).default;
 
 /**
  * Folder Settings panel module
@@ -2775,6 +2774,70 @@ exports.default = SwipeDetector;
 
 /***/ }),
 /* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Clipboard module
+ */
+var Clipboard = function () {
+  function Clipboard() {
+    _classCallCheck(this, Clipboard);
+  }
+
+  _createClass(Clipboard, null, [{
+    key: 'copy',
+
+
+    /**
+     * copy to clipboards passed text
+     *
+     * @param {string} text
+     * @return {boolean}
+     */
+    value: function copy(text) {
+      var textarea = document.createElement('textarea'),
+          success = false;
+
+      Object.assign(textarea.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        opacity: '0'
+      });
+
+      textarea.value = text;
+
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        success = document.execCommand('copy');
+      } catch (e) {}
+
+      document.body.removeChild(textarea);
+
+      return success;
+    }
+  }]);
+
+  return Clipboard;
+}();
+
+exports.default = Clipboard;
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -3,6 +3,7 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const Clipboard = require('electron').clipboard;
+const clipboardUtil = require('./utils/clipboard').default;
 
 /**
  * @typedef {Object} NoteData
@@ -50,6 +51,11 @@ export default class Note {
 
     let editorContentSelected = false;
 
+    // any click on body prevents content selection
+    document.body.addEventListener('click', () => {
+      editorContentSelected = false;
+    }, false);
+
     /**
      * create new CMD+A shortcut
      * bind it keydowns on editor area
@@ -80,24 +86,17 @@ export default class Note {
           return;
         }
 
-        // prevent default behavior and copy selection
-        event.preventDefault();
-        document.execCommand('copy');
+        let selectionText = Clipboard.readText();
 
-        let copiedHTML = Clipboard.readHTML();
-        let copiedText = Clipboard.readText();
+        clipboardUtil.copy(selectionText);
 
-        copiedText = copiedText.replace(/\n/g, '\n\n');
+        // @todo create function - selectEditorContents() and use in CMD+A
+        let range = document.createRange(),
+            selection = window.getSelection();
 
-        console.log('text ', copiedText);
-        console.log('html ', copiedHTML);
-
-        // split two strings
-        Clipboard.writeText( this.titleEl.value + copiedText );
-        // Clipboard.writeHTML( this.titleEl.value + copiedHTML );
-
-        // do not allow copy twice
-        editorContentSelected = false;
+        range.selectNodeContents(this.editor);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
     });
 
