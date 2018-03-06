@@ -397,17 +397,14 @@ class SyncObserver {
       dtInvite: collaborator.dtInvite
     };
 
-    return new Promise((resolve, reject) => {
-      this.api.request(query, variables)
-        .then(data => {
-          console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
-          resolve();
-        })
-        .catch(error => {
-          console.log('[!] InviteCollaborator Mutation failed because of ', error);
-          reject(error);
+    return this.api.request(query, variables)
+      .then(data => {
+        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+      })
+      .catch(error => {
+        console.log('[!] InviteCollaborator Mutation failed because of ', error);
+        throw new Error(error);
       });
-    });
   }
 
   /**

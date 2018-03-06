@@ -126,11 +126,11 @@ class Collaborator {
   }
 
   /**
-   * Destroy Collaborator data in database
+   * Remove Collaborator data in database
    *
    * @returns {Promise<*>}
    */
-  async destroy() {
+  async remove() {
     return await db.remove(db.COLLABORATORS, {_id: this._id}, {});
   }
 }

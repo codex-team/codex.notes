@@ -383,7 +383,7 @@ class Folder {
 
     await global.app.syncObserver.sendCollaboratorInvite(collaborator)
       .catch(async () => {
-        await collaborator.destroy();
+        await collaborator.remove();
         throw Error('Cannot add Collaborator at this time. Connect to the internet.');
       });
 
