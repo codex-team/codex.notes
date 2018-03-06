@@ -815,6 +815,25 @@ var Aside = function () {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new _folderSettings2.default();
+
+    window.ipcRenderer.on('note updated', function (event, _ref3) {
+      var note = _ref3.note,
+          isRootFolder = _ref3.isRootFolder;
+
+      if (!note.isRemoved) {
+        _this.addMenuItem(note, isRootFolder);
+      } else {
+        _this.removeMenuItem(note._id);
+      }
+    });
+
+    window.ipcRenderer.on('folder updated', function (event, folder) {
+      if (!folder.isRemoved) {
+        _this.addFolder(folder);
+      } else {
+        _this.removeFolderFromMenu(folder._id);
+      }
+    });
   }
 
   /**
@@ -998,6 +1017,13 @@ var Aside = function () {
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
+      var folderItem = foldersMenu.querySelector('[data-folder-id="' + folder._id + '"]');
+
+      if (folderItem) {
+        this.updateFolderTitleInMenu(folder._id, folder.title);
+        return;
+      }
+
       var item = this.makeMenuItem(folder.title, { folderId: folder._id });
 
       foldersMenu.insertAdjacentElement('afterbegin', item);
