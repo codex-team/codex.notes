@@ -22,9 +22,14 @@ const pug = require('electron-pug')({
 
 
 /**
- * Synchronization controller
+ * Cloud-Synchronization controller
  */
-const SyncObserver = require('./controllers/syncObserver');
+const CloudSyncObserver = require('./controllers/cloudSyncObserver');
+
+/**
+ * Client-Synchronization controller
+ */
+const ClientSyncObserver = require('./controllers/clientSyncObserver');
 
 /**
  * Folders controller
@@ -178,9 +183,14 @@ class CodexNotes {
         this.auth = new AuthController();
 
         /**
-         * @type {SyncObserver}
+         * @type {CloudSyncObserver}
          */
-        this.syncObserver = new SyncObserver();
+        this.cloudSyncObserver = new CloudSyncObserver();
+
+        /**
+         * @type {ClientSyncObserver}
+         */
+        this.clientSyncObserver = new ClientSyncObserver();
 
         /**
          * @type {Sockets}

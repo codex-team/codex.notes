@@ -132,6 +132,14 @@ export default class Aside {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new FolderSettings();
+
+    window.ipcRenderer.on('note updated', (event, note) => {
+      this.addMenuItem(note);
+    });
+
+    window.ipcRenderer.on('folder updated', (event, folder) => {
+      this.addFolder(folder);
+    });
   }
 
   /**
@@ -286,6 +294,13 @@ export default class Aside {
       return;
     }
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+    let folderItem = foldersMenu.querySelector('[data-folder-id="' + folder._id + '"]');
+
+    if (folderItem) {
+      this.updateFolderTitleInMenu(folder._id, folder.title);
+      return;
+    }
+
     let item = this.makeMenuItem(folder.title, {folderId: folder._id});
 
     foldersMenu.insertAdjacentElement('afterbegin', item);

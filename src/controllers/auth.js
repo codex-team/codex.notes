@@ -133,7 +133,7 @@ class AuthController {
         /**
          * Refresh API client with the new token at the authorisation header;
          */
-        global.app.syncObserver.refreshClient();
+        global.app.cloudSyncObserver.refreshClient();
         global.user.saveAvatar();
 
         authSucceeded = true;
@@ -163,9 +163,9 @@ class AuthController {
       }
     }
 
-    await global.app.syncObserver.sendVerifyCollaborator(ownerId, folderId, token);
+    await global.app.cloudSyncObserver.sendVerifyCollaborator(ownerId, folderId, token);
 
-    global.app.syncObserver.sync();
+    global.app.cloudSyncObserver.sync();
 
     dialog.showMessageBox({
       type: 'none',
@@ -184,7 +184,7 @@ class AuthController {
       let connection = await isOnline(),
           hasUpdates = true;
 
-      let updates = await global.app.syncObserver.getLocalUpdates();
+      let updates = await global.app.cloudSyncObserver.getLocalUpdates();
 
       if (updates.folders.length === 0 && updates.notes.length === 0) {
         hasUpdates = false;
@@ -219,7 +219,7 @@ class AuthController {
    * @return {Promise.<void>}
    */
   async dropSession() {
-    await global.app.syncObserver.sync();
+    await global.app.cloudSyncObserver.sync();
 
     // force database drop
     await db.drop(true);

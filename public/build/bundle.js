@@ -815,6 +815,14 @@ var Aside = function () {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new _folderSettings2.default();
+
+    window.ipcRenderer.on('note updated', function (event, note) {
+      _this.addMenuItem(note);
+    });
+
+    window.ipcRenderer.on('folder updated', function (event, folder) {
+      _this.addFolder(folder);
+    });
   }
 
   /**
@@ -998,6 +1006,13 @@ var Aside = function () {
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
+      var folderItem = foldersMenu.querySelector('[data-folder-id="' + folder._id + '"]');
+
+      if (folderItem) {
+        this.updateFolderTitleInMenu(folder._id, folder.title);
+        return;
+      }
+
       var item = this.makeMenuItem(folder.title, { folderId: folder._id });
 
       foldersMenu.insertAdjacentElement('afterbegin', item);
