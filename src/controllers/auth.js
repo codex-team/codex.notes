@@ -1,8 +1,6 @@
 'use strict';
 
 const {ipcMain, BrowserWindow, dialog, app} = require('electron');
-const url = require('url');
-const API = require('../models/api');
 const utils = require('../utils/utils');
 const User = require('../models/user');
 const isOnline = require('is-online');
@@ -168,6 +166,11 @@ class AuthController {
     await global.app.syncObserver.sendVerifyCollaborator(ownerId, folderId, token);
 
     global.app.syncObserver.sync();
+
+    dialog.showMessageBox({
+      type: 'none',
+      message: 'You have successfully entered to the shared folder'
+    });
   }
 
   /**
