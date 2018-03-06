@@ -816,12 +816,23 @@ var Aside = function () {
      */
     this.folderSettings = new _folderSettings2.default();
 
-    window.ipcRenderer.on('note updated', function (event, note) {
-      _this.addMenuItem(note);
+    window.ipcRenderer.on('note updated', function (event, _ref3) {
+      var note = _ref3.note,
+          isRootFolder = _ref3.isRootFolder;
+
+      if (!note.isRemoved) {
+        _this.addMenuItem(note, isRootFolder);
+      } else {
+        _this.removeMenuItem(note._id);
+      }
     });
 
     window.ipcRenderer.on('folder updated', function (event, folder) {
-      _this.addFolder(folder);
+      if (!folder.isRemoved) {
+        _this.addFolder(folder);
+      } else {
+        _this.removeFolderFromMenu(folder._id);
+      }
     });
   }
 

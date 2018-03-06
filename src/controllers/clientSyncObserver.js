@@ -1,5 +1,6 @@
 'use strict';
 let {ipcMain} = require('electron');
+let db = require('../utils/database');
 
 /**
  * Client Sync Observer
@@ -14,8 +15,12 @@ class ClientSyncObserver {
    * Sends updated or added Note to the client
    * @param {Note} note - changed Note
    */
-  sendNote(note){
-    global.app.mainWindow.webContents.send('note updated', note);
+  async sendNote(note){
+    let rootFolderId = await db.getRootFolderId();
+    global.app.mainWindow.webContents.send('note updated', {
+      note,
+      isRootFolder: note.folderId === rootFolderId
+    });
   }
 
   /**

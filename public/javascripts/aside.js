@@ -133,12 +133,20 @@ export default class Aside {
      */
     this.folderSettings = new FolderSettings();
 
-    window.ipcRenderer.on('note updated', (event, note) => {
-      this.addMenuItem(note);
+    window.ipcRenderer.on('note updated', (event, {note, isRootFolder}) => {
+      if (!note.isRemoved) {
+        this.addMenuItem(note, isRootFolder);
+      } else {
+        this.removeMenuItem(note._id);
+      }
     });
 
     window.ipcRenderer.on('folder updated', (event, folder) => {
-      this.addFolder(folder);
+      if (!folder.isRemoved) {
+        this.addFolder(folder);
+      } else {
+        this.removeFolderFromMenu(folder._id);
+      }
     });
   }
 
