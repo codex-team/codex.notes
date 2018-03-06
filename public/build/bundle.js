@@ -409,9 +409,17 @@ var Note = function () {
 
     this.shortcuts = [];
 
+    var preventDefaultExecution = function preventDefaultExecution(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+
     // any click on body prevents content selection
+    // stop preventing copy event
     document.body.addEventListener('click', function () {
       _this.editorContentSelected = false;
+      _this.editor.removeEventListener('copy', preventDefaultExecution);
     }, false);
 
     /**
@@ -426,6 +434,8 @@ var Note = function () {
         event.stopImmediatePropagation();
 
         _this.selectEditorContents();
+
+        _this.editor.addEventListener('copy', preventDefaultExecution);
       }
     });
 
@@ -436,14 +446,10 @@ var Note = function () {
         if (!_this.editorContentSelected) {
           return;
         }
+        var editorContent = _this.editor.querySelector('.ce-redactor'),
+            formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
 
-        event.preventDefault();
-        // let selectionText = Clipboard.re();
-
-        var content = _this.editor.querySelector('.ce-redactor');
-
-        // content.innerText = content.innerText.replace()
-        clipboardUtil.copy(_this.titleEl.value + '\n' + content.innerText);
+        clipboardUtil.copy(_this.titleEl.value + '\n' + formattedText);
 
         // select content again because we select textarea contents to copy to the clipboard
         _this.selectEditorContents();

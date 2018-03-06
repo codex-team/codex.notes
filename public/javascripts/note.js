@@ -50,9 +50,18 @@ export default class Note {
 
     this.shortcuts = [];
 
+
+    let preventDefaultExecution = (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+
     // any click on body prevents content selection
+    // stop preventing copy event
     document.body.addEventListener('click', () => {
       this.editorContentSelected = false;
+      this.editor.removeEventListener('copy', preventDefaultExecution);
     }, false);
 
     /**
@@ -67,6 +76,8 @@ export default class Note {
         event.stopImmediatePropagation();
 
         this.selectEditorContents();
+
+        this.editor.addEventListener('copy', preventDefaultExecution);
       }
     });
 
@@ -77,14 +88,10 @@ export default class Note {
         if (!this.editorContentSelected) {
           return;
         }
+        let editorContent = this.editor.querySelector('.ce-redactor'),
+            formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
 
-        event.preventDefault();
-        // let selectionText = Clipboard.re();
-
-        let content = this.editor.querySelector('.ce-redactor');
-
-        // content.innerText = content.innerText.replace()
-        clipboardUtil.copy(this.titleEl.value + '\n' + content.innerText);
+        clipboardUtil.copy(this.titleEl.value + '\n' + formattedText);
 
         // select content again because we select textarea contents to copy to the clipboard
         this.selectEditorContents();
