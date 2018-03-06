@@ -41,6 +41,7 @@ export default class Note {
     this.editor  = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+    this.editorContentSelected = false;
 
     // when we are creating new note
     if (!this.autoresizedTitle) {
@@ -49,11 +50,9 @@ export default class Note {
 
     this.shortcuts = [];
 
-    let editorContentSelected = false;
-
     // any click on body prevents content selection
     document.body.addEventListener('click', () => {
-      editorContentSelected = false;
+      this.editorContentSelected = false;
     }, false);
 
     /**
@@ -67,14 +66,7 @@ export default class Note {
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        let range = document.createRange(),
-            selection = window.getSelection();
-
-        range.selectNodeContents(this.editor);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        editorContentSelected = true;
+        this.selectEditorContents();
       }
     });
 
@@ -82,24 +74,20 @@ export default class Note {
       name: 'CMD+C',
       on: this.editor,
       callback: (event) => {
-        if (!editorContentSelected) {
+        if (!this.editorContentSelected) {
           return;
         }
 
-        let selectionText = Clipboard.readText();
-
-        clipboardUtil.copy(selectionText);
-
-        // now prevent default behaviour
         event.preventDefault();
+        // let selectionText = Clipboard.re();
 
-        // @todo create function - selectEditorContents() and use in CMD+A
-        let range = document.createRange(),
-            selection = window.getSelection();
+        let content = this.editor.querySelector('.ce-redactor');
 
-        range.selectNodeContents(this.editor);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        // content.innerText = content.innerText.replace()
+        clipboardUtil.copy(this.titleEl.value + '\n' + content.innerText);
+
+        // select content again because we select textarea contents to copy to the clipboard
+        this.selectEditorContents();
       }
     });
 
@@ -228,6 +216,8 @@ export default class Note {
 
     // destroy autoresizer
     this.autoresizedTitle.destroy();
+
+    this.editorContentSelected = false;
   }
 
   /**
@@ -273,5 +263,19 @@ export default class Note {
 
       Note.focusEditor();
     }
+  }
+
+  /**
+   * selects editor with title
+   */
+  selectEditorContents() {
+    let range = document.createRange(),
+        selection = window.getSelection();
+
+    range.selectNodeContents(this.editor);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    this.editorContentSelected = true;
   }
 }

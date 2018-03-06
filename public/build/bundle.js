@@ -400,6 +400,7 @@ var Note = function () {
     this.editor = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+    this.editorContentSelected = false;
 
     // when we are creating new note
     if (!this.autoresizedTitle) {
@@ -408,11 +409,9 @@ var Note = function () {
 
     this.shortcuts = [];
 
-    var editorContentSelected = false;
-
     // any click on body prevents content selection
     document.body.addEventListener('click', function () {
-      editorContentSelected = false;
+      _this.editorContentSelected = false;
     }, false);
 
     /**
@@ -426,14 +425,7 @@ var Note = function () {
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        var range = document.createRange(),
-            selection = window.getSelection();
-
-        range.selectNodeContents(_this.editor);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        editorContentSelected = true;
+        _this.selectEditorContents();
       }
     });
 
@@ -441,24 +433,20 @@ var Note = function () {
       name: 'CMD+C',
       on: this.editor,
       callback: function callback(event) {
-        if (!editorContentSelected) {
+        if (!_this.editorContentSelected) {
           return;
         }
 
-        var selectionText = Clipboard.readText();
-
-        clipboardUtil.copy(selectionText);
-
-        // now prevent default behaviour
         event.preventDefault();
+        // let selectionText = Clipboard.re();
 
-        // @todo create function - selectEditorContents() and use in CMD+A
-        var range = document.createRange(),
-            selection = window.getSelection();
+        var content = _this.editor.querySelector('.ce-redactor');
 
-        range.selectNodeContents(_this.editor);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        // content.innerText = content.innerText.replace()
+        clipboardUtil.copy(_this.titleEl.value + '\n' + content.innerText);
+
+        // select content again because we select textarea contents to copy to the clipboard
+        _this.selectEditorContents();
       }
     });
 
@@ -605,6 +593,8 @@ var Note = function () {
 
       // destroy autoresizer
       this.autoresizedTitle.destroy();
+
+      this.editorContentSelected = false;
     }
 
     /**
@@ -650,6 +640,23 @@ var Note = function () {
 
         Note.focusEditor();
       }
+    }
+
+    /**
+     * selects editor with title
+     */
+
+  }, {
+    key: 'selectEditorContents',
+    value: function selectEditorContents() {
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(this.editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      this.editorContentSelected = true;
     }
   }], [{
     key: 'focusEditor',
