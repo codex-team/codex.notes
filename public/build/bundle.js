@@ -449,6 +449,9 @@ var Note = function () {
 
         clipboardUtil.copy(selectionText);
 
+        // now prevent default behaviour
+        event.preventDefault();
+
         // @todo create function - selectEditorContents() and use in CMD+A
         var range = document.createRange(),
             selection = window.getSelection();

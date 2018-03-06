@@ -90,6 +90,9 @@ export default class Note {
 
         clipboardUtil.copy(selectionText);
 
+        // now prevent default behaviour
+        event.preventDefault();
+
         // @todo create function - selectEditorContents() and use in CMD+A
         let range = document.createRange(),
             selection = window.getSelection();
