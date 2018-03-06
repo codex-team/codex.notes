@@ -126,20 +126,13 @@ class Collaborator {
   }
 
   /**
-   * Prepare updates for target time
+   * Destroy Collaborator data in database
    *
-   * @param lastSyncTimestamp
-   *
-   * @returns {Promise.<CollaboratorData[]>}
+   * @returns {Promise<*>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
-    let notSyncedItems = await db.find(db.COLLABORATORS, {
-      dtInvite: {$gt: lastSyncTimestamp}
-    });
-
-    return notSyncedItems;
+  async destroy() {
+    return await db.remove(db.COLLABORATORS, {_id: this._id}, {});
   }
-
 }
 
 module.exports = Collaborator;

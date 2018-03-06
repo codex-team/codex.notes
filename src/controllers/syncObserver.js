@@ -250,16 +250,10 @@ class SyncObserver {
      */
     let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
-    /**
-     * Get not synced Collaborators
-     */
-    let changedCollaborators = await Collaborator.prepareUpdates(lastSyncTimestamp);
-
     return {
       user: changedUser,
       folders: changedFolders,
-      notes: changedNotes,
-      collaborators: changedCollaborators
+      notes: changedNotes
     };
   }
 
@@ -301,15 +295,6 @@ class SyncObserver {
     if (updates.notes.length) {
       syncMutationsSequence.push(...updates.notes.map( note => {
         return this.sendNote(note);
-      }));
-    }
-
-    /**
-     * Push Collaborators mutations to the Sync Mutations Sequence
-     */
-    if (updates.collaborators.length) {
-      syncMutationsSequence.push(...updates.collaborators.map( collaborator => {
-        return this.sendCollaboratorInvite(collaborator);
       }));
     }
 
@@ -397,12 +382,11 @@ class SyncObserver {
   /**
    * Send CollaboratorInvite Mutation
    *
-   * @param {Collaborator} collaborator - Collaborator to send
-   * @param {boolean} needSendEmail - should we send an invite email message
+   * @param {Collaborator} collaborator - Collaborator to send message
    *
    * @return {Promise<void>}
    */
-  sendCollaboratorInvite(collaborator, needSendEmail = false) {
+  sendCollaboratorInvite(collaborator) {
     let query = require('../graphql/mutations/invite');
 
     let variables = {
@@ -410,17 +394,20 @@ class SyncObserver {
       email: collaborator.email,
       ownerId: global.user ? global.user.id : null,
       folderId: collaborator.folderId,
-      dtInvite: collaborator.dtInvite,
-      needSendEmail: needSendEmail
+      dtInvite: collaborator.dtInvite
     };
 
-    return this.api.request(query, variables)
+    return new Promise((resolve, reject) => {
+      this.api.request(query, variables)
         .then(data => {
           console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+          resolve();
         })
         .catch(error => {
           console.log('[!] InviteCollaborator Mutation failed because of ', error);
-        });
+          reject(error);
+      });
+    });
   }
 
   /**
