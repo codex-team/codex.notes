@@ -381,7 +381,11 @@ class Folder {
 
     await collaborator.save();
 
-    global.app.syncObserver.sendCollaboratorInvite(collaborator, true);
+    await global.app.syncObserver.sendCollaboratorInvite(collaborator)
+      .catch(async () => {
+        await collaborator.remove();
+        throw Error('Cannot add Collaborator at this time. Connect to the internet.');
+      });
 
     return {
       success: true
