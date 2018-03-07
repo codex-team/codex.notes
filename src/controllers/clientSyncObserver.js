@@ -28,7 +28,9 @@ class ClientSyncObserver {
    * @param {Folder} folder - changed Folder
    */
   sendFolder(folder){
-    global.app.mainWindow.webContents.send('folder updated', folder);
+    if (!folder.isRoot) {
+      global.app.mainWindow.webContents.send('folder updated', folder);
+    }
   }
 }
 

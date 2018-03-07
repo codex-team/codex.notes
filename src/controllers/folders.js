@@ -95,7 +95,7 @@ class FoldersController {
     try {
       let folder = new Folder({
         title: folderTitle,
-        ownerId: global.user ? global.user.id : null
+        ownerId: global.user && global.user.token ? global.user.id : null
       });
 
       let savedFolder = await folder.save();

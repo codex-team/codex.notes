@@ -64,7 +64,7 @@ class NotesController {
         title: noteData.title,
         content: JSON.stringify(noteData.data.items),
         editorVersion: noteData.data.version,
-        authorId: global.user ? global.user.id : null,
+        authorId: global.user && global.user.token ? global.user.id : null,
         folderId: noteData.folderId,
       });
 
