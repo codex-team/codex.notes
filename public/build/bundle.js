@@ -64,7 +64,7 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -347,9 +347,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(13).default;
+var AutoResizer = __webpack_require__(14).default;
 var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(16).default;
+var Shortcut = __webpack_require__(11).default;
+var clipboardUtil = __webpack_require__(18).default;
 
 /**
  * @typedef {Object} NoteData
@@ -372,6 +373,7 @@ var Shortcut = __webpack_require__(16).default;
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
  * @property {ShortCut[]} shortcut
  */
 
@@ -387,8 +389,15 @@ var Note = function () {
 
     this.titleEl = document.getElementById('note-title');
     this.dateEl = document.getElementById('note-date');
+    this.editor = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
+    this.editorContentSelected = false;
 
     // when we are creating new note
     if (!this.autoresizedTitle) {
@@ -396,18 +405,106 @@ var Note = function () {
     }
 
     this.shortcuts = [];
+
+    this.enableShortcuts();
   }
 
   /**
-   * Send note data to backend
-   * @static
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
    */
 
 
   _createClass(Note, [{
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      // any click on body prevents content selection
+      // stop preventing copy event
+      document.body.addEventListener('click', function () {
+        _this.editorContentSelected = false;
+        _this.editor.removeEventListener('copy', preventDefaultExecution);
+      }, false);
+
+      /**
+       * Select all document by CMD+A
+       */
+      var selectAllShortcut = new Shortcut({
+        name: 'CMD+A',
+        on: this.editor,
+        callback: function callback(event) {
+          _this.cmdA(event);
+          _this.editor.addEventListener('copy', preventDefaultExecution);
+        }
+      });
+
+      /**
+       * Copy selected document by CMD+C
+       */
+      var copySelectedShortcut = new Shortcut({
+        name: 'CMD+C',
+        on: this.editor,
+        callback: function callback() {
+          _this.cmdC();
+        }
+      });
+
+      this.shortcuts.push(selectAllShortcut);
+      this.shortcuts.push(copySelectedShortcut);
+    }
+
+    /**
+     * CMD+A Shortcut
+     * Selects title + all Note
+     */
+
+  }, {
+    key: 'cmdA',
+    value: function cmdA(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      this.selectEditorContents();
+    }
+
+    /**
+     * CMD+C Shortcut
+     * Copies selected title and Note
+     */
+
+  }, {
+    key: 'cmdC',
+    value: function cmdC() {
+      if (!this.editorContentSelected) {
+        // selection was cleared
+        return;
+      }
+
+      var editorContent = this.editor.querySelector('.ce-redactor'),
+          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+      // select content again because we select textarea contents to copy to the clipboard
+      this.selectEditorContents();
+    }
+
+    /**
+     * Send note data to backend
+     * @static
+     */
+
+  }, {
     key: 'save',
     value: function save() {
-      var _this = this;
+      var _this2 = this;
 
       this.deleteButton.classList.remove('hide');
 
@@ -417,24 +514,24 @@ var Note = function () {
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
       codex.editor.saver.save().then(function (noteData) {
-        _this.validate(noteData);
+        _this2.validate(noteData);
         return noteData;
       }).then(function (noteData) {
         var note = {
           data: noteData,
-          title: _this.titleEl.value.trim(),
+          title: _this2.titleEl.value.trim(),
           folderId: folderId
         };
 
         var saveIndicator = document.getElementById('save-indicator');
 
-        if (_this.showSavedIndicatorTimer) {
-          window.clearTimeout(_this.showSavedIndicatorTimer);
+        if (_this2.showSavedIndicatorTimer) {
+          window.clearTimeout(_this2.showSavedIndicatorTimer);
         }
 
         saveIndicator.classList.add('saved');
 
-        _this.showSavedIndicatorTimer = window.setTimeout(function () {
+        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
           saveIndicator.classList.remove('saved');
         }, 500);
 
@@ -520,28 +617,6 @@ var Note = function () {
       }
 
       this.autoresizedTitle = new AutoResizer([this.titleEl]);
-
-      /**
-       * create new CMD+A shortcut
-       * bind it on current rendered Note
-       */
-      var shortcut = new Shortcut({
-        name: 'CMD+A',
-        on: codex.editor.nodes.redactor,
-        callback: function callback(event) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-
-          var range = document.createRange(),
-              selection = window.getSelection();
-
-          range.selectNodeContents(codex.editor.nodes.redactor);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-      });
-
-      this.shortcuts.push(shortcut);
     }
 
     /**
@@ -560,10 +635,7 @@ var Note = function () {
       // destroy autoresizer
       this.autoresizedTitle.destroy();
 
-      // destroy all shortcuts on note
-      this.shortcuts.forEach(function (shortcut) {
-        shortcut.remove();
-      });
+      this.editorContentSelected = false;
     }
 
     /**
@@ -610,6 +682,23 @@ var Note = function () {
         Note.focusEditor();
       }
     }
+
+    /**
+     * selects editor with title
+     */
+
+  }, {
+    key: 'selectEditorContents',
+    value: function selectEditorContents() {
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(this.editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      this.editorContentSelected = true;
+    }
   }], [{
     key: 'focusEditor',
     value: function focusEditor() {
@@ -645,7 +734,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _folder = __webpack_require__(15);
+var _folder = __webpack_require__(16);
 
 var _folder2 = _interopRequireDefault(_folder);
 
@@ -653,7 +742,7 @@ var _note = __webpack_require__(2);
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(14);
+var _folderSettings = __webpack_require__(15);
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -661,7 +750,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(12).default;
+var AsideSwiper = __webpack_require__(13).default;
 var $ = __webpack_require__(0).default;
 
 /**
@@ -1869,6 +1958,19 @@ exports.default = User;
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/*!
+ * Library for handling keyboard shortcuts
+ * @copyright undefined
+ * @license MIT
+ * @author CodeX (https://ifmo.su)
+ * @version 1.0.0
+ */
+!function(e,t){if(true)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}("undefined"!=typeof self?self:this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};return t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=0)}([function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),i={0:48,1:49,2:50,3:51,4:52,5:53,6:54,7:55,8:56,9:57,A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,U:85,V:86,W:87,X:88,Y:89,Z:90,BACKSPACE:8,ENTER:13,ESCAPE:27,LEFT:37,UP:38,RIGHT:39,DOWN:40,INSERT:45,DELETE:46},u={CMD:["CMD","CONTROL","COMMAND","WINDOWS","CTRL"],SHIFT:["SHIFT"],ALT:["ALT","OPTION"]},c=function(){function e(t){var n=this;r(this,e),this.commands={},this.keys={},this.parseShortcutName(t.name),this.element=t.on,this.callback=t.callback,this.executeShortcut=function(e){n.execute(e)},this.element.addEventListener("keydown",this.executeShortcut,!1)}return o(e,[{key:"parseShortcutName",value:function(e){e=e.split("+");for(var t=0;t<e.length;t++)if(e[t]=e[t].toUpperCase(),e[t].length>1)for(var n in u)u[n].includes(e[t])&&(this.commands[n]=!0);else this.keys[e[t]]=!0}},{key:"execute",value:function(e){var t=e.ctrlKey||e.metaKey,n=e.shiftKey,r=e.altKey,o={CMD:t,SHIFT:n,ALT:r},u=void 0,c=!0;for(u in this.commands)c=c&&o[u];var a=void 0,s=!0;for(a in this.keys)s=s&&e.keyCode===i[a];c&&s&&this.callback(e)}},{key:"remove",value:function(){this.element.removeEventListener("keydown",this.executeShortcut)}}]),e}();t.default=c}])});
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
@@ -1978,7 +2080,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2070,7 +2172,7 @@ var AsideSwiper = function () {
 exports.default = AsideSwiper;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2189,7 +2291,7 @@ var Autoresizer = function () {
 exports.default = Autoresizer;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2205,7 +2307,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(18).default;
+var Validate = __webpack_require__(19).default;
 
 /**
  * Folder Settings panel module
@@ -2498,7 +2600,7 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2660,203 +2762,6 @@ var Folder = function () {
 exports.default = Folder;
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * CodeX Note ShortCuts class
- * Handles keyDowns on Note.
- *
- * Used to create shortcuts on element
- */
-
-/**
- * List of key codes
- */
-var keyCodes = {
-  '0': 48,
-  '1': 49,
-  '2': 50,
-  '3': 51,
-  '4': 52,
-  '5': 53,
-  '6': 54,
-  '7': 55,
-  '8': 56,
-  '9': 57,
-  'A': 65,
-  'B': 66,
-  'C': 67,
-  'D': 68,
-  'E': 69,
-  'F': 70,
-  'G': 71,
-  'H': 72,
-  'I': 73,
-  'J': 74,
-  'K': 75,
-  'L': 76,
-  'M': 77,
-  'N': 78,
-  'O': 79,
-  'P': 80,
-  'Q': 81,
-  'R': 82,
-  'S': 83,
-  'T': 84,
-  'U': 85,
-  'V': 86,
-  'W': 87,
-  'X': 88,
-  'Y': 89,
-  'Z': 90,
-  'BACKSPACE': 8,
-  'ENTER': 13,
-  'ESCAPE': 27,
-  'LEFT': 37,
-  'UP': 38,
-  'RIGHT': 39,
-  'DOWN': 40,
-  'INSERT': 45,
-  'DELETE': 46
-};
-
-var supportedCommands = {
-  'CMD': ['CMD', 'CONTROL', 'COMMAND', 'WINDOWS', 'CTRL'],
-  'SHIFT': ['SHIFT'],
-  'ALT': ['ALT', 'OPTION']
-};
-
-/**
- * @class ShortCuts
- * @classdesc Callback will be fired with two params:
- *   - event: standard keyDown param
- *   - target: element which registered on shortcut creation
- *
- * @typedef {ShortCut} ShortCut
- * @property {String} name - shortcut name
- * @property {Element} on - element that passed on shortcut creation
- * @property {Function} callback - custom user function
- */
-
-var ShortCut = function () {
-
-  /**
-   * Create new shortcut
-   * @param {ShortCut} shortcut
-   * @constructor
-   */
-  function ShortCut(shortcut) {
-    var _this = this;
-
-    _classCallCheck(this, ShortCut);
-
-    this.commands = {};
-    this.keys = {};
-
-    this.parseShortcutName(shortcut.name);
-
-    this.element = shortcut.on;
-    this.callback = shortcut.callback;
-
-    this.executeShortcut = function (event) {
-      _this.execute(event);
-    };
-    this.element.addEventListener('keydown', this.executeShortcut, false);
-  }
-
-  /**
-   * parses string to get shortcut commands in uppercase
-   * @param {String} shortcut
-   *
-   * @return {Array} keys
-   */
-
-
-  _createClass(ShortCut, [{
-    key: 'parseShortcutName',
-    value: function parseShortcutName(shortcut) {
-      shortcut = shortcut.split('+');
-
-      for (var key = 0; key < shortcut.length; key++) {
-        shortcut[key] = shortcut[key].toUpperCase();
-
-        if (shortcut[key].length > 1) {
-          for (var command in supportedCommands) {
-            if (supportedCommands[command].includes(shortcut[key])) {
-              this.commands[command] = true;
-            }
-          }
-        } else {
-          this.keys[shortcut[key]] = true;
-        }
-      }
-    }
-
-    /**
-     * Check all passed commands and keys before firing callback
-     * @param event
-     */
-
-  }, {
-    key: 'execute',
-    value: function execute(event) {
-      var cmdKey = event.ctrlKey || event.metaKey,
-          shiftKey = event.shiftKey,
-          altKey = event.altKey,
-          passed = {
-        'CMD': cmdKey,
-        'SHIFT': shiftKey,
-        'ALT': altKey
-      };
-
-      var command = void 0,
-          allCommandsPassed = true;
-
-      for (command in this.commands) {
-        allCommandsPassed = allCommandsPassed && passed[command];
-      }
-
-      var key = void 0,
-          allKeysPassed = true;
-
-      for (key in this.keys) {
-        allKeysPassed = allKeysPassed && event.keyCode === keyCodes[key];
-      }
-
-      if (allCommandsPassed && allKeysPassed) {
-        this.callback.call(null, event);
-      }
-    }
-
-    /**
-     * Destroy shortcut: remove listener from element
-     */
-
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.element.removeEventListener('keydown', this.executeShortcut);
-    }
-  }]);
-
-  return ShortCut;
-}();
-
-exports.default = ShortCut;
-
-/***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2952,6 +2857,70 @@ exports.default = SwipeDetector;
 
 /***/ }),
 /* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Clipboard module
+ */
+var Clipboard = function () {
+  function Clipboard() {
+    _classCallCheck(this, Clipboard);
+  }
+
+  _createClass(Clipboard, null, [{
+    key: 'copy',
+
+
+    /**
+     * copy to clipboards passed text
+     *
+     * @param {string} text
+     * @return {boolean}
+     */
+    value: function copy(text) {
+      var textarea = document.createElement('textarea'),
+          success = false;
+
+      Object.assign(textarea.style, {
+        position: 'fixed',
+        top: '-100%',
+        left: '-100%',
+        opacity: '0'
+      });
+
+      textarea.value = text;
+
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        success = document.execCommand('copy');
+      } catch (e) {}
+
+      document.body.removeChild(textarea);
+
+      return success;
+    }
+  }]);
+
+  return Clipboard;
+}();
+
+exports.default = Clipboard;
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
