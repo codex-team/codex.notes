@@ -72,7 +72,7 @@ class NotesController {
 
       let newNote = await note.save();
 
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.sender.send('note saved', {
         note: newNote,
@@ -141,7 +141,7 @@ class NotesController {
 
       let noteRemovingResult = await note.delete();
 
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
