@@ -366,10 +366,10 @@ class CloudSyncObserver {
       isRoot: folder.isRoot
     };
 
-    if (global.user) {
-      variables.ownerId = global.user.id;
-    } else if (folder.ownerId) {
+    if (folder.ownerId) {
       variables.ownerId = folder.ownerId;
+    } else if (global.user) {
+      variables.ownerId = global.user.id;
     } else {
       variables.ownerId = null;
     }
