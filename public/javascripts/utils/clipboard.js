@@ -3,20 +3,20 @@
  */
 export default class Clipboard {
 
-    /**
-     * copy to clipboards passed text
-     *
-     * @param {string} text
-     * @return {boolean}
-     */
+  /**
+   * copy to clipboards passed text
+   *
+   * @param {string} text
+   * @return {boolean}
+   */
   static copy(text) {
     let textarea = document.createElement('textarea'),
         success = false;
 
     Object.assign(textarea.style, {
       position: 'fixed',
-      top: '0',
-      left: '0',
+      top: '-100%',
+      left: '-100%',
       opacity: '0'
     });
 

@@ -2,7 +2,6 @@ const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
-const Clipboard = require('electron').clipboard;
 const clipboardUtil = require('./utils/clipboard').default;
 
 /**
@@ -26,6 +25,7 @@ const clipboardUtil = require('./utils/clipboard').default;
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
  * @property {ShortCut[]} shortcut
  */
 export default class Note {
@@ -41,6 +41,11 @@ export default class Note {
     this.editor  = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
     this.editorContentSelected = false;
 
     // when we are creating new note
@@ -50,7 +55,14 @@ export default class Note {
 
     this.shortcuts = [];
 
+    this.enableShortcuts();
+  }
 
+  /**
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
+   */
+  enableShortcuts() {
     let preventDefaultExecution = (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -65,41 +77,59 @@ export default class Note {
     }, false);
 
     /**
-     * create new CMD+A shortcut
-     * bind it keydowns on editor area
+     * Select all document by CMD+A
      */
     let selectAllShortcut = new Shortcut({
       name: 'CMD+A',
       on: this.editor,
-      callback: (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        this.selectEditorContents();
-
+      callback: event => {
+        this.cmdA(event);
         this.editor.addEventListener('copy', preventDefaultExecution);
       }
     });
 
+    /**
+     * Copy selected document by CMD+C
+     */
     let copySelectedShortcut = new Shortcut({
       name: 'CMD+C',
       on: this.editor,
-      callback: (event) => {
-        if (!this.editorContentSelected) {
-          return;
-        }
-        let editorContent = this.editor.querySelector('.ce-redactor'),
-            formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
-
-        clipboardUtil.copy(this.titleEl.value + '\n' + formattedText);
-
-        // select content again because we select textarea contents to copy to the clipboard
-        this.selectEditorContents();
+      callback: () => {
+        this.cmdC();
       }
     });
 
     this.shortcuts.push(selectAllShortcut);
     this.shortcuts.push(copySelectedShortcut);
+  }
+
+  /**
+   * CMD+A Shortcut
+   * Selects title + all Note
+   */
+  cmdA(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    this.selectEditorContents();
+  }
+
+  /**
+   * CMD+C Shortcut
+   * Copies selected title and Note
+   */
+  cmdC() {
+    if (!this.editorContentSelected) { // selection was cleared
+      return;
+    }
+
+    let editorContent = this.editor.querySelector('.ce-redactor'),
+        formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+    clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+    // select content again because we select textarea contents to copy to the clipboard
+    this.selectEditorContents();
   }
 
   /**

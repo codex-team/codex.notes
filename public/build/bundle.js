@@ -263,7 +263,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var remote = __webpack_require__(2).remote;
+var remote = __webpack_require__(3).remote;
 
 /**
  *
@@ -333,12 +333,6 @@ exports.default = Dialog;
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports) {
-
-module.exports = require("electron");
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -356,7 +350,6 @@ var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(14).default;
 var Dialog = __webpack_require__(1).default;
 var Shortcut = __webpack_require__(11).default;
-var Clipboard = __webpack_require__(2).clipboard;
 var clipboardUtil = __webpack_require__(18).default;
 
 /**
@@ -380,6 +373,7 @@ var clipboardUtil = __webpack_require__(18).default;
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
  * @property {ShortCut[]} shortcut
  */
 
@@ -389,8 +383,6 @@ var Note = function () {
    * @constructor
    */
   function Note() {
-    var _this = this;
-
     _classCallCheck(this, Note);
 
     this.deleteButton = $.get('delete-button');
@@ -400,6 +392,11 @@ var Note = function () {
     this.editor = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
     this.editorContentSelected = false;
 
     // when we are creating new note
@@ -409,64 +406,102 @@ var Note = function () {
 
     this.shortcuts = [];
 
-    var preventDefaultExecution = function preventDefaultExecution(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-    };
-
-    // any click on body prevents content selection
-    // stop preventing copy event
-    document.body.addEventListener('click', function () {
-      _this.editorContentSelected = false;
-      _this.editor.removeEventListener('copy', preventDefaultExecution);
-    }, false);
-
-    /**
-     * create new CMD+A shortcut
-     * bind it keydowns on editor area
-     */
-    var selectAllShortcut = new Shortcut({
-      name: 'CMD+A',
-      on: this.editor,
-      callback: function callback(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        _this.selectEditorContents();
-
-        _this.editor.addEventListener('copy', preventDefaultExecution);
-      }
-    });
-
-    var copySelectedShortcut = new Shortcut({
-      name: 'CMD+C',
-      on: this.editor,
-      callback: function callback(event) {
-        if (!_this.editorContentSelected) {
-          return;
-        }
-        var editorContent = _this.editor.querySelector('.ce-redactor'),
-            formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
-
-        clipboardUtil.copy(_this.titleEl.value + '\n' + formattedText);
-
-        // select content again because we select textarea contents to copy to the clipboard
-        _this.selectEditorContents();
-      }
-    });
-
-    this.shortcuts.push(selectAllShortcut);
-    this.shortcuts.push(copySelectedShortcut);
+    this.enableShortcuts();
   }
 
   /**
-   * Send note data to backend
-   * @static
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
    */
 
 
   _createClass(Note, [{
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      // any click on body prevents content selection
+      // stop preventing copy event
+      document.body.addEventListener('click', function () {
+        _this.editorContentSelected = false;
+        _this.editor.removeEventListener('copy', preventDefaultExecution);
+      }, false);
+
+      /**
+       * Select all document by CMD+A
+       */
+      var selectAllShortcut = new Shortcut({
+        name: 'CMD+A',
+        on: this.editor,
+        callback: function callback(event) {
+          _this.cmdA(event);
+          _this.editor.addEventListener('copy', preventDefaultExecution);
+        }
+      });
+
+      /**
+       * Copy selected document by CMD+C
+       */
+      var copySelectedShortcut = new Shortcut({
+        name: 'CMD+C',
+        on: this.editor,
+        callback: function callback() {
+          _this.cmdC();
+        }
+      });
+
+      this.shortcuts.push(selectAllShortcut);
+      this.shortcuts.push(copySelectedShortcut);
+    }
+
+    /**
+     * CMD+A Shortcut
+     * Selects title + all Note
+     */
+
+  }, {
+    key: 'cmdA',
+    value: function cmdA(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      this.selectEditorContents();
+    }
+
+    /**
+     * CMD+C Shortcut
+     * Copies selected title and Note
+     */
+
+  }, {
+    key: 'cmdC',
+    value: function cmdC() {
+      if (!this.editorContentSelected) {
+        // selection was cleared
+        return;
+      }
+
+      var editorContent = this.editor.querySelector('.ce-redactor'),
+          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+      // select content again because we select textarea contents to copy to the clipboard
+      this.selectEditorContents();
+    }
+
+    /**
+     * Send note data to backend
+     * @static
+     */
+
+  }, {
     key: 'save',
     value: function save() {
       var _this2 = this;
@@ -681,6 +716,12 @@ var Note = function () {
 exports.default = Note;
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
+
+/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -697,7 +738,7 @@ var _folder = __webpack_require__(16);
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(3);
+var _note = __webpack_require__(2);
 
 var _note2 = _interopRequireDefault(_note);
 
@@ -1929,14 +1970,14 @@ var _authObserver2 = _interopRequireDefault(_authObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var electron = __webpack_require__(2);
+var electron = __webpack_require__(3);
 var Editor = __webpack_require__(7).default;
 
 /**
  * Load components
  */
 var Aside = __webpack_require__(4).default;
-var Note = __webpack_require__(3).default;
+var Note = __webpack_require__(2).default;
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -2827,8 +2868,8 @@ var Clipboard = function () {
 
       Object.assign(textarea.style, {
         position: 'fixed',
-        top: '0',
-        left: '0',
+        top: '-100%',
+        left: '-100%',
         opacity: '0'
       });
 
