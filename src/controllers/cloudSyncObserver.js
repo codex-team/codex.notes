@@ -54,6 +54,19 @@ class CloudSyncObserver {
         Authorization: 'Bearer ' + global.user.token,
       }
     });
+
+    if (global.user.channel) {
+      this.openUserChannel();
+    }
+  }
+
+  /**
+   * Open user's notifications channel
+   */
+  openUserChannel(){
+    global.app.sockets.listenChannel(global.user.channel, async message => {
+      console.log('🛎 Notify:', message);
+    });
   }
 
   /**

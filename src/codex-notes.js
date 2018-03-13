@@ -180,6 +180,12 @@ class CodexNotes {
         this.folders = new FoldersController();
         this.notes = new NotesController();
         this.userCtrl = new UserController();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
+
         this.auth = new AuthController();
 
         /**
@@ -191,11 +197,6 @@ class CodexNotes {
          * @type {ClientSyncObserver}
          */
         this.clientSyncObserver = new ClientSyncObserver();
-
-        /**
-         * @type {Sockets}
-         */
-        this.sockets = new SocketsController();
       })
       .catch(function (err) {
         console.log('Initialization error', err);

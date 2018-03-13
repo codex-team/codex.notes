@@ -111,7 +111,7 @@ class AuthController {
          * @param {object} authData
          * @param {string} authData.jwt - JWT for authentication
          * @param {string} authData.photo
-         * @param {sring} authData.name
+         * @param {string} authData.name
          * @param {number} authData.dtModify
          * @param {string} authData.channel - personal user's channel
          */
@@ -226,6 +226,11 @@ class AuthController {
    */
   async dropSession() {
     await global.app.cloudSyncObserver.sync();
+
+    // leave personal notifications channel
+    if (global.user.channel) {
+      global.app.sockets.leaveChannel(global.user.channel);
+    }
 
     // force database drop
     await db.drop(true);
