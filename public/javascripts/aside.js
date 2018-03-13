@@ -31,7 +31,8 @@ export default class Aside {
   static get CSS() {
     return {
       notesMenuLoading: 'notes-list--loading',
-      seenState : 'not-seen'
+      noteListItem : 'notes-list__content-item',
+      notSeenState : 'notes-list__content-item--not-seen'
     };
   }
   /**
@@ -330,6 +331,8 @@ export default class Aside {
     let item = $.make('li', null, {
       textContent: title
     });
+
+    item.classList.add(Aside.CSS.noteListItem);
 
     for (let key in dataset) {
       item.dataset[key] = dataset[key];

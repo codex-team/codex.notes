@@ -393,7 +393,8 @@ var Aside = function () {
     get: function get() {
       return {
         notesMenuLoading: 'notes-list--loading',
-        seenState: 'not-seen'
+        noteListItem: 'notes-list__content-item',
+        notSeenState: 'notes-list__content-item--not-seen'
       };
     }
     /**
@@ -755,6 +756,8 @@ var Aside = function () {
       var item = $.make('li', null, {
         textContent: title
       });
+
+      item.classList.add(Aside.CSS.noteListItem);
 
       for (var key in dataset) {
         item.dataset[key] = dataset[key];
