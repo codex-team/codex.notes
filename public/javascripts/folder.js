@@ -45,7 +45,7 @@ export default class Folder {
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
-        this.needSeenBadge(notes);
+        this.needSeenBadge();
       })
       .then( () => this.clearNotesList() );
   }
@@ -119,8 +119,7 @@ export default class Folder {
   needSeenBadge(notes) {
     let noteIds = [];
 
-    console.log(notes);
-    notes.forEach( (note) => {
+    this.notes.forEach( (note) => {
       noteIds.push(note._id);
     });
 
@@ -130,7 +129,7 @@ export default class Folder {
      */
     window.ipcRenderer.send('notes - seen', { noteIds });
     window.ipcRenderer.once('notes - seen', (event, {data}) => {
-      notes.forEach( (note) => {
+      this.notes.forEach( (note) => {
         let noteId = note._id,
             lastSeen = data[noteId];
 

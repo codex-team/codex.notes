@@ -2682,7 +2682,7 @@ var Folder = function () {
       var notes = _ref2.notes;
 
       _this.notes = notes;
-      _this.needSeenBadge(notes);
+      _this.needSeenBadge();
     }).then(function () {
       return _this.clearNotesList();
     });
@@ -2745,8 +2745,7 @@ var Folder = function () {
 
       var noteIds = [];
 
-      console.log(notes);
-      notes.forEach(function (note) {
+      this.notes.forEach(function (note) {
         noteIds.push(note._id);
       });
 
@@ -2758,7 +2757,7 @@ var Folder = function () {
       window.ipcRenderer.once('notes - seen', function (event, _ref3) {
         var data = _ref3.data;
 
-        notes.forEach(function (note) {
+        _this2.notes.forEach(function (note) {
           var noteId = note._id,
               lastSeen = data[noteId];
 
