@@ -753,11 +753,9 @@ var Aside = function () {
     value: function makeMenuItem(title, dataset) {
       title = this.createMenuItemTitle(title);
 
-      var item = $.make('li', null, {
+      var item = $.make('li', Aside.CSS.noteListItem, {
         textContent: title
       });
-
-      item.classList.add(Aside.CSS.noteListItem);
 
       for (var key in dataset) {
         item.dataset[key] = dataset[key];

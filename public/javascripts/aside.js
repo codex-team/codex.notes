@@ -328,11 +328,9 @@ export default class Aside {
   makeMenuItem(title, dataset) {
     title = this.createMenuItemTitle(title);
 
-    let item = $.make('li', null, {
+    let item = $.make('li', Aside.CSS.noteListItem, {
       textContent: title
     });
-
-    item.classList.add(Aside.CSS.noteListItem);
 
     for (let key in dataset) {
       item.dataset[key] = dataset[key];
