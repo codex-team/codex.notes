@@ -2735,12 +2735,11 @@ var Folder = function () {
     /**
      * Checks note last seen time.
      * if note modification time is greater, then add badge
-     * @param notes
      */
 
   }, {
     key: 'needSeenBadge',
-    value: function needSeenBadge(notes) {
+    value: function needSeenBadge() {
       var _this2 = this;
 
       var noteIds = [];

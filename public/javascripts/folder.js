@@ -114,9 +114,8 @@ export default class Folder {
   /**
    * Checks note last seen time.
    * if note modification time is greater, then add badge
-   * @param notes
    */
-  needSeenBadge(notes) {
+  needSeenBadge() {
     let noteIds = [];
 
     this.notes.forEach( (note) => {
