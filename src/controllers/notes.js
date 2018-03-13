@@ -23,11 +23,10 @@ class NotesController {
    * Setup event handlers
    */
   constructor() {
-    this.SeenStateObserver = new SeenStateObserver();
+    this.seenStateObserver = new SeenStateObserver();
 
     ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
-      this.SeenStateObserver.touch(note.data.id);
     });
 
     ipcMain.on('notes list - load', (event, folderId) => {
@@ -36,9 +35,6 @@ class NotesController {
 
     ipcMain.on('note - get', (event, {id}) => {
       this.getNote(id, event);
-
-      // set note as visited
-      this.SeenStateObserver.touch(id);
     });
 
     ipcMain.on('note - delete', (event, {id}) => {
@@ -46,10 +42,7 @@ class NotesController {
     });
 
     ipcMain.on('notes - seen', async (event, {noteIds}) => {
-      let seenNotes = await this.SeenStateObserver.getSeenNotes(noteIds);
-      event.sender.send('notes - seen', {
-        data: seenNotes
-      });
+      this.markAsSeen(event, noteIds);
     })
   }
 
@@ -92,6 +85,10 @@ class NotesController {
         note: newNote,
         isRootFolder: !noteData.folderId
       });
+
+      // make "seen" edited note
+      this.seenStateObserver.touch(noteData.data.id );
+
     } catch (err) {
       console.log('Note saving failed because of ', err);
     }
@@ -134,6 +131,9 @@ class NotesController {
     try {
       let note = await Note.get(noteId);
 
+      // set note as visited
+      this.seenStateObserver.touch(noteId);
+
       event.returnValue = note;
     } catch (err) {
       console.log('Note\'s data loading failed because of', err);
@@ -162,6 +162,19 @@ class NotesController {
       console.log('Note failed because of', err);
       event.returnValue = false;
     }
+  }
+
+  /**
+   * Get's information about note visits and emits the event
+   * @param {ipcRenderer.Event} event - "notes - seen" event from client side
+   * @param {Array} noteIds - list of note ids
+   * @return {Promise.<void>}
+   */
+  async markAsSeen(event, noteIds) {
+    let seenNotes = await this.seenStateObserver.getSeenNotes(noteIds);
+    event.sender.send('notes - seen', {
+        data: seenNotes
+    });
   }
 }
 

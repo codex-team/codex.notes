@@ -127,6 +127,11 @@ export default class Folder {
      * "once" automatically removes listener
      */
     window.ipcRenderer.send('notes - seen', { noteIds });
+
+    /**
+     * @type {Object} data - "note - seen" event responses object of "seen" states
+     *     Ex: data[ noteId ] = lastSeen - timestamp of last seen
+     */
     window.ipcRenderer.once('notes - seen', (event, {data}) => {
       this.notes.forEach( (note) => {
         let noteId = note._id,

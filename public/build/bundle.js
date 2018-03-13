@@ -2753,6 +2753,11 @@ var Folder = function () {
        * "once" automatically removes listener
        */
       window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
+
+      /**
+       * @type {Object} data - "note - seen" event responses object of "seen" states
+       *     Ex: data[ noteId ] = lastSeen - timestamp of last seen
+       */
       window.ipcRenderer.once('notes - seen', function (event, _ref3) {
         var data = _ref3.data;
 
