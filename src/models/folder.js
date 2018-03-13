@@ -247,6 +247,11 @@ class Folder {
     this._id = createdFolder._id;
 
     /**
+     * Send created Folder to the Client
+     */
+    global.app.clientSyncObserver.sendFolder(this);
+
+    /**
      * Return Folder's data
      */
     return this.data;
@@ -318,6 +323,11 @@ class Folder {
 
     this.data = updateResponse.affectedDocuments;
 
+    /**
+     * Send updated Folder to the Client
+     */
+    global.app.clientSyncObserver.sendFolder(this);
+
     return this.data;
   }
 
@@ -381,7 +391,11 @@ class Folder {
 
     await collaborator.save();
 
-    global.app.syncObserver.sendCollaboratorInvite(collaborator);
+    await global.app.cloudSyncObserver.sendCollaboratorInvite(collaborator)
+      .catch(async () => {
+        await collaborator.remove();
+        throw Error('Cannot add Collaborator at this time. Connect to the internet.');
+      });
 
     return {
       success: true

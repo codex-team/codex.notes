@@ -64,7 +64,7 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -263,7 +263,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var remote = __webpack_require__(3).remote;
+var remote = __webpack_require__(4).remote;
 
 /**
  *
@@ -344,316 +344,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(13).default;
-var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(16).default;
-
-/**
- * @typedef {Object} NoteData
- * @property {String} _id           — Note's id
- * @property {String} title         — Note's title
- * @property {String} authorId      — Note's Author id
- * @property {String} folderId      - Note's Folder id
- * @property {String} content       - JSON with Note's body
- * @property {Number} dtModify      - timestamp of last modification
- * @property {Number} dtCreate      - timestamp of Note creation
- * @property {Boolean} isRemoved    - Note's removed state
- * @property {String|null} editorVersion - used CodeX Editor version
- */
-
-/**
- * Note section module
- *
- * @typedef {Note} Note
- * @property {Element} deleteButton
- * @property {Element} titleEl
- * @property {Element} dateEl
- * @property {Timer} showSavedIndicatorTimer
- * @property {ShortCut[]} shortcut
- */
-
-var Note = function () {
-
-  /**
-   * @constructor
-   */
-  function Note() {
-    _classCallCheck(this, Note);
-
-    this.deleteButton = $.get('delete-button');
-
-    this.titleEl = document.getElementById('note-title');
-    this.dateEl = document.getElementById('note-date');
-
-    this.showSavedIndicatorTimer = null;
-
-    // when we are creating new note
-    if (!this.autoresizedTitle) {
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-    }
-
-    this.shortcuts = [];
-  }
-
-  /**
-   * Send note data to backend
-   * @static
-   */
-
-
-  _createClass(Note, [{
-    key: 'save',
-    value: function save() {
-      var _this = this;
-
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * If folder is opened, pass id. Otherwise pass false
-       */
-      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
-
-      codex.editor.saver.save().then(function (noteData) {
-        _this.validate(noteData);
-        return noteData;
-      }).then(function (noteData) {
-        var note = {
-          data: noteData,
-          title: _this.titleEl.value.trim(),
-          folderId: folderId
-        };
-
-        var saveIndicator = document.getElementById('save-indicator');
-
-        if (_this.showSavedIndicatorTimer) {
-          window.clearTimeout(_this.showSavedIndicatorTimer);
-        }
-
-        saveIndicator.classList.add('saved');
-
-        _this.showSavedIndicatorTimer = window.setTimeout(function () {
-          saveIndicator.classList.remove('saved');
-        }, 500);
-
-        window.ipcRenderer.send('note - save', { note: note });
-      }).catch(function (err) {
-        console.log('Error while saving note: ', err);
-      });
-    }
-
-    /**
-     * Validate Note data before saving
-     * @param {object} noteData
-     * @throws {Error}
-     */
-
-  }, {
-    key: 'validate',
-    value: function validate(noteData) {
-      if (!noteData.items.length) {
-        throw Error('Article is empty');
-      }
-    }
-
-    /**
-     * Add Note to the menu by Aside.addMenuItem method
-     *
-     * @param {object} data
-     * @param {object} data.note
-     * @param {number} data.note.folderId
-     * @param {number} data.note._id
-     * @param {string} data.note.title
-     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
-     */
-
-  }, {
-    key: 'addToMenu',
-    value: function addToMenu(_ref) {
-      var note = _ref.note,
-          isRootFolder = _ref.isRootFolder;
-
-      codex.editor.state.blocks.id = note._id;
-      codex.notes.aside.addMenuItem(note, isRootFolder);
-    }
-
-    /**
-     * Render the Note
-     * @param {NoteData} note
-     */
-
-  }, {
-    key: 'render',
-    value: function render(note) {
-      codex.editor.content.clear(true);
-      this.titleEl.value = note.title;
-
-      /**
-       * We store all times in a Seconds to correspond server-format
-       * @type {Date}
-       */
-      var dtModify = new Date(note.dtModify * 1000);
-
-      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false
-      });
-      codex.editor.content.load({
-        id: note._id,
-        items: JSON.parse(note.content),
-        time: note.dtModify,
-        version: note.editorVersion
-      });
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * if we are trying to render new note but we have an Autoresizer instance
-       * then we need to clear it before we create new one
-       */
-      if (this.autoresizedTitle) {
-        this.autoresizedTitle.destroy();
-      }
-
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-
-      /**
-       * create new CMD+A shortcut
-       * bind it on current rendered Note
-       */
-      var shortcut = new Shortcut({
-        name: 'CMD+A',
-        on: codex.editor.nodes.redactor,
-        callback: function callback(event) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-
-          var range = document.createRange(),
-              selection = window.getSelection();
-
-          range.selectNodeContents(codex.editor.nodes.redactor);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-      });
-
-      this.shortcuts.push(shortcut);
-    }
-
-    /**
-     * Clears editor
-     */
-
-  }, {
-    key: 'clear',
-    value: function clear() {
-      codex.editor.content.clear(true);
-      this.titleEl.value = '';
-      this.dateEl.textContent = '';
-      codex.editor.ui.addInitialBlock();
-      this.deleteButton.classList.add('hide');
-
-      // destroy autoresizer
-      this.autoresizedTitle.destroy();
-
-      // destroy all shortcuts on note
-      this.shortcuts.forEach(function (shortcut) {
-        shortcut.remove();
-      });
-    }
-
-    /**
-     * Set focus to the Editor
-     */
-
-  }, {
-    key: 'delete',
-
-
-    /**
-     * Delete article
-     */
-    value: function _delete() {
-      var id = codex.editor.state.blocks.id;
-
-      if (!id) {
-        return;
-      }
-
-      if (Dialog.confirm('Are you sure you want to delete this note?')) {
-        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
-          return false;
-        }
-
-        codex.notes.aside.removeMenuItem(id);
-        this.clear();
-      }
-    }
-
-    /**
-     * Title input keydowns
-     * @description  By ENTER, sets focus on editor
-     * @param  {Element} titleElement - title block
-     * @param  {Event} event - keydown event
-     */
-
-  }, {
-    key: 'titleKeydownHandler',
-    value: function titleKeydownHandler(titleElement, event) {
-      if (event.keyCode == 13) {
-        event.preventDefault();
-
-        Note.focusEditor();
-      }
-    }
-  }], [{
-    key: 'focusEditor',
-    value: function focusEditor() {
-      window.setTimeout(function () {
-        var editor = document.querySelector('.ce-redactor');
-
-        editor.click();
-      }, 10);
-    }
-  }]);
-
-  return Note;
-}();
-
-exports.default = Note;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-module.exports = require("electron");
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _folder = __webpack_require__(15);
+var _folder = __webpack_require__(16);
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(2);
+var _note = __webpack_require__(3);
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(14);
+var _folderSettings = __webpack_require__(15);
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -661,7 +360,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(12).default;
+var AsideSwiper = __webpack_require__(13).default;
 var $ = __webpack_require__(0).default;
 
 /**
@@ -683,23 +382,30 @@ var menuItemTitleMaxLength = 68;
  */
 
 var Aside = function () {
+  _createClass(Aside, null, [{
+    key: 'CSS',
 
-  /**
-   * @constructor
-   */
-  function Aside() {
-    var _this = this;
-
-    _classCallCheck(this, Aside);
 
     /**
      * Make CSS dictionary
      * @type {Object}
      */
-    this.CSS = {
-      notesMenuLoading: 'notes-list--loading',
-      seenState: 'not-seen'
-    };
+    get: function get() {
+      return {
+        notesMenuLoading: 'notes-list--loading',
+        seenState: 'not-seen'
+      };
+    }
+    /**
+     * @constructor
+     */
+
+  }]);
+
+  function Aside() {
+    var _this = this;
+
+    _classCallCheck(this, Aside);
 
     /**
      * Find notes list holder
@@ -740,8 +446,8 @@ var Aside = function () {
     /**
      * Show preloader
      */
-    notesMenu.classList.add(this.CSS.notesMenuLoading);
-    foldersMenu.classList.add(this.CSS.notesMenuLoading);
+    notesMenu.classList.add(Aside.CSS.notesMenuLoading);
+    foldersMenu.classList.add(Aside.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
@@ -755,7 +461,7 @@ var Aside = function () {
     window.ipcRenderer.on('update folders list', function (event, _ref) {
       var userFolders = _ref.userFolders;
 
-      foldersMenu.classList.remove(_this.CSS.notesMenuLoading);
+      foldersMenu.classList.remove(Aside.CSS.notesMenuLoading);
       foldersMenu.innerHTML = '';
       userFolders.forEach(function (folder) {
         return _this.addFolder(folder);
@@ -769,7 +475,7 @@ var Aside = function () {
       var notes = _ref2.notes,
           isRootFolder = _ref2.isRootFolder;
 
-      notesMenu.classList.remove(_this.CSS.notesMenuLoading);
+      notesMenu.classList.remove(Aside.CSS.notesMenuLoading);
       notes.forEach(function (note) {
         return _this.addMenuItem(note, isRootFolder);
       });
@@ -816,6 +522,25 @@ var Aside = function () {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new _folderSettings2.default();
+
+    window.ipcRenderer.on('note updated', function (event, _ref3) {
+      var note = _ref3.note,
+          isRootFolder = _ref3.isRootFolder;
+
+      if (!note.isRemoved) {
+        _this.addMenuItem(note, isRootFolder);
+      } else {
+        _this.removeMenuItem(note._id);
+      }
+    });
+
+    window.ipcRenderer.on('folder updated', function (event, folder) {
+      if (!folder.isRemoved) {
+        _this.addFolder(folder);
+      } else {
+        _this.removeFolderFromMenu(folder._id);
+      }
+    });
   }
 
   /**
@@ -946,7 +671,7 @@ var Aside = function () {
     value: function addMenuItem(noteData, isRootFolder) {
       var _this2 = this;
 
-      if (!noteData.title) {
+      if (!noteData.titleLabel) {
         console.warn('Can not add Note to the Aside because it has no title', noteData);
         return;
       }
@@ -968,11 +693,11 @@ var Aside = function () {
       var existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
       if (existingNote) {
-        existingNote.textContent = this.createMenuItemTitle(noteData.title);
+        existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
         return;
       }
 
-      var item = this.makeMenuItem(noteData.title, { id: noteData._id });
+      var item = this.makeMenuItem(noteData.titleLabel, { id: noteData._id });
 
       notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -999,6 +724,13 @@ var Aside = function () {
         return;
       }
       var foldersMenu = document.querySelector('[name="js-folders-menu"]');
+      var folderItem = foldersMenu.querySelector('[data-folder-id="' + folder._id + '"]');
+
+      if (folderItem) {
+        this.updateFolderTitleInMenu(folder._id, folder.title);
+        return;
+      }
+
       var item = this.makeMenuItem(folder.title, { folderId: folder._id });
 
       foldersMenu.insertAdjacentElement('afterbegin', item);
@@ -1121,7 +853,7 @@ var Aside = function () {
           id = menuItem.dataset.id;
 
       // remove "not-seen" state
-      menuItem.classList.remove(this.CSS.seenState);
+      menuItem.classList.remove(Aside.CSS.seenState);
 
       // send "note - get" event
       var noteData = window.ipcRenderer.sendSync('note - get', { id: id });
@@ -1248,6 +980,396 @@ var Aside = function () {
 }();
 
 exports.default = Aside;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = __webpack_require__(0).default;
+var AutoResizer = __webpack_require__(14).default;
+var Dialog = __webpack_require__(1).default;
+var Shortcut = __webpack_require__(11).default;
+var clipboardUtil = __webpack_require__(18).default;
+
+/**
+ * @typedef {Object} NoteData
+ * @property {String} _id           — Note's id
+ * @property {String} title         — Note's title
+ * @property {String} authorId      — Note's Author id
+ * @property {String} folderId      - Note's Folder id
+ * @property {String} content       - JSON with Note's body
+ * @property {Number} dtModify      - timestamp of last modification
+ * @property {Number} dtCreate      - timestamp of Note creation
+ * @property {Boolean} isRemoved    - Note's removed state
+ * @property {String|null} editorVersion - used CodeX Editor version
+ */
+
+/**
+ * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
+ * @property {ShortCut[]} shortcut
+ */
+
+var Note = function () {
+
+  /**
+   * @constructor
+   */
+  function Note() {
+    _classCallCheck(this, Note);
+
+    this.deleteButton = $.get('delete-button');
+
+    this.titleEl = document.getElementById('note-title');
+    this.dateEl = document.getElementById('note-date');
+    this.editor = document.getElementById('codex-editor');
+
+    this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
+    this.editorContentSelected = false;
+
+    // when we are creating new note
+    if (!this.autoresizedTitle) {
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    this.shortcuts = [];
+
+    this.enableShortcuts();
+  }
+
+  /**
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
+   */
+
+
+  _createClass(Note, [{
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      // any click on body prevents content selection
+      // stop preventing copy event
+      document.body.addEventListener('click', function () {
+        _this.editorContentSelected = false;
+        _this.editor.removeEventListener('copy', preventDefaultExecution);
+      }, false);
+
+      /**
+       * Select all document by CMD+A
+       */
+      var selectAllShortcut = new Shortcut({
+        name: 'CMD+A',
+        on: this.editor,
+        callback: function callback(event) {
+          _this.cmdA(event);
+          _this.editor.addEventListener('copy', preventDefaultExecution);
+        }
+      });
+
+      /**
+       * Copy selected document by CMD+C
+       */
+      var copySelectedShortcut = new Shortcut({
+        name: 'CMD+C',
+        on: this.editor,
+        callback: function callback() {
+          _this.cmdC();
+        }
+      });
+
+      this.shortcuts.push(selectAllShortcut);
+      this.shortcuts.push(copySelectedShortcut);
+    }
+
+    /**
+     * CMD+A Shortcut
+     * Selects title + all Note
+     */
+
+  }, {
+    key: 'cmdA',
+    value: function cmdA(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      this.selectEditorContents();
+    }
+
+    /**
+     * CMD+C Shortcut
+     * Copies selected title and Note
+     */
+
+  }, {
+    key: 'cmdC',
+    value: function cmdC() {
+      if (!this.editorContentSelected) {
+        // selection was cleared
+        return;
+      }
+
+      var editorContent = this.editor.querySelector('.ce-redactor'),
+          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+      // select content again because we select textarea contents to copy to the clipboard
+      this.selectEditorContents();
+    }
+
+    /**
+     * Send note data to backend
+     * @static
+     */
+
+  }, {
+    key: 'save',
+    value: function save() {
+      var _this2 = this;
+
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * If folder is opened, pass id. Otherwise pass false
+       */
+      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+
+      codex.editor.saver.save().then(function (noteData) {
+        _this2.validate(noteData);
+        return noteData;
+      }).then(function (noteData) {
+        var note = {
+          data: noteData,
+          title: _this2.titleEl.value.trim(),
+          folderId: folderId
+        };
+
+        var saveIndicator = document.getElementById('save-indicator');
+
+        if (_this2.showSavedIndicatorTimer) {
+          window.clearTimeout(_this2.showSavedIndicatorTimer);
+        }
+
+        saveIndicator.classList.add('saved');
+
+        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
+          saveIndicator.classList.remove('saved');
+        }, 500);
+
+        window.ipcRenderer.send('note - save', { note: note });
+      }).catch(function (err) {
+        console.log('Error while saving note: ', err);
+      });
+    }
+
+    /**
+     * Validate Note data before saving
+     * @param {object} noteData
+     * @throws {Error}
+     */
+
+  }, {
+    key: 'validate',
+    value: function validate(noteData) {
+      if (!noteData.items.length) {
+        throw Error('Article is empty');
+      }
+    }
+
+    /**
+     * Add Note to the menu by Aside.addMenuItem method
+     *
+     * @param {object} data
+     * @param {object} data.note
+     * @param {number} data.note.folderId
+     * @param {number} data.note._id
+     * @param {string} data.note.title
+     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
+     */
+
+  }, {
+    key: 'addToMenu',
+    value: function addToMenu(_ref) {
+      var note = _ref.note,
+          isRootFolder = _ref.isRootFolder;
+
+      codex.editor.state.blocks.id = note._id;
+      codex.notes.aside.addMenuItem(note, isRootFolder);
+    }
+
+    /**
+     * Render the Note
+     * @param {NoteData} note
+     */
+
+  }, {
+    key: 'render',
+    value: function render(note) {
+      codex.editor.content.clear(true);
+      this.titleEl.value = note.title;
+
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
+
+      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
+      codex.editor.content.load({
+        id: note._id,
+        items: JSON.parse(note.content),
+        time: note.dtModify,
+        version: note.editorVersion
+      });
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * if we are trying to render new note but we have an Autoresizer instance
+       * then we need to clear it before we create new one
+       */
+      if (this.autoresizedTitle) {
+        this.autoresizedTitle.destroy();
+      }
+
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    /**
+     * Clears editor
+     */
+
+  }, {
+    key: 'clear',
+    value: function clear() {
+      codex.editor.content.clear(true);
+      this.titleEl.value = '';
+      this.dateEl.textContent = '';
+      codex.editor.ui.addInitialBlock();
+      this.deleteButton.classList.add('hide');
+
+      // destroy autoresizer
+      this.autoresizedTitle.destroy();
+
+      this.editorContentSelected = false;
+    }
+
+    /**
+     * Set focus to the Editor
+     */
+
+  }, {
+    key: 'delete',
+
+
+    /**
+     * Delete article
+     */
+    value: function _delete() {
+      var id = codex.editor.state.blocks.id;
+
+      if (!id) {
+        return;
+      }
+
+      if (Dialog.confirm('Are you sure you want to delete this note?')) {
+        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
+          return false;
+        }
+
+        codex.notes.aside.removeMenuItem(id);
+        this.clear();
+      }
+    }
+
+    /**
+     * Title input keydowns
+     * @description  By ENTER, sets focus on editor
+     * @param  {Element} titleElement - title block
+     * @param  {Event} event - keydown event
+     */
+
+  }, {
+    key: 'titleKeydownHandler',
+    value: function titleKeydownHandler(titleElement, event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+
+        Note.focusEditor();
+      }
+    }
+
+    /**
+     * selects editor with title
+     */
+
+  }, {
+    key: 'selectEditorContents',
+    value: function selectEditorContents() {
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(this.editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      this.editorContentSelected = true;
+    }
+  }], [{
+    key: 'focusEditor',
+    value: function focusEditor() {
+      window.setTimeout(function () {
+        var editor = document.querySelector('.ce-redactor');
+
+        editor.click();
+      }, 10);
+    }
+  }]);
+
+  return Note;
+}();
+
+exports.default = Note;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
 
 /***/ }),
 /* 5 */
@@ -1848,6 +1970,19 @@ exports.default = User;
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/*!
+ * Library for handling keyboard shortcuts
+ * @copyright undefined
+ * @license MIT
+ * @author CodeX (https://ifmo.su)
+ * @version 1.0.0
+ */
+!function(e,t){if(true)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}("undefined"!=typeof self?self:this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};return t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=0)}([function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),i={0:48,1:49,2:50,3:51,4:52,5:53,6:54,7:55,8:56,9:57,A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,U:85,V:86,W:87,X:88,Y:89,Z:90,BACKSPACE:8,ENTER:13,ESCAPE:27,LEFT:37,UP:38,RIGHT:39,DOWN:40,INSERT:45,DELETE:46},u={CMD:["CMD","CONTROL","COMMAND","WINDOWS","CTRL"],SHIFT:["SHIFT"],ALT:["ALT","OPTION"]},c=function(){function e(t){var n=this;r(this,e),this.commands={},this.keys={},this.parseShortcutName(t.name),this.element=t.on,this.callback=t.callback,this.executeShortcut=function(e){n.execute(e)},this.element.addEventListener("keydown",this.executeShortcut,!1)}return o(e,[{key:"parseShortcutName",value:function(e){e=e.split("+");for(var t=0;t<e.length;t++)if(e[t]=e[t].toUpperCase(),e[t].length>1)for(var n in u)u[n].includes(e[t])&&(this.commands[n]=!0);else this.keys[e[t]]=!0}},{key:"execute",value:function(e){var t=e.ctrlKey||e.metaKey,n=e.shiftKey,r=e.altKey,o={CMD:t,SHIFT:n,ALT:r},u=void 0,c=!0;for(u in this.commands)c=c&&o[u];var a=void 0,s=!0;for(a in this.keys)s=s&&e.keyCode===i[a];c&&s&&this.callback(e)}},{key:"remove",value:function(){this.element.removeEventListener("keydown",this.executeShortcut)}}]),e}();t.default=c}])});
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
@@ -1873,14 +2008,14 @@ var _authObserver2 = _interopRequireDefault(_authObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var electron = __webpack_require__(3);
+var electron = __webpack_require__(4);
 var Editor = __webpack_require__(7).default;
 
 /**
  * Load components
  */
-var Aside = __webpack_require__(4).default;
-var Note = __webpack_require__(2).default;
+var Aside = __webpack_require__(2).default;
+var Note = __webpack_require__(3).default;
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -1957,7 +2092,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2049,7 +2184,7 @@ var AsideSwiper = function () {
 exports.default = AsideSwiper;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2168,7 +2303,7 @@ var Autoresizer = function () {
 exports.default = Autoresizer;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2184,7 +2319,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(18).default;
+var Validate = __webpack_require__(19).default;
 
 /**
  * Folder Settings panel module
@@ -2477,7 +2612,7 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2493,7 +2628,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var $ = __webpack_require__(0).default;
 var Dialog = __webpack_require__(1).default;
-var Aside = __webpack_require__(4).default;
+var Aside = __webpack_require__(2);
 
 /**
  * Folders methods
@@ -2542,9 +2677,6 @@ var Folder = function () {
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
-    /**
-     * @todo asynchronous notes load
-     */
     codex.notes.aside.loadNotes(id).then(function (_ref2) {
       var notes = _ref2.notes;
 
@@ -2563,15 +2695,11 @@ var Folder = function () {
           var noteId = note._id,
               lastSeen = data[noteId];
 
-          console.log('lastseen', lastSeen);
-          console.log('noteId', noteId);
-          console.log('note', note);
-
           if (!lastSeen || note.dtModify > lastSeen) {
             var foundNote = _this.notesListWrapper.querySelector('[data-id=\'' + noteId + '\']');
 
             if (foundNote) {
-              foundNote.classList.add(Aside.CSS.seenState);
+              foundNote.classList.add(Aside.default.CSS.seenState);
             }
           }
         });
@@ -2664,203 +2792,6 @@ var Folder = function () {
 }();
 
 exports.default = Folder;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * CodeX Note ShortCuts class
- * Handles keyDowns on Note.
- *
- * Used to create shortcuts on element
- */
-
-/**
- * List of key codes
- */
-var keyCodes = {
-  '0': 48,
-  '1': 49,
-  '2': 50,
-  '3': 51,
-  '4': 52,
-  '5': 53,
-  '6': 54,
-  '7': 55,
-  '8': 56,
-  '9': 57,
-  'A': 65,
-  'B': 66,
-  'C': 67,
-  'D': 68,
-  'E': 69,
-  'F': 70,
-  'G': 71,
-  'H': 72,
-  'I': 73,
-  'J': 74,
-  'K': 75,
-  'L': 76,
-  'M': 77,
-  'N': 78,
-  'O': 79,
-  'P': 80,
-  'Q': 81,
-  'R': 82,
-  'S': 83,
-  'T': 84,
-  'U': 85,
-  'V': 86,
-  'W': 87,
-  'X': 88,
-  'Y': 89,
-  'Z': 90,
-  'BACKSPACE': 8,
-  'ENTER': 13,
-  'ESCAPE': 27,
-  'LEFT': 37,
-  'UP': 38,
-  'RIGHT': 39,
-  'DOWN': 40,
-  'INSERT': 45,
-  'DELETE': 46
-};
-
-var supportedCommands = {
-  'CMD': ['CMD', 'CONTROL', 'COMMAND', 'WINDOWS', 'CTRL'],
-  'SHIFT': ['SHIFT'],
-  'ALT': ['ALT', 'OPTION']
-};
-
-/**
- * @class ShortCuts
- * @classdesc Callback will be fired with two params:
- *   - event: standard keyDown param
- *   - target: element which registered on shortcut creation
- *
- * @typedef {ShortCut} ShortCut
- * @property {String} name - shortcut name
- * @property {Element} on - element that passed on shortcut creation
- * @property {Function} callback - custom user function
- */
-
-var ShortCut = function () {
-
-  /**
-   * Create new shortcut
-   * @param {ShortCut} shortcut
-   * @constructor
-   */
-  function ShortCut(shortcut) {
-    var _this = this;
-
-    _classCallCheck(this, ShortCut);
-
-    this.commands = {};
-    this.keys = {};
-
-    this.parseShortcutName(shortcut.name);
-
-    this.element = shortcut.on;
-    this.callback = shortcut.callback;
-
-    this.executeShortcut = function (event) {
-      _this.execute(event);
-    };
-    this.element.addEventListener('keydown', this.executeShortcut, false);
-  }
-
-  /**
-   * parses string to get shortcut commands in uppercase
-   * @param {String} shortcut
-   *
-   * @return {Array} keys
-   */
-
-
-  _createClass(ShortCut, [{
-    key: 'parseShortcutName',
-    value: function parseShortcutName(shortcut) {
-      shortcut = shortcut.split('+');
-
-      for (var key = 0; key < shortcut.length; key++) {
-        shortcut[key] = shortcut[key].toUpperCase();
-
-        if (shortcut[key].length > 1) {
-          for (var command in supportedCommands) {
-            if (supportedCommands[command].includes(shortcut[key])) {
-              this.commands[command] = true;
-            }
-          }
-        } else {
-          this.keys[shortcut[key]] = true;
-        }
-      }
-    }
-
-    /**
-     * Check all passed commands and keys before firing callback
-     * @param event
-     */
-
-  }, {
-    key: 'execute',
-    value: function execute(event) {
-      var cmdKey = event.ctrlKey || event.metaKey,
-          shiftKey = event.shiftKey,
-          altKey = event.altKey,
-          passed = {
-        'CMD': cmdKey,
-        'SHIFT': shiftKey,
-        'ALT': altKey
-      };
-
-      var command = void 0,
-          allCommandsPassed = true;
-
-      for (command in this.commands) {
-        allCommandsPassed = allCommandsPassed && passed[command];
-      }
-
-      var key = void 0,
-          allKeysPassed = true;
-
-      for (key in this.keys) {
-        allKeysPassed = allKeysPassed && event.keyCode === keyCodes[key];
-      }
-
-      if (allCommandsPassed && allKeysPassed) {
-        this.callback.call(null, event);
-      }
-    }
-
-    /**
-     * Destroy shortcut: remove listener from element
-     */
-
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.element.removeEventListener('keydown', this.executeShortcut);
-    }
-  }]);
-
-  return ShortCut;
-}();
-
-exports.default = ShortCut;
 
 /***/ }),
 /* 17 */
@@ -2958,6 +2889,70 @@ exports.default = SwipeDetector;
 
 /***/ }),
 /* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Clipboard module
+ */
+var Clipboard = function () {
+  function Clipboard() {
+    _classCallCheck(this, Clipboard);
+  }
+
+  _createClass(Clipboard, null, [{
+    key: 'copy',
+
+
+    /**
+     * copy to clipboards passed text
+     *
+     * @param {string} text
+     * @return {boolean}
+     */
+    value: function copy(text) {
+      var textarea = document.createElement('textarea'),
+          success = false;
+
+      Object.assign(textarea.style, {
+        position: 'fixed',
+        top: '-100%',
+        left: '-100%',
+        opacity: '0'
+      });
+
+      textarea.value = text;
+
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        success = document.execCommand('copy');
+      } catch (e) {}
+
+      document.body.removeChild(textarea);
+
+      return success;
+    }
+  }]);
+
+  return Clipboard;
+}();
+
+exports.default = Clipboard;
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

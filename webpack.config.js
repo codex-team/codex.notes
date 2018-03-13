@@ -68,6 +68,7 @@ module.exports = {
          * - eslint-loader
          */
         test: /\.js$/,
+        exclude : /node_modules/,
         use : [
           /** Babel loader */
           {

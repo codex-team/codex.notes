@@ -1,6 +1,6 @@
 const $ = require('./dom').default;
 const Dialog = require('./dialog').default;
-const Aside = require('./aside').default;
+const Aside = require('./aside');
 
 /**
  * Folders methods
@@ -42,9 +42,6 @@ export default class Folder {
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
-    /**
-     * @todo asynchronous notes load
-     */
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
@@ -60,15 +57,11 @@ export default class Folder {
             let noteId = note._id,
                 lastSeen = data[noteId];
 
-            console.log('lastseen', lastSeen);
-            console.log('noteId', noteId);
-            console.log('note', note);
-
             if ( !lastSeen || note.dtModify > lastSeen) {
               let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
 
               if (foundNote) {
-                foundNote.classList.add(Aside.CSS.seenState);
+                foundNote.classList.add(Aside.default.CSS.seenState);
               }
             }
           });

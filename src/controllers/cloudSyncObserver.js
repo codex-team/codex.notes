@@ -17,15 +17,15 @@ const Time = require('../utils/time');
 const { GraphQLClient } = require('graphql-request');
 
 /**
- * @class SyncObserver
+ * @class CloudSyncObserver
  *
  * Sends new changes to the API server
  * Accepts changes from the API server
  *
- * @typedef {SyncObserver} SyncObserver
+ * @typedef {CloudSyncObserver} CloudSyncObserver
  * @property {GraphQLClient} api    - GraphQL API client
  */
-class SyncObserver {
+class CloudSyncObserver {
 
   /**
    * Initialize params for the API
@@ -34,6 +34,10 @@ class SyncObserver {
     this.api = null;
 
     this.refreshClient();
+
+    this.syncingInterval = setInterval(() => {
+      this.sync();
+    }, 10 * 1000 ); // every 10 sec
   }
 
   /**
@@ -106,7 +110,7 @@ class SyncObserver {
 
       return dataFromCloud;
     } catch(e) {
-      console.log('[syncObserver] Error:', e);
+      console.log('[cloudSyncObserver] Error:', e);
       return false;
     }
   }
@@ -117,7 +121,7 @@ class SyncObserver {
    * @return {Promise<object>}
    */
   getDataFromCloud() {
-    console.log('[syncObserver] Get data from the Cloud');
+    console.log('[cloudSyncObserver] Get data from the Cloud');
 
     /**
      * Sync Query
@@ -132,7 +136,7 @@ class SyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        console.log('( ͡° ͜ʖ ͡°) SyncObserver received data:', (data), '\n');
+        console.log('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
         return data;
       });
   }
@@ -145,7 +149,7 @@ class SyncObserver {
    * @returns {object}
    */
   async saveDataFromCloud(dataFromCloud) {
-    console.log('[syncObserver] Update local data');
+    console.log('[cloudSyncObserver] Update local data');
 
     let folders = dataFromCloud.user.folders;
 
@@ -226,7 +230,7 @@ class SyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async getLocalUpdates() {
-    console.log('[syncObserver] Prepare local updates');
+    console.log('[cloudSyncObserver] Prepare local updates');
 
     /**
      * Get last sync date
@@ -250,16 +254,10 @@ class SyncObserver {
      */
     let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
 
-    /**
-     * Get not synced Collaborators
-     */
-    let changedCollaborators = await Collaborator.prepareUpdates(lastSyncTimestamp);
-
     return {
       user: changedUser,
       folders: changedFolders,
-      notes: changedNotes,
-      collaborators: changedCollaborators
+      notes: changedNotes
     };
   }
 
@@ -271,7 +269,7 @@ class SyncObserver {
    * @returns {Promise[]}
    */
   async syncMutationsSequence(updates) {
-    console.log('[syncObserver] Create Sync Mutations Sequence');
+    console.log('[cloudSyncObserver] Create Sync Mutations Sequence');
 
     /**
      * Sequence of mutations requests
@@ -304,15 +302,6 @@ class SyncObserver {
       }));
     }
 
-    /**
-     * Push Collaborators mutations to the Sync Mutations Sequence
-     */
-    if (updates.collaborators.length) {
-      syncMutationsSequence.push(...updates.collaborators.map( collaborator => {
-        return this.sendCollaboratorInvite(collaborator);
-      }));
-    }
-
     return await Promise.all(syncMutationsSequence);
   }
 
@@ -322,7 +311,7 @@ class SyncObserver {
    * @returns {Object}
    */
   async updateUserLastSyncDate() {
-    console.log('[syncObserver] Update user\'s last sync date');
+    console.log('[cloudSyncObserver] Update user\'s last sync date');
 
     /** Update user's last sync date */
     let currentTime = Time.now;
@@ -351,7 +340,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) SyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] User Mutation failed because of ', error);
@@ -387,7 +376,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) SyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Folder Mutation failed because of ', error);
@@ -397,9 +386,9 @@ class SyncObserver {
   /**
    * Send CollaboratorInvite Mutation
    *
-   * @param {Collaborator} collaborator - Collaborator to send
+   * @param {Collaborator} collaborator - Collaborator to send message
    *
-   * @return {Promise<object>}
+   * @return {Promise<void>}
    */
   sendCollaboratorInvite(collaborator) {
     let query = require('../graphql/mutations/invite');
@@ -413,12 +402,13 @@ class SyncObserver {
     };
 
     return this.api.request(query, variables)
-        .then(data => {
-          console.log('\n(ღ˘⌣˘ღ) SyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
-        })
-        .catch(error => {
-          console.log('[!] InviteCollaborator Mutation failed because of ', error);
-        });
+      .then(data => {
+        console.log('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+      })
+      .catch(error => {
+        console.log('[!] InviteCollaborator Mutation failed because of ', error);
+        throw new Error(error);
+      });
   }
 
   /**
@@ -442,7 +432,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        console.log('\n(ღ˘⌣˘ღ) SyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
+        console.log('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
       })
       .catch(error => {
         console.log('[!] CollaboratorJoin Mutation failed because of ', error);
@@ -472,7 +462,7 @@ class SyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) SyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
+        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
         console.log('[!] Note Mutation failed because of ', error);
@@ -480,4 +470,4 @@ class SyncObserver {
   }
 }
 
-module.exports = SyncObserver;
+module.exports = CloudSyncObserver;

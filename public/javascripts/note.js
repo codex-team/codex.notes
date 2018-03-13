@@ -1,7 +1,8 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
-const Shortcut = require('./shortcut').default;
+const Shortcut = require('@codexteam/shortcuts').default;
+const clipboardUtil = require('./utils/clipboard').default;
 
 /**
  * @typedef {Object} NoteData
@@ -24,6 +25,7 @@ const Shortcut = require('./shortcut').default;
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
  * @property {ShortCut[]} shortcut
  */
 export default class Note {
@@ -36,8 +38,15 @@ export default class Note {
 
     this.titleEl = document.getElementById('note-title');
     this.dateEl  = document.getElementById('note-date');
+    this.editor  = document.getElementById('codex-editor');
 
     this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
+    this.editorContentSelected = false;
 
     // when we are creating new note
     if (!this.autoresizedTitle) {
@@ -45,6 +54,82 @@ export default class Note {
     }
 
     this.shortcuts = [];
+
+    this.enableShortcuts();
+  }
+
+  /**
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
+   */
+  enableShortcuts() {
+    let preventDefaultExecution = (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+
+    // any click on body prevents content selection
+    // stop preventing copy event
+    document.body.addEventListener('click', () => {
+      this.editorContentSelected = false;
+      this.editor.removeEventListener('copy', preventDefaultExecution);
+    }, false);
+
+    /**
+     * Select all document by CMD+A
+     */
+    let selectAllShortcut = new Shortcut({
+      name: 'CMD+A',
+      on: this.editor,
+      callback: event => {
+        this.cmdA(event);
+        this.editor.addEventListener('copy', preventDefaultExecution);
+      }
+    });
+
+    /**
+     * Copy selected document by CMD+C
+     */
+    let copySelectedShortcut = new Shortcut({
+      name: 'CMD+C',
+      on: this.editor,
+      callback: () => {
+        this.cmdC();
+      }
+    });
+
+    this.shortcuts.push(selectAllShortcut);
+    this.shortcuts.push(copySelectedShortcut);
+  }
+
+  /**
+   * CMD+A Shortcut
+   * Selects title + all Note
+   */
+  cmdA(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    this.selectEditorContents();
+  }
+
+  /**
+   * CMD+C Shortcut
+   * Copies selected title and Note
+   */
+  cmdC() {
+    if (!this.editorContentSelected) { // selection was cleared
+      return;
+    }
+
+    let editorContent = this.editor.querySelector('.ce-redactor'),
+        formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+    clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+    // select content again because we select textarea contents to copy to the clipboard
+    this.selectEditorContents();
   }
 
   /**
@@ -154,28 +239,6 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
-
-    /**
-     * create new CMD+A shortcut
-     * bind it on current rendered Note
-     */
-    let shortcut = new Shortcut({
-      name: 'CMD+A',
-      on: codex.editor.nodes.redactor,
-      callback: function (event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        let range = document.createRange(),
-            selection = window.getSelection();
-
-        range.selectNodeContents(codex.editor.nodes.redactor);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    });
-
-    this.shortcuts.push(shortcut);
   }
 
   /**
@@ -191,10 +254,7 @@ export default class Note {
     // destroy autoresizer
     this.autoresizedTitle.destroy();
 
-    // destroy all shortcuts on note
-    this.shortcuts.forEach((shortcut) => {
-      shortcut.remove();
-    });
+    this.editorContentSelected = false;
   }
 
   /**
@@ -240,5 +300,19 @@ export default class Note {
 
       Note.focusEditor();
     }
+  }
+
+  /**
+   * selects editor with title
+   */
+  selectEditorContents() {
+    let range = document.createRange(),
+        selection = window.getSelection();
+
+    range.selectNodeContents(this.editor);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    this.editorContentSelected = true;
   }
 }

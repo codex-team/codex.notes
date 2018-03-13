@@ -25,18 +25,19 @@ const menuItemTitleMaxLength = 68;
 export default class Aside {
 
   /**
-   * @constructor
+   * Make CSS dictionary
+   * @type {Object}
    */
-  constructor() {
-    /**
-     * Make CSS dictionary
-     * @type {Object}
-     */
-    this.CSS = {
+  static get CSS() {
+    return {
       notesMenuLoading: 'notes-list--loading',
       seenState : 'not-seen'
     };
-
+  }
+  /**
+   * @constructor
+   */
+  constructor() {
     /**
      * Find notes list holder
      * @type {Element}
@@ -72,8 +73,8 @@ export default class Aside {
     /**
      * Show preloader
      */
-    notesMenu.classList.add(this.CSS.notesMenuLoading);
-    foldersMenu.classList.add(this.CSS.notesMenuLoading);
+    notesMenu.classList.add(Aside.CSS.notesMenuLoading);
+    foldersMenu.classList.add(Aside.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
@@ -85,7 +86,7 @@ export default class Aside {
      * Update folder list
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
-      foldersMenu.classList.remove(this.CSS.notesMenuLoading);
+      foldersMenu.classList.remove(Aside.CSS.notesMenuLoading);
       foldersMenu.innerHTML = '';
       userFolders.forEach( folder => this.addFolder(folder) );
     });
@@ -94,7 +95,7 @@ export default class Aside {
      * Update notes list
      */
     window.ipcRenderer.on('notes list - update', (event, {notes, isRootFolder}) => {
-      notesMenu.classList.remove(this.CSS.notesMenuLoading);
+      notesMenu.classList.remove(Aside.CSS.notesMenuLoading);
       notes.forEach( note => this.addMenuItem(note, isRootFolder) );
     });
 
@@ -133,6 +134,22 @@ export default class Aside {
      * Active 'Folder Settings' panel
      */
     this.folderSettings = new FolderSettings();
+
+    window.ipcRenderer.on('note updated', (event, {note, isRootFolder}) => {
+      if (!note.isRemoved) {
+        this.addMenuItem(note, isRootFolder);
+      } else {
+        this.removeMenuItem(note._id);
+      }
+    });
+
+    window.ipcRenderer.on('folder updated', (event, folder) => {
+      if (!folder.isRemoved) {
+        this.addFolder(folder);
+      } else {
+        this.removeFolderFromMenu(folder._id);
+      }
+    });
   }
 
   /**
@@ -241,7 +258,7 @@ export default class Aside {
    * @param {Boolean} isRootFolder - true if Note is included to the Root Folder
    */
   addMenuItem(noteData, isRootFolder) {
-    if (!noteData.title) {
+    if (!noteData.titleLabel) {
       console.warn('Can not add Note to the Aside because it has no title', noteData);
       return;
     }
@@ -263,11 +280,11 @@ export default class Aside {
     let existingNote = notesMenu.querySelector('[data-id="' + noteData._id + '"]');
 
     if (existingNote) {
-      existingNote.textContent = this.createMenuItemTitle(noteData.title);
+      existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
       return;
     }
 
-    let item = this.makeMenuItem(noteData.title, {id: noteData._id});
+    let item = this.makeMenuItem(noteData.titleLabel, {id: noteData._id});
 
     notesMenu.insertAdjacentElement('afterbegin', item);
 
@@ -287,6 +304,13 @@ export default class Aside {
       return;
     }
     let foldersMenu = document.querySelector('[name="js-folders-menu"]');
+    let folderItem = foldersMenu.querySelector('[data-folder-id="' + folder._id + '"]');
+
+    if (folderItem) {
+      this.updateFolderTitleInMenu(folder._id, folder.title);
+      return;
+    }
+
     let item = this.makeMenuItem(folder.title, {folderId: folder._id});
 
     foldersMenu.insertAdjacentElement('afterbegin', item);
@@ -390,7 +414,7 @@ export default class Aside {
         id = menuItem.dataset.id;
 
     // remove "not-seen" state
-    menuItem.classList.remove(this.CSS.seenState);
+    menuItem.classList.remove(Aside.CSS.seenState);
 
     // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});

@@ -95,7 +95,7 @@ class FoldersController {
     try {
       let folder = new Folder({
         title: folderTitle,
-        ownerId: global.user ? global.user.id : null
+        ownerId: global.user && global.user.token ? global.user.id : null
       });
 
       let savedFolder = await folder.save();
@@ -103,7 +103,7 @@ class FoldersController {
       /**
        * Sync with an API
        */
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.returnValue = savedFolder;
     } catch (err) {
@@ -124,7 +124,7 @@ class FoldersController {
 
       let folderRemovingResult = await folder.delete();
 
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {
@@ -151,7 +151,7 @@ class FoldersController {
       /**
        * Sync with an API
        */
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
     } catch (err) {
       console.log('Folder renaming failed because of ', err);
       event.returnValue = false;

@@ -27,6 +27,7 @@ class NotesController {
 
     ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
+      this.SeenStateObserver.touch(note.data.id);
     });
 
     ipcMain.on('notes list - load', (event, folderId) => {
@@ -77,7 +78,7 @@ class NotesController {
         title: noteData.title,
         content: JSON.stringify(noteData.data.items),
         editorVersion: noteData.data.version,
-        authorId: global.user ? global.user.id : null,
+        authorId: global.user && global.user.token ? global.user.id : null,
         folderId: noteData.folderId,
       });
 
@@ -85,7 +86,7 @@ class NotesController {
 
       let newNote = await note.save();
 
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.sender.send('note saved', {
         note: newNote,
@@ -154,7 +155,7 @@ class NotesController {
 
       let noteRemovingResult = await note.delete();
 
-      global.app.syncObserver.sync();
+      global.app.cloudSyncObserver.sync();
 
       event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
