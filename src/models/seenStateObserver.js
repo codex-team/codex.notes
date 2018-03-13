@@ -1,10 +1,20 @@
 /**
- * Created by khaydarovm on 27.02.2018.
+ * @module SeenStateObserver
+ * Checks seen notes or makes notes "seen"
  */
+
 'use strict';
+
 const db = require('../utils/database'),
     Time = require('../utils/time');
 
+/**
+ * @class SeenStateObserver
+ * Class can "touch" note (mark as seen) or get information about visited notes
+ *
+ * @property this.getSeenNotes {Function} - returns information about passed note
+ * @property this.touch {Function} - makes note "seen", sets lastSeen time
+ */
 class SeenStateObserver {
 
     constructor() { }

@@ -51,12 +51,19 @@ export default class Folder {
           noteIds.push(note._id);
         });
 
+        /**
+         * Here we use "once" because we need to invoke callback once when a message comes from server
+         * "once" automatically removes listener
+         */
         window.ipcRenderer.send('notes - seen', { noteIds });
         window.ipcRenderer.once('notes - seen', (event, {data}) => {
           notes.forEach( (note) => {
             let noteId = note._id,
                 lastSeen = data[noteId];
 
+            /**
+             * if we don't have any information about note in folder or modification time is greater that our last seen time
+             */
             if ( !lastSeen || note.dtModify > lastSeen) {
               let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
 
