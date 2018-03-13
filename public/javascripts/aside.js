@@ -33,7 +33,8 @@ export default class Aside {
      * @type {Object}
      */
     this.CSS = {
-      notesMenuLoading: 'notes-list--loading'
+      notesMenuLoading: 'notes-list--loading',
+      seenState : 'not-seen'
     };
 
     /**
@@ -388,6 +389,10 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
+    // remove "not-seen" state
+    menuItem.classList.remove(this.CSS.seenState);
+
+    // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
     codex.notes.note.render(noteData);

@@ -1,5 +1,6 @@
 const $ = require('./dom').default;
 const Dialog = require('./dialog').default;
+const Aside = require('./aside').default;
 
 /**
  * Folders methods
@@ -59,12 +60,18 @@ export default class Folder {
             let noteId = note._id,
                 lastSeen = data[noteId];
 
-            if (note.dtModify > lastSeen) {
-              // @todo highlight note
+            console.log('lastseen', lastSeen);
+            console.log('noteId', noteId);
+            console.log('note', note);
+
+            if ( !lastSeen || note.dtModify > lastSeen) {
+              let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
+
+              if (foundNote) {
+                foundNote.classList.add(Aside.CSS.seenState);
+              }
             }
           });
-
-          console.log('found', this.notesListWrapper.querySelector(`[data-id='${data.noteId}']`));
         });
       })
       .then( () => this.clearNotesList() );

@@ -697,7 +697,8 @@ var Aside = function () {
      * @type {Object}
      */
     this.CSS = {
-      notesMenuLoading: 'notes-list--loading'
+      notesMenuLoading: 'notes-list--loading',
+      seenState: 'not-seen'
     };
 
     /**
@@ -1119,6 +1120,10 @@ var Aside = function () {
       var menuItem = event.target,
           id = menuItem.dataset.id;
 
+      // remove "not-seen" state
+      menuItem.classList.remove(this.CSS.seenState);
+
+      // send "note - get" event
       var noteData = window.ipcRenderer.sendSync('note - get', { id: id });
 
       codex.notes.note.render(noteData);
@@ -2488,6 +2493,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var $ = __webpack_require__(0).default;
 var Dialog = __webpack_require__(1).default;
+var Aside = __webpack_require__(4).default;
 
 /**
  * Folders methods
@@ -2557,12 +2563,18 @@ var Folder = function () {
           var noteId = note._id,
               lastSeen = data[noteId];
 
-          if (note.dtModify > lastSeen) {
-            // @todo highlight note
+          console.log('lastseen', lastSeen);
+          console.log('noteId', noteId);
+          console.log('note', note);
+
+          if (!lastSeen || note.dtModify > lastSeen) {
+            var foundNote = _this.notesListWrapper.querySelector('[data-id=\'' + noteId + '\']');
+
+            if (foundNote) {
+              foundNote.classList.add(Aside.CSS.seenState);
+            }
           }
         });
-
-        console.log('found', _this.notesListWrapper.querySelector('[data-id=\'' + data.noteId + '\']'));
       });
     }).then(function () {
       return _this.clearNotesList();
