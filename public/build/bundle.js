@@ -2681,6 +2681,7 @@ var Folder = function () {
     codex.notes.aside.loadNotes(id).then(function (_ref2) {
       var notes = _ref2.notes;
 
+      _this.notes = notes;
       _this.needSeenBadge(notes);
     }).then(function () {
       return _this.clearNotesList();
@@ -2742,7 +2743,6 @@ var Folder = function () {
     value: function needSeenBadge(notes) {
       var _this2 = this;
 
-      this.notes = notes;
       var noteIds = [];
 
       console.log(notes);

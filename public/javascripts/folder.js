@@ -44,6 +44,7 @@ export default class Folder {
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
+        this.notes = notes;
         this.needSeenBadge(notes);
       })
       .then( () => this.clearNotesList() );
@@ -116,7 +117,6 @@ export default class Folder {
    * @param notes
    */
   needSeenBadge(notes) {
-    this.notes = notes;
     let noteIds = [];
 
     console.log(notes);
