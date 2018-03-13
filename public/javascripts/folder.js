@@ -45,7 +45,7 @@ export default class Folder {
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
-        this.needSeenBadge();
+        this.setNoteSeenStatus();
       })
       .then( () => this.clearNotesList() );
   }
@@ -115,7 +115,7 @@ export default class Folder {
    * Checks note last seen time.
    * if note modification time is greater, then add badge
    */
-  needSeenBadge() {
+  setNoteSeenStatus() {
     let noteIds = [];
 
     this.notes.forEach( (note) => {

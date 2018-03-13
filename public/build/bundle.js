@@ -2682,7 +2682,7 @@ var Folder = function () {
       var notes = _ref2.notes;
 
       _this.notes = notes;
-      _this.needSeenBadge();
+      _this.setNoteSeenStatus();
     }).then(function () {
       return _this.clearNotesList();
     });
@@ -2738,8 +2738,8 @@ var Folder = function () {
      */
 
   }, {
-    key: 'needSeenBadge',
-    value: function needSeenBadge() {
+    key: 'setNoteSeenStatus',
+    value: function setNoteSeenStatus() {
       var _this2 = this;
 
       var noteIds = [];
