@@ -103,42 +103,48 @@ class AuthController {
 
       /**
        * Start to listen auth-channel. API will send JWT to this after User's authorisation
+       *
        */
-      global.app.sockets.listenChannel(channel, async jwt => {
+      global.app.sockets.listenChannel(channel,
         /**
-         * Remove quotes
-         * "jwt" -> jwt
+         * User data got from the Cloud
+         * @param {object} authData
+         * @param {string} authData.jwt - JWT for authentication
+         * @param {string} authData.photo
+         * @param {sring} authData.name
+         * @param {number} authData.dtModify
+         * @param {string} authData.channel - personal user's channel
          */
-        jwt = jwt.replace(/"/g, '');
+        async authData => {
+          let jwt = authData.jwt;
 
-        /** Trim spaces */
-        jwt = jwt.trim();
+          /** Decode JWT payload */
+          let payload = new Buffer(jwt.split('.')[1], 'base64');
 
-        /** Decode JWT payload */
-        let payload = new Buffer(jwt.split('.')[1], 'base64');
+          /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
+          payload = JSON.parse(payload);
 
-        /** Try to parse payload as JSON. If this step fails, it means that auth failed at all */
-        payload = JSON.parse(payload);
+          await global.user.update({
+            'id': payload.user_id,
+            'name': authData.name,
+            'photo': authData.photo,
+            'googleId': payload.googleId,
+            'email': payload.email,
+            'token': jwt,
+            'dtModify': authData.dtModify,
+            'channel': authData.channel
+          });
 
-        await global.user.update({
-          'id': payload.user_id,
-          'name': payload.name,
-          'photo': payload.photo,
-          'googleId': payload.googleId,
-          'email': payload.email,
-          'token': jwt,
-          'dtModify': payload.dtModify
-        });
+          /**
+           * Refresh API client with the new token at the authorisation header;
+           */
+          global.app.cloudSyncObserver.refreshClient();
+          global.user.saveAvatar();
 
-        /**
-         * Refresh API client with the new token at the authorisation header;
-         */
-        global.app.cloudSyncObserver.refreshClient();
-        global.user.saveAvatar();
-
-        authSucceeded = true;
-        authWindow.close();
-      });
+          authSucceeded = true;
+          authWindow.close();
+        }
+      );
     });
   }
 
