@@ -44,35 +44,7 @@ export default class Folder {
 
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
-        this.notes = notes;
-        let noteIds = [];
-
-        notes.forEach( (note) => {
-          noteIds.push(note._id);
-        });
-
-        /**
-         * Here we use "once" because we need to invoke callback once when a message comes from server
-         * "once" automatically removes listener
-         */
-        window.ipcRenderer.send('notes - seen', { noteIds });
-        window.ipcRenderer.once('notes - seen', (event, {data}) => {
-          notes.forEach( (note) => {
-            let noteId = note._id,
-                lastSeen = data[noteId];
-
-            /**
-             * if we don't have any information about note in folder or modification time is greater that our last seen time
-             */
-            if ( !lastSeen || note.dtModify > lastSeen) {
-              let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
-
-              if (foundNote) {
-                foundNote.classList.add(Aside.default.CSS.seenState);
-              }
-            }
-          });
-        });
+        this.needSeenBadge(notes);
       })
       .then( () => this.clearNotesList() );
   }
@@ -136,6 +108,44 @@ export default class Folder {
     }
     Dialog.error('Folder removing failed');
     return false;
+  }
+
+  /**
+   * Checks note last seen time.
+   * if note modification time is greater, then add badge
+   * @param notes
+   */
+  needSeenBadge(notes) {
+    this.notes = notes;
+    let noteIds = [];
+
+    console.log(notes);
+    notes.forEach( (note) => {
+      noteIds.push(note._id);
+    });
+
+    /**
+     * Here we use "once" because we need to invoke callback once when a message comes from server
+     * "once" automatically removes listener
+     */
+    window.ipcRenderer.send('notes - seen', { noteIds });
+    window.ipcRenderer.once('notes - seen', (event, {data}) => {
+      notes.forEach( (note) => {
+        let noteId = note._id,
+            lastSeen = data[noteId];
+
+        /**
+         * if we don't have any information about note in folder or modification time is greater that our last seen time
+         */
+        if ( !lastSeen || note.dtModify > lastSeen) {
+          let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
+
+          if (foundNote) {
+            foundNote.classList.add(Aside.default.CSS.notSeenState);
+          }
+        }
+      });
+    });
   }
 
 }

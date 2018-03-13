@@ -2681,37 +2681,7 @@ var Folder = function () {
     codex.notes.aside.loadNotes(id).then(function (_ref2) {
       var notes = _ref2.notes;
 
-      _this.notes = notes;
-      var noteIds = [];
-
-      notes.forEach(function (note) {
-        noteIds.push(note._id);
-      });
-
-      /**
-       * Here we use "once" because we need to invoke callback once when a message comes from server
-       * "once" automatically removes listener
-       */
-      window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
-      window.ipcRenderer.once('notes - seen', function (event, _ref3) {
-        var data = _ref3.data;
-
-        notes.forEach(function (note) {
-          var noteId = note._id,
-              lastSeen = data[noteId];
-
-          /**
-           * if we don't have any information about note in folder or modification time is greater that our last seen time
-           */
-          if (!lastSeen || note.dtModify > lastSeen) {
-            var foundNote = _this.notesListWrapper.querySelector('[data-id=\'' + noteId + '\']');
-
-            if (foundNote) {
-              foundNote.classList.add(Aside.default.CSS.seenState);
-            }
-          }
-        });
-      });
+      _this.needSeenBadge(notes);
     }).then(function () {
       return _this.clearNotesList();
     });
@@ -2759,6 +2729,51 @@ var Folder = function () {
       }
       Dialog.error('Folder removing failed');
       return false;
+    }
+
+    /**
+     * Checks note last seen time.
+     * if note modification time is greater, then add badge
+     * @param notes
+     */
+
+  }, {
+    key: 'needSeenBadge',
+    value: function needSeenBadge(notes) {
+      var _this2 = this;
+
+      this.notes = notes;
+      var noteIds = [];
+
+      console.log(notes);
+      notes.forEach(function (note) {
+        noteIds.push(note._id);
+      });
+
+      /**
+       * Here we use "once" because we need to invoke callback once when a message comes from server
+       * "once" automatically removes listener
+       */
+      window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
+      window.ipcRenderer.once('notes - seen', function (event, _ref3) {
+        var data = _ref3.data;
+
+        notes.forEach(function (note) {
+          var noteId = note._id,
+              lastSeen = data[noteId];
+
+          /**
+           * if we don't have any information about note in folder or modification time is greater that our last seen time
+           */
+          if (!lastSeen || note.dtModify > lastSeen) {
+            var foundNote = _this2.notesListWrapper.querySelector('[data-id=\'' + noteId + '\']');
+
+            if (foundNote) {
+              foundNote.classList.add(Aside.default.CSS.notSeenState);
+            }
+          }
+        });
+      });
     }
   }, {
     key: 'id',
