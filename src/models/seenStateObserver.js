@@ -17,8 +17,16 @@ const db = require('../utils/database'),
  */
 class SeenStateObserver {
 
+    /**
+     * @constructor
+     */
     constructor() { }
 
+    /**
+     * Returns information about visits
+     * @param noteIds {Array} - list of note ids
+     * @return {Promise.<T>}
+     */
     async getSeenNotes(noteIds) {
         let notes = await db.find(db.VISITS, {
             noteId : {
@@ -35,6 +43,11 @@ class SeenStateObserver {
         return response;
     }
 
+    /**
+     * Sets new last seen time to mark note as read
+     * @param noteId {Number} - note id
+     * @return {Promise.<void>}
+     */
     async touch(noteId) {
 
         let query = {
