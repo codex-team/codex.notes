@@ -97,6 +97,7 @@ class AuthController {
        */
       authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
         if (httpResponseCode !== 200) {
+          console.log(`-------------------------------\nAuthorisation failed: code ${httpResponseCode} \n-------------------------------`);
           authWindow.close();
         }
       });
@@ -116,6 +117,8 @@ class AuthController {
          * @param {string} authData.channel - personal user's channel
          */
         async authData => {
+
+          console.log('authData', authData);
           let jwt = authData.jwt;
 
           /** Decode JWT payload */

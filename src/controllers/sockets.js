@@ -133,10 +133,10 @@ class Channel {
    * Destroys the Channel, terminate Socket connection
    */
   destroy() {
+    this.ws.terminate();
     this.name = null;
     this.callback = null;
     this.url = null;
-    this.ws.terminate();
     this.ws = null;
   }
 }

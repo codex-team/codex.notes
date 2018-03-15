@@ -187,24 +187,25 @@ class CloudSyncObserver {
        * @type {*|Array|NotesController}
        */
       localFolder.notes = await Promise.all(folder.notes.map( async note => {
-        note._id = note.id;
+        return await this.saveNote(note, folder);
+        // note._id = note.id;
 
         /**
          * Create Note model
          *
          * @type {Note}
          */
-        let localNote = new Note(note);
+        // let localNote = new Note(note);
 
         /**
          * We does not receive note.folderId from the Sync Query
          */
-        localNote.folderId = folder._id;
+        // localNote.folderId = folder._id;
 
         /**
          * Save Note's data
          */
-        return await localNote.save();
+        // return await localNote.save();
       }));
 
       /**
@@ -235,6 +236,36 @@ class CloudSyncObserver {
     }));
 
     return folders;
+  }
+
+  /**
+   * Save a Note got from the Cloud
+   *
+   * @param  {NoteData} note    - Note data from Cloud
+   * @param  {Folder} folder    - Folder contains a Note
+   * @return {NoteData}
+   */
+  async saveNote(note, folder){
+
+    note._id = note.id;
+
+    /**
+     * Create Note model
+     *
+     * @type {Note}
+     */
+    let localNote = new Note(note);
+
+    /**
+     * We does not receive note.folderId from the Sync Query
+     */
+    localNote.folderId = folder._id;
+
+    /**
+     * Save Note's data
+     */
+    return await localNote.save();
+
   }
 
   /**
