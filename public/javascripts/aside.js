@@ -248,7 +248,6 @@ export default class Aside {
   }
 
   /**
-   *
    * Add a Note to the left menu
    *
    * @param {object} noteData
@@ -282,6 +281,10 @@ export default class Aside {
 
     if (existingNote) {
       existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
+
+      /**
+       * Set unread badge because Note was updated
+       */);
       return;
     }
 
@@ -522,6 +525,48 @@ export default class Aside {
     scrollableZones.forEach( zone => {
       zone.addEventListener('scroll', addClassOnScroll);
     });
+  }
+
+  /**
+   * Check unread status of passed Notes Ids
+   * @param {String[]|String} noteIds - ids of Notes to check
+   */
+  checkUnreadStatus(noteIds) {
+    if (!Array.isArray(noteIds)) {
+      /**
+       * If only singe id passed
+       */
+      if (noteIds) {
+        noteIds = [ noteIds ];
+      } else {
+        return;
+      }
+    }
+
+    /**
+     * Request unrad states of passed note ids
+     */
+    window.ipcRenderer.send('notes - get unread states', { noteIds });
+
+    /**
+     * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+     */
+    window.ipcRenderer.once('notes - set unread state',
+
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} unreadStates - map of note ids with unread states {dqO9tu5vY2aSC582: true, ...}
+       */
+      (event, unreadStates = {}) => {
+        for (let noteId in unreadStates) {
+          let noteUnread = unreadStates[noteId];
+
+          if (noteUnread) {
+            this.markNoteAsUnread(noteId);
+          }
+        }
+      });
   }
 
   /**

@@ -3,7 +3,6 @@ let {ipcMain} = require('electron');
 
 const Note = require('../models/note');
 const NotesList = require('../models/notesList');
-const SeenStateObserver = require('../models/SeenStateObserver');
 
 /**
  * Time helper
@@ -23,8 +22,6 @@ class NotesController {
    * Setup event handlers
    */
   constructor() {
-    this.seenStateObserver = new SeenStateObserver();
-
     ipcMain.on('note - save', (event, {note}) => {
       this.saveNote(note, event);
     });
@@ -41,8 +38,8 @@ class NotesController {
       this.deleteNote(id, event);
     });
 
-    ipcMain.on('notes - get visit time', async (event, {noteIds}) => {
-      this.getNotesVisitTime(event, noteIds);
+    ipcMain.on('notes - get unread states', async (event, {noteIds}) => {
+      this.getNotesUnreadState(event, noteIds);
     })
   }
 
@@ -132,7 +129,7 @@ class NotesController {
       let note = await Note.get(noteId);
 
       // set note as visited
-      this.seenStateObserver.touch(noteId);
+      global.app.seenStateObserver.touch(noteId);
 
       event.returnValue = note;
     } catch (err) {
@@ -170,15 +167,15 @@ class NotesController {
    * @param {Array} noteIds - list of note ids
    * @return {Promise.<void>}
    */
-  async getNotesVisitTime(event, noteIds) {
+  async getNotesUnreadState(event, noteIds) {
     try {
-      let visitTimestamps = await this.seenStateObserver.getNotesVisitDate(noteIds);
+      let unreadStates = await global.app.seenStateObserver.getNotesUndreadState(noteIds);
 
-      console.log('getNotesVisitTime', visitTimestamps);
+      console.log('answer to client', unreadStates);
 
-      event.sender.send('notes - check unread state', visitTimestamps);
+      event.sender.send('notes - set unread state', unreadStates);
     } catch (err){
-      console.log('Cannot collect notes visit time')
+      console.log('Cannot collect notes visit time:', err);
     }
   }
 }

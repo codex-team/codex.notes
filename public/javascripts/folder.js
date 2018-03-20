@@ -120,34 +120,10 @@ export default class Folder {
   setNoteSeenStatus() {
     let noteIds = this.notes.map(note => note._id);
 
-
-    window.ipcRenderer.send('notes - get visit time', { noteIds });
-
     /**
-     * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+     * Check unread status of Notes in the Folder
      */
-    window.ipcRenderer.once('notes - check unread state',
-
-      /**
-       * Check unread state of Notes from the current Folder
-       * @param  {*} event
-       * @param  {Object} visitTimestamps - map of note ids to the visit timestamps {dqO9tu5vY2aSC582: 1521559849, ...}
-       */
-      (event, visitTimestamps = {}) => {
-        this.notes.forEach( (note) => {
-          let lastVisitTime = visitTimestamps[note._id];
-
-          /**
-           * if:
-           * 1) modification time > last visit time
-           * 2) no one visits
-           * so mark as unread
-           */
-          if ( !lastVisitTime || note.dtModify > lastVisitTime) {
-            codex.notes.aside.markNoteAsUnread(note._id);
-          }
-        });
-      });
+    codex.notes.aside.checkUnreadStatus(noteIds);
   }
 
 }

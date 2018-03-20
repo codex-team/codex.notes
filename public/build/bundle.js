@@ -600,6 +600,7 @@ var Note = function () {
         minute: 'numeric',
         hour12: false
       });
+
       codex.editor.content.load({
         id: note._id,
         items: JSON.parse(note.content),
@@ -1046,7 +1047,6 @@ var Aside = function () {
     }
 
     /**
-     *
      * Add a Note to the left menu
      *
      * @param {object} noteData
@@ -1085,6 +1085,11 @@ var Aside = function () {
 
       if (existingNote) {
         existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
+
+        /**
+         * Set unread badge because Note was updated
+         */
+        this.checkUnreadStatus(noteData._id);
         return;
       }
 
@@ -1365,6 +1370,56 @@ var Aside = function () {
 
       scrollableZones.forEach(function (zone) {
         zone.addEventListener('scroll', addClassOnScroll);
+      });
+    }
+
+    /**
+     * Check unread status of passed Notes Ids
+     * @param {String[]|String} noteIds - ids of Notes to check
+     */
+
+  }, {
+    key: 'checkUnreadStatus',
+    value: function checkUnreadStatus(noteIds) {
+      var _this4 = this;
+
+      console.log('checkUnreadStatus', noteIds);
+      if (!Array.isArray(noteIds)) {
+        /**
+         * If only singe id passed
+         */
+        if (noteIds) {
+          noteIds = [noteIds];
+        } else {
+          return;
+        }
+      }
+
+      /**
+       * Request unrad states of passed note ids
+       */
+      window.ipcRenderer.send('notes - get unread states', { noteIds: noteIds });
+
+      /**
+       * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+       */
+      window.ipcRenderer.once('notes - set unread state',
+
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} unreadStates - map of note ids with unread states {dqO9tu5vY2aSC582: true, ...}
+       */
+      function (event) {
+        var unreadStates = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        for (var noteId in unreadStates) {
+          var noteUnread = unreadStates[noteId];
+
+          if (noteUnread) {
+            _this4.markNoteAsUnread(noteId);
+          }
+        }
       });
     }
 
@@ -2774,41 +2829,14 @@ var Folder = function () {
   }, {
     key: 'setNoteSeenStatus',
     value: function setNoteSeenStatus() {
-      var _this2 = this;
-
       var noteIds = this.notes.map(function (note) {
         return note._id;
       });
 
-      window.ipcRenderer.send('notes - get visit time', { noteIds: noteIds });
-
       /**
-       * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+       * Check unread status of Notes in the Folder
        */
-      window.ipcRenderer.once('notes - check unread state',
-
-      /**
-       * Check unread state of Notes from the current Folder
-       * @param  {*} event
-       * @param  {Object} visitTimestamps - map of note ids to the visit timestamps {dqO9tu5vY2aSC582: 1521559849, ...}
-       */
-      function (event) {
-        var visitTimestamps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-        _this2.notes.forEach(function (note) {
-          var lastVisitTime = visitTimestamps[note._id];
-
-          /**
-           * if:
-           * 1) modification time > last visit time
-           * 2) no one visits
-           * so mark as unread
-           */
-          if (!lastVisitTime || note.dtModify > lastVisitTime) {
-            codex.notes.aside.markNoteAsUnread(note._id);
-          }
-        });
-      });
+      codex.notes.aside.checkUnreadStatus(noteIds);
     }
   }, {
     key: 'id',
