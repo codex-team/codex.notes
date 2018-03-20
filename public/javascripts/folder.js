@@ -34,6 +34,9 @@ export default class Folder {
 
     this.title = folderData.title;
 
+    /**
+     * @todo asynchronous notes load
+     */
     window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
     window.ipcRenderer.once('folder - collaborators list', (event, {collaborators}) => {
       this.collaborators = collaborators;
@@ -116,11 +119,7 @@ export default class Folder {
    * if note modification time is greater, then add badge
    */
   setNoteSeenStatus() {
-    let noteIds = [];
-
-    this.notes.forEach( (note) => {
-      noteIds.push(note._id);
-    });
+    let noteIds = this.notes.map( note => note._id);
 
     /**
      * Here we use "once" because we need to invoke callback once when a message comes from server
@@ -129,8 +128,7 @@ export default class Folder {
     window.ipcRenderer.send('notes - seen', { noteIds });
 
     /**
-     * @type {Object} data - "note - seen" event responses object of "seen" states
-     *     Ex: data[ noteId ] = lastSeen - timestamp of last seen
+     * @type {Object} data - is a map with note id last seen
      */
     window.ipcRenderer.once('notes - seen', (event, {data}) => {
       this.notes.forEach( (note) => {

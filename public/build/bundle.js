@@ -2668,6 +2668,9 @@ var Folder = function () {
 
     this.title = folderData.title;
 
+    /**
+     * @todo asynchronous notes load
+     */
     window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
     window.ipcRenderer.once('folder - collaborators list', function (event, _ref) {
       var collaborators = _ref.collaborators;
@@ -2742,10 +2745,8 @@ var Folder = function () {
     value: function setNoteSeenStatus() {
       var _this2 = this;
 
-      var noteIds = [];
-
-      this.notes.forEach(function (note) {
-        noteIds.push(note._id);
+      var noteIds = this.notes.map(function (note) {
+        return note._id;
       });
 
       /**
@@ -2755,8 +2756,7 @@ var Folder = function () {
       window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
 
       /**
-       * @type {Object} data - "note - seen" event responses object of "seen" states
-       *     Ex: data[ noteId ] = lastSeen - timestamp of last seen
+       * @type {Object} data - is a map with note id last seen
        */
       window.ipcRenderer.once('notes - seen', function (event, _ref3) {
         var data = _ref3.data;

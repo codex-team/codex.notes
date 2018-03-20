@@ -1,6 +1,6 @@
 /**
  * @module SeenStateObserver
- * Checks seen notes or makes notes "seen"
+ * Manipulates seen-state of Notes
  */
 
 'use strict';
@@ -12,8 +12,8 @@ const db = require('../utils/database'),
  * @class SeenStateObserver
  * Class can "touch" note (mark as seen) or get information about visited notes
  *
- * @property this.getSeenNotes {Function} - returns information about passed note
- * @property this.touch {Function} - makes note "seen", sets lastSeen time
+ * @property {Function} getSeenNotes - returns information about passed note
+ * @property {Function} touch — makes note "seen", sets lastSeen time
  */
 class SeenStateObserver {
 
@@ -24,7 +24,7 @@ class SeenStateObserver {
 
     /**
      * Returns information about visits
-     * @param noteIds {Array} - list of note ids
+     * @param {Array} noteIds - list of note ids
      * @return {Promise.<T>}
      */
     async getSeenNotes(noteIds) {
@@ -45,7 +45,7 @@ class SeenStateObserver {
 
     /**
      * Sets new last seen time to mark note as read
-     * @param noteId {Number} - note id
+     * @param {Number} noteId - note id
      * @return {Promise.<void>}
      */
     async touch(noteId) {

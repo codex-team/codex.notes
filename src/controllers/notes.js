@@ -86,7 +86,7 @@ class NotesController {
         isRootFolder: !noteData.folderId
       });
 
-      // make "seen" edited note
+      // mark edited Note as seen
       this.seenStateObserver.touch(noteData.data.id );
 
     } catch (err) {
@@ -165,15 +165,15 @@ class NotesController {
   }
 
   /**
-   * Get's information about note visits and emits the event
+   * Get's information about seen-state of passed notes and emits the event
    * @param {ipcRenderer.Event} event - "notes - seen" event from client side
    * @param {Array} noteIds - list of note ids
    * @return {Promise.<void>}
    */
   async markAsSeen(event, noteIds) {
-    let seenNotes = await this.seenStateObserver.getSeenNotes(noteIds);
+    let seenStates = await this.seenStateObserver.getSeenNotes(noteIds);
     event.sender.send('notes - seen', {
-        data: seenNotes
+        seenStates
     });
   }
 }
