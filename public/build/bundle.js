@@ -263,7 +263,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var remote = __webpack_require__(4).remote;
+var remote = __webpack_require__(3).remote;
 
 /**
  *
@@ -344,11 +344,401 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = __webpack_require__(0).default;
+var AutoResizer = __webpack_require__(14).default;
+var Dialog = __webpack_require__(1).default;
+var Shortcut = __webpack_require__(11).default;
+var clipboardUtil = __webpack_require__(18).default;
+
+/**
+ * @typedef {Object} NoteData
+ * @property {String} _id           — Note's id
+ * @property {String} title         — Note's title
+ * @property {String} authorId      — Note's Author id
+ * @property {String} folderId      - Note's Folder id
+ * @property {String} content       - JSON with Note's body
+ * @property {Number} dtModify      - timestamp of last modification
+ * @property {Number} dtCreate      - timestamp of Note creation
+ * @property {Boolean} isRemoved    - Note's removed state
+ * @property {String|null} editorVersion - used CodeX Editor version
+ */
+
+/**
+ * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
+ * @property {ShortCut[]} shortcut
+ */
+
+var Note = function () {
+
+  /**
+   * @constructor
+   */
+  function Note() {
+    _classCallCheck(this, Note);
+
+    this.deleteButton = $.get('delete-button');
+
+    this.titleEl = document.getElementById('note-title');
+    this.dateEl = document.getElementById('note-date');
+    this.editor = document.getElementById('codex-editor');
+
+    this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
+    this.editorContentSelected = false;
+
+    // when we are creating new note
+    if (!this.autoresizedTitle) {
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    this.shortcuts = [];
+
+    this.enableShortcuts();
+  }
+
+  /**
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
+   */
+
+
+  _createClass(Note, [{
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      // any click on body prevents content selection
+      // stop preventing copy event
+      document.body.addEventListener('click', function () {
+        _this.editorContentSelected = false;
+        _this.editor.removeEventListener('copy', preventDefaultExecution);
+      }, false);
+
+      /**
+       * Select all document by CMD+A
+       */
+      var selectAllShortcut = new Shortcut({
+        name: 'CMD+A',
+        on: this.editor,
+        callback: function callback(event) {
+          _this.cmdA(event);
+          _this.editor.addEventListener('copy', preventDefaultExecution);
+        }
+      });
+
+      /**
+       * Copy selected document by CMD+C
+       */
+      var copySelectedShortcut = new Shortcut({
+        name: 'CMD+C',
+        on: this.editor,
+        callback: function callback() {
+          _this.cmdC();
+        }
+      });
+
+      this.shortcuts.push(selectAllShortcut);
+      this.shortcuts.push(copySelectedShortcut);
+    }
+
+    /**
+     * CMD+A Shortcut
+     * Selects title + all Note
+     */
+
+  }, {
+    key: 'cmdA',
+    value: function cmdA(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      this.selectEditorContents();
+    }
+
+    /**
+     * CMD+C Shortcut
+     * Copies selected title and Note
+     */
+
+  }, {
+    key: 'cmdC',
+    value: function cmdC() {
+      if (!this.editorContentSelected) {
+        // selection was cleared
+        return;
+      }
+
+      var editorContent = this.editor.querySelector('.ce-redactor'),
+          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+      // select content again because we select textarea contents to copy to the clipboard
+      this.selectEditorContents();
+    }
+
+    /**
+     * Send note data to backend
+     * @static
+     */
+
+  }, {
+    key: 'save',
+    value: function save() {
+      var _this2 = this;
+
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * If folder is opened, pass id. Otherwise pass false
+       */
+      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+
+      codex.editor.saver.save().then(function (noteData) {
+        _this2.validate(noteData);
+        return noteData;
+      }).then(function (noteData) {
+        var note = {
+          data: noteData,
+          title: _this2.titleEl.value.trim(),
+          folderId: folderId
+        };
+
+        var saveIndicator = document.getElementById('save-indicator');
+
+        if (_this2.showSavedIndicatorTimer) {
+          window.clearTimeout(_this2.showSavedIndicatorTimer);
+        }
+
+        saveIndicator.classList.add('saved');
+
+        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
+          saveIndicator.classList.remove('saved');
+        }, 500);
+
+        window.ipcRenderer.send('note - save', { note: note });
+      }).catch(function (err) {
+        console.log('Error while saving note: ', err);
+      });
+    }
+
+    /**
+     * Validate Note data before saving
+     * @param {object} noteData
+     * @throws {Error}
+     */
+
+  }, {
+    key: 'validate',
+    value: function validate(noteData) {
+      if (!noteData.items.length) {
+        throw Error('Article is empty');
+      }
+    }
+
+    /**
+     * Add Note to the menu by Aside.addMenuItem method
+     *
+     * @param {object} data
+     * @param {object} data.note
+     * @param {number} data.note.folderId
+     * @param {number} data.note._id
+     * @param {string} data.note.title
+     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
+     */
+
+  }, {
+    key: 'addToMenu',
+    value: function addToMenu(_ref) {
+      var note = _ref.note,
+          isRootFolder = _ref.isRootFolder;
+
+      codex.editor.state.blocks.id = note._id;
+      codex.notes.aside.addMenuItem(note, isRootFolder);
+    }
+
+    /**
+     * Render the Note
+     * @param {NoteData} note
+     */
+
+  }, {
+    key: 'render',
+    value: function render(note) {
+      codex.editor.content.clear(true);
+      this.titleEl.value = note.title;
+
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
+
+      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
+      codex.editor.content.load({
+        id: note._id,
+        items: JSON.parse(note.content),
+        time: note.dtModify,
+        version: note.editorVersion
+      });
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * if we are trying to render new note but we have an Autoresizer instance
+       * then we need to clear it before we create new one
+       */
+      if (this.autoresizedTitle) {
+        this.autoresizedTitle.destroy();
+      }
+
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    /**
+     * Clears editor
+     */
+
+  }, {
+    key: 'clear',
+    value: function clear() {
+      codex.editor.content.clear(true);
+      this.titleEl.value = '';
+      this.dateEl.textContent = '';
+      codex.editor.ui.addInitialBlock();
+      this.deleteButton.classList.add('hide');
+
+      // destroy autoresizer
+      this.autoresizedTitle.destroy();
+
+      this.editorContentSelected = false;
+    }
+
+    /**
+     * Set focus to the Editor
+     */
+
+  }, {
+    key: 'delete',
+
+
+    /**
+     * Delete article
+     */
+    value: function _delete() {
+      var id = codex.editor.state.blocks.id;
+
+      if (!id) {
+        return;
+      }
+
+      if (Dialog.confirm('Are you sure you want to delete this note?')) {
+        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
+          return false;
+        }
+
+        codex.notes.aside.removeMenuItem(id);
+        this.clear();
+      }
+    }
+
+    /**
+     * Title input keydowns
+     * @description  By ENTER, sets focus on editor
+     * @param  {Element} titleElement - title block
+     * @param  {Event} event - keydown event
+     */
+
+  }, {
+    key: 'titleKeydownHandler',
+    value: function titleKeydownHandler(titleElement, event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+
+        Note.focusEditor();
+      }
+    }
+
+    /**
+     * selects editor with title
+     */
+
+  }, {
+    key: 'selectEditorContents',
+    value: function selectEditorContents() {
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(this.editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      this.editorContentSelected = true;
+    }
+  }], [{
+    key: 'focusEditor',
+    value: function focusEditor() {
+      window.setTimeout(function () {
+        var editor = document.querySelector('.ce-redactor');
+
+        editor.click();
+      }, 10);
+    }
+  }]);
+
+  return Note;
+}();
+
+exports.default = Note;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _folder = __webpack_require__(16);
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(3);
+var _note = __webpack_require__(2);
 
 var _note2 = _interopRequireDefault(_note);
 
@@ -853,9 +1243,6 @@ var Aside = function () {
       var menuItem = event.target,
           id = menuItem.dataset.id;
 
-      // remove "not-seen" state
-      menuItem.classList.remove(Aside.CSS.seenState);
-
       // send "note - get" event
       var noteData = window.ipcRenderer.sendSync('note - get', { id: id });
 
@@ -867,6 +1254,11 @@ var Aside = function () {
       var editorView = document.querySelector('[name="editor-view"]');
 
       editorView.scrollIntoView();
+
+      /**
+       * Remove unread badge
+       */
+      this.markNoteAsRead(id);
     }
 
     /**
@@ -975,402 +1367,42 @@ var Aside = function () {
         zone.addEventListener('scroll', addClassOnScroll);
       });
     }
+
+    /**
+     * Remove unread badge from the Note in Aside
+     * @param  {string} noteId - Note's id
+     */
+
+  }, {
+    key: 'markNoteAsRead',
+    value: function markNoteAsRead(noteId) {
+      var noteInAside = document.querySelector('[name="js-notes-menu"] [data-id="' + noteId + '"], [name="js-folder-notes-menu"] [data-id="' + noteId + '"]');
+
+      if (noteInAside) {
+        noteInAside.classList.remove(Aside.CSS.notSeenState);
+      }
+    }
+
+    /**
+     * Mark Note at the Aside as unread
+     * @param {string} noteId
+     */
+
+  }, {
+    key: 'markNoteAsUnread',
+    value: function markNoteAsUnread(noteId) {
+      var noteInAside = document.querySelector('[name="js-notes-menu"] [data-id="' + noteId + '"], [name="js-folder-notes-menu"] [data-id="' + noteId + '"]');
+
+      if (noteInAside) {
+        noteInAside.classList.add(Aside.CSS.notSeenState);
+      }
+    }
   }]);
 
   return Aside;
 }();
 
 exports.default = Aside;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(14).default;
-var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(11).default;
-var clipboardUtil = __webpack_require__(18).default;
-
-/**
- * @typedef {Object} NoteData
- * @property {String} _id           — Note's id
- * @property {String} title         — Note's title
- * @property {String} authorId      — Note's Author id
- * @property {String} folderId      - Note's Folder id
- * @property {String} content       - JSON with Note's body
- * @property {Number} dtModify      - timestamp of last modification
- * @property {Number} dtCreate      - timestamp of Note creation
- * @property {Boolean} isRemoved    - Note's removed state
- * @property {String|null} editorVersion - used CodeX Editor version
- */
-
-/**
- * Note section module
- *
- * @typedef {Note} Note
- * @property {Element} deleteButton
- * @property {Element} titleEl
- * @property {Element} dateEl
- * @property {Timer} showSavedIndicatorTimer
- * @property {boolean} editorContentSelected - is all document selected by CMD+A
- * @property {ShortCut[]} shortcut
- */
-
-var Note = function () {
-
-  /**
-   * @constructor
-   */
-  function Note() {
-    _classCallCheck(this, Note);
-
-    this.deleteButton = $.get('delete-button');
-
-    this.titleEl = document.getElementById('note-title');
-    this.dateEl = document.getElementById('note-date');
-    this.editor = document.getElementById('codex-editor');
-
-    this.showSavedIndicatorTimer = null;
-
-    /**
-     * True after user selects all document by CMD+A
-     * @type {boolean}
-     */
-    this.editorContentSelected = false;
-
-    // when we are creating new note
-    if (!this.autoresizedTitle) {
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-    }
-
-    this.shortcuts = [];
-
-    this.enableShortcuts();
-  }
-
-  /**
-   * CMD+A - select all document
-   * CDM+C - copy selected content (title + editor area)
-   */
-
-
-  _createClass(Note, [{
-    key: 'enableShortcuts',
-    value: function enableShortcuts() {
-      var _this = this;
-
-      var preventDefaultExecution = function preventDefaultExecution(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      };
-
-      // any click on body prevents content selection
-      // stop preventing copy event
-      document.body.addEventListener('click', function () {
-        _this.editorContentSelected = false;
-        _this.editor.removeEventListener('copy', preventDefaultExecution);
-      }, false);
-
-      /**
-       * Select all document by CMD+A
-       */
-      var selectAllShortcut = new Shortcut({
-        name: 'CMD+A',
-        on: this.editor,
-        callback: function callback(event) {
-          _this.cmdA(event);
-          _this.editor.addEventListener('copy', preventDefaultExecution);
-        }
-      });
-
-      /**
-       * Copy selected document by CMD+C
-       */
-      var copySelectedShortcut = new Shortcut({
-        name: 'CMD+C',
-        on: this.editor,
-        callback: function callback() {
-          _this.cmdC();
-        }
-      });
-
-      this.shortcuts.push(selectAllShortcut);
-      this.shortcuts.push(copySelectedShortcut);
-    }
-
-    /**
-     * CMD+A Shortcut
-     * Selects title + all Note
-     */
-
-  }, {
-    key: 'cmdA',
-    value: function cmdA(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      this.selectEditorContents();
-    }
-
-    /**
-     * CMD+C Shortcut
-     * Copies selected title and Note
-     */
-
-  }, {
-    key: 'cmdC',
-    value: function cmdC() {
-      if (!this.editorContentSelected) {
-        // selection was cleared
-        return;
-      }
-
-      var editorContent = this.editor.querySelector('.ce-redactor'),
-          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
-
-      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
-
-      // select content again because we select textarea contents to copy to the clipboard
-      this.selectEditorContents();
-    }
-
-    /**
-     * Send note data to backend
-     * @static
-     */
-
-  }, {
-    key: 'save',
-    value: function save() {
-      var _this2 = this;
-
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * If folder is opened, pass id. Otherwise pass false
-       */
-      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
-
-      codex.editor.saver.save().then(function (noteData) {
-        _this2.validate(noteData);
-        return noteData;
-      }).then(function (noteData) {
-        var note = {
-          data: noteData,
-          title: _this2.titleEl.value.trim(),
-          folderId: folderId
-        };
-
-        var saveIndicator = document.getElementById('save-indicator');
-
-        if (_this2.showSavedIndicatorTimer) {
-          window.clearTimeout(_this2.showSavedIndicatorTimer);
-        }
-
-        saveIndicator.classList.add('saved');
-
-        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
-          saveIndicator.classList.remove('saved');
-        }, 500);
-
-        window.ipcRenderer.send('note - save', { note: note });
-      }).catch(function (err) {
-        console.log('Error while saving note: ', err);
-      });
-    }
-
-    /**
-     * Validate Note data before saving
-     * @param {object} noteData
-     * @throws {Error}
-     */
-
-  }, {
-    key: 'validate',
-    value: function validate(noteData) {
-      if (!noteData.items.length) {
-        throw Error('Article is empty');
-      }
-    }
-
-    /**
-     * Add Note to the menu by Aside.addMenuItem method
-     *
-     * @param {object} data
-     * @param {object} data.note
-     * @param {number} data.note.folderId
-     * @param {number} data.note._id
-     * @param {string} data.note.title
-     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
-     */
-
-  }, {
-    key: 'addToMenu',
-    value: function addToMenu(_ref) {
-      var note = _ref.note,
-          isRootFolder = _ref.isRootFolder;
-
-      codex.editor.state.blocks.id = note._id;
-      codex.notes.aside.addMenuItem(note, isRootFolder);
-    }
-
-    /**
-     * Render the Note
-     * @param {NoteData} note
-     */
-
-  }, {
-    key: 'render',
-    value: function render(note) {
-      codex.editor.content.clear(true);
-      this.titleEl.value = note.title;
-
-      /**
-       * We store all times in a Seconds to correspond server-format
-       * @type {Date}
-       */
-      var dtModify = new Date(note.dtModify * 1000);
-
-      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false
-      });
-      codex.editor.content.load({
-        id: note._id,
-        items: JSON.parse(note.content),
-        time: note.dtModify,
-        version: note.editorVersion
-      });
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * if we are trying to render new note but we have an Autoresizer instance
-       * then we need to clear it before we create new one
-       */
-      if (this.autoresizedTitle) {
-        this.autoresizedTitle.destroy();
-      }
-
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-    }
-
-    /**
-     * Clears editor
-     */
-
-  }, {
-    key: 'clear',
-    value: function clear() {
-      codex.editor.content.clear(true);
-      this.titleEl.value = '';
-      this.dateEl.textContent = '';
-      codex.editor.ui.addInitialBlock();
-      this.deleteButton.classList.add('hide');
-
-      // destroy autoresizer
-      this.autoresizedTitle.destroy();
-
-      this.editorContentSelected = false;
-    }
-
-    /**
-     * Set focus to the Editor
-     */
-
-  }, {
-    key: 'delete',
-
-
-    /**
-     * Delete article
-     */
-    value: function _delete() {
-      var id = codex.editor.state.blocks.id;
-
-      if (!id) {
-        return;
-      }
-
-      if (Dialog.confirm('Are you sure you want to delete this note?')) {
-        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
-          return false;
-        }
-
-        codex.notes.aside.removeMenuItem(id);
-        this.clear();
-      }
-    }
-
-    /**
-     * Title input keydowns
-     * @description  By ENTER, sets focus on editor
-     * @param  {Element} titleElement - title block
-     * @param  {Event} event - keydown event
-     */
-
-  }, {
-    key: 'titleKeydownHandler',
-    value: function titleKeydownHandler(titleElement, event) {
-      if (event.keyCode == 13) {
-        event.preventDefault();
-
-        Note.focusEditor();
-      }
-    }
-
-    /**
-     * selects editor with title
-     */
-
-  }, {
-    key: 'selectEditorContents',
-    value: function selectEditorContents() {
-      var range = document.createRange(),
-          selection = window.getSelection();
-
-      range.selectNodeContents(this.editor);
-      selection.removeAllRanges();
-      selection.addRange(range);
-
-      this.editorContentSelected = true;
-    }
-  }], [{
-    key: 'focusEditor',
-    value: function focusEditor() {
-      window.setTimeout(function () {
-        var editor = document.querySelector('.ce-redactor');
-
-        editor.click();
-      }, 10);
-    }
-  }]);
-
-  return Note;
-}();
-
-exports.default = Note;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = require("electron");
 
 /***/ }),
 /* 5 */
@@ -2009,14 +2041,14 @@ var _authObserver2 = _interopRequireDefault(_authObserver);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var electron = __webpack_require__(4);
+var electron = __webpack_require__(3);
 var Editor = __webpack_require__(7).default;
 
 /**
  * Load components
  */
-var Aside = __webpack_require__(2).default;
-var Note = __webpack_require__(3).default;
+var Aside = __webpack_require__(4).default;
+var Note = __webpack_require__(2).default;
 
 /**
  * Save render proccess to the ipdRender global propery
@@ -2629,7 +2661,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var $ = __webpack_require__(0).default;
 var Dialog = __webpack_require__(1).default;
-var Aside = __webpack_require__(2);
 
 /**
  * Folders methods
@@ -2668,9 +2699,6 @@ var Folder = function () {
 
     this.title = folderData.title;
 
-    /**
-     * @todo asynchronous notes load
-     */
     window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
     window.ipcRenderer.once('folder - collaborators list', function (event, _ref) {
       var collaborators = _ref.collaborators;
@@ -2681,6 +2709,9 @@ var Folder = function () {
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
+    /**
+     * @todo asynchronous notes load
+     */
     codex.notes.aside.loadNotes(id).then(function (_ref2) {
       var notes = _ref2.notes;
 
@@ -2749,31 +2780,32 @@ var Folder = function () {
         return note._id;
       });
 
-      /**
-       * Here we use "once" because we need to invoke callback once when a message comes from server
-       * "once" automatically removes listener
-       */
-      window.ipcRenderer.send('notes - seen', { noteIds: noteIds });
+      window.ipcRenderer.send('notes - get visit time', { noteIds: noteIds });
 
       /**
-       * @type {Object} data - is a map with note id last seen
+       * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
        */
-      window.ipcRenderer.once('notes - seen', function (event, _ref3) {
-        var data = _ref3.data;
+      window.ipcRenderer.once('notes - check unread state',
+
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} visitTimestamps - map of note ids to the visit timestamps {dqO9tu5vY2aSC582: 1521559849, ...}
+       */
+      function (event) {
+        var visitTimestamps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         _this2.notes.forEach(function (note) {
-          var noteId = note._id,
-              lastSeen = data[noteId];
+          var lastVisitTime = visitTimestamps[note._id];
 
           /**
-           * if we don't have any information about note in folder or modification time is greater that our last seen time
+           * if:
+           * 1) modification time > last visit time
+           * 2) no one visits
+           * so mark as unread
            */
-          if (!lastSeen || note.dtModify > lastSeen) {
-            var foundNote = _this2.notesListWrapper.querySelector('[data-id=\'' + noteId + '\']');
-
-            if (foundNote) {
-              foundNote.classList.add(Aside.default.CSS.notSeenState);
-            }
+          if (!lastVisitTime || note.dtModify > lastVisitTime) {
+            codex.notes.aside.markNoteAsUnread(note._id);
           }
         });
       });

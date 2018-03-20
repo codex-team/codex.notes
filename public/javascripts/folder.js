@@ -1,6 +1,5 @@
 const $ = require('./dom').default;
 const Dialog = require('./dialog').default;
-const Aside = require('./aside');
 
 /**
  * Folders methods
@@ -34,9 +33,6 @@ export default class Folder {
 
     this.title = folderData.title;
 
-    /**
-     * @todo asynchronous notes load
-     */
     window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
     window.ipcRenderer.once('folder - collaborators list', (event, {collaborators}) => {
       this.collaborators = collaborators;
@@ -45,6 +41,9 @@ export default class Folder {
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
+    /**
+     * @todo asynchronous notes load
+     */
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
@@ -119,34 +118,36 @@ export default class Folder {
    * if note modification time is greater, then add badge
    */
   setNoteSeenStatus() {
-    let noteIds = this.notes.map( note => note._id);
+    let noteIds = this.notes.map(note => note._id);
+
+
+    window.ipcRenderer.send('notes - get visit time', { noteIds });
 
     /**
-     * Here we use "once" because we need to invoke callback once when a message comes from server
-     * "once" automatically removes listener
+     * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
      */
-    window.ipcRenderer.send('notes - seen', { noteIds });
+    window.ipcRenderer.once('notes - check unread state',
 
-    /**
-     * @type {Object} data - is a map with note id last seen
-     */
-    window.ipcRenderer.once('notes - seen', (event, {data}) => {
-      this.notes.forEach( (note) => {
-        let noteId = note._id,
-            lastSeen = data[noteId];
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} visitTimestamps - map of note ids to the visit timestamps {dqO9tu5vY2aSC582: 1521559849, ...}
+       */
+      (event, visitTimestamps = {}) => {
+        this.notes.forEach( (note) => {
+          let lastVisitTime = visitTimestamps[note._id];
 
-        /**
-         * if we don't have any information about note in folder or modification time is greater that our last seen time
-         */
-        if ( !lastSeen || note.dtModify > lastSeen) {
-          let foundNote = this.notesListWrapper.querySelector(`[data-id='${noteId}']`);
-
-          if (foundNote) {
-            foundNote.classList.add(Aside.default.CSS.notSeenState);
+          /**
+           * if:
+           * 1) modification time > last visit time
+           * 2) no one visits
+           * so mark as unread
+           */
+          if ( !lastVisitTime || note.dtModify > lastVisitTime) {
+            codex.notes.aside.markNoteAsUnread(note._id);
           }
-        }
+        });
       });
-    });
   }
 
 }

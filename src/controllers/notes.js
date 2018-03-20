@@ -41,8 +41,8 @@ class NotesController {
       this.deleteNote(id, event);
     });
 
-    ipcMain.on('notes - seen', async (event, {noteIds}) => {
-      this.markAsSeen(event, noteIds);
+    ipcMain.on('notes - get visit time', async (event, {noteIds}) => {
+      this.getNotesVisitTime(event, noteIds);
     })
   }
 
@@ -166,15 +166,20 @@ class NotesController {
 
   /**
    * Get's information about seen-state of passed notes and emits the event
-   * @param {ipcRenderer.Event} event - "notes - seen" event from client side
+   * @param {ipcRenderer.Event} event - "notes - get visit time" event from client side
    * @param {Array} noteIds - list of note ids
    * @return {Promise.<void>}
    */
-  async markAsSeen(event, noteIds) {
-    let seenStates = await this.seenStateObserver.getSeenNotes(noteIds);
-    event.sender.send('notes - seen', {
-        seenStates
-    });
+  async getNotesVisitTime(event, noteIds) {
+    try {
+      let visitTimestamps = await this.seenStateObserver.getNotesVisitDate(noteIds);
+
+      console.log('getNotesVisitTime', visitTimestamps);
+
+      event.sender.send('notes - check unread state', visitTimestamps);
+    } catch (err){
+      console.log('Cannot collect notes visit time')
+    }
   }
 }
 

@@ -414,9 +414,6 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
-    // remove "not-seen" state
-    menuItem.classList.remove(Aside.CSS.seenState);
-
     // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
@@ -428,6 +425,11 @@ export default class Aside {
     let editorView = document.querySelector('[name="editor-view"]');
 
     editorView.scrollIntoView();
+
+    /**
+     * Remove unread badge
+     */
+    this.markNoteAsRead(id);
   }
 
   /**
@@ -520,5 +522,29 @@ export default class Aside {
     scrollableZones.forEach( zone => {
       zone.addEventListener('scroll', addClassOnScroll);
     });
+  }
+
+  /**
+   * Remove unread badge from the Note in Aside
+   * @param  {string} noteId - Note's id
+   */
+  markNoteAsRead(noteId) {
+    let noteInAside = document.querySelector(`[name="js-notes-menu"] [data-id="${noteId}"], [name="js-folder-notes-menu"] [data-id="${noteId}"]`);
+
+    if (noteInAside) {
+      noteInAside.classList.remove(Aside.CSS.notSeenState);
+    }
+  }
+
+  /**
+   * Mark Note at the Aside as unread
+   * @param {string} noteId
+   */
+  markNoteAsUnread(noteId) {
+    let noteInAside = document.querySelector(`[name="js-notes-menu"] [data-id="${noteId}"], [name="js-folder-notes-menu"] [data-id="${noteId}"]`);
+
+    if (noteInAside) {
+      noteInAside.classList.add(Aside.CSS.notSeenState);
+    }
   }
 }
