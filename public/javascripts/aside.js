@@ -25,17 +25,20 @@ const menuItemTitleMaxLength = 68;
 export default class Aside {
 
   /**
+   * Make CSS dictionary
+   * @type {Object}
+   */
+  static get CSS() {
+    return {
+      notesMenuLoading: 'notes-list--loading',
+      noteListItem : 'notes-list__content-item',
+      notSeenState : 'notes-list__content-item--not-seen'
+    };
+  }
+  /**
    * @constructor
    */
   constructor() {
-    /**
-     * Make CSS dictionary
-     * @type {Object}
-     */
-    this.CSS = {
-      notesMenuLoading: 'notes-list--loading'
-    };
-
     /**
      * Find notes list holder
      * @type {Element}
@@ -71,8 +74,8 @@ export default class Aside {
     /**
      * Show preloader
      */
-    notesMenu.classList.add(this.CSS.notesMenuLoading);
-    foldersMenu.classList.add(this.CSS.notesMenuLoading);
+    notesMenu.classList.add(Aside.CSS.notesMenuLoading);
+    foldersMenu.classList.add(Aside.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
@@ -84,7 +87,7 @@ export default class Aside {
      * Update folder list
      */
     window.ipcRenderer.on('update folders list', (event, {userFolders}) => {
-      foldersMenu.classList.remove(this.CSS.notesMenuLoading);
+      foldersMenu.classList.remove(Aside.CSS.notesMenuLoading);
       foldersMenu.innerHTML = '';
       userFolders.forEach( folder => this.addFolder(folder) );
     });
@@ -93,7 +96,7 @@ export default class Aside {
      * Update notes list
      */
     window.ipcRenderer.on('notes list - update', (event, {notes, isRootFolder}) => {
-      notesMenu.classList.remove(this.CSS.notesMenuLoading);
+      notesMenu.classList.remove(Aside.CSS.notesMenuLoading);
       notes.forEach( note => this.addMenuItem(note, isRootFolder) );
     });
 
@@ -245,7 +248,6 @@ export default class Aside {
   }
 
   /**
-   *
    * Add a Note to the left menu
    *
    * @param {object} noteData
@@ -279,6 +281,11 @@ export default class Aside {
 
     if (existingNote) {
       existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
+
+      /**
+       * Set unread badge because Note was updated
+       */
+      this.checkUnreadStatus(noteData._id);
       return;
     }
 
@@ -325,7 +332,7 @@ export default class Aside {
   makeMenuItem(title, dataset) {
     title = this.createMenuItemTitle(title);
 
-    let item = $.make('li', null, {
+    let item = $.make('li', Aside.CSS.noteListItem, {
       textContent: title
     });
 
@@ -411,6 +418,7 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
+    // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
     codex.notes.note.render(noteData);
@@ -421,6 +429,11 @@ export default class Aside {
     let editorView = document.querySelector('[name="editor-view"]');
 
     editorView.scrollIntoView();
+
+    /**
+     * Remove unread badge
+     */
+    this.markNoteAsRead(id);
   }
 
   /**
@@ -513,5 +526,71 @@ export default class Aside {
     scrollableZones.forEach( zone => {
       zone.addEventListener('scroll', addClassOnScroll);
     });
+  }
+
+  /**
+   * Check unread status of passed Notes Ids
+   * @param {String[]|String} noteIds - ids of Notes to check
+   */
+  checkUnreadStatus(noteIds) {
+    if (!Array.isArray(noteIds)) {
+      /**
+       * If only singe id passed
+       */
+      if (noteIds) {
+        noteIds = [ noteIds ];
+      } else {
+        return;
+      }
+    }
+
+    /**
+     * Request unrad states of passed note ids
+     */
+    window.ipcRenderer.send('notes - get unread states', { noteIds });
+
+    /**
+     * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+     */
+    window.ipcRenderer.once('notes - set unread state',
+
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} unreadStates - map of note ids with unread states {dqO9tu5vY2aSC582: true, ...}
+       */
+      (event, unreadStates = {}) => {
+        for (let noteId in unreadStates) {
+          let noteUnread = unreadStates[noteId];
+
+          if (noteUnread) {
+            this.markNoteAsUnread(noteId);
+          }
+        }
+      });
+  }
+
+  /**
+   * Remove unread badge from the Note in Aside
+   * @param  {string} noteId - Note's id
+   */
+  markNoteAsRead(noteId) {
+    let noteInAside = document.querySelector(`[name="js-notes-menu"] [data-id="${noteId}"], [name="js-folder-notes-menu"] [data-id="${noteId}"]`);
+
+    if (noteInAside) {
+      noteInAside.classList.remove(Aside.CSS.notSeenState);
+    }
+  }
+
+  /**
+   * Mark Note at the Aside as unread
+   * @param {string} noteId
+   */
+  markNoteAsUnread(noteId) {
+    let noteInAside = document.querySelector(`[name="js-notes-menu"] [data-id="${noteId}"], [name="js-folder-notes-menu"] [data-id="${noteId}"]`);
+
+    if (noteInAside) {
+      noteInAside.classList.add(Aside.CSS.notSeenState);
+    }
   }
 }

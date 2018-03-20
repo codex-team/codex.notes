@@ -60,7 +60,6 @@ class Note {
     this.folderId = null;
     this.isRemoved = false;
     this.editorVersion = null;
-
     this.data = noteData;
   }
 
@@ -363,12 +362,17 @@ class Note {
      * @todo find first Text block, not any first-Tool
      */
     if (!this.title) {
-      let content = JSON.parse(this.content);
 
-      if (content.length && content[0].data) {
-        let titleFromText = content[0].data.text;
+      try {
+        let content = JSON.parse(this.content);
 
-        name = sanitizeHtml(titleFromText, {allowedTags: []});
+        if (content.length && content[0].data) {
+          let titleFromText = content[0].data.text;
+
+          name = sanitizeHtml(titleFromText, {allowedTags: []});
+        }
+      } catch (error){
+        console.log('Failed to compose intro text for the Note', this);
       }
     } else {
       name = this.title;

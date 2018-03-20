@@ -37,6 +37,10 @@ class NotesController {
     ipcMain.on('note - delete', (event, {id}) => {
       this.deleteNote(id, event);
     });
+
+    ipcMain.on('notes - get unread states', async (event, {noteIds}) => {
+      this.getNotesUnreadState(event, noteIds);
+    })
   }
 
   /**
@@ -78,6 +82,10 @@ class NotesController {
         note: newNote,
         isRootFolder: !noteData.folderId
       });
+
+      // mark edited Note as seen
+      global.app.seenStateObserver.touch(noteData.data.id );
+
     } catch (err) {
       console.log('Note saving failed because of ', err);
     }
@@ -120,6 +128,9 @@ class NotesController {
     try {
       let note = await Note.get(noteId);
 
+      // set note as visited
+      global.app.seenStateObserver.touch(noteId);
+
       event.returnValue = note;
     } catch (err) {
       console.log('Note\'s data loading failed because of', err);
@@ -147,6 +158,22 @@ class NotesController {
     } catch (err) {
       console.log('Note failed because of', err);
       event.returnValue = false;
+    }
+  }
+
+  /**
+   * Get's information about seen-state of passed notes and emits the event
+   * @param {ipcRenderer.Event} event - "notes - get visit time" event from client side
+   * @param {Array} noteIds - list of note ids
+   * @return {Promise.<void>}
+   */
+  async getNotesUnreadState(event, noteIds) {
+    try {
+      let unreadStates = await global.app.seenStateObserver.getNotesUndreadState(noteIds);
+
+      event.sender.send('notes - set unread state', unreadStates);
+    } catch (err){
+      console.log('Cannot collect notes visit time:', err);
     }
   }
 }

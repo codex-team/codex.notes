@@ -17,6 +17,7 @@ class Database {
     this.FOLDERS = new Datastore({ filename: path.join(this.appFolder, 'folders.db'), autoload: true});
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
     this.COLLABORATORS = new Datastore({ filename: path.join(this.appFolder, 'collaborators.db'), autoload: true });
+    this.VISITS = new Datastore({ filename: path.join(this.appFolder, 'visits.db'), autoload: true });
   }
 
   /**
@@ -96,13 +97,13 @@ class Database {
    * @param {Boolean} force - force drop.
    */
   drop(force = false) {
-    if (process.env.DEBUG !== 'true' || !force) {
+    if ( !force || ( process.env.DEBUG !== 'true' && !force )) {
       throw Error('Datastore dropping is not allowed for current environment');
     }
 
     let sequence = [];
 
-    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS].forEach( collection => {
+    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS].forEach( collection => {
       console.log('\n\n Drop ', collection.filename, '\n\n');
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
         console.log(collection.filename, ': ', removedRows, ' docs removed');
@@ -113,8 +114,12 @@ class Database {
     this.FOLDERS = null;
     this.NOTES = null;
     this.COLLABORATORS = null;
+    this.VISITS = null;
 
-    return Promise.all(sequence);
+    return Promise.all(sequence)
+        .catch((err) => {
+            throw Error('Couldn\'t drop the database', err);
+        });
   }
 
   /**
