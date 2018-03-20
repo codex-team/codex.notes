@@ -600,7 +600,6 @@ var Note = function () {
         minute: 'numeric',
         hour12: false
       });
-
       codex.editor.content.load({
         id: note._id,
         items: JSON.parse(note.content),
@@ -1383,7 +1382,6 @@ var Aside = function () {
     value: function checkUnreadStatus(noteIds) {
       var _this4 = this;
 
-      console.log('checkUnreadStatus', noteIds);
       if (!Array.isArray(noteIds)) {
         /**
          * If only singe id passed

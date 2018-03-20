@@ -284,7 +284,8 @@ export default class Aside {
 
       /**
        * Set unread badge because Note was updated
-       */);
+       */
+      this.checkUnreadStatus(noteData._id);
       return;
     }
 
