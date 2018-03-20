@@ -84,7 +84,7 @@ class NotesController {
       });
 
       // mark edited Note as seen
-      this.seenStateObserver.touch(noteData.data.id );
+      global.app.seenStateObserver.touch(noteData.data.id );
 
     } catch (err) {
       console.log('Note saving failed because of ', err);
