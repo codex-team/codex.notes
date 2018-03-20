@@ -171,8 +171,6 @@ class NotesController {
     try {
       let unreadStates = await global.app.seenStateObserver.getNotesUndreadState(noteIds);
 
-      console.log('answer to client', unreadStates);
-
       event.sender.send('notes - set unread state', unreadStates);
     } catch (err){
       console.log('Cannot collect notes visit time:', err);
