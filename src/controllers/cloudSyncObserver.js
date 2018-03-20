@@ -166,106 +166,108 @@ class CloudSyncObserver {
 
     let folders = dataFromCloud.user.folders;
 
-    folders = await Promise.all(folders.map( async folder => {
-      folder._id = folder.id;
+    return Promise.all(folders.map( async folder => {
+      return await this.saveFolder(folder);
+    }));
+  }
 
-      /**
-       * Create Folder model
-       *
-       * @type {Folder}
-       */
-      let localFolder = new Folder(folder);
+  /**
+   * Save a Folder got from the Cloud
+   *
+   * @param {FolderData} folderData - Folder data from Cloud
+   *
+   * @return {Promise<Folder>}
+   */
+  async saveFolder(folderData) {
+    folderData._id = folderData.id;
 
-      /**
-       * Save Folder's data
-       */
-      localFolder = await localFolder.save();
+    /**
+     * Create Folder model
+     *
+     * @type {Folder}
+     */
+    let localFolder = new Folder(folderData);
 
-      /**
-       * Get Folder's Notes
-       *
-       * @type {*|Array|NotesController}
-       */
-      localFolder.notes = await Promise.all(folder.notes.map( async note => {
-        return await this.saveNote(note, folder);
-        // note._id = note.id;
+    /**
+     * Save Folder's data
+     */
+    localFolder = await localFolder.save();
 
-        /**
-         * Create Note model
-         *
-         * @type {Note}
-         */
-        // let localNote = new Note(note);
-
-        /**
-         * We does not receive note.folderId from the Sync Query
-         */
-        // localNote.folderId = folder._id;
-
-        /**
-         * Save Note's data
-         */
-        // return await localNote.save();
-      }));
-
-      /**
-       * Get Folder's Collaborators
-       *
-       * @type {Array}
-       */
-      localFolder.collaborators = await Promise.all(folder.collaborators.map( async collaborator => {
-        collaborator._id = collaborator.id;
-
-        /**
-         * Create Collaborator model
-         *
-         * @type {Collaborator}
-         */
-        let localCollaborator = new Collaborator(collaborator);
-
-        localCollaborator.folderId = folder._id;
-        localCollaborator.ownerId = folder.owner.id;
-
-        /**
-         * Save Collaborator's data
-         */
-        return await localCollaborator.save();
-      }));
-
-      return localFolder;
+    /**
+     * Get Folder's Notes
+     *
+     * @type {*|Array|NotesController}
+     */
+    localFolder.notes = await Promise.all(folderData.notes.map( async note => {
+      return await this.saveNote(note, folderData);
     }));
 
-    return folders;
+    /**
+     * Get Folder's Collaborators
+     *
+     * @type {Array}
+     */
+    localFolder.collaborators = await Promise.all(folderData.collaborators.map( async collaborator => {
+      return await this.saveCollaborator(collaborator, folderData);
+    }));
+
+    return localFolder;
   }
 
   /**
    * Save a Note got from the Cloud
    *
-   * @param  {NoteData} note    - Note data from Cloud
-   * @param  {Folder} folder    - Folder contains a Note
+   * @param {NoteData} noteData - Note data from Cloud
+   * @param {Folder} folder - Folder contains a Note
+   *
    * @return {NoteData}
    */
-  async saveNote(note, folder){
-
-    note._id = note.id;
+  async saveNote(noteData, folder){
+    noteData._id = noteData.id;
 
     /**
      * Create Note model
      *
      * @type {Note}
      */
-    let localNote = new Note(note);
+    let note = new Note(noteData);
 
     /**
      * We does not receive note.folderId from the Sync Query
      */
-    localNote.folderId = folder._id;
+    note.folderId = folder._id;
 
     /**
      * Save Note's data
      */
-    return await localNote.save();
+    return await note.save();
+  }
 
+  /**
+   * Save Folder's Collaborator got from the Cloud
+   *
+   * @param {CollaboratorData} collaborator - Collaborator data from Cloud
+   * @param {FolderData} folder - Folder contains a Collaborator
+   *
+   * @return {Promise<void>}
+   */
+  async saveCollaborator(collaborator, folder) {
+    collaborator._id = collaborator.id;
+
+    /**
+     * Create Collaborator model
+     *
+     * @type {Collaborator}
+     */
+    let localCollaborator = new Collaborator(collaborator);
+
+    localCollaborator.folderId = folder._id;
+    localCollaborator.ownerId = folder.owner.id;
+
+    /**
+     * Save Collaborator's data
+     */
+    return await localCollaborator.save();
   }
 
   /**
@@ -368,7 +370,7 @@ class CloudSyncObserver {
    *
    * @param {UserData} user
    *
-   * @return {Promise<object}
+   * @return {Promise<object>}
    */
   sendUser(user) {
     let query = require('../graphql/mutations/user');
