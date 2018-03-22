@@ -57,6 +57,11 @@ const UserController = require('./controllers/user');
 const AppProtocol = require('./controllers/app-protocol');
 
 /**
+ * Note unread (unseed) state observer
+ */
+const SeenStateObserver = require('./controllers/SeenStateObserver');
+
+/**
  * User model
  */
 const User = require('./models/user');
@@ -197,6 +202,16 @@ class CodexNotes {
          * @type {ClientSyncObserver}
          */
         this.clientSyncObserver = new ClientSyncObserver();
+
+        /**
+         * @type {SeenStateObserver}
+         */
+        this.seenStateObserver = new SeenStateObserver();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
       })
       .catch(function (err) {
         console.log('Initialization error', err);

@@ -34,10 +34,12 @@ export default class Folder {
     this.title = folderData.title;
 
     window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
-    window.ipcRenderer.on('folder - collaborators list', (event, {collaborators}) => {
+    window.ipcRenderer.once('folder - collaborators list', (event, {collaborators}) => {
       this.collaborators = collaborators;
       codex.notes.aside.folderSettings.showCollaborators(this.collaborators);
     });
+
+    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
     /**
      * @todo asynchronous notes load
@@ -45,10 +47,9 @@ export default class Folder {
     codex.notes.aside.loadNotes(id)
       .then( ({notes}) => {
         this.notes = notes;
+        this.setNoteSeenStatus();
       })
       .then( () => this.clearNotesList() );
-
-    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
 
   /**
@@ -108,9 +109,21 @@ export default class Folder {
         return true;
       }
     }
-
     Dialog.error('Folder removing failed');
     return false;
+  }
+
+  /**
+   * Checks note last seen time.
+   * if note modification time is greater, then add badge
+   */
+  setNoteSeenStatus() {
+    let noteIds = this.notes.map(note => note._id);
+
+    /**
+     * Check unread status of Notes in the Folder
+     */
+    codex.notes.aside.checkUnreadStatus(noteIds);
   }
 
 }

@@ -772,22 +772,31 @@ var menuItemTitleMaxLength = 68;
  */
 
 var Aside = function () {
+  _createClass(Aside, null, [{
+    key: 'CSS',
 
-  /**
-   * @constructor
-   */
-  function Aside() {
-    var _this = this;
-
-    _classCallCheck(this, Aside);
 
     /**
      * Make CSS dictionary
      * @type {Object}
      */
-    this.CSS = {
-      notesMenuLoading: 'notes-list--loading'
-    };
+    get: function get() {
+      return {
+        notesMenuLoading: 'notes-list--loading',
+        noteListItem: 'notes-list__content-item',
+        notSeenState: 'notes-list__content-item--not-seen'
+      };
+    }
+    /**
+     * @constructor
+     */
+
+  }]);
+
+  function Aside() {
+    var _this = this;
+
+    _classCallCheck(this, Aside);
 
     /**
      * Find notes list holder
@@ -828,8 +837,8 @@ var Aside = function () {
     /**
      * Show preloader
      */
-    notesMenu.classList.add(this.CSS.notesMenuLoading);
-    foldersMenu.classList.add(this.CSS.notesMenuLoading);
+    notesMenu.classList.add(Aside.CSS.notesMenuLoading);
+    foldersMenu.classList.add(Aside.CSS.notesMenuLoading);
 
     /**
      * Emit message to load list
@@ -843,7 +852,7 @@ var Aside = function () {
     window.ipcRenderer.on('update folders list', function (event, _ref) {
       var userFolders = _ref.userFolders;
 
-      foldersMenu.classList.remove(_this.CSS.notesMenuLoading);
+      foldersMenu.classList.remove(Aside.CSS.notesMenuLoading);
       foldersMenu.innerHTML = '';
       userFolders.forEach(function (folder) {
         return _this.addFolder(folder);
@@ -857,7 +866,7 @@ var Aside = function () {
       var notes = _ref2.notes,
           isRootFolder = _ref2.isRootFolder;
 
-      notesMenu.classList.remove(_this.CSS.notesMenuLoading);
+      notesMenu.classList.remove(Aside.CSS.notesMenuLoading);
       notes.forEach(function (note) {
         return _this.addMenuItem(note, isRootFolder);
       });
@@ -1037,7 +1046,6 @@ var Aside = function () {
     }
 
     /**
-     *
      * Add a Note to the left menu
      *
      * @param {object} noteData
@@ -1076,6 +1084,11 @@ var Aside = function () {
 
       if (existingNote) {
         existingNote.textContent = this.createMenuItemTitle(noteData.titleLabel);
+
+        /**
+         * Set unread badge because Note was updated
+         */
+        this.checkUnreadStatus(noteData._id);
         return;
       }
 
@@ -1134,7 +1147,7 @@ var Aside = function () {
     value: function makeMenuItem(title, dataset) {
       title = this.createMenuItemTitle(title);
 
-      var item = $.make('li', null, {
+      var item = $.make('li', Aside.CSS.noteListItem, {
         textContent: title
       });
 
@@ -1234,6 +1247,7 @@ var Aside = function () {
       var menuItem = event.target,
           id = menuItem.dataset.id;
 
+      // send "note - get" event
       var noteData = window.ipcRenderer.sendSync('note - get', { id: id });
 
       codex.notes.note.render(noteData);
@@ -1244,6 +1258,11 @@ var Aside = function () {
       var editorView = document.querySelector('[name="editor-view"]');
 
       editorView.scrollIntoView();
+
+      /**
+       * Remove unread badge
+       */
+      this.markNoteAsRead(id);
     }
 
     /**
@@ -1351,6 +1370,85 @@ var Aside = function () {
       scrollableZones.forEach(function (zone) {
         zone.addEventListener('scroll', addClassOnScroll);
       });
+    }
+
+    /**
+     * Check unread status of passed Notes Ids
+     * @param {String[]|String} noteIds - ids of Notes to check
+     */
+
+  }, {
+    key: 'checkUnreadStatus',
+    value: function checkUnreadStatus(noteIds) {
+      var _this4 = this;
+
+      if (!Array.isArray(noteIds)) {
+        /**
+         * If only singe id passed
+         */
+        if (noteIds) {
+          noteIds = [noteIds];
+        } else {
+          return;
+        }
+      }
+
+      /**
+       * Request unrad states of passed note ids
+       */
+      window.ipcRenderer.send('notes - get unread states', { noteIds: noteIds });
+
+      /**
+       * We use "once" to invoke sa callback to automatically removes listener after folder will be closed
+       */
+      window.ipcRenderer.once('notes - set unread state',
+
+      /**
+       * Check unread state of Notes from the current Folder
+       * @param  {*} event
+       * @param  {Object} unreadStates - map of note ids with unread states {dqO9tu5vY2aSC582: true, ...}
+       */
+      function (event) {
+        var unreadStates = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        for (var noteId in unreadStates) {
+          var noteUnread = unreadStates[noteId];
+
+          if (noteUnread) {
+            _this4.markNoteAsUnread(noteId);
+          }
+        }
+      });
+    }
+
+    /**
+     * Remove unread badge from the Note in Aside
+     * @param  {string} noteId - Note's id
+     */
+
+  }, {
+    key: 'markNoteAsRead',
+    value: function markNoteAsRead(noteId) {
+      var noteInAside = document.querySelector('[name="js-notes-menu"] [data-id="' + noteId + '"], [name="js-folder-notes-menu"] [data-id="' + noteId + '"]');
+
+      if (noteInAside) {
+        noteInAside.classList.remove(Aside.CSS.notSeenState);
+      }
+    }
+
+    /**
+     * Mark Note at the Aside as unread
+     * @param {string} noteId
+     */
+
+  }, {
+    key: 'markNoteAsUnread',
+    value: function markNoteAsUnread(noteId) {
+      var noteInAside = document.querySelector('[name="js-notes-menu"] [data-id="' + noteId + '"], [name="js-folder-notes-menu"] [data-id="' + noteId + '"]');
+
+      if (noteInAside) {
+        noteInAside.classList.add(Aside.CSS.notSeenState);
+      }
     }
   }]);
 
@@ -2655,12 +2753,14 @@ var Folder = function () {
     this.title = folderData.title;
 
     window.ipcRenderer.send('folder - get collaborators', { folder: this.id });
-    window.ipcRenderer.on('folder - collaborators list', function (event, _ref) {
+    window.ipcRenderer.once('folder - collaborators list', function (event, _ref) {
       var collaborators = _ref.collaborators;
 
       _this.collaborators = collaborators;
       codex.notes.aside.folderSettings.showCollaborators(_this.collaborators);
     });
+
+    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
 
     /**
      * @todo asynchronous notes load
@@ -2669,11 +2769,10 @@ var Folder = function () {
       var notes = _ref2.notes;
 
       _this.notes = notes;
+      _this.setNoteSeenStatus();
     }).then(function () {
       return _this.clearNotesList();
     });
-
-    this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
   }
 
   /**
@@ -2716,9 +2815,26 @@ var Folder = function () {
           return true;
         }
       }
-
       Dialog.error('Folder removing failed');
       return false;
+    }
+
+    /**
+     * Checks note last seen time.
+     * if note modification time is greater, then add badge
+     */
+
+  }, {
+    key: 'setNoteSeenStatus',
+    value: function setNoteSeenStatus() {
+      var noteIds = this.notes.map(function (note) {
+        return note._id;
+      });
+
+      /**
+       * Check unread status of Notes in the Folder
+       */
+      codex.notes.aside.checkUnreadStatus(noteIds);
     }
   }, {
     key: 'id',
