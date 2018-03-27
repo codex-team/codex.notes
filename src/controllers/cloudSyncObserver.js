@@ -75,13 +75,13 @@ class CloudSyncObserver {
 
       switch (message.type) {
         case 'folder':
-          await CloudSyncObserver.saveFolder(message.data);
+          await this.saveFolder(message.data);
           break;
         case 'note':
-          await CloudSyncObserver.saveNote(message.data, message.data.folderId);
+          await this.saveNote(message.data, message.data.folderId);
           break;
         case 'collaborator':
-          await CloudSyncObserver.saveCollaborator(message.data, message.data.folderId);
+          await this.saveCollaborator(message.data, message.data.folderId);
           break;
         default:
       }
@@ -128,7 +128,7 @@ class CloudSyncObserver {
       /**
        * Prepare local updates for this moment
        */
-      let preparedLocalUpdates = await CloudSyncObserver.getLocalUpdates();
+      let preparedLocalUpdates = await this.getLocalUpdates();
 
       /**
        * Create Sync Mutations Sequence
@@ -138,7 +138,7 @@ class CloudSyncObserver {
       /**
        * Update user's last sync date
        */
-      let updatedUser = await CloudSyncObserver.updateUserLastSyncDate();
+      let updatedUser = await this.updateUserLastSyncDate();
 
       return dataFromCloud;
     } catch(e) {
@@ -186,7 +186,7 @@ class CloudSyncObserver {
     let folders = dataFromCloud.user.folders;
 
     return Promise.all(folders.map( async folder => {
-      return await CloudSyncObserver.saveFolder(folder);
+      return await this.saveFolder(folder);
     }));
   }
 
@@ -197,7 +197,7 @@ class CloudSyncObserver {
    *
    * @return {Promise<Folder>}
    */
-  static async saveFolder(folderData) {
+  async saveFolder(folderData) {
     folderData._id = folderData.id;
 
     /**
@@ -218,7 +218,7 @@ class CloudSyncObserver {
      * @type {*|Array|NotesController}
      */
     localFolder.notes = await Promise.all(folderData.notes.map( async note => {
-      return await CloudSyncObserver.saveNote(note, folderData);
+      return await this.saveNote(note, folderData);
     }));
 
     /**
@@ -227,7 +227,7 @@ class CloudSyncObserver {
      * @type {Array}
      */
     localFolder.collaborators = await Promise.all(folderData.collaborators.map( async collaborator => {
-      return await CloudSyncObserver.saveCollaborator(collaborator, folderData);
+      return await this.saveCollaborator(collaborator, folderData);
     }));
 
     return localFolder;
@@ -241,7 +241,7 @@ class CloudSyncObserver {
    *
    * @return {NoteData}
    */
-  static async saveNote(noteData, folder){
+  async saveNote(noteData, folder){
     noteData._id = noteData.id;
 
     /**
@@ -270,7 +270,7 @@ class CloudSyncObserver {
    *
    * @return {Promise<void>}
    */
-  static async saveCollaborator(collaborator, folder) {
+  async saveCollaborator(collaborator, folder) {
     collaborator._id = collaborator.id;
 
     /**
@@ -294,7 +294,7 @@ class CloudSyncObserver {
    *
    * @return {{folders: []|null, notes: []|null}}
    */
-  static async getLocalUpdates() {
+  async getLocalUpdates() {
     console.log('[cloudSyncObserver] Prepare local updates');
 
     /**
@@ -375,7 +375,7 @@ class CloudSyncObserver {
    *
    * @returns {Object}
    */
-  static async updateUserLastSyncDate() {
+  async updateUserLastSyncDate() {
     console.log('[cloudSyncObserver] Update user\'s last sync date');
 
     /** Update user's last sync date */
