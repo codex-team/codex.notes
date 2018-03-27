@@ -37,7 +37,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 10 * 1000 ); // every 10 sec
+    }, 60 * 1000 ); // every 10 sec
   }
 
   /**
@@ -63,7 +63,7 @@ class CloudSyncObserver {
   /**
    * Open user's notifications channel
    */
-  openUserChannel(){
+  openUserChannel() {
     global.app.sockets.listenChannel(global.user.channel, async message => {
       console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n🛎 Notify:', message);
 
@@ -78,7 +78,9 @@ class CloudSyncObserver {
           await this.saveFolder(message.data);
           break;
         case 'note':
-          await this.saveNote(message.data, message.data.folderId);
+          let folderId = message.data.folderId;
+
+          await this.saveNote(message.data, {_id: folderId});
           break;
         case 'collaborator':
           await this.saveCollaborator(message.data, message.data.folderId);
