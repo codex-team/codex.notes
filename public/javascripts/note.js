@@ -56,6 +56,26 @@ export default class Note {
     this.shortcuts = [];
 
     this.enableShortcuts();
+    this.enableMouseSelection();
+  }
+
+  /**
+   * enableMouseSelection
+   *
+   * allows select several blocks and prevents CodeX Editor inline-toolbar appearance
+   */
+  enableMouseSelection() {
+    let stopAllPropagations = (event) => {
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+
+    this.editor.addEventListener('mousedown', (event) => {
+      this.editor.contentEditable = true;
+    }, false);
+
+    this.editor.addEventListener('mouseup', stopAllPropagations, true);
+    this.editor.addEventListener('click', stopAllPropagations, true);
   }
 
   /**
@@ -68,18 +88,6 @@ export default class Note {
       event.stopImmediatePropagation();
       event.stopPropagation();
     };
-
-    let stopAllPropagations = (event) => {
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-    };
-
-    this.editor.addEventListener('mousedown', (event) => {
-      this.editor.contentEditable = true;
-    }, false);
-
-    this.editor.addEventListener('mouseup', stopAllPropagations, true);
-    this.editor.addEventListener('click', stopAllPropagations, true);
 
     // any click on body prevents content selection
     // stop preventing copy event

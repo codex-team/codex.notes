@@ -407,24 +407,20 @@ var Note = function () {
     this.shortcuts = [];
 
     this.enableShortcuts();
+    this.enableMouseSelection();
   }
 
   /**
-   * CMD+A - select all document
-   * CDM+C - copy selected content (title + editor area)
+   * enableMouseSelection
+   *
+   * allows select several blocks and prevents CodeX Editor inline-toolbar appearance
    */
 
 
   _createClass(Note, [{
-    key: 'enableShortcuts',
-    value: function enableShortcuts() {
+    key: 'enableMouseSelection',
+    value: function enableMouseSelection() {
       var _this = this;
-
-      var preventDefaultExecution = function preventDefaultExecution(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      };
 
       var stopAllPropagations = function stopAllPropagations(event) {
         event.stopImmediatePropagation();
@@ -437,12 +433,29 @@ var Note = function () {
 
       this.editor.addEventListener('mouseup', stopAllPropagations, true);
       this.editor.addEventListener('click', stopAllPropagations, true);
+    }
+
+    /**
+     * CMD+A - select all document
+     * CDM+C - copy selected content (title + editor area)
+     */
+
+  }, {
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this2 = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
 
       // any click on body prevents content selection
       // stop preventing copy event
       document.body.addEventListener('click', function () {
-        _this.editorContentSelected = false;
-        _this.editor.removeEventListener('copy', preventDefaultExecution);
+        _this2.editorContentSelected = false;
+        _this2.editor.removeEventListener('copy', preventDefaultExecution);
       }, false);
 
       /**
@@ -452,8 +465,8 @@ var Note = function () {
         name: 'CMD+A',
         on: this.editor,
         callback: function callback(event) {
-          _this.cmdA(event);
-          _this.editor.addEventListener('copy', preventDefaultExecution);
+          _this2.cmdA(event);
+          _this2.editor.addEventListener('copy', preventDefaultExecution);
         }
       });
 
@@ -464,7 +477,7 @@ var Note = function () {
         name: 'CMD+C',
         on: this.editor,
         callback: function callback() {
-          _this.cmdC();
+          _this2.cmdC();
         }
       });
 
@@ -516,7 +529,7 @@ var Note = function () {
   }, {
     key: 'save',
     value: function save() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.deleteButton.classList.remove('hide');
 
@@ -526,24 +539,24 @@ var Note = function () {
       var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
       codex.editor.saver.save().then(function (noteData) {
-        _this2.validate(noteData);
+        _this3.validate(noteData);
         return noteData;
       }).then(function (noteData) {
         var note = {
           data: noteData,
-          title: _this2.titleEl.value.trim(),
+          title: _this3.titleEl.value.trim(),
           folderId: folderId
         };
 
         var saveIndicator = document.getElementById('save-indicator');
 
-        if (_this2.showSavedIndicatorTimer) {
-          window.clearTimeout(_this2.showSavedIndicatorTimer);
+        if (_this3.showSavedIndicatorTimer) {
+          window.clearTimeout(_this3.showSavedIndicatorTimer);
         }
 
         saveIndicator.classList.add('saved');
 
-        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
+        _this3.showSavedIndicatorTimer = window.setTimeout(function () {
           saveIndicator.classList.remove('saved');
         }, 500);
 
