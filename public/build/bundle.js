@@ -426,6 +426,18 @@ var Note = function () {
         event.stopPropagation();
       };
 
+      var stopAllPropagations = function stopAllPropagations(event) {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      this.editor.addEventListener('mousedown', function (event) {
+        _this.editor.contentEditable = true;
+      }, false);
+
+      this.editor.addEventListener('mouseup', stopAllPropagations, true);
+      this.editor.addEventListener('click', stopAllPropagations, true);
+
       // any click on body prevents content selection
       // stop preventing copy event
       document.body.addEventListener('click', function () {

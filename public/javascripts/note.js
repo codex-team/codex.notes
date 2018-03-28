@@ -69,6 +69,18 @@ export default class Note {
       event.stopPropagation();
     };
 
+    let stopAllPropagations = (event) => {
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+
+    this.editor.addEventListener('mousedown', (event) => {
+      this.editor.contentEditable = true;
+    }, false);
+
+    this.editor.addEventListener('mouseup', stopAllPropagations, true);
+    this.editor.addEventListener('click', stopAllPropagations, true);
+
     // any click on body prevents content selection
     // stop preventing copy event
     document.body.addEventListener('click', () => {
