@@ -39,7 +39,7 @@ class Visits {
    */
   async save(){
     let query = {
-      noteId : noteId
+      noteId : this.noteId
     };
 
     let dataToSave = {
@@ -53,7 +53,6 @@ class Visits {
     let updateResponse = await db.update(db.VISITS, query, dataToSave, options);
 
     return updateResponse.affectedDocuments;
-
   }
 
   /**
