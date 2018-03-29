@@ -936,6 +936,7 @@ template {
     font-size: 17px;
     color: #1A1A1A;
     line-height: 1.5em;
+    outline: none;
 }
 
 .ce-redactor {

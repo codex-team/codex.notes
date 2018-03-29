@@ -413,7 +413,10 @@ var Note = function () {
   /**
    * enableMouseSelection
    *
-   * allows select several blocks and prevents CodeX Editor inline-toolbar appearance
+   * allows several blocks selection and prevents CodeX Editor inline-toolbar appearance
+   *
+   * The main idea is that we make editor wrapper editable to use native selection.
+   * Other actions instead of mouse down prevents this behaviour
    */
 
 
@@ -422,17 +425,74 @@ var Note = function () {
     value: function enableMouseSelection() {
       var _this = this;
 
+      /**
+       * prevent immediate execution
+       */
       var stopAllPropagations = function stopAllPropagations(event) {
         event.stopImmediatePropagation();
         event.stopPropagation();
       };
 
-      this.editor.addEventListener('mousedown', function (event) {
+      var crossBlockSelection = false;
+
+      this.editor.addEventListener('mousemove', function (event) {
+        var selection = window.getSelection(),
+            range = void 0,
+            commonContainer = void 0;
+
+        if (selection.rangeCount > 0) {
+          range = selection.getRangeAt(0);
+          commonContainer = range.commonAncestorContainer;
+          if (commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor')) {
+            crossBlockSelection = true;
+          } else {
+            crossBlockSelection = false;
+          }
+        }
+      }, false);
+
+      this.editor.addEventListener('mouseup', function (event) {
+        if (crossBlockSelection) {
+          stopAllPropagations(event);
+        }
+      }, true);
+
+      this.editor.addEventListener('click', function (event) {
+        if (crossBlockSelection) {
+          stopAllPropagations(event);
+        }
+      }, true);
+
+      this.editor.addEventListener('selectstart', function (event) {
+        var selection = window.getSelection(),
+            range = void 0;
+
+        if (selection.rangeCount > 0) {
+          range = selection.getRangeAt(0);
+          if (range.startOffset === range.endOffset) {
+            _this.editor.contentEditable = false;
+            return;
+          } else {
+            _this.editor.contentEditable = true;
+          }
+        }
         _this.editor.contentEditable = true;
       }, false);
 
-      this.editor.addEventListener('mouseup', stopAllPropagations, true);
-      this.editor.addEventListener('click', stopAllPropagations, true);
+      this.editor.addEventListener('keydown', function (event) {
+        if (_this.editor.contentEditable) {
+          var keyCodeC = 67,
+              onlyCtrl = event.metaKey && event.keyCode == 91,
+              copying = event.metaKey && event.keyCode == keyCodeC;
+
+          if (onlyCtrl || crossBlockSelection && copying) {
+            return;
+          }
+
+          crossBlockSelection = false;
+          _this.editor.contentEditable = false;
+        }
+      });
     }
 
     /**

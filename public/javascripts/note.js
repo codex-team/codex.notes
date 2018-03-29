@@ -62,20 +62,79 @@ export default class Note {
   /**
    * enableMouseSelection
    *
-   * allows select several blocks and prevents CodeX Editor inline-toolbar appearance
+   * allows several blocks selection and prevents CodeX Editor inline-toolbar appearance
+   *
+   * The main idea is that we make editor wrapper editable to use native selection.
+   * Other actions instead of mouse down prevents this behaviour
    */
   enableMouseSelection() {
+    /**
+     * prevent immediate execution
+     */
     let stopAllPropagations = (event) => {
       event.stopImmediatePropagation();
       event.stopPropagation();
     };
 
-    this.editor.addEventListener('mousedown', (event) => {
+    let crossBlockSelection = false;
+
+    this.editor.addEventListener('mousemove', (event) => {
+      let selection = window.getSelection(),
+          range, commonContainer;
+
+      if (selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+        commonContainer = range.commonAncestorContainer;
+        if (commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor')) {
+          crossBlockSelection = true;
+        } else {
+          crossBlockSelection = false;
+        }
+      }
+    }, false);
+
+    this.editor.addEventListener('mouseup', (event) => {
+      if (crossBlockSelection) {
+        stopAllPropagations(event);
+      }
+    }, true);
+
+    this.editor.addEventListener('click', (event) => {
+      if (crossBlockSelection) {
+        stopAllPropagations(event);
+      }
+    }, true);
+
+    this.editor.addEventListener('selectstart', (event) => {
+      let selection = window.getSelection(),
+          range;
+
+      if ( selection.rangeCount > 0 ) {
+        range = selection.getRangeAt(0);
+        if (range.startOffset === range.endOffset) {
+          this.editor.contentEditable = false;
+          return;
+        } else {
+          this.editor.contentEditable = true;
+        }
+      }
       this.editor.contentEditable = true;
     }, false);
 
-    this.editor.addEventListener('mouseup', stopAllPropagations, true);
-    this.editor.addEventListener('click', stopAllPropagations, true);
+    this.editor.addEventListener('keydown', (event) => {
+      if (this.editor.contentEditable) {
+        let keyCodeC = 67,
+            onlyCtrl = event.metaKey && event.keyCode == 91,
+            copying  = event.metaKey && event.keyCode == keyCodeC;
+
+        if ( onlyCtrl || ( crossBlockSelection && copying) ) {
+          return;
+        }
+
+        crossBlockSelection = false;
+        this.editor.contentEditable = false;
+      }
+    });
   }
 
   /**
