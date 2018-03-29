@@ -435,6 +435,9 @@ var Note = function () {
 
       var crossBlockSelection = false;
 
+      /**
+       * This listener defines "crossBlockSelection" from current selection
+       */
       this.editor.addEventListener('mousemove', function (event) {
         var selection = window.getSelection(),
             range = void 0,
@@ -451,18 +454,31 @@ var Note = function () {
         }
       }, false);
 
+      /**
+       * This listener handle editor inline toolbar
+       * In case of "non-crossBlockSelection" we allow the inline toolbar to appear
+       */
       this.editor.addEventListener('mouseup', function (event) {
         if (crossBlockSelection) {
           stopAllPropagations(event);
         }
       }, true);
 
+      /**
+       * Prevent editor click behaviour when several blocks selected
+       */
       this.editor.addEventListener('click', function (event) {
         if (crossBlockSelection) {
           stopAllPropagations(event);
         }
       }, true);
 
+      /**
+       * Check current selection and make wrapper editable
+       *
+       * Sometimes there is difference between click and selectstart, so we need an extra condition with range offset
+       * if range length is greater than 0, we make wrapper editable
+       */
       this.editor.addEventListener('selectstart', function (event) {
         var selection = window.getSelection(),
             range = void 0;
@@ -479,6 +495,12 @@ var Note = function () {
         _this.editor.contentEditable = true;
       }, false);
 
+      /**
+       * Keydown on mouse selection
+       *
+       * handle keydown separately because we made wrapper content editable that can breaks whole editor
+       * Allow only CMD+C
+       */
       this.editor.addEventListener('keydown', function (event) {
         if (_this.editor.contentEditable) {
           var keyCodeC = 67,
