@@ -2452,6 +2452,12 @@ var FolderSettings = function () {
     this.loginButton.addEventListener('click', function () {
       codex.notes.user.showAuth();
     });
+
+    window.ipcRenderer.on('folder - add collaborator', function (event, collaborator) {
+      if (codex.notes.aside.currentFolder.id === collaborator.folderId) {
+        _this.addCollaborator(collaborator);
+      }
+    });
   }
 
   /**
@@ -2626,7 +2632,8 @@ var FolderSettings = function () {
     /**
      * Add Collaborator to the Collaborators list at folder-settings panel
      *
-     * @param collaborator
+     * @param {String|null} collaborator.user.photo
+     * @param {String} collaborator.email
      */
 
   }, {

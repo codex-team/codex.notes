@@ -37,7 +37,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 60 * 1000 ); // every 10 sec
+    }, 60 * 1000 ); // every 60 sec
   }
 
   /**
@@ -71,8 +71,6 @@ class CloudSyncObserver {
         return;
       }
 
-      console.log('>>>>>>' + message.type + '\n\n\n\n');
-
       switch (message.type) {
         case 'folder':
           await this.saveFolder(message.data);
@@ -84,6 +82,7 @@ class CloudSyncObserver {
           break;
         case 'collaborator':
           await this.saveCollaborator(message.data, message.data.folderId);
+          global.app.clientSyncObserver.sendCollaborator(message.data);
           break;
         default:
       }
@@ -283,7 +282,7 @@ class CloudSyncObserver {
     let localCollaborator = new Collaborator(collaborator);
 
     localCollaborator.folderId = folder._id;
-    localCollaborator.ownerId = folder.owner.id;
+    localCollaborator.ownerId = folder.ownerId;
 
     /**
      * Save Collaborator's data
