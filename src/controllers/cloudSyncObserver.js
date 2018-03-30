@@ -233,9 +233,11 @@ class CloudSyncObserver {
      *
      * @type {*|Array|NotesController}
      */
-    localFolder.notes = await Promise.all(folderData.notes.map( async note => {
-      return await this.saveNote(note, folderData);
-    }));
+    if (!folderData.notes) {
+      localFolder.notes = await Promise.all(folderData.notes.map(async note => {
+        return await this.saveNote(note, folderData);
+      }));
+    }
 
     /**
      * Get Folder's Collaborators
