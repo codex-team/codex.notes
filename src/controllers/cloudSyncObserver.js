@@ -9,6 +9,7 @@ const User = require('../models/user');
  * @type {Time}
  */
 const Time = require('../utils/time');
+const _ = require('../utils/utils');
 
 /**
  * Simple GraphQL requests provider
@@ -71,30 +72,31 @@ class CloudSyncObserver {
 
   /**
    * Notify got from the Socket
+   *
    * @param {object} message
-   * @param {string} message.type   - notify type ('note', 'folder')
-   * @param {string} message.event  - notify event ('update', 'add');
-   * @param {object} message.data   - payload
+   * @param {string} message.event - notify event ('folder updated', 'collaborator invited');
+   * @param {object} message.data - payload
+   *
    * @return {void}
    */
   gotNotify(message = {}) {
-    if (!message.type) {
+    if (!message.event) {
       console.log('WARN: got notification in incorrect format', message);
       return;
     }
 
-    console.log(`\n\n\n\n🛎 ${message.type} ${message.event} ${message.data.id || ''} \n\n\n\n`);
+    console.log(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
 
-    switch (message.type) {
-      case 'folder':
+    switch (message.event) {
+      case 'folder updated':
         this.saveFolder(message.data);
         break;
-      case 'note':
+      case 'note updated':
         let folderId = message.data.folderId;
 
         this.saveNote(message.data, {_id: folderId});
         break;
-      case 'collaborator':
+      case 'collaborator invited':
         this.saveCollaborator(message.data, message.data.folderId);
         global.app.clientSyncObserver.sendCollaborator(message.data);
         break;
