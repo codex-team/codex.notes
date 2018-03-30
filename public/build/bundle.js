@@ -2614,7 +2614,7 @@ var FolderSettings = function () {
         return false;
       }
 
-      this.addCollaborator({ email: email });
+      // this.addCollaborator({email});
     }
 
     /**

@@ -181,7 +181,7 @@ export default class FolderSettings {
       return false;
     }
 
-    this.addCollaborator({email});
+    // this.addCollaborator({email});
   }
 
   /**
