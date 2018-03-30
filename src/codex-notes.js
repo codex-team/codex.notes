@@ -5,6 +5,25 @@ const app = electron.app;
 
 require('dotenv').config();
 
+/**
+ * Enable errors handling
+ * @type {hawkCatcher}
+ */
+if (process.env.HAWK_TOKEN) {
+  let hawkCatcher = require('@codexteam/hawk.nodejs')({
+    accessToken: process.env.HAWK_TOKEN
+  });
+
+  hawkCatcher.initGlobalCatcher();
+}
+
+/**
+ * Enable logger
+ * @example global.logger.info('Hey yo');
+ */
+global.logger = require('./utils/logger');
+global.logger.setLevel(process.env.LOG_LEVEL || 'warn');
+
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
 
@@ -19,7 +38,6 @@ const pug = require('electron-pug')({
   // debug: true,
   // compileDebug: true
 }, locals);
-
 
 /**
  * Cloud-Synchronization controller
@@ -139,7 +157,7 @@ class CodexNotes {
     this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
     this.mainWindow.once('ready-to-show', () => {
-      console.log('\nMain Window is ready to show. Let\'s go \n');
+      global.logger.debug('\nMain Window is ready to show. Let\'s go \n');
       this.mainWindow.show();
     });
 
@@ -164,7 +182,7 @@ class CodexNotes {
         this.setAppProtocol();
       })
       .catch((e) => {
-        console.log('App initialization failed because of ', e);
+        global.logger.debug('App initialization failed because of ', e);
       });
   }
 
@@ -176,7 +194,7 @@ class CodexNotes {
 
     return this.user.init()
       .then(() => {
-        console.log('Current user data is: ', this.user);
+        global.logger.debug('Current user data is: ', this.user);
 
         /**
          * @type {User}
@@ -214,7 +232,7 @@ class CodexNotes {
         this.sockets = new SocketsController();
       })
       .catch(function (err) {
-        console.log('Initialization error', err);
+        global.logger.debug('Initialization error', err);
       });
   }
 
@@ -259,7 +277,8 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    console.log(`\n
+    hawkCatcher.catchException(error);
+    global.logger.error(`\n
       \n
       ...........................\n
       \n
