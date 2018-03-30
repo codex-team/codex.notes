@@ -2647,7 +2647,7 @@ var FolderSettings = function () {
     value: function addCollaborator(collaborator) {
       var newMemberItem = $.make('LI', ['member-list__item'], {}),
           ava = void 0,
-          memberEmailClasses = [];
+          memberEmailClasses = ['member-list__item-name'];
 
       if (collaborator.user && collaborator.user.photo) {
         /** Add User's photo */
@@ -2666,12 +2666,28 @@ var FolderSettings = function () {
       /** Add ava block */
       $.append(newMemberItem, ava);
 
+      var emailWrapper = $.make('div', 'member-list__item-name-wrapper');
+
       /** Create block with User's email */
       var newMemberEmail = $.make('SPAN', memberEmailClasses, {
         innerHTML: collaborator.email
       });
 
-      $.append(newMemberItem, newMemberEmail);
+      /**
+       * If email is longer that this count, it will be overflowed
+       * @type {number}
+       */
+      var visibleCharsCount = 23;
+
+      /**
+       * Add class for elements with long email for the overflow animation
+       */
+      if (collaborator.email.length > visibleCharsCount) {
+        emailWrapper.classList.add('member-list__item-name-wrapper--scrollable');
+      }
+
+      $.append(emailWrapper, newMemberEmail);
+      $.append(newMemberItem, emailWrapper);
 
       /**
        * Add new row
