@@ -928,6 +928,12 @@ var Aside = function () {
     window.ipcRenderer.on('folder updated', function (event, folder) {
       if (!folder.isRemoved) {
         _this.addFolder(folder);
+        /**
+         * Update title of opened folder
+         */
+        if (_this.currentFolder && _this.currentFolder._id && _this.currentFolder._id === folder._id) {
+          _this.currentFolder.title = folder.title;
+        }
       } else {
         _this.removeFolderFromMenu(folder._id);
       }

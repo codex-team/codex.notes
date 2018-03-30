@@ -147,6 +147,12 @@ export default class Aside {
     window.ipcRenderer.on('folder updated', (event, folder) => {
       if (!folder.isRemoved) {
         this.addFolder(folder);
+        /**
+         * Update title of opened folder
+         */
+        if (this.currentFolder && this.currentFolder._id && this.currentFolder._id === folder._id) {
+          this.currentFolder.title = folder.title;
+        }
       } else {
         this.removeFolderFromMenu(folder._id);
       }
