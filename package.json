@@ -10,7 +10,7 @@
   "main": "./src/codex-notes.js",
   "scripts": {
     "start": "electron .",
-    "build": "webpack --progress  --display-error-details --mode=development ",
+    "build": "webpack --progress --display-error-details --mode development",
     "package-all": "npm run package-mac; npm run package-linux; npm run package-win",
     "package-mac": "electron-packager . \"$npm_package_productName\" --platform=darwin --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconICNS --overwrite --out=release-builds",
     "package-linux": "electron-packager . \"$npm_package_productName\" --platform=linux --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconPNG --overwrite --out=release-builds",
@@ -64,6 +64,7 @@
     "eslint-loader": "^2.0.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^1.1.11",
+    "fs": "0.0.1-security",
     "path": "^0.12.7",
     "postcss-apply": "^0.9.0",
     "postcss-color-function": "^4.0.1",
