@@ -3,7 +3,7 @@
 const electron = require('electron');
 const app = electron.app;
 
-require('dotenv').config();
+require('../env.js');
 
 /**
  * Enable errors handling
@@ -22,7 +22,7 @@ if (process.env.HAWK_TOKEN) {
  * @example global.logger.info('Hey yo');
  */
 global.logger = require('./utils/logger');
-global.logger.setLevel(process.env.LOG_LEVEL || 'warn');
+global.logger.setLevel(process.env.LOG_LEVEL || 'debug');
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
