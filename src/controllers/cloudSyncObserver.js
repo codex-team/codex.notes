@@ -233,7 +233,7 @@ class CloudSyncObserver {
      *
      * @type {*|Array|NotesController}
      */
-    if (!folderData.notes) {
+    if (folderData.notes) {
       localFolder.notes = await Promise.all(folderData.notes.map(async note => {
         return await this.saveNote(note, folderData);
       }));
