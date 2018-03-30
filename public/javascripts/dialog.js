@@ -4,7 +4,6 @@ const remote = require('electron').remote;
  *
  */
 export default class Dialog {
-
   /**
    *
    */
@@ -32,6 +31,22 @@ export default class Dialog {
     }    else {
       return false;
     }
-  };
+  }
 
+  /**
+   * Shows error notification
+   *
+   * @returns {boolean}
+   */
+  static error(text) {
+    const browserWindow = remote.getCurrentWindow();
+
+    browserWindow.setSheetOffset(30, browserWindow.width / 2);
+
+    remote.dialog.showMessageBox(browserWindow, {
+      type: 'error',
+      title: 'Wow. Something goes wrong.',
+      message: text
+    });
+  }
 }

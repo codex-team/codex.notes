@@ -1,0 +1,21 @@
+.aside__header
+
+    .aside__header-left
+
+        .aside__header-logo CodeX Notes
+
+        #status-bar.status-bar
+            | Offline
+
+    #user-panel.aside__header-avatar
+        include ../../public/svg/avatar.svg
+        #user-photo.aside__user-photo
+
+        .aside__authorization
+
+            .aside__authorization-title
+                | Enable synchronization and sharing features
+
+            .authorization-button(id="js-auth-button")
+                include ../../public/svg/google.svg
+                | Login with Google

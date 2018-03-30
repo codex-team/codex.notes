@@ -1,7 +1,7 @@
 {
-    /** Enable ES6 features */
+    /** Enable ES8 features */
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 8,
         "sourceType": "module",
         "ecmaFeatures": {
             "classes": true,
@@ -92,6 +92,7 @@
         "global": true,
         "app": true,
         "process": true,
-        "__dirname": true
+        "__dirname": true,
+        "Buffer": true
     }
 }

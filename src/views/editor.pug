@@ -4,14 +4,14 @@ html(lang="en")
     head
        meta(charset="utf-8")
        title= title
-       script(src="../public/build/bundle.js")
-       link(href="../public/build/bundle.css", rel="stylesheet")
+       script(src="../../public/build/bundle.js")
+       link(href="../../public/build/bundle.css", rel="stylesheet")
        meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
 
 body
     div.drag-bar
 
-    include aside.pug
+    include ./aside
 
     div.content(name="editor-view")
         div.header

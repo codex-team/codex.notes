@@ -1,5 +1,5 @@
 module.exports = function (app) {
-  const pkg = require('./package');
+  const pkg = require('./../package');
 
   let info = {
     bugReportUrl: pkg.bugs,
@@ -31,6 +31,18 @@ module.exports = function (app) {
     {
       label: 'Show All',
       role: 'unhide'
+    },
+    {
+      type: 'separator'
+    },
+    {
+      label : 'Log Out',
+      click: function () {
+        // log out only signed in user
+        if (global.user.token) {
+          global.app.auth.logOut();
+        }
+      }
     },
     {
       type: 'separator'

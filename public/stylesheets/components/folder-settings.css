@@ -1,0 +1,84 @@
+.folder-settings {
+    background: var(--aside-bg);
+    position: absolute;
+    top: calc(100% + 17px); /* 17 is the header margin */
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: none;
+    padding: 10px 0;
+
+    &__close {
+        position: absolute;
+        right: 0;
+        top: 3px;
+        cursor: pointer;
+
+        svg {
+            opacity: 0.2;
+        }
+
+        &:hover {
+            svg {
+                opacity: 1;
+            }
+        }
+    }
+
+    &__delete {
+        margin-top: 15px;
+        font-size: 14.6px;
+
+        svg {
+            margin-right: 10px;
+            vertical-align: text-bottom;
+        }
+
+        &:hover {
+            color: #fff;
+
+            /*svg {
+                fill: #fff;
+            }*/
+        }
+    }
+
+    &__login-button {
+        img {
+            float: left;
+            margin-right: 10px;
+            margin-top: 6px;
+        }
+
+        span {
+            display: inline-block;
+            width: 80%;
+            font-size: 12.1px;
+            line-height: 1.3em;
+        }
+
+        &:hover span {
+            color: #fff;
+        }
+
+    }
+}
+
+/**
+ * Modifier added to the <body>
+ */
+.folder-settings-opened {
+    /**
+     * Open panel
+     */
+    .folder-settings {
+        display: block;
+    }
+
+    /**
+     * Hide menu content
+     */
+    .aside-swiper__right .aside__scrollable {
+        visibility: hidden;
+    }
+}

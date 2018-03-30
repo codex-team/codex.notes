@@ -1,56 +1,127 @@
 const $ = require('./dom').default;
+const Dialog = require('./dialog').default;
 
 /**
  * Folders methods
+ *
+ * @typedef {Folder} Folder
+ * @property {Number}    id                 - Folder's id
+ * @property {string}    title              - Folder's title
+ * @property {Array}     notes              - Notes list
+ * @property {Array}     collaborators      - Collaborators list
+ * @property {Element}   notesListWrapper   - Notes list holder
  */
 export default class Folder {
-
   /**
    * Folder methods
    *
-   * @param {Number} id   - folder id
-   * @param {string} name - folder name
-   *
-   * @property {Number}    id           - folder id
-   * @property {string}    name         - folder name
-   * @property {Array}     notes        - notes list
-   * @property {Element}   notesListWrapper  - notes list holder
-   * @property {Element}   newNoteButton
+   * @param {Number} id     - Folder's id
+   * @param {string} title  - Folder's title
    */
-  constructor(id, name) {
-    this.id = id;
-    this.name = name;
+  constructor(id, title) {
+    this._id = id;
+    this._title = title;
 
-    codex.notes.aside.loadNotes(id)
-      .then( ({notes, folder}) => {
-        this.notes = notes;
-        this.name = folder.name;
-      })
-      .then( () => this.fillHeader() )
-      .then( () => this.updateNotesList() );
+    this.folderTitleElement = $.get('js-folder-title');
+
+    /**
+     * Load actual Folder's data
+     * @type {Object}
+     */
+    let folderData = window.ipcRenderer.sendSync('folder - get', this._id);
+
+    this.title = folderData.title;
+
+    window.ipcRenderer.send('folder - get collaborators', {folder: this.id});
+    window.ipcRenderer.once('folder - collaborators list', (event, {collaborators}) => {
+      this.collaborators = collaborators;
+      codex.notes.aside.folderSettings.showCollaborators(this.collaborators);
+    });
 
     this.notesListWrapper = document.querySelector('[name="js-folder-notes-menu"]');
-    this.newNoteButton = document.querySelector('[name="js-new-note-button-in-folder"]');
 
-    this.newNoteButton.dataset.folderId = this.id;
+    /**
+     * @todo asynchronous notes load
+     */
+    codex.notes.aside.loadNotes(id)
+      .then( ({notes}) => {
+        this.notes = notes;
+        this.setNoteSeenStatus();
+      })
+      .then( () => this.clearNotesList() );
+  }
+
+  /**
+   * Folder id getter
+   */
+  get id() {
+    return this._id;
+  }
+
+  /**
+   * Folder title getter
+   */
+  get title() {
+    return this._title;
+  }
+
+  /**
+   * Folder title setter
+   * @param {String} newTitle
+   */
+  set title(newTitle) {
+    this._title = newTitle;
+
+    /**
+     * Update in the Header
+     */
+    this.fillHeader();
+
+    /**
+     * Update in the Aside menu
+     */
+    codex.notes.aside.updateFolderTitleInMenu(this._id, this._title);
   }
 
   /**
    * Fills folder header block
    */
   fillHeader() {
-    let folderNameElement = $.get('js-folder-name');
-
-    folderNameElement.textContent = this.name;
+    this.folderTitleElement.textContent = this._title;
   }
 
   /**
    * Clear list if there is no one note
    */
-  updateNotesList() {
-    if (!this.notes.length) {
-      this.notesListWrapper.innerHTML = '';
-    }
+  clearNotesList() {
+    this.notesListWrapper.innerHTML = '';
   }
 
+  /**
+   * Delete folder
+   */
+  delete() {
+    if (Dialog.confirm('Are you sure you want to delete this folder?')) {
+      if (window.ipcRenderer.sendSync('folder - delete', this._id)) {
+        codex.notes.aside.removeFolderFromMenu(this._id);
+        codex.notes.note.clear();
+        return true;
+      }
+    }
+    Dialog.error('Folder removing failed');
+    return false;
+  }
+
+  /**
+   * Checks note last seen time.
+   * if note modification time is greater, then add badge
+   */
+  setNoteSeenStatus() {
+    let noteIds = this.notes.map(note => note._id);
+
+    /**
+     * Check unread status of Notes in the Folder
+     */
+    codex.notes.aside.checkUnreadStatus(noteIds);
+  }
 }

@@ -1,0 +1,95 @@
+.aside
+    
+    include ./aside__header.pug
+
+    .aside-swiper
+
+        .aside-swiper__left
+
+            //-
+            //- Header
+            //-
+            span.add-note-button(name="js-new-note-button")
+                include ../../public/svg/pencil.svg
+                | New note
+
+            //-
+            //- Scrollable zone
+            //-
+            .aside__scrollable
+                .aside__scrollable-content(name="js-scrollable")
+
+                    .aside__section-title Folders
+
+                    section#folders-section
+
+                        .notes-list
+                            ul.notes-list__content(name="js-folders-menu")
+
+                        .aside__add-button(name="js-new-folder-button")
+                            include ../../public/svg/plus.svg
+                            | Add folder
+
+                        fieldset.aside__input.hide(name="js-new-folder-field")
+                            input(placeholder="Enter title", type="text")
+                            include ../../public/svg/arrow-right.svg
+
+                    .aside__section-title Notes
+
+                    .notes-list
+                        ul.notes-list__content(name="js-notes-menu")
+                        //-
+                        //- div.notes-list__scroll
+                        //-
+
+
+        .aside-swiper__right
+
+            //-
+            //- Folder header
+            //-
+            #folder-header.folder-header
+                #folder-close-zone.folder-header__close
+                    include ../../public/svg/arrow-left.svg
+                #js-folder-title.folder-header__name Folder Title
+                #js-folder-settings-toggler.folder-header__settings Settings
+
+                .folder-settings
+                    .aside__section-title Folder Settings
+                    #js-close-folder.folder-settings__close
+                        include ../../public/svg/close-folder.svg
+
+                    fieldset.aside__input
+                        input(placeholder="Change Folder title", type="text", name="folder-title")
+                        include ../../public/svg/arrow-right.svg
+
+                    #js-delete-folder.folder-settings__delete
+                        include ../../public/svg/trash.svg
+                        | Delete folder
+
+                    .aside__section-title Collaborators
+
+                    #js-members-list.members-list
+
+                    #folder-login-button.folder-settings__login-button
+                        img(src="../../public/svg/google.svg")
+                        span Login with Google <br /> to enable sharing features
+                    fieldset#folder-new-member-input.aside__input.hide
+                        input(placeholder="Invite member", type="text", name="new-member")
+                        include ../../public/svg/arrow-right.svg
+
+
+            span.add-note-button(name="js-new-note-button")
+                include ../../public/svg/pencil.svg
+                | New note
+
+
+            //-
+            //- Scrollable zone
+            //-
+            .aside__scrollable
+                .aside__scrollable-content(name="js-scrollable")
+
+                    .aside__section-title Notes
+                    .notes-list
+                        ul.notes-list__content(name="js-folder-notes-menu")

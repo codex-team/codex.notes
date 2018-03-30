@@ -10,7 +10,6 @@
  * @property {Function} destroy - removes all elements and handlers
  */
 export default class Autoresizer {
-
   /**
    * adds autoresize handler
    * @param elements - elements that needs to expand
@@ -77,5 +76,4 @@ export default class Autoresizer {
 
     this.elements = [];
   }
-
 }

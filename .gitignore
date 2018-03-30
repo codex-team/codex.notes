@@ -60,3 +60,4 @@ jspm_packages
 .DS_Store
 
 .env
+env.js

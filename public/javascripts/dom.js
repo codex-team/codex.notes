@@ -26,6 +26,22 @@ export default class DOM {
   }
 
   /**
+   * Append one or several elements to the parent
+   *
+   * @param  {Element} parent    - where to append
+   * @param  {Element|Element[]} - element ore elements list
+   */
+  static append(parent, elements) {
+    if ( Array.isArray(elements) ) {
+      elements.forEach( el => parent.appendChild(el) );
+    } else {
+      parent.appendChild(elements);
+    }
+  }
+
+  /**
+
+  /**
   * Replaces node with
   * @param {Element} nodeToReplace
   * @param {Element} replaceWith
@@ -104,5 +120,14 @@ export default class DOM {
 
       document.head.appendChild(node);
     });
+  }
+
+  /**
+   * Inserts one element after another
+   * @param  {Element} newNode
+   * @param  {Element} referenceNode
+   */
+  static after(newNode, referenceNode) {
+    referenceNode.insertAdjacentElement('afterEnd', newNode);
   }
 }
