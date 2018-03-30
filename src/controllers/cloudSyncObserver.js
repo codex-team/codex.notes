@@ -233,7 +233,7 @@ class CloudSyncObserver {
      *
      * @type {*|Array|NotesController}
      */
-    if (!folderData.notes) {
+    if (folderData.notes) {
       localFolder.notes = await Promise.all(folderData.notes.map(async note => {
         return await this.saveNote(note, folderData);
       }));
@@ -244,9 +244,11 @@ class CloudSyncObserver {
      *
      * @type {Array}
      */
-    localFolder.collaborators = await Promise.all(folderData.collaborators.map( async collaborator => {
-      return await this.saveCollaborator(collaborator, folderData);
-    }));
+    if (folderData.collaborators) {
+      localFolder.collaborators = await Promise.all(folderData.collaborators.map( async collaborator => {
+        return await this.saveCollaborator(collaborator, folderData);
+      }));
+    }
 
     return localFolder;
   }
