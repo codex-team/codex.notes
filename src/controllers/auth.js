@@ -117,8 +117,6 @@ class AuthController {
          * @param {string} authData.channel - personal user's channel
          */
         async authData => {
-
-          console.log('authData', authData);
           let jwt = authData.jwt;
 
           /** Decode JWT payload */

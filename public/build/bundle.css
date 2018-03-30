@@ -858,9 +858,6 @@ template {
         font-size: 13.8px;
         list-style: none;
         margin-bottom: 10px;
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
     }
 
 .member-list__item--waiting {
@@ -872,7 +869,6 @@ template {
 
 .member-list__item-photo {
              margin-right: 9px;
-             margin-top: 1px;
              width: 12px;
              height: 12px;
              vertical-align: middle;
