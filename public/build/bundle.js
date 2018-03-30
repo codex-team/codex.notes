@@ -483,16 +483,16 @@ var Note = function () {
         var selection = window.getSelection(),
             range = void 0;
 
-        if (selection.rangeCount > 0) {
-          range = selection.getRangeAt(0);
-          if (range.startOffset === range.endOffset) {
-            _this.editor.contentEditable = false;
-            return;
-          } else {
-            _this.editor.contentEditable = true;
-          }
-        }
         _this.editor.contentEditable = true;
+
+        window.setTimeout(function () {
+          if (selection.rangeCount > 0) {
+            range = selection.getRangeAt(0);
+            if (range.startOffset === range.endOffset) {
+              _this.editor.contentEditable = false;
+            }
+          }
+        }, 50);
       }, false);
 
       /**
@@ -504,7 +504,8 @@ var Note = function () {
       this.editor.addEventListener('keydown', function (event) {
         if (_this.editor.contentEditable) {
           var keyCodeC = 67,
-              onlyCtrl = event.metaKey && event.keyCode == 91,
+              metaKey = 91,
+              onlyCtrl = event.metaKey && event.keyCode == metaKey,
               copying = event.metaKey && event.keyCode == keyCodeC;
 
           if (onlyCtrl || crossBlockSelection && copying) {
@@ -513,6 +514,17 @@ var Note = function () {
 
           crossBlockSelection = false;
           _this.editor.contentEditable = false;
+        }
+      });
+
+      /**
+       * Also prevent paste
+       */
+      this.editor.addEventListener('paste', function (event) {
+        if (_this.editor.contentEditable && crossBlockSelection) {
+          crossBlockSelection = false;
+          _this.editor.contentEditable = false;
+          event.preventDefault();
         }
       });
     }

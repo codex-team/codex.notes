@@ -125,16 +125,16 @@ export default class Note {
       let selection = window.getSelection(),
           range;
 
-      if ( selection.rangeCount > 0 ) {
-        range = selection.getRangeAt(0);
-        if (range.startOffset === range.endOffset) {
-          this.editor.contentEditable = false;
-          return;
-        } else {
-          this.editor.contentEditable = true;
-        }
-      }
       this.editor.contentEditable = true;
+
+      window.setTimeout( () => {
+        if ( selection.rangeCount > 0 ) {
+          range = selection.getRangeAt(0);
+          if (range.startOffset === range.endOffset) {
+            this.editor.contentEditable = false;
+          }
+        }
+      }, 50);
     }, false);
 
     /**
@@ -146,15 +146,27 @@ export default class Note {
     this.editor.addEventListener('keydown', (event) => {
       if (this.editor.contentEditable) {
         let keyCodeC = 67,
-            onlyCtrl = event.metaKey && event.keyCode == 91,
+            metaKey  = 91,
+            onlyCtrl = event.metaKey && event.keyCode == metaKey,
             copying  = event.metaKey && event.keyCode == keyCodeC;
 
-        if ( onlyCtrl || ( crossBlockSelection && copying) ) {
+        if ( onlyCtrl || ( crossBlockSelection && copying ) ) {
           return;
         }
 
         crossBlockSelection = false;
         this.editor.contentEditable = false;
+      }
+    });
+
+    /**
+     * Also prevent paste
+     */
+    this.editor.addEventListener('paste', (event) => {
+      if (this.editor.contentEditable && crossBlockSelection) {
+        crossBlockSelection = false;
+        this.editor.contentEditable = false;
+        event.preventDefault();
       }
     });
   }
