@@ -60,7 +60,7 @@ class SeenStateObserver {
 
     noteIds.forEach( noteId => {
       let noteUnreadState = unreadStates.find(state => state.noteId === noteId),
-        isUnread = true;
+          isUnread = true;
 
       if (noteUnreadState) {
         isUnread = noteUnreadState.isUnread;
