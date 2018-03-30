@@ -37,7 +37,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 60 * 1000 ); // every 60 sec
+    }, 20 * 1000 ); // every 60 sec
   }
 
   /**
@@ -64,29 +64,42 @@ class CloudSyncObserver {
    * Open user's notifications channel
    */
   openUserChannel() {
-    global.app.sockets.listenChannel(global.user.channel, async message => {
-      console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n🛎 Notify:', message);
-
-      if (!message.type) {
-        return;
-      }
-
-      switch (message.type) {
-        case 'folder':
-          await this.saveFolder(message.data);
-          break;
-        case 'note':
-          let folderId = message.data.folderId;
-
-          await this.saveNote(message.data, {_id: folderId});
-          break;
-        case 'collaborator':
-          await this.saveCollaborator(message.data, message.data.folderId);
-          global.app.clientSyncObserver.sendCollaborator(message.data);
-          break;
-        default:
-      }
+    global.app.sockets.listenChannel(global.user.channel, (message) => {
+      this.gotNotify(message);
     });
+  }
+
+  /**
+   * Notify got from the Socket
+   * @param {object} message
+   * @param {string} message.type   - notify type ('note', 'folder')
+   * @param {string} message.event  - notify event ('update', 'add');
+   * @param {object} message.data   - payload
+   * @return {void}
+   */
+  gotNotify(message = {}) {
+    if (!message.type) {
+      console.log('WARN: got notification in incorrect format', message);
+      return;
+    }
+
+    console.log(`\n\n\n\n🛎 ${message.type} ${message.event} ${message.data.id || ''} \n\n\n\n`);
+
+    switch (message.type) {
+      case 'folder':
+        this.saveFolder(message.data);
+        break;
+      case 'note':
+        let folderId = message.data.folderId;
+
+        this.saveNote(message.data, {_id: folderId});
+        break;
+      case 'collaborator':
+        this.saveCollaborator(message.data, message.data.folderId);
+        global.app.clientSyncObserver.sendCollaborator(message.data);
+        break;
+      default:
+    }
   }
 
   /**
