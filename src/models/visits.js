@@ -16,21 +16,21 @@ class Visits {
    * @param  {string} noteId
    * @param  {number} lastSeen
    */
-  contstuctor({noteId, lastSeen}){
+  constructor({noteId, lastSeen}){
     this._id = null;
-    this.noteId = null;
-    this.lastSeen = null;
+    this.noteId = noteId || null;
+    this.lastSeen = lastSeen || null;
   }
 
   /**
    * Model data getter
    * @return {{noteId, lastSeen}}
    */
-  get data(){
+  get data() {
     return {
       noteId: this.noteId,
       lastSeen: this.lastSeen
-    }
+    };
   }
 
   /**
@@ -39,7 +39,7 @@ class Visits {
    */
   async save(){
     let query = {
-      noteId : noteId
+      noteId : this.noteId
     };
 
     let dataToSave = {
@@ -47,13 +47,13 @@ class Visits {
     };
 
     let options = {
-      upsert: true
+      upsert: true,
+      returnUpdatedDocs: true
     };
 
     let updateResponse = await db.update(db.VISITS, query, dataToSave, options);
 
     return updateResponse.affectedDocuments;
-
   }
 
   /**

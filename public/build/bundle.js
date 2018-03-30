@@ -928,6 +928,12 @@ var Aside = function () {
     window.ipcRenderer.on('folder updated', function (event, folder) {
       if (!folder.isRemoved) {
         _this.addFolder(folder);
+        /**
+         * Update title of opened folder
+         */
+        if (_this.currentFolder && _this.currentFolder._id && _this.currentFolder._id === folder._id) {
+          _this.currentFolder.title = folder.title;
+        }
       } else {
         _this.removeFolderFromMenu(folder._id);
       }
@@ -2452,6 +2458,12 @@ var FolderSettings = function () {
     this.loginButton.addEventListener('click', function () {
       codex.notes.user.showAuth();
     });
+
+    window.ipcRenderer.on('folder - add collaborator', function (event, collaborator) {
+      if (codex.notes.aside.currentFolder.id === collaborator.folderId) {
+        _this.addCollaborator(collaborator);
+      }
+    });
   }
 
   /**
@@ -2602,7 +2614,7 @@ var FolderSettings = function () {
         return false;
       }
 
-      this.addCollaborator({ email: email });
+      // this.addCollaborator({email});
     }
 
     /**
@@ -2626,7 +2638,8 @@ var FolderSettings = function () {
     /**
      * Add Collaborator to the Collaborators list at folder-settings panel
      *
-     * @param collaborator
+     * @param {String|null} collaborator.user.photo
+     * @param {String} collaborator.email
      */
 
   }, {

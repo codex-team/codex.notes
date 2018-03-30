@@ -38,6 +38,12 @@ export default class FolderSettings {
     this.loginButton.addEventListener('click', () => {
       codex.notes.user.showAuth();
     });
+
+    window.ipcRenderer.on('folder - add collaborator', (event, collaborator) => {
+      if (codex.notes.aside.currentFolder.id === collaborator.folderId) {
+        this.addCollaborator(collaborator);
+      }
+    });
   }
 
   /**
@@ -175,7 +181,7 @@ export default class FolderSettings {
       return false;
     }
 
-    this.addCollaborator({email});
+    // this.addCollaborator({email});
   }
 
   /**
@@ -194,7 +200,8 @@ export default class FolderSettings {
   /**
    * Add Collaborator to the Collaborators list at folder-settings panel
    *
-   * @param collaborator
+   * @param {String|null} collaborator.user.photo
+   * @param {String} collaborator.email
    */
   addCollaborator(collaborator) {
     let newMemberItem = $.make('LI', [ 'member-list__item' ], {}),

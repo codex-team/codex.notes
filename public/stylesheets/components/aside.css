@@ -348,6 +348,9 @@
 
         &--waiting {
             opacity: 0.6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         &-photo {

@@ -185,6 +185,12 @@ class CodexNotes {
         this.folders = new FoldersController();
         this.notes = new NotesController();
         this.userCtrl = new UserController();
+
+        /**
+         * @type {Sockets}
+         */
+        this.sockets = new SocketsController();
+
         this.auth = new AuthController();
 
         /**

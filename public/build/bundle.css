@@ -862,6 +862,9 @@ template {
 
 .member-list__item--waiting {
             opacity: 0.6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 .member-list__item-photo {

@@ -116,20 +116,27 @@ class Channel {
 
   /**
    * Given message handler
-   * @param {*} data - data given with message
+   * @param {string} data - JSON-answer given. Contain "message" property with data
    */
   onMessage(data) {
-    this.callback(data);
+
+    try {
+      data = JSON.parse(data);
+      this.callback(data.message);
+    } catch (error) {
+      console.log('Sockets Channel: unsupported response format. JSON with "message" expected.', error);
+    }
+
   }
 
   /**
    * Destroys the Channel, terminate Socket connection
    */
   destroy() {
+    this.ws.terminate();
     this.name = null;
     this.callback = null;
     this.url = null;
-    this.ws.terminate();
     this.ws = null;
   }
 }

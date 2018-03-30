@@ -32,6 +32,15 @@ class ClientSyncObserver {
       global.app.mainWindow.webContents.send('folder updated', folder);
     }
   }
+
+  /**
+   * Add collaborator to list
+   *
+   * @param collaborator
+   */
+  sendCollaborator(collaborator) {
+    global.app.mainWindow.webContents.send('folder - add collaborator', collaborator);
+  }
 }
 
 module.exports = ClientSyncObserver;
