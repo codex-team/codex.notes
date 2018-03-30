@@ -5,7 +5,6 @@ const SwipeDetector = require('./swipe-detector').default;
  * @property {object} CSS dictionary
  */
 export default class AsideSwiper {
-
   /**
    * @constructor
    * @param {Function} opened  - opening callback

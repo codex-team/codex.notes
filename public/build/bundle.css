@@ -462,6 +462,11 @@ template {
 
 :root {
     /** Aside */
+    --aside-color: #bac3db;
+    --aside-color-light: #dee6fc;
+    --label-color: rgba(186, 195, 219, 0.5);
+    --label-color: color(var(--aside-color) alpha(50%));
+    --aside-bg: #292b37;
 
     /**
      * Clearfix
@@ -478,6 +483,7 @@ template {
     width: 200px;
     padding: 40px 15px 30px;
     background: #292b37;
+    background: var(--aside-bg);
     overflow: hidden;
     -webkit-user-select: none;
        -moz-user-select: none;
@@ -485,6 +491,7 @@ template {
             user-select: none;
     -webkit-app-region: drag;
     color: #bac3db;
+    color: var(--aside-color);
     font-size: 13.7px;
     letter-spacing: 0.3px;
 
@@ -493,28 +500,21 @@ template {
 
 .aside__header {
         position: relative;
-        display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-box-direction: normal;
-            -ms-flex-direction: row;
-                flex-direction: row;
-        -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
-                justify-content: space-between;
+        -ms-flex-direction: row;
+            flex-direction: row;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
         margin-bottom: 15px;
 
     }
 
 .aside__header-left {
-            display: -webkit-box;
             display: -ms-flexbox;
             display: flex;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-                -ms-flex-direction: column;
-                    flex-direction: column;
+            -ms-flex-direction: column;
+                flex-direction: column;
             font-size: 18px;
             font-weight: 600;
             color: #fff;
@@ -565,8 +565,7 @@ template {
         will-change: opacity, transform;
         opacity: 0;
         visibility: hidden;
-        -webkit-transform: translateY(7px);
-                transform: translateY(7px);
+        transform: translateY(7px);
         transition: all 70ms ease;
         transition-delay: 150ms;
         cursor: default;
@@ -595,8 +594,7 @@ template {
          }
 
 .aside__header-avatar:not(.aside__header-avatar--filled):hover .aside__authorization {
-              -webkit-transform: none;
-                      transform: none;
+              transform: none;
               opacity: 1;
               visibility: visible;
          }
@@ -625,6 +623,7 @@ template {
 .aside__section-title {
         margin-bottom: 10px;
         color: rgba(186, 195, 219, 0.5);
+        color: var(--label-color);
         font-size: 11.7px;
         letter-spacing: 0.72px;
         text-transform: uppercase
@@ -670,6 +669,7 @@ template {
         padding: 8px 0;
         margin: 10px 0 0;
         color: rgba(186, 195, 219, 0.5);
+        color: var(--label-color);
     }
 
 /**
@@ -694,14 +694,17 @@ template {
 
 .aside__input input::-webkit-input-placeholder {
     color: rgba(186, 195, 219, 0.5);
+    color: var(--label-color);
 }
 
 .aside__input input:-ms-input-placeholder {
     color: rgba(186, 195, 219, 0.5);
+    color: var(--label-color);
 }
 
 .aside__input input::placeholder {
     color: rgba(186, 195, 219, 0.5);
+    color: var(--label-color);
 }
 
 .aside__input input:focus + svg {
@@ -740,26 +743,20 @@ template {
  */
 
 .aside-swiper {
-    display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     width: calc(200% + 15px);
     height: 100%;
-    transition: -webkit-transform 150ms ease-in;
     transition: transform 150ms ease-in;
-    transition: transform 150ms ease-in, -webkit-transform 150ms ease-in;
     will-change: transform;
 }
 
 .aside-swiper__left,
     .aside-swiper__right {
-        display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-            -ms-flex-direction: column;
-                flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
         width: 100%;
         max-width: 200px;
         position: relative;
@@ -775,8 +772,7 @@ template {
     }
 
 .aside-swiper--toggled {
-        -webkit-transform: translateX(-215px);
-                transform: translateX(-215px);
+        transform: translateX(-215px);
     }
 
 .aside-swiper--toggled .aside-swiper__left {
@@ -805,9 +801,8 @@ template {
 
 .aside__scrollable {
     position: relative;
-    -webkit-box-flex: 2;
-        -ms-flex: 2 100%;
-            flex: 2 100%;
+    -ms-flex: 2 100%;
+        flex: 2 100%;
     overflow-y: hidden;
     overflow-x: hidden
 }
@@ -858,7 +853,6 @@ template {
         font-size: 13.8px;
         list-style: none;
         margin-bottom: 10px;
-        display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
     }
@@ -869,9 +863,7 @@ template {
 
 .member-list__item-name {
             position: absolute;
-            transition: -webkit-transform 300ms ease;
             transition: transform 300ms ease;
-            transition: transform 300ms ease, -webkit-transform 300ms ease;
             will-change: transform;
         }
 
@@ -895,8 +887,7 @@ template {
                 }
 
 .member-list__item:hover .member-list__item-name-wrapper--scrollable .member-list__item-name {
-            -webkit-transform: translateX(calc(175px - 100%));
-                    transform: translateX(calc(175px - 100%));
+            transform: translateX(calc(175px - 100%));
         }
 
 .member-list__item:hover .member-list__item-name-wrapper--scrollable::after {
@@ -915,9 +906,8 @@ template {
              }
 
 .content {
-    -webkit-box-flex: 1;
-        -ms-flex-positive: 1;
-            flex-grow: 1;
+    -ms-flex-positive: 1;
+        flex-grow: 1;
 }
 
 .note-title {
@@ -1139,6 +1129,7 @@ template {
     font-size: 14.8px;
     cursor: pointer;
     color: #bac3db;
+    color: var(--aside-color);
     padding-left: 25px;
 }
 
@@ -1146,8 +1137,7 @@ template {
         position: absolute;
         left: 0;
         top: 43%;
-        -webkit-transform: translateY(-50%);
-                transform: translateY(-50%);
+        transform: translateY(-50%);
 }
 
 .folder-header__close svg {
@@ -1157,20 +1147,24 @@ template {
 
 .folder-header__name {
         color: #dee6fc;
+        color: var(--aside-color-light);
 }
 
 .folder-header__settings {
         color: rgba(186, 195, 219, 0.5);
+        color: var(--label-color);
         margin-top: 3px;
         cursor: pointer;
 }
 
 .folder-header__settings:hover {
     color: #bac3db;
+    color: var(--aside-color);
 }
 
 .folder-settings {
     background: #292b37;
+    background: var(--aside-bg);
     position: absolute;
     top: calc(100% + 17px); /* 17 is the header margin */
     left: 0;
@@ -1254,29 +1248,21 @@ template {
   letter-spacing: 0.038em;
   font-weight: normal;
   color: rgba(222, 230, 252, 0.5);
+  color: color(var(--aside-color-light) alpha(50%));
   transition: color 250ms cubic-bezier(0.32,-0.01, 0, 0.99);
 }
 
 .status-bar--blinked{
-    color: #dee6fc
+    color: #dee6fc;
+    color: var(--aside-color-light)
   }
 
 .status-bar--loading::after {
     content: '...';
     display: inline-block;
-    -webkit-animation: loading 1000ms infinite;
-            animation: loading 1000ms infinite;
+    animation: loading 1000ms infinite;
     overflow: hidden;
     vertical-align: text-bottom;
-}
-
-@-webkit-keyframes loading {
-  0% {
-    width: 0;
-  }
-  100% {
-    width: 12px;
-  }
 }
 
 @keyframes loading {
@@ -1291,7 +1277,6 @@ template {
 body {
     height: 100vh;
     margin: 0;
-    display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -webkit-font-smoothing: antialiased;
@@ -1329,87 +1314,40 @@ svg {
     display: none !important;
 }
 
-@-webkit-keyframes wobble {
-    0% {
-        -webkit-transform: translateX(0%);
-                transform: translateX(0%);
-    }
-
-    15% {
-        -webkit-transform: translateX(-1%) rotate(-5deg);
-                transform: translateX(-1%) rotate(-5deg);
-    }
-
-    30% {
-        -webkit-transform: translateX(3%) rotate(3deg);
-                transform: translateX(3%) rotate(3deg);
-    }
-
-    45% {
-        -webkit-transform: translateX(-1%) rotate(-3deg);
-                transform: translateX(-1%) rotate(-3deg);
-    }
-
-    60% {
-        -webkit-transform: translateX(3%) rotate(2deg);
-                transform: translateX(3%) rotate(2deg);
-    }
-
-    75% {
-        -webkit-transform: translateX(-1%) rotate(-1deg);
-                transform: translateX(-1%) rotate(-1deg);
-    }
-
-    100% {
-        -webkit-transform: translateX(0%);
-                transform: translateX(0%);
-    }
-}
-
 @keyframes wobble {
     0% {
-        -webkit-transform: translateX(0%);
-                transform: translateX(0%);
+        transform: translateX(0%);
     }
 
     15% {
-        -webkit-transform: translateX(-1%) rotate(-5deg);
-                transform: translateX(-1%) rotate(-5deg);
+        transform: translateX(-1%) rotate(-5deg);
     }
 
     30% {
-        -webkit-transform: translateX(3%) rotate(3deg);
-                transform: translateX(3%) rotate(3deg);
+        transform: translateX(3%) rotate(3deg);
     }
 
     45% {
-        -webkit-transform: translateX(-1%) rotate(-3deg);
-                transform: translateX(-1%) rotate(-3deg);
+        transform: translateX(-1%) rotate(-3deg);
     }
 
     60% {
-        -webkit-transform: translateX(3%) rotate(2deg);
-                transform: translateX(3%) rotate(2deg);
+        transform: translateX(3%) rotate(2deg);
     }
 
     75% {
-        -webkit-transform: translateX(-1%) rotate(-1deg);
-                transform: translateX(-1%) rotate(-1deg);
+        transform: translateX(-1%) rotate(-1deg);
     }
 
     100% {
-        -webkit-transform: translateX(0%);
-                transform: translateX(0%);
+        transform: translateX(0%);
     }
 }
 
 .wobble {
-    -webkit-animation-name: wobble;
-            animation-name: wobble;
-    -webkit-animation-duration: 400ms;
-            animation-duration: 400ms;
-    -webkit-animation-iteration-count: 1;
-            animation-iteration-count: 1;
+    animation-name: wobble;
+    animation-duration: 400ms;
+    animation-iteration-count: 1;
 }
 
 /*# sourceMappingURL=bundle.css.map*/

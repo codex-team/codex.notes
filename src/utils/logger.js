@@ -14,11 +14,19 @@
  * @example logger.error('my log');
  * @example logger.fatal('my log');
  */
+const fs = require('fs');
+const {app} = require('electron');
+const path = require('path');
 
-const {app} = require('electron'),
-    path = require('path');
-
+/**
+ * Logs will be stored in the app-data/logs
+ * @type {string}
+ */
 const logsDirPath = path.join(app.getPath('userData'), 'logs');
+
+if (!fs.existsSync(logsDirPath)){
+  fs.mkdirSync(logsDirPath);
+}
 
 /** create a log manager */
 const manager = require('simple-node-logger').createLogManager();

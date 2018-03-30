@@ -15,25 +15,20 @@ let plugins = [
   /** Block build if errors found */
   new webpack.NoEmitOnErrorsPlugin(),
   /** Extract CSS bundle */
-  new ExtractTextPlugin('public/build/bundle.css'),
+  new ExtractTextPlugin('bundle.css'),
 ];
-
-/** CSS and JS minification */
-if (process.env.DEBUG !== 'true'){
-  plugins.push(new webpack.optimize.UglifyJsPlugin());
-}
-
 
 module.exports = {
 
   entry: './public/javascripts/app.js',
 
   output: {
-    filename: './public/build/bundle.js',
-    library: ['codex', 'notes']
+    filename: './bundle.js',
+    library: ['codex', 'notes'],
+    path:  path.resolve( __dirname, 'public', 'build')
   },
 
-  target: 'electron',
+  target: 'electron-renderer',
 
   module: {
     rules: [
@@ -48,6 +43,7 @@ module.exports = {
          * - postcss-loader
          */
         test: /\.css$/,
+        exclude: /node_modules/,
         /** extract-text-webpack-plugin */
         use: ExtractTextPlugin.extract([
           {
@@ -57,8 +53,9 @@ module.exports = {
               importLoaders: 1
             }
           },
-          /** postcss-loader */
-          'postcss-loader'
+          {
+            loader: 'postcss-loader'
+          }
         ])
       },
       {
@@ -111,10 +108,10 @@ module.exports = {
     alias: {
       // a list of module name aliases
 
-      'module': 'new-module',
+      // 'module': 'new-module',
       // alias "module" -> "new-module" and "module/path/file" -> "new-module/path/file"
 
-      'only-module$': 'new-module',
+      // 'only-module$': 'new-module',
       // alias "only-module" -> "new-module", but not "module/path/file" -> "new-module/path/file"
 
       // alias "module" -> "./app/third/module.js" and "module/file" results in error
@@ -125,15 +122,6 @@ module.exports = {
     /* Advanced resolve configuration (click to show) */
   },
 
-  performance: {
-    hints: 'warning', // enum
-    maxAssetSize: 200000, // int (in bytes),
-    maxEntrypointSize: 400000, // int (in bytes)
-    assetFilter: function (assetFilename) {
-      // Function predicate that provides asset filenames
-      return assetFilename.endsWith('.css') || assetFilename.endsWith('.js');
-    }
-  },
 
   devtool: 'source-map',
 
@@ -142,6 +130,6 @@ module.exports = {
   watchOptions: {
 
     /** Таймаут перед пересборкой */
-    aggragateTimeout: 50
+    aggregateTimeout: 50
   }
 };

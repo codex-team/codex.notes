@@ -4,7 +4,6 @@ const remote = require('electron').remote;
  *
  */
 export default class Dialog {
-
   /**
    *
    */
@@ -50,5 +49,4 @@ export default class Dialog {
       message: text
     });
   }
-
 }

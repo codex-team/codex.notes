@@ -34,9 +34,6 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -46,6 +43,11 @@ var codex = codex || {}; codex["notes"] =
 /******/ 				get: getter
 /******/ 			});
 /******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -63,276 +65,153 @@ var codex = codex || {}; codex["notes"] =
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = "./public/javascripts/app.js");
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ "./node_modules/@codexteam/shortcuts/lib/shortcuts.js":
+/*!************************************************************!*\
+  !*** ./node_modules/@codexteam/shortcuts/lib/shortcuts.js ***!
+  \************************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
-* DOM manipulations methods
-*/
-var DOM = function () {
-  function DOM() {
-    _classCallCheck(this, DOM);
-  }
-
-  _createClass(DOM, null, [{
-    key: 'make',
-
-    /**
-     * Helper for making Elements with classname and attributes
-     * @param  {string} tagName           - new Element tag name
-     * @param  {array|string} classNames  - list or name of CSS classname(s)
-     * @param  {Object} attributes        - any attributes
-     * @return {Element}
-     */
-    value: function make(tagName, classNames, attributes) {
-      var el = document.createElement(tagName);
-
-      if (Array.isArray(classNames)) {
-        var _el$classList;
-
-        (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(classNames));
-      } else if (classNames) {
-        el.classList.add(classNames);
-      }
-
-      for (var attrName in attributes) {
-        el[attrName] = attributes[attrName];
-      }
-
-      return el;
-    }
-
-    /**
-     * Append one or several elements to the parent
-     *
-     * @param  {Element} parent    - where to append
-     * @param  {Element|Element[]} - element ore elements list
-     */
-
-  }, {
-    key: 'append',
-    value: function append(parent, elements) {
-      if (Array.isArray(elements)) {
-        elements.forEach(function (el) {
-          return parent.appendChild(el);
-        });
-      } else {
-        parent.appendChild(elements);
-      }
-    }
-
-    /**
-     /**
-    * Replaces node with
-    * @param {Element} nodeToReplace
-    * @param {Element} replaceWith
-    */
-
-  }, {
-    key: 'replace',
-    value: function replace(nodeToReplace, replaceWith) {
-      return nodeToReplace.parentNode.replaceChild(replaceWith, nodeToReplace);
-    }
-
-    /**
-    * getElementById alias
-    * @param {String} elementId
-    */
-
-  }, {
-    key: 'get',
-    value: function get(elementId) {
-      return document.getElementById(elementId);
-    }
-
-    /**
-    * Loads static resourse: CSS or JS
-    * @param {string} type  - CSS|JS
-    * @param {string} path  - resource path
-    * @param {string} inctanceName - unique name of resource
-    * @return Promise
-    */
-
-  }, {
-    key: 'loadResource',
-    value: function loadResource(type, path, instanceName) {
-      /**
-       * Imported resource ID prefix
-       * @type {String}
-       */
-      var resourcePrefix = 'cdx-resourse';
-
-      return new Promise(function (resolve, reject) {
-        if (!type || !['JS', 'CSS'].includes(type)) {
-          reject('Unexpected resource type passed. \xABCSS\xBB or \xABJS\xBB expected, \xAB' + type + '\xBB passed');
-        }
-
-        var node = void 0;
-
-        /** Script is already loaded */
-        if (!instanceName) {
-          reject('Instance name is missed');
-        } else if (document.getElementById(resourcePrefix + '-' + type.toLowerCase() + '-' + instanceName)) {
-          resolve(path);
-        }
-
-        if (type === 'JS') {
-          node = document.createElement('script');
-          node.async = true;
-          node.defer = true;
-          node.charset = 'utf-8';
-        } else {
-          node = document.createElement('link');
-          node.rel = 'stylesheet';
-        }
-
-        node.id = resourcePrefix + '-' + type.toLowerCase() + '-' + instanceName;
-
-        var timerLabel = 'Resource loading ' + type + ' ' + instanceName;
-
-        console.time(timerLabel);
-
-        node.onload = function () {
-          console.timeEnd(timerLabel);
-          resolve(path);
-        };
-
-        node.onerror = function () {
-          console.timeEnd(timerLabel);
-          reject(path);
-        };
-
-        if (type === 'JS') {
-          node.src = path;
-        } else {
-          node.href = path;
-        }
-
-        document.head.appendChild(node);
-      });
-    }
-
-    /**
-     * Inserts one element after another
-     * @param  {Element} newNode
-     * @param  {Element} referenceNode
-     */
-
-  }, {
-    key: 'after',
-    value: function after(newNode, referenceNode) {
-      referenceNode.insertAdjacentElement('afterEnd', newNode);
-    }
-  }]);
-
-  return DOM;
-}();
-
-exports.default = DOM;
+/*!
+ * Library for handling keyboard shortcuts
+ * @copyright undefined
+ * @license MIT
+ * @author CodeX (https://ifmo.su)
+ * @version 1.0.0
+ */
+!function(e,t){if(true)module.exports=t();else { var r, n; }}("undefined"!=typeof self?self:this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};return t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=0)}([function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),i={0:48,1:49,2:50,3:51,4:52,5:53,6:54,7:55,8:56,9:57,A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,U:85,V:86,W:87,X:88,Y:89,Z:90,BACKSPACE:8,ENTER:13,ESCAPE:27,LEFT:37,UP:38,RIGHT:39,DOWN:40,INSERT:45,DELETE:46},u={CMD:["CMD","CONTROL","COMMAND","WINDOWS","CTRL"],SHIFT:["SHIFT"],ALT:["ALT","OPTION"]},c=function(){function e(t){var n=this;r(this,e),this.commands={},this.keys={},this.parseShortcutName(t.name),this.element=t.on,this.callback=t.callback,this.executeShortcut=function(e){n.execute(e)},this.element.addEventListener("keydown",this.executeShortcut,!1)}return o(e,[{key:"parseShortcutName",value:function(e){e=e.split("+");for(var t=0;t<e.length;t++)if(e[t]=e[t].toUpperCase(),e[t].length>1)for(var n in u)u[n].includes(e[t])&&(this.commands[n]=!0);else this.keys[e[t]]=!0}},{key:"execute",value:function(e){var t=e.ctrlKey||e.metaKey,n=e.shiftKey,r=e.altKey,o={CMD:t,SHIFT:n,ALT:r},u=void 0,c=!0;for(u in this.commands)c=c&&o[u];var a=void 0,s=!0;for(a in this.keys)s=s&&e.keyCode===i[a];c&&s&&this.callback(e)}},{key:"remove",value:function(){this.element.removeEventListener("keydown",this.executeShortcut)}}]),e}();t.default=c}])});
 
 /***/ }),
-/* 1 */
+
+/***/ "./public/javascripts/app.js":
+/*!***********************************!*\
+  !*** ./public/javascripts/app.js ***!
+  \***********************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var remote = __webpack_require__(3).remote;
-
 /**
- *
+ * Load libraries
  */
 
-var Dialog = function () {
+var _user = __webpack_require__(/*! ./user */ "./public/javascripts/user.js");
+
+var _user2 = _interopRequireDefault(_user);
+
+var _statusBar = __webpack_require__(/*! ./status-bar */ "./public/javascripts/status-bar.js");
+
+var _statusBar2 = _interopRequireDefault(_statusBar);
+
+var _connectionObserver = __webpack_require__(/*! ./connection-observer */ "./public/javascripts/connection-observer.js");
+
+var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
+
+var _authObserver = __webpack_require__(/*! ./auth-observer */ "./public/javascripts/auth-observer.js");
+
+var _authObserver2 = _interopRequireDefault(_authObserver);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var electron = __webpack_require__(/*! electron */ "electron");
+var Editor = __webpack_require__(/*! ./editor */ "./public/javascripts/editor.js").default;
+
+/**
+ * Load components
+ */
+var Aside = __webpack_require__(/*! ./aside */ "./public/javascripts/aside.js").default;
+var Note = __webpack_require__(/*! ./note */ "./public/javascripts/note.js").default;
+
+/**
+ * Save render proccess to the ipdRender global propery
+ */
+window.ipcRenderer = electron.ipcRenderer;
+
+/**
+ * Disable zoom
+ */
+electron.webFrame.setVisualZoomLevelLimits(1, 1);
+
+/**
+ * Load CSS
+ */
+__webpack_require__(/*! ../stylesheets/base.css */ "./public/stylesheets/base.css");
+
+/**
+ * Document ready callback
+ */
+var documentReady = function documentReady() {
+  /**
+  * Initiate modules
+  * @type {Aside}
+  */
+  codex.notes.editor = new Editor();
+  codex.notes.aside = new Aside();
+  codex.notes.note = new Note();
+  codex.notes.user = new _user2.default();
+  codex.notes.statusBar = new _statusBar2.default();
+  codex.notes.connectionObserver = new _connectionObserver2.default();
+  codex.notes.authObserver = new _authObserver2.default({
+    onLogin: function onLogin(user) {
+      codex.notes.user.fillUserPanel(user);
+      codex.notes.aside.folderSettings.toggleCollaboratorInput();
+    }
+  });
+
+  codex.notes.authObserver.login(codex.notes.user.userData);
 
   /**
-   *
+   * New note saving handler
    */
-  function Dialog() {
-    _classCallCheck(this, Dialog);
+  window.ipcRenderer.on('note saved', function (event, response) {
+    codex.notes.note.addToMenu(response);
+  });
+};
+
+var openExternalLink = function openExternalLink(event) {
+  if (event.target.tagName !== 'A' || !event.target.href) {
+    return;
   }
 
-  _createClass(Dialog, null, [{
-    key: 'confirm',
+  if (!event.target.closest('.editor')) {
+    electron.shell.openExternal(event.target.href);
+    return;
+  }
 
+  if (event.metaKey || event.ctrlKey) {
+    electron.shell.openExternal(event.target.href);
+  }
+};
 
-    /**
-     *
-     * @returns {boolean}
-     */
-    value: function confirm(text) {
-      var browserWindow = remote.getCurrentWindow();
+/**
+ * Application
+ */
+module.exports = function () {
+  document.addEventListener('DOMContentLoaded', documentReady, false);
+  document.addEventListener('click', openExternalLink);
 
-      browserWindow.setSheetOffset(30, browserWindow.width / 2);
-
-      var choice = remote.dialog.showMessageBox(browserWindow, {
-        type: 'question',
-        buttons: ['Yes', 'No'],
-        title: 'Confirm',
-        message: text
-      });
-
-      if (choice === 0) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    /**
-     * Shows error notification
-     *
-     * @returns {boolean}
-     */
-
-  }, {
-    key: 'error',
-    value: function error(text) {
-      var browserWindow = remote.getCurrentWindow();
-
-      browserWindow.setSheetOffset(30, browserWindow.width / 2);
-
-      remote.dialog.showMessageBox(browserWindow, {
-        type: 'error',
-        title: 'Wow. Something goes wrong.',
-        message: text
-      });
-    }
-  }]);
-
-  return Dialog;
+  /**
+   * Allow access modules with codex.notes[module]
+   */
+  return {};
 }();
 
-exports.default = Dialog;
-
 /***/ }),
-/* 2 */
+
+/***/ "./public/javascripts/aside-swiper.js":
+/*!********************************************!*\
+  !*** ./public/javascripts/aside-swiper.js ***!
+  \********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -346,383 +225,89 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var $ = __webpack_require__(0).default;
-var AutoResizer = __webpack_require__(14).default;
-var Dialog = __webpack_require__(1).default;
-var Shortcut = __webpack_require__(11).default;
-var clipboardUtil = __webpack_require__(18).default;
+var SwipeDetector = __webpack_require__(/*! ./swipe-detector */ "./public/javascripts/swipe-detector.js").default;
 
 /**
- * @typedef {Object} NoteData
- * @property {String} _id           — Note's id
- * @property {String} title         — Note's title
- * @property {String} authorId      — Note's Author id
- * @property {String} folderId      - Note's Folder id
- * @property {String} content       - JSON with Note's body
- * @property {Number} dtModify      - timestamp of last modification
- * @property {Number} dtCreate      - timestamp of Note creation
- * @property {Boolean} isRemoved    - Note's removed state
- * @property {String|null} editorVersion - used CodeX Editor version
+ * Aside swiper class
+ * @property {object} CSS dictionary
  */
 
-/**
- * Note section module
- *
- * @typedef {Note} Note
- * @property {Element} deleteButton
- * @property {Element} titleEl
- * @property {Element} dateEl
- * @property {Timer} showSavedIndicatorTimer
- * @property {boolean} editorContentSelected - is all document selected by CMD+A
- * @property {ShortCut[]} shortcut
- */
-
-var Note = function () {
-
+var AsideSwiper = function () {
   /**
    * @constructor
+   * @param {Function} opened  - opening callback
+   * @param {Function} closed  - closing callback
    */
-  function Note() {
-    _classCallCheck(this, Note);
+  function AsideSwiper(_ref) {
+    var _this = this;
 
-    this.deleteButton = $.get('delete-button');
+    var opened = _ref.opened,
+        closed = _ref.closed;
 
-    this.titleEl = document.getElementById('note-title');
-    this.dateEl = document.getElementById('note-date');
-    this.editor = document.getElementById('codex-editor');
+    _classCallCheck(this, AsideSwiper);
 
-    this.showSavedIndicatorTimer = null;
+    this.CSS = {
+      wrapper: 'aside-swiper',
+      toggled: 'aside-swiper--toggled',
+      left: 'aside-swiper__left',
+      right: 'aside-swiper__right'
+    };
+
+    this.wrapper = document.querySelector('.' + this.CSS.wrapper);
+    this.left = this.wrapper.querySelector('.' + this.CSS.left);
+    this.right = this.wrapper.querySelector('.' + this.CSS.right);
+
+    this.opened = opened || function () {};
+    this.closed = closed || function () {};
 
     /**
-     * True after user selects all document by CMD+A
-     * @type {boolean}
+     * Allow to open/close by two-fingers swipe left/right
      */
-    this.editorContentSelected = false;
-
-    // when we are creating new note
-    if (!this.autoresizedTitle) {
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-    }
-
-    this.shortcuts = [];
-
-    this.enableShortcuts();
+    new SwipeDetector(this.wrapper, function (directionRight) {
+      if (directionRight) {
+        _this.open();
+      } else {
+        _this.close();
+      }
+    });
   }
 
   /**
-   * CMD+A - select all document
-   * CDM+C - copy selected content (title + editor area)
+   * Swipe left menu, shows folder section
    */
 
 
-  _createClass(Note, [{
-    key: 'enableShortcuts',
-    value: function enableShortcuts() {
-      var _this = this;
-
-      var preventDefaultExecution = function preventDefaultExecution(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      };
-
-      // any click on body prevents content selection
-      // stop preventing copy event
-      document.body.addEventListener('click', function () {
-        _this.editorContentSelected = false;
-        _this.editor.removeEventListener('copy', preventDefaultExecution);
-      }, false);
-
-      /**
-       * Select all document by CMD+A
-       */
-      var selectAllShortcut = new Shortcut({
-        name: 'CMD+A',
-        on: this.editor,
-        callback: function callback(event) {
-          _this.cmdA(event);
-          _this.editor.addEventListener('copy', preventDefaultExecution);
-        }
-      });
-
-      /**
-       * Copy selected document by CMD+C
-       */
-      var copySelectedShortcut = new Shortcut({
-        name: 'CMD+C',
-        on: this.editor,
-        callback: function callback() {
-          _this.cmdC();
-        }
-      });
-
-      this.shortcuts.push(selectAllShortcut);
-      this.shortcuts.push(copySelectedShortcut);
+  _createClass(AsideSwiper, [{
+    key: 'open',
+    value: function open() {
+      this.wrapper.classList.add(this.CSS.toggled);
+      this.opened();
     }
 
     /**
-     * CMD+A Shortcut
-     * Selects title + all Note
+     * Toggle off folder section
      */
 
   }, {
-    key: 'cmdA',
-    value: function cmdA(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      this.selectEditorContents();
-    }
-
-    /**
-     * CMD+C Shortcut
-     * Copies selected title and Note
-     */
-
-  }, {
-    key: 'cmdC',
-    value: function cmdC() {
-      if (!this.editorContentSelected) {
-        // selection was cleared
-        return;
-      }
-
-      var editorContent = this.editor.querySelector('.ce-redactor'),
-          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
-
-      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
-
-      // select content again because we select textarea contents to copy to the clipboard
-      this.selectEditorContents();
-    }
-
-    /**
-     * Send note data to backend
-     * @static
-     */
-
-  }, {
-    key: 'save',
-    value: function save() {
-      var _this2 = this;
-
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * If folder is opened, pass id. Otherwise pass false
-       */
-      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
-
-      codex.editor.saver.save().then(function (noteData) {
-        _this2.validate(noteData);
-        return noteData;
-      }).then(function (noteData) {
-        var note = {
-          data: noteData,
-          title: _this2.titleEl.value.trim(),
-          folderId: folderId
-        };
-
-        var saveIndicator = document.getElementById('save-indicator');
-
-        if (_this2.showSavedIndicatorTimer) {
-          window.clearTimeout(_this2.showSavedIndicatorTimer);
-        }
-
-        saveIndicator.classList.add('saved');
-
-        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
-          saveIndicator.classList.remove('saved');
-        }, 500);
-
-        window.ipcRenderer.send('note - save', { note: note });
-      }).catch(function (err) {
-        console.log('Error while saving note: ', err);
-      });
-    }
-
-    /**
-     * Validate Note data before saving
-     * @param {object} noteData
-     * @throws {Error}
-     */
-
-  }, {
-    key: 'validate',
-    value: function validate(noteData) {
-      if (!noteData.items.length) {
-        throw Error('Article is empty');
-      }
-    }
-
-    /**
-     * Add Note to the menu by Aside.addMenuItem method
-     *
-     * @param {object} data
-     * @param {object} data.note
-     * @param {number} data.note.folderId
-     * @param {number} data.note._id
-     * @param {string} data.note.title
-     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
-     */
-
-  }, {
-    key: 'addToMenu',
-    value: function addToMenu(_ref) {
-      var note = _ref.note,
-          isRootFolder = _ref.isRootFolder;
-
-      codex.editor.state.blocks.id = note._id;
-      codex.notes.aside.addMenuItem(note, isRootFolder);
-    }
-
-    /**
-     * Render the Note
-     * @param {NoteData} note
-     */
-
-  }, {
-    key: 'render',
-    value: function render(note) {
-      codex.editor.content.clear(true);
-      this.titleEl.value = note.title;
-
-      /**
-       * We store all times in a Seconds to correspond server-format
-       * @type {Date}
-       */
-      var dtModify = new Date(note.dtModify * 1000);
-
-      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false
-      });
-      codex.editor.content.load({
-        id: note._id,
-        items: JSON.parse(note.content),
-        time: note.dtModify,
-        version: note.editorVersion
-      });
-      this.deleteButton.classList.remove('hide');
-
-      /**
-       * if we are trying to render new note but we have an Autoresizer instance
-       * then we need to clear it before we create new one
-       */
-      if (this.autoresizedTitle) {
-        this.autoresizedTitle.destroy();
-      }
-
-      this.autoresizedTitle = new AutoResizer([this.titleEl]);
-    }
-
-    /**
-     * Clears editor
-     */
-
-  }, {
-    key: 'clear',
-    value: function clear() {
-      codex.editor.content.clear(true);
-      this.titleEl.value = '';
-      this.dateEl.textContent = '';
-      codex.editor.ui.addInitialBlock();
-      this.deleteButton.classList.add('hide');
-
-      // destroy autoresizer
-      this.autoresizedTitle.destroy();
-
-      this.editorContentSelected = false;
-    }
-
-    /**
-     * Set focus to the Editor
-     */
-
-  }, {
-    key: 'delete',
-
-
-    /**
-     * Delete article
-     */
-    value: function _delete() {
-      var id = codex.editor.state.blocks.id;
-
-      if (!id) {
-        return;
-      }
-
-      if (Dialog.confirm('Are you sure you want to delete this note?')) {
-        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
-          return false;
-        }
-
-        codex.notes.aside.removeMenuItem(id);
-        this.clear();
-      }
-    }
-
-    /**
-     * Title input keydowns
-     * @description  By ENTER, sets focus on editor
-     * @param  {Element} titleElement - title block
-     * @param  {Event} event - keydown event
-     */
-
-  }, {
-    key: 'titleKeydownHandler',
-    value: function titleKeydownHandler(titleElement, event) {
-      if (event.keyCode == 13) {
-        event.preventDefault();
-
-        Note.focusEditor();
-      }
-    }
-
-    /**
-     * selects editor with title
-     */
-
-  }, {
-    key: 'selectEditorContents',
-    value: function selectEditorContents() {
-      var range = document.createRange(),
-          selection = window.getSelection();
-
-      range.selectNodeContents(this.editor);
-      selection.removeAllRanges();
-      selection.addRange(range);
-
-      this.editorContentSelected = true;
-    }
-  }], [{
-    key: 'focusEditor',
-    value: function focusEditor() {
-      window.setTimeout(function () {
-        var editor = document.querySelector('.ce-redactor');
-
-        editor.click();
-      }, 10);
+    key: 'close',
+    value: function close() {
+      this.wrapper.classList.remove(this.CSS.toggled);
+      this.closed();
     }
   }]);
 
-  return Note;
+  return AsideSwiper;
 }();
 
-exports.default = Note;
+exports.default = AsideSwiper;
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
 
-module.exports = require("electron");
-
-/***/ }),
-/* 4 */
+/***/ "./public/javascripts/aside.js":
+/*!*************************************!*\
+  !*** ./public/javascripts/aside.js ***!
+  \*************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -734,15 +319,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _folder = __webpack_require__(16);
+var _folder = __webpack_require__(/*! ./folder */ "./public/javascripts/folder.js");
 
 var _folder2 = _interopRequireDefault(_folder);
 
-var _note = __webpack_require__(2);
+var _note = __webpack_require__(/*! ./note */ "./public/javascripts/note.js");
 
 var _note2 = _interopRequireDefault(_note);
 
-var _folderSettings = __webpack_require__(15);
+var _folderSettings = __webpack_require__(/*! ./folder-settings */ "./public/javascripts/folder-settings.js");
 
 var _folderSettings2 = _interopRequireDefault(_folderSettings);
 
@@ -750,8 +335,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AsideSwiper = __webpack_require__(13).default;
-var $ = __webpack_require__(0).default;
+var AsideSwiper = __webpack_require__(/*! ./aside-swiper */ "./public/javascripts/aside-swiper.js").default;
+var $ = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js").default;
 
 /**
  * Maximum chars at the menu title
@@ -774,7 +359,6 @@ var menuItemTitleMaxLength = 68;
 var Aside = function () {
   _createClass(Aside, null, [{
     key: 'CSS',
-
 
     /**
      * Make CSS dictionary
@@ -1016,9 +600,9 @@ var Aside = function () {
     }
 
     /**
-    * New Folder input keydown handler
-    * @param {KeyboardEvent} event
-    */
+     * New Folder input keydown handler
+     * @param {KeyboardEvent} event
+     */
 
   }, {
     key: 'newFolderInputFilled',
@@ -1464,7 +1048,12 @@ var Aside = function () {
 exports.default = Aside;
 
 /***/ }),
-/* 5 */
+
+/***/ "./public/javascripts/auth-observer.js":
+/*!*********************************************!*\
+  !*** ./public/javascripts/auth-observer.js ***!
+  \*********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1491,7 +1080,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * authObserver.loggedIn === true
  */
 var AuthObserver = function () {
-
   /**
    * @constructor
    *
@@ -1568,7 +1156,135 @@ var AuthObserver = function () {
 exports.default = AuthObserver;
 
 /***/ }),
-/* 6 */
+
+/***/ "./public/javascripts/autoresizer.js":
+/*!*******************************************!*\
+  !*** ./public/javascripts/autoresizer.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Autoresizer module
+ * Expands dynamically height of textareas
+ */
+
+/**
+ * @property elements - array of elements
+ * @property {Function} addResizer - adds listeners
+ * @property {Function} removeResizer - removes listeners
+ * @property {Function} destroy - removes all elements and handlers
+ */
+var Autoresizer = function () {
+  /**
+   * adds autoresize handler
+   * @param elements - elements that needs to expand
+   */
+  function Autoresizer(elements) {
+    _classCallCheck(this, Autoresizer);
+
+    this.elements = elements || [];
+
+    for (var i = 0; i < this.elements.length; i++) {
+      this.addResizer(this.elements[i]);
+    }
+  }
+
+  /**
+   * autoresizer for textareas
+   * @param {Element} el - element we want to expand
+   */
+
+
+  _createClass(Autoresizer, [{
+    key: 'addResizer',
+    value: function addResizer(el) {
+      if (el.value.trim()) {
+        el.style.height = el.scrollHeight + 'px';
+      } else {
+        el.style.height = 'auto';
+      }
+
+      el.addEventListener('keydown', this.enterKeyPressed, false);
+      el.addEventListener('input', this.resize.bind(this, el), false);
+    }
+
+    /**
+     * Prevent enter key pressing
+     * @param event
+     */
+
+  }, {
+    key: 'enterKeyPressed',
+    value: function enterKeyPressed(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+      }
+    }
+
+    /**
+     * Resize input
+     * @param el
+     */
+
+  }, {
+    key: 'resize',
+    value: function resize(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
+    /**
+     * removes handlers from element
+     * @param {Element} el - element we want to clear from resizer
+     */
+
+  }, {
+    key: 'removeResizer',
+    value: function removeResizer(el) {
+      el.removeEventListener('keydown', this.enterKeyPressed);
+      el.removeEventListener('input', this.resize);
+    }
+
+    /**
+     * Destroyer function. Clears all elements
+     */
+
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      for (var i = 0; i < this.elements.length; i++) {
+        this.removeResizer(this.elements[i]);
+        this.elements[i].style.height = 'auto';
+      }
+
+      this.elements = [];
+    }
+  }]);
+
+  return Autoresizer;
+}();
+
+exports.default = Autoresizer;
+
+/***/ }),
+
+/***/ "./public/javascripts/connection-observer.js":
+/*!***************************************************!*\
+  !*** ./public/javascripts/connection-observer.js ***!
+  \***************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1677,7 +1393,12 @@ var ConnectionObserver = function () {
 exports.default = ConnectionObserver;
 
 /***/ }),
-/* 7 */
+
+/***/ "./public/javascripts/dialog.js":
+/*!**************************************!*\
+  !*** ./public/javascripts/dialog.js ***!
+  \**************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1691,14 +1412,286 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var $ = __webpack_require__(0).default;
+var remote = __webpack_require__(/*! electron */ "electron").remote;
+
+/**
+ *
+ */
+
+var Dialog = function () {
+  /**
+   *
+   */
+  function Dialog() {
+    _classCallCheck(this, Dialog);
+  }
+
+  _createClass(Dialog, null, [{
+    key: 'confirm',
+
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    value: function confirm(text) {
+      var browserWindow = remote.getCurrentWindow();
+
+      browserWindow.setSheetOffset(30, browserWindow.width / 2);
+
+      var choice = remote.dialog.showMessageBox(browserWindow, {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: text
+      });
+
+      if (choice === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    /**
+     * Shows error notification
+     *
+     * @returns {boolean}
+     */
+
+  }, {
+    key: 'error',
+    value: function error(text) {
+      var browserWindow = remote.getCurrentWindow();
+
+      browserWindow.setSheetOffset(30, browserWindow.width / 2);
+
+      remote.dialog.showMessageBox(browserWindow, {
+        type: 'error',
+        title: 'Wow. Something goes wrong.',
+        message: text
+      });
+    }
+  }]);
+
+  return Dialog;
+}();
+
+exports.default = Dialog;
+
+/***/ }),
+
+/***/ "./public/javascripts/dom.js":
+/*!***********************************!*\
+  !*** ./public/javascripts/dom.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * DOM manipulations methods
+ */
+var DOM = function () {
+  function DOM() {
+    _classCallCheck(this, DOM);
+  }
+
+  _createClass(DOM, null, [{
+    key: 'make',
+
+    /**
+     * Helper for making Elements with classname and attributes
+     * @param  {string} tagName           - new Element tag name
+     * @param  {array|string} classNames  - list or name of CSS classname(s)
+     * @param  {Object} attributes        - any attributes
+     * @return {Element}
+     */
+    value: function make(tagName, classNames, attributes) {
+      var el = document.createElement(tagName);
+
+      if (Array.isArray(classNames)) {
+        var _el$classList;
+
+        (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(classNames));
+      } else if (classNames) {
+        el.classList.add(classNames);
+      }
+
+      for (var attrName in attributes) {
+        el[attrName] = attributes[attrName];
+      }
+
+      return el;
+    }
+
+    /**
+     * Append one or several elements to the parent
+     *
+     * @param  {Element} parent    - where to append
+     * @param  {Element|Element[]} - element ore elements list
+     */
+
+  }, {
+    key: 'append',
+    value: function append(parent, elements) {
+      if (Array.isArray(elements)) {
+        elements.forEach(function (el) {
+          return parent.appendChild(el);
+        });
+      } else {
+        parent.appendChild(elements);
+      }
+    }
+
+    /**
+     /**
+    * Replaces node with
+    * @param {Element} nodeToReplace
+    * @param {Element} replaceWith
+    */
+
+  }, {
+    key: 'replace',
+    value: function replace(nodeToReplace, replaceWith) {
+      return nodeToReplace.parentNode.replaceChild(replaceWith, nodeToReplace);
+    }
+
+    /**
+    * getElementById alias
+    * @param {String} elementId
+    */
+
+  }, {
+    key: 'get',
+    value: function get(elementId) {
+      return document.getElementById(elementId);
+    }
+
+    /**
+    * Loads static resourse: CSS or JS
+    * @param {string} type  - CSS|JS
+    * @param {string} path  - resource path
+    * @param {string} inctanceName - unique name of resource
+    * @return Promise
+    */
+
+  }, {
+    key: 'loadResource',
+    value: function loadResource(type, path, instanceName) {
+      /**
+       * Imported resource ID prefix
+       * @type {String}
+       */
+      var resourcePrefix = 'cdx-resourse';
+
+      return new Promise(function (resolve, reject) {
+        if (!type || !['JS', 'CSS'].includes(type)) {
+          reject('Unexpected resource type passed. \xABCSS\xBB or \xABJS\xBB expected, \xAB' + type + '\xBB passed');
+        }
+
+        var node = void 0;
+
+        /** Script is already loaded */
+        if (!instanceName) {
+          reject('Instance name is missed');
+        } else if (document.getElementById(resourcePrefix + '-' + type.toLowerCase() + '-' + instanceName)) {
+          resolve(path);
+        }
+
+        if (type === 'JS') {
+          node = document.createElement('script');
+          node.async = true;
+          node.defer = true;
+          node.charset = 'utf-8';
+        } else {
+          node = document.createElement('link');
+          node.rel = 'stylesheet';
+        }
+
+        node.id = resourcePrefix + '-' + type.toLowerCase() + '-' + instanceName;
+
+        var timerLabel = 'Resource loading ' + type + ' ' + instanceName;
+
+        console.time(timerLabel);
+
+        node.onload = function () {
+          console.timeEnd(timerLabel);
+          resolve(path);
+        };
+
+        node.onerror = function () {
+          console.timeEnd(timerLabel);
+          reject(path);
+        };
+
+        if (type === 'JS') {
+          node.src = path;
+        } else {
+          node.href = path;
+        }
+
+        document.head.appendChild(node);
+      });
+    }
+
+    /**
+     * Inserts one element after another
+     * @param  {Element} newNode
+     * @param  {Element} referenceNode
+     */
+
+  }, {
+    key: 'after',
+    value: function after(newNode, referenceNode) {
+      referenceNode.insertAdjacentElement('afterEnd', newNode);
+    }
+  }]);
+
+  return DOM;
+}();
+
+exports.default = DOM;
+
+/***/ }),
+
+/***/ "./public/javascripts/editor.js":
+/*!**************************************!*\
+  !*** ./public/javascripts/editor.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js").default;
 
 /**
  * CodeX Editor module
  */
 
 var Editor = function () {
-
   /**
   * @constructor
   * @property {String}  path          - CodeX Editor library path
@@ -1857,334 +1850,12 @@ var Editor = function () {
 exports.default = Editor;
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @module StatusBar
- * @description Module for working with Aside Status Bar
- *
- * @typedef {StatusBar} StatusBar
- * @property {Element} statusBar - Status Bar Element
- */
-var StatusBar = function () {
-
-  /**
-   * @constructor
-   * Find status bar Element, init all stuff
-   */
-  function StatusBar() {
-    _classCallCheck(this, StatusBar);
-
-    this.statusBar = _dom2.default.get('status-bar');
-  }
-
-  /**
-   * CSS class names
-   */
-
-
-  _createClass(StatusBar, [{
-    key: 'text',
-
-
-    /**
-     * Update text in the Status Bar
-     * @param {string} statusText - new text
-     */
-    set: function set(statusText) {
-      var _this = this;
-
-      this.statusBar.textContent = statusText;
-
-      this.statusBar.classList.add(StatusBar.CSS.blinked);
-      window.setTimeout(function () {
-        _this.statusBar.classList.remove(StatusBar.CSS.blinked);
-      }, 400);
-    }
-
-    /**
-     * Status Bar text getter
-     */
-    ,
-    get: function get() {
-      return this.statusBar.textContent;
-    }
-
-    /**
-     * Set loading state
-     * @param {boolean} state - true|false
-     */
-
-  }, {
-    key: 'loading',
-    set: function set(state) {
-      this.statusBar.classList.toggle(StatusBar.CSS.loading, state);
-    }
-  }], [{
-    key: 'CSS',
-    get: function get() {
-      return {
-        blinked: 'status-bar--blinked',
-        loading: 'status-bar--loading'
-      };
-    }
-  }]);
-
-  return StatusBar;
-}();
-
-exports.default = StatusBar;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * DOM helper
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _dialog = __webpack_require__(1);
-
-var _dialog2 = _interopRequireDefault(_dialog);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @class       User
- * @classdesc   Authentication methods and user object
- *
- * @typedef {User} User
- * @property {Element} authButton - button 'Login with Google'
- * @property {Object} userData — current user`s data
- */
-var User = function () {
-
-  /**
-   * @constructor
-   */
-  function User() {
-    var _this = this;
-
-    _classCallCheck(this, User);
-
-    this.authButton = _dom2.default.get('js-auth-button');
-
-    this.userData = window.ipcRenderer.sendSync('user - get');
-
-    this.authButton.addEventListener('click', function () {
-      _this.showAuth();
-    });
-  }
-
-  /**
-   * Opens auth popup
-   */
-
-
-  _createClass(User, [{
-    key: 'showAuth',
-    value: function showAuth() {
-      var authResponse = window.ipcRenderer.sendSync('auth - google auth');
-
-      if (authResponse && authResponse.token) {
-        codex.notes.authObserver.login(authResponse);
-        window.ipcRenderer.send('user - sync');
-      } else {
-        _dialog2.default.error('Authentication failed. Please, try again.');
-      }
-    }
-
-    /**
-     * Fills user panel
-     * @param  {Object} user
-     * @param  {String} user.id
-     * @param  {String} user.name
-     * @param  {String} user.photo
-     */
-
-  }, {
-    key: 'fillUserPanel',
-    value: function fillUserPanel(user) {
-      if (!user.name) return;
-
-      var userPanel = _dom2.default.get('user-panel'),
-          photo = _dom2.default.get('user-photo');
-
-      userPanel.classList.add('aside__header-avatar--filled');
-      photo.style.backgroundImage = 'url(' + user.photo + ')';
-    }
-  }]);
-
-  return User;
-}();
-
-exports.default = User;
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * Library for handling keyboard shortcuts
- * @copyright undefined
- * @license MIT
- * @author CodeX (https://ifmo.su)
- * @version 1.0.0
- */
-!function(e,t){if(true)module.exports=t();else if("function"==typeof define&&define.amd)define([],t);else{var n=t();for(var r in n)("object"==typeof exports?exports:e)[r]=n[r]}}("undefined"!=typeof self?self:this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};return t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=0)}([function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),i={0:48,1:49,2:50,3:51,4:52,5:53,6:54,7:55,8:56,9:57,A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,U:85,V:86,W:87,X:88,Y:89,Z:90,BACKSPACE:8,ENTER:13,ESCAPE:27,LEFT:37,UP:38,RIGHT:39,DOWN:40,INSERT:45,DELETE:46},u={CMD:["CMD","CONTROL","COMMAND","WINDOWS","CTRL"],SHIFT:["SHIFT"],ALT:["ALT","OPTION"]},c=function(){function e(t){var n=this;r(this,e),this.commands={},this.keys={},this.parseShortcutName(t.name),this.element=t.on,this.callback=t.callback,this.executeShortcut=function(e){n.execute(e)},this.element.addEventListener("keydown",this.executeShortcut,!1)}return o(e,[{key:"parseShortcutName",value:function(e){e=e.split("+");for(var t=0;t<e.length;t++)if(e[t]=e[t].toUpperCase(),e[t].length>1)for(var n in u)u[n].includes(e[t])&&(this.commands[n]=!0);else this.keys[e[t]]=!0}},{key:"execute",value:function(e){var t=e.ctrlKey||e.metaKey,n=e.shiftKey,r=e.altKey,o={CMD:t,SHIFT:n,ALT:r},u=void 0,c=!0;for(u in this.commands)c=c&&o[u];var a=void 0,s=!0;for(a in this.keys)s=s&&e.keyCode===i[a];c&&s&&this.callback(e)}},{key:"remove",value:function(){this.element.removeEventListener("keydown",this.executeShortcut)}}]),e}();t.default=c}])});
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Load libraries
- */
-
-var _user = __webpack_require__(9);
-
-var _user2 = _interopRequireDefault(_user);
-
-var _statusBar = __webpack_require__(8);
-
-var _statusBar2 = _interopRequireDefault(_statusBar);
-
-var _connectionObserver = __webpack_require__(6);
-
-var _connectionObserver2 = _interopRequireDefault(_connectionObserver);
-
-var _authObserver = __webpack_require__(5);
-
-var _authObserver2 = _interopRequireDefault(_authObserver);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var electron = __webpack_require__(3);
-var Editor = __webpack_require__(7).default;
-
-/**
- * Load components
- */
-var Aside = __webpack_require__(4).default;
-var Note = __webpack_require__(2).default;
-
-/**
- * Save render proccess to the ipdRender global propery
- */
-window.ipcRenderer = electron.ipcRenderer;
-
-/**
- * Disable zoom
- */
-electron.webFrame.setZoomLevelLimits(1, 1);
-
-/**
- * Load CSS
- */
-__webpack_require__(10);
-
-/**
- * Document ready callback
- */
-var documentReady = function documentReady() {
-  /**
-  * Initiate modules
-  * @type {Aside}
-  */
-  codex.notes.editor = new Editor();
-  codex.notes.aside = new Aside();
-  codex.notes.note = new Note();
-  codex.notes.user = new _user2.default();
-  codex.notes.statusBar = new _statusBar2.default();
-  codex.notes.connectionObserver = new _connectionObserver2.default();
-  codex.notes.authObserver = new _authObserver2.default({
-    onLogin: function onLogin(user) {
-      codex.notes.user.fillUserPanel(user);
-      codex.notes.aside.folderSettings.toggleCollaboratorInput();
-    }
-  });
-
-  codex.notes.authObserver.login(codex.notes.user.userData);
-
-  /**
-   * New note saving handler
-   */
-  window.ipcRenderer.on('note saved', function (event, response) {
-    codex.notes.note.addToMenu(response);
-  });
-};
-
-var openExternalLink = function openExternalLink(event) {
-  if (event.target.tagName !== 'A' || !event.target.href) {
-    return;
-  }
-
-  if (!event.target.closest('.editor')) {
-    electron.shell.openExternal(event.target.href);
-    return;
-  }
-
-  if (event.metaKey || event.ctrlKey) {
-    electron.shell.openExternal(event.target.href);
-  }
-};
-
-/**
- * Application
- */
-module.exports = function () {
-  document.addEventListener('DOMContentLoaded', documentReady, false);
-  document.addEventListener('click', openExternalLink);
-
-  /**
-   * Allow access modules with codex.notes[module]
-   */
-  return {};
-}();
-
-/***/ }),
-/* 13 */
+/***/ "./public/javascripts/folder-settings.js":
+/*!***********************************************!*\
+  !*** ./public/javascripts/folder-settings.js ***!
+  \***********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2198,220 +1869,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(17).default;
-
-/**
- * Aside swiper class
- * @property {object} CSS dictionary
- */
-
-var AsideSwiper = function () {
-
-  /**
-   * @constructor
-   * @param {Function} opened  - opening callback
-   * @param {Function} closed  - closing callback
-   */
-  function AsideSwiper(_ref) {
-    var _this = this;
-
-    var opened = _ref.opened,
-        closed = _ref.closed;
-
-    _classCallCheck(this, AsideSwiper);
-
-    this.CSS = {
-      wrapper: 'aside-swiper',
-      toggled: 'aside-swiper--toggled',
-      left: 'aside-swiper__left',
-      right: 'aside-swiper__right'
-    };
-
-    this.wrapper = document.querySelector('.' + this.CSS.wrapper);
-    this.left = this.wrapper.querySelector('.' + this.CSS.left);
-    this.right = this.wrapper.querySelector('.' + this.CSS.right);
-
-    this.opened = opened || function () {};
-    this.closed = closed || function () {};
-
-    /**
-     * Allow to open/close by two-fingers swipe left/right
-     */
-    new SwipeDetector(this.wrapper, function (directionRight) {
-      if (directionRight) {
-        _this.open();
-      } else {
-        _this.close();
-      }
-    });
-  }
-
-  /**
-   * Swipe left menu, shows folder section
-   */
-
-
-  _createClass(AsideSwiper, [{
-    key: 'open',
-    value: function open() {
-      this.wrapper.classList.add(this.CSS.toggled);
-      this.opened();
-    }
-
-    /**
-     * Toggle off folder section
-     */
-
-  }, {
-    key: 'close',
-    value: function close() {
-      this.wrapper.classList.remove(this.CSS.toggled);
-      this.closed();
-    }
-  }]);
-
-  return AsideSwiper;
-}();
-
-exports.default = AsideSwiper;
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Autoresizer module
- * Expands dynamically height of textareas
- */
-
-/**
- * @property elements - array of elements
- * @property {Function} addResizer - adds listeners
- * @property {Function} removeResizer - removes listeners
- * @property {Function} destroy - removes all elements and handlers
- */
-var Autoresizer = function () {
-
-  /**
-   * adds autoresize handler
-   * @param elements - elements that needs to expand
-   */
-  function Autoresizer(elements) {
-    _classCallCheck(this, Autoresizer);
-
-    this.elements = elements || [];
-
-    for (var i = 0; i < this.elements.length; i++) {
-      this.addResizer(this.elements[i]);
-    }
-  }
-
-  /**
-   * autoresizer for textareas
-   * @param {Element} el - element we want to expand
-   */
-
-
-  _createClass(Autoresizer, [{
-    key: 'addResizer',
-    value: function addResizer(el) {
-      if (el.value.trim()) {
-        el.style.height = el.scrollHeight + 'px';
-      } else {
-        el.style.height = 'auto';
-      }
-
-      el.addEventListener('keydown', this.enterKeyPressed, false);
-      el.addEventListener('input', this.resize.bind(this, el), false);
-    }
-
-    /**
-     * Prevent enter key pressing
-     * @param event
-     */
-
-  }, {
-    key: 'enterKeyPressed',
-    value: function enterKeyPressed(event) {
-      if (event.keyCode === 13) {
-        event.preventDefault();
-      }
-    }
-
-    /**
-     * Resize input
-     * @param el
-     */
-
-  }, {
-    key: 'resize',
-    value: function resize(el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    }
-
-    /**
-     * removes handlers from element
-     * @param {Element} el - element we want to clear from resizer
-     */
-
-  }, {
-    key: 'removeResizer',
-    value: function removeResizer(el) {
-      el.removeEventListener('keydown', this.enterKeyPressed);
-      el.removeEventListener('input', this.resize);
-    }
-
-    /**
-     * Destroyer function. Clears all elements
-     */
-
-  }, {
-    key: 'destroy',
-    value: function destroy() {
-      for (var i = 0; i < this.elements.length; i++) {
-        this.removeResizer(this.elements[i]);
-        this.elements[i].style.height = 'auto';
-      }
-
-      this.elements = [];
-    }
-  }]);
-
-  return Autoresizer;
-}();
-
-exports.default = Autoresizer;
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Dialog = __webpack_require__(1).default;
-var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(19).default;
+var Dialog = __webpack_require__(/*! ./dialog */ "./public/javascripts/dialog.js").default;
+var $ = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js").default;
+var Validate = __webpack_require__(/*! ./utils/validate */ "./public/javascripts/utils/validate.js").default;
 
 /**
  * Folder Settings panel module
@@ -2420,7 +1880,6 @@ var Validate = __webpack_require__(19).default;
  */
 
 var FolderSettings = function () {
-
   /**
    * @constructor
    */
@@ -2727,7 +2186,12 @@ var FolderSettings = function () {
 exports.default = FolderSettings;
 
 /***/ }),
-/* 16 */
+
+/***/ "./public/javascripts/folder.js":
+/*!**************************************!*\
+  !*** ./public/javascripts/folder.js ***!
+  \**************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2741,8 +2205,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var $ = __webpack_require__(0).default;
-var Dialog = __webpack_require__(1).default;
+var $ = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js").default;
+var Dialog = __webpack_require__(/*! ./dialog */ "./public/javascripts/dialog.js").default;
 
 /**
  * Folders methods
@@ -2756,7 +2220,6 @@ var Dialog = __webpack_require__(1).default;
  */
 
 var Folder = function () {
-
   /**
    * Folder methods
    *
@@ -2907,7 +2370,501 @@ var Folder = function () {
 exports.default = Folder;
 
 /***/ }),
-/* 17 */
+
+/***/ "./public/javascripts/note.js":
+/*!************************************!*\
+  !*** ./public/javascripts/note.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js").default;
+var AutoResizer = __webpack_require__(/*! ./autoresizer */ "./public/javascripts/autoresizer.js").default;
+var Dialog = __webpack_require__(/*! ./dialog */ "./public/javascripts/dialog.js").default;
+var Shortcut = __webpack_require__(/*! @codexteam/shortcuts */ "./node_modules/@codexteam/shortcuts/lib/shortcuts.js").default;
+var clipboardUtil = __webpack_require__(/*! ./utils/clipboard */ "./public/javascripts/utils/clipboard.js").default;
+
+/**
+ * @typedef {Object} NoteData
+ * @property {String} _id           — Note's id
+ * @property {String} title         — Note's title
+ * @property {String} authorId      — Note's Author id
+ * @property {String} folderId      - Note's Folder id
+ * @property {String} content       - JSON with Note's body
+ * @property {Number} dtModify      - timestamp of last modification
+ * @property {Number} dtCreate      - timestamp of Note creation
+ * @property {Boolean} isRemoved    - Note's removed state
+ * @property {String|null} editorVersion - used CodeX Editor version
+ */
+
+/**
+ * Note section module
+ *
+ * @typedef {Note} Note
+ * @property {Element} deleteButton
+ * @property {Element} titleEl
+ * @property {Element} dateEl
+ * @property {Timer} showSavedIndicatorTimer
+ * @property {boolean} editorContentSelected - is all document selected by CMD+A
+ * @property {ShortCut[]} shortcut
+ */
+
+var Note = function () {
+  /**
+   * @constructor
+   */
+  function Note() {
+    _classCallCheck(this, Note);
+
+    this.deleteButton = $.get('delete-button');
+
+    this.titleEl = document.getElementById('note-title');
+    this.dateEl = document.getElementById('note-date');
+    this.editor = document.getElementById('codex-editor');
+
+    this.showSavedIndicatorTimer = null;
+
+    /**
+     * True after user selects all document by CMD+A
+     * @type {boolean}
+     */
+    this.editorContentSelected = false;
+
+    // when we are creating new note
+    if (!this.autoresizedTitle) {
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    this.shortcuts = [];
+
+    this.enableShortcuts();
+  }
+
+  /**
+   * CMD+A - select all document
+   * CDM+C - copy selected content (title + editor area)
+   */
+
+
+  _createClass(Note, [{
+    key: 'enableShortcuts',
+    value: function enableShortcuts() {
+      var _this = this;
+
+      var preventDefaultExecution = function preventDefaultExecution(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      };
+
+      // any click on body prevents content selection
+      // stop preventing copy event
+      document.body.addEventListener('click', function () {
+        _this.editorContentSelected = false;
+        _this.editor.removeEventListener('copy', preventDefaultExecution);
+      }, false);
+
+      /**
+       * Select all document by CMD+A
+       */
+      var selectAllShortcut = new Shortcut({
+        name: 'CMD+A',
+        on: this.editor,
+        callback: function callback(event) {
+          _this.cmdA(event);
+          _this.editor.addEventListener('copy', preventDefaultExecution);
+        }
+      });
+
+      /**
+       * Copy selected document by CMD+C
+       */
+      var copySelectedShortcut = new Shortcut({
+        name: 'CMD+C',
+        on: this.editor,
+        callback: function callback() {
+          _this.cmdC();
+        }
+      });
+
+      this.shortcuts.push(selectAllShortcut);
+      this.shortcuts.push(copySelectedShortcut);
+    }
+
+    /**
+     * CMD+A Shortcut
+     * Selects title + all Note
+     */
+
+  }, {
+    key: 'cmdA',
+    value: function cmdA(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      this.selectEditorContents();
+    }
+
+    /**
+     * CMD+C Shortcut
+     * Copies selected title and Note
+     */
+
+  }, {
+    key: 'cmdC',
+    value: function cmdC() {
+      if (!this.editorContentSelected) {
+        // selection was cleared
+        return;
+      }
+
+      var editorContent = this.editor.querySelector('.ce-redactor'),
+          formattedText = editorContent.innerText.replace(/\n/g, '\n\n');
+
+      clipboardUtil.copy(this.titleEl.value + '\n\n' + formattedText);
+
+      // select content again because we select textarea contents to copy to the clipboard
+      this.selectEditorContents();
+    }
+
+    /**
+     * Send note data to backend
+     * @static
+     */
+
+  }, {
+    key: 'save',
+    value: function save() {
+      var _this2 = this;
+
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * If folder is opened, pass id. Otherwise pass false
+       */
+      var folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+
+      codex.editor.saver.save().then(function (noteData) {
+        _this2.validate(noteData);
+        return noteData;
+      }).then(function (noteData) {
+        var note = {
+          data: noteData,
+          title: _this2.titleEl.value.trim(),
+          folderId: folderId
+        };
+
+        var saveIndicator = document.getElementById('save-indicator');
+
+        if (_this2.showSavedIndicatorTimer) {
+          window.clearTimeout(_this2.showSavedIndicatorTimer);
+        }
+
+        saveIndicator.classList.add('saved');
+
+        _this2.showSavedIndicatorTimer = window.setTimeout(function () {
+          saveIndicator.classList.remove('saved');
+        }, 500);
+
+        window.ipcRenderer.send('note - save', { note: note });
+      }).catch(function (err) {
+        console.log('Error while saving note: ', err);
+      });
+    }
+
+    /**
+     * Validate Note data before saving
+     * @param {object} noteData
+     * @throws {Error}
+     */
+
+  }, {
+    key: 'validate',
+    value: function validate(noteData) {
+      if (!noteData.items.length) {
+        throw Error('Article is empty');
+      }
+    }
+
+    /**
+     * Add Note to the menu by Aside.addMenuItem method
+     *
+     * @param {object} data
+     * @param {object} data.note
+     * @param {number} data.note.folderId
+     * @param {number} data.note._id
+     * @param {string} data.note.title
+     * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
+     */
+
+  }, {
+    key: 'addToMenu',
+    value: function addToMenu(_ref) {
+      var note = _ref.note,
+          isRootFolder = _ref.isRootFolder;
+
+      codex.editor.state.blocks.id = note._id;
+      codex.notes.aside.addMenuItem(note, isRootFolder);
+    }
+
+    /**
+     * Render the Note
+     * @param {NoteData} note
+     */
+
+  }, {
+    key: 'render',
+    value: function render(note) {
+      codex.editor.content.clear(true);
+      this.titleEl.value = note.title;
+
+      /**
+       * We store all times in a Seconds to correspond server-format
+       * @type {Date}
+       */
+      var dtModify = new Date(note.dtModify * 1000);
+
+      this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
+      codex.editor.content.load({
+        id: note._id,
+        items: JSON.parse(note.content),
+        time: note.dtModify,
+        version: note.editorVersion
+      });
+      this.deleteButton.classList.remove('hide');
+
+      /**
+       * if we are trying to render new note but we have an Autoresizer instance
+       * then we need to clear it before we create new one
+       */
+      if (this.autoresizedTitle) {
+        this.autoresizedTitle.destroy();
+      }
+
+      this.autoresizedTitle = new AutoResizer([this.titleEl]);
+    }
+
+    /**
+     * Clears editor
+     */
+
+  }, {
+    key: 'clear',
+    value: function clear() {
+      codex.editor.content.clear(true);
+      this.titleEl.value = '';
+      this.dateEl.textContent = '';
+      codex.editor.ui.addInitialBlock();
+      this.deleteButton.classList.add('hide');
+
+      // destroy autoresizer
+      this.autoresizedTitle.destroy();
+
+      this.editorContentSelected = false;
+    }
+
+    /**
+     * Set focus to the Editor
+     */
+
+  }, {
+    key: 'delete',
+
+
+    /**
+     * Delete article
+     */
+    value: function _delete() {
+      var id = codex.editor.state.blocks.id;
+
+      if (!id) {
+        return;
+      }
+
+      if (Dialog.confirm('Are you sure you want to delete this note?')) {
+        if (!window.ipcRenderer.sendSync('note - delete', { id: id })) {
+          return false;
+        }
+
+        codex.notes.aside.removeMenuItem(id);
+        this.clear();
+      }
+    }
+
+    /**
+     * Title input keydowns
+     * @description  By ENTER, sets focus on editor
+     * @param  {Element} titleElement - title block
+     * @param  {Event} event - keydown event
+     */
+
+  }, {
+    key: 'titleKeydownHandler',
+    value: function titleKeydownHandler(titleElement, event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+
+        Note.focusEditor();
+      }
+    }
+
+    /**
+     * selects editor with title
+     */
+
+  }, {
+    key: 'selectEditorContents',
+    value: function selectEditorContents() {
+      var range = document.createRange(),
+          selection = window.getSelection();
+
+      range.selectNodeContents(this.editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      this.editorContentSelected = true;
+    }
+  }], [{
+    key: 'focusEditor',
+    value: function focusEditor() {
+      window.setTimeout(function () {
+        var editor = document.querySelector('.ce-redactor');
+
+        editor.click();
+      }, 10);
+    }
+  }]);
+
+  return Note;
+}();
+
+exports.default = Note;
+
+/***/ }),
+
+/***/ "./public/javascripts/status-bar.js":
+/*!******************************************!*\
+  !*** ./public/javascripts/status-bar.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js");
+
+var _dom2 = _interopRequireDefault(_dom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @module StatusBar
+ * @description Module for working with Aside Status Bar
+ *
+ * @typedef {StatusBar} StatusBar
+ * @property {Element} statusBar - Status Bar Element
+ */
+var StatusBar = function () {
+  /**
+   * @constructor
+   * Find status bar Element, init all stuff
+   */
+  function StatusBar() {
+    _classCallCheck(this, StatusBar);
+
+    this.statusBar = _dom2.default.get('status-bar');
+  }
+
+  /**
+   * CSS class names
+   */
+
+
+  _createClass(StatusBar, [{
+    key: 'text',
+
+
+    /**
+     * Update text in the Status Bar
+     * @param {string} statusText - new text
+     */
+    set: function set(statusText) {
+      var _this = this;
+
+      this.statusBar.textContent = statusText;
+
+      this.statusBar.classList.add(StatusBar.CSS.blinked);
+      window.setTimeout(function () {
+        _this.statusBar.classList.remove(StatusBar.CSS.blinked);
+      }, 400);
+    }
+
+    /**
+     * Status Bar text getter
+     */
+    ,
+    get: function get() {
+      return this.statusBar.textContent;
+    }
+
+    /**
+     * Set loading state
+     * @param {boolean} state - true|false
+     */
+
+  }, {
+    key: 'loading',
+    set: function set(state) {
+      this.statusBar.classList.toggle(StatusBar.CSS.loading, state);
+    }
+  }], [{
+    key: 'CSS',
+    get: function get() {
+      return {
+        blinked: 'status-bar--blinked',
+        loading: 'status-bar--loading'
+      };
+    }
+  }]);
+
+  return StatusBar;
+}();
+
+exports.default = StatusBar;
+
+/***/ }),
+
+/***/ "./public/javascripts/swipe-detector.js":
+/*!**********************************************!*\
+  !*** ./public/javascripts/swipe-detector.js ***!
+  \**********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2925,7 +2882,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * Two fingers swipe detection class
  */
 var SwipeDetector = function () {
-
   /**
   * @constructor
   *
@@ -3001,7 +2957,115 @@ var SwipeDetector = function () {
 exports.default = SwipeDetector;
 
 /***/ }),
-/* 18 */
+
+/***/ "./public/javascripts/user.js":
+/*!************************************!*\
+  !*** ./public/javascripts/user.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * DOM helper
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+
+var _dom = __webpack_require__(/*! ./dom */ "./public/javascripts/dom.js");
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _dialog = __webpack_require__(/*! ./dialog */ "./public/javascripts/dialog.js");
+
+var _dialog2 = _interopRequireDefault(_dialog);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @class       User
+ * @classdesc   Authentication methods and user object
+ *
+ * @typedef {User} User
+ * @property {Element} authButton - button 'Login with Google'
+ * @property {Object} userData — current user`s data
+ */
+var User = function () {
+  /**
+   * @constructor
+   */
+  function User() {
+    var _this = this;
+
+    _classCallCheck(this, User);
+
+    this.authButton = _dom2.default.get('js-auth-button');
+
+    this.userData = window.ipcRenderer.sendSync('user - get');
+
+    this.authButton.addEventListener('click', function () {
+      _this.showAuth();
+    });
+  }
+
+  /**
+   * Opens auth popup
+   */
+
+
+  _createClass(User, [{
+    key: 'showAuth',
+    value: function showAuth() {
+      var authResponse = window.ipcRenderer.sendSync('auth - google auth');
+
+      if (authResponse && authResponse.token) {
+        codex.notes.authObserver.login(authResponse);
+        window.ipcRenderer.send('user - sync');
+      } else {
+        _dialog2.default.error('Authentication failed. Please, try again.');
+      }
+    }
+
+    /**
+     * Fills user panel
+     * @param  {Object} user
+     * @param  {String} user.id
+     * @param  {String} user.name
+     * @param  {String} user.photo
+     */
+
+  }, {
+    key: 'fillUserPanel',
+    value: function fillUserPanel(user) {
+      if (!user.name) return;
+
+      var userPanel = _dom2.default.get('user-panel'),
+          photo = _dom2.default.get('user-photo');
+
+      userPanel.classList.add('aside__header-avatar--filled');
+      photo.style.backgroundImage = 'url(' + user.photo + ')';
+    }
+  }]);
+
+  return User;
+}();
+
+exports.default = User;
+
+/***/ }),
+
+/***/ "./public/javascripts/utils/clipboard.js":
+/*!***********************************************!*\
+  !*** ./public/javascripts/utils/clipboard.js ***!
+  \***********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3025,7 +3089,6 @@ var Clipboard = function () {
 
   _createClass(Clipboard, null, [{
     key: 'copy',
-
 
     /**
      * copy to clipboards passed text
@@ -3065,7 +3128,12 @@ var Clipboard = function () {
 exports.default = Clipboard;
 
 /***/ }),
-/* 19 */
+
+/***/ "./public/javascripts/utils/validate.js":
+/*!**********************************************!*\
+  !*** ./public/javascripts/utils/validate.js ***!
+  \**********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3090,7 +3158,6 @@ var Validate = function () {
   _createClass(Validate, null, [{
     key: "email",
 
-
     /**
      * Check for email validness
      *
@@ -3109,6 +3176,29 @@ var Validate = function () {
 
 exports.default = Validate;
 
+/***/ }),
+
+/***/ "./public/stylesheets/base.css":
+/*!*************************************!*\
+  !*** ./public/stylesheets/base.css ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ "electron":
+/*!***************************!*\
+  !*** external "electron" ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
+
 /***/ })
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=bundle.js.map

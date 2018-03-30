@@ -26,7 +26,7 @@ window.ipcRenderer = electron.ipcRenderer;
 /**
  * Disable zoom
  */
-electron.webFrame.setZoomLevelLimits(1, 1);
+electron.webFrame.setVisualZoomLevelLimits(1, 1);
 
 /**
  * Load CSS
