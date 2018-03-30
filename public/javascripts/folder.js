@@ -12,7 +12,6 @@ const Dialog = require('./dialog').default;
  * @property {Element}   notesListWrapper   - Notes list holder
  */
 export default class Folder {
-
   /**
    * Folder methods
    *
@@ -125,5 +124,4 @@ export default class Folder {
      */
     codex.notes.aside.checkUnreadStatus(noteIds);
   }
-
 }

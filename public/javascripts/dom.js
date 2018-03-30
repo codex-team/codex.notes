@@ -1,4 +1,4 @@
- /**
+/**
  * DOM manipulations methods
  */
 export default class DOM {

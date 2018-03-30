@@ -10,7 +10,7 @@
   "main": "./src/codex-notes.js",
   "scripts": {
     "start": "electron .",
-    "build": "webpack --progress  --display-error-details --display-entrypoints --display-reasons",
+    "build": "webpack --progress --display-error-details --mode development",
     "package-all": "npm run package-mac; npm run package-linux; npm run package-win",
     "package-mac": "electron-packager . \"$npm_package_productName\" --platform=darwin --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconICNS --overwrite --out=release-builds",
     "package-linux": "electron-packager . \"$npm_package_productName\" --platform=linux --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconPNG --overwrite --out=release-builds",
@@ -40,12 +40,12 @@
     "@codexteam/shortcuts": "^1.0.0",
     "electron-oauth2": "^3.0.0",
     "electron-pug": "^1.5.1",
-    "graphql-request": "^1.4.1",
+    "graphql-request": "^1.5.1",
     "is-online": "^7.0.0",
     "nedb": "^1.8.0",
-    "request": "^2.83.0",
+    "request": "^2.85.0",
     "request-promise": "^4.2.2",
-    "sanitize-html": "^1.17.0",
+    "sanitize-html": "^1.18.2",
     "simple-node-logger": "^0.93.37",
     "ws": "^5.1.0"
   },
@@ -55,14 +55,15 @@
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.11",
-    "electron": "^1.8.1",
+    "electron": "^2.0.0-beta.6"
     "electron-installer-debian": "^0.8.1",
     "electron-packager": "^11.2.0",
     "electron-winstaller": "^2.6.4",
     "eslint": "^4.19.1",
     "eslint-loader": "^2.0.0",
-    "extract-text-webpack-plugin": "^3.0.2",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^1.1.11",
+    "fs": "0.0.1-security",
     "path": "^0.12.7",
     "postcss-apply": "^0.9.0",
     "postcss-color-function": "^4.0.1",
@@ -79,8 +80,8 @@
     "postcss-nested-ancestors": "^2.0.0",
     "postcss-nesting": "^4.2.1",
     "postcss-smart-import": "^0.7.6",
-    "stylelint-webpack-plugin": "^0.10.3",
-    "webpack": "^4.4.1"
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13"
   },
   "optionalDependencies": {
     "appdmg": "^0.5.2"

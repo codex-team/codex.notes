@@ -29,7 +29,6 @@ const clipboardUtil = require('./utils/clipboard').default;
  * @property {ShortCut[]} shortcut
  */
 export default class Note {
-
   /**
    * @constructor
    */
