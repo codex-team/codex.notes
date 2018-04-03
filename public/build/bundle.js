@@ -350,7 +350,8 @@ var $ = __webpack_require__(0).default;
 var AutoResizer = __webpack_require__(14).default;
 var Dialog = __webpack_require__(1).default;
 var Shortcut = __webpack_require__(11).default;
-var clipboardUtil = __webpack_require__(18).default;
+var clipboardUtil = __webpack_require__(19).default;
+var MouseSelection = __webpack_require__(17).default;
 
 /**
  * @typedef {Object} NoteData
@@ -411,12 +412,7 @@ var Note = function () {
   }
 
   /**
-   * enableMouseSelection
-   *
-   * allows several blocks selection and prevents CodeX Editor inline-toolbar appearance
-   *
-   * The main idea is that we make editor wrapper editable to use native selection.
-   * Other actions instead of mouse down prevents this behaviour
+   * Enable editor mouse selection to be able to copy whole editor content
    */
 
 
@@ -425,33 +421,32 @@ var Note = function () {
     value: function enableMouseSelection() {
       var _this = this;
 
-      /**
-       * prevent immediate execution
-       */
+      var mouseSelection = new MouseSelection(),
+          crossBlockSelection = false,
+          selectionStarted = false;
+
       var stopAllPropagations = function stopAllPropagations(event) {
-        event.stopImmediatePropagation();
         event.stopPropagation();
+        event.stopImmediatePropagation();
       };
 
-      var crossBlockSelection = false;
+      var lock = function lock(event) {
+        if (_this.editor.contentEditable && crossBlockSelection) {
+          var needLock = mouseSelection.needLock(event);
+
+          if (needLock) {
+            crossBlockSelection = false;
+            selectionStarted = false;
+            _this.editor.contentEditable = false;
+          }
+        }
+      };
 
       /**
        * This listener defines "crossBlockSelection" from current selection
        */
       this.editor.addEventListener('mousemove', function (event) {
-        var selection = window.getSelection(),
-            range = void 0,
-            commonContainer = void 0;
-
-        if (selection.rangeCount > 0) {
-          range = selection.getRangeAt(0);
-          commonContainer = range.commonAncestorContainer;
-          if (commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor')) {
-            crossBlockSelection = true;
-          } else {
-            crossBlockSelection = false;
-          }
-        }
+        crossBlockSelection = mouseSelection.detectCrossBlockSelection(event);
       }, false);
 
       /**
@@ -468,6 +463,8 @@ var Note = function () {
        * Prevent editor click behaviour when several blocks selected
        */
       this.editor.addEventListener('click', function (event) {
+        _this.editor.contentEditable = mouseSelection.selectionStarted(event);
+
         if (crossBlockSelection) {
           stopAllPropagations(event);
         }
@@ -475,24 +472,12 @@ var Note = function () {
 
       /**
        * Check current selection and make wrapper editable
-       *
-       * Sometimes there is difference between click and selectstart, so we need an extra condition with range offset
-       * if range length is greater than 0, we make wrapper editable
        */
       this.editor.addEventListener('selectstart', function (event) {
-        var selection = window.getSelection(),
-            range = void 0;
-
-        _this.editor.contentEditable = true;
-
-        window.setTimeout(function () {
-          if (selection.rangeCount > 0) {
-            range = selection.getRangeAt(0);
-            if (range.startOffset === range.endOffset) {
-              _this.editor.contentEditable = false;
-            }
-          }
-        }, 50);
+        if (!selectionStarted) {
+          _this.editor.contentEditable = true;
+          selectionStarted = true;
+        }
       }, false);
 
       /**
@@ -502,30 +487,14 @@ var Note = function () {
        * Allow only CMD+C
        */
       this.editor.addEventListener('keydown', function (event) {
-        if (_this.editor.contentEditable) {
-          var keyCodeC = 67,
-              metaKey = 91,
-              onlyCtrl = event.metaKey && event.keyCode == metaKey,
-              copying = event.metaKey && event.keyCode == keyCodeC;
-
-          if (onlyCtrl || crossBlockSelection && copying) {
-            return;
-          }
-
-          crossBlockSelection = false;
-          _this.editor.contentEditable = false;
-        }
+        lock(event);
       });
 
       /**
        * Also prevent paste
        */
       this.editor.addEventListener('paste', function (event) {
-        if (_this.editor.contentEditable && crossBlockSelection) {
-          crossBlockSelection = false;
-          _this.editor.contentEditable = false;
-          event.preventDefault();
-        }
+        lock(event);
       });
     }
 
@@ -2311,7 +2280,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SwipeDetector = __webpack_require__(17).default;
+var SwipeDetector = __webpack_require__(18).default;
 
 /**
  * Aside swiper class
@@ -2524,7 +2493,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Dialog = __webpack_require__(1).default;
 var $ = __webpack_require__(0).default;
-var Validate = __webpack_require__(19).default;
+var Validate = __webpack_require__(20).default;
 
 /**
  * Folder Settings panel module
@@ -3012,6 +2981,124 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
+ * enableMouseSelection
+ *
+ * allows several blocks selection and prevents CodeX Editor inline-toolbar appearance
+ *
+ * The main idea is that we make editor wrapper editable to use native selection.
+ * Other actions instead of mouse down prevents this behaviour
+ */
+
+/**
+ * @typedef {Object} MouseSelection
+ * @property {Boolean} crossBlockSelection - cross-block selection identifier
+ */
+var MouseSelection = function () {
+
+  /**
+   * @constructor
+   */
+  function MouseSelection() {
+    _classCallCheck(this, MouseSelection);
+
+    this.crossBlockSelection = false;
+  }
+
+  /**
+   * detectCrossBlockSelection
+   *
+   * @param {MouseEvent} event
+   */
+
+
+  _createClass(MouseSelection, [{
+    key: 'detectCrossBlockSelection',
+    value: function detectCrossBlockSelection(event) {
+      var selection = window.getSelection(),
+          range = void 0,
+          commonContainer = void 0;
+
+      if (selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+        commonContainer = range.commonAncestorContainer;
+        if (commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor')) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return false;
+    }
+
+    /**
+     * selectionStarted
+     *
+     * Sometimes there is difference between click and selectstart, so we need an extra condition with range offset
+     * if range length is greater than 0, we make wrapper editable
+     *
+     * @param {MouseEvent} event
+     */
+
+  }, {
+    key: 'selectionStarted',
+    value: function selectionStarted(event) {
+      var selection = window.getSelection(),
+          range = void 0;
+
+      console.log('selection.rangeCount', selection.rangeCount);
+      if (selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+        if (range.startOffset === range.endOffset) {
+          // selection.removeAllRanges();
+          return false;
+        }
+      }
+
+      if (selection.rangeCount === 0) {
+        return false;
+      }
+
+      return true;
+    }
+
+    /**
+     * Locks editor for writing.
+     * @param event
+     */
+
+  }, {
+    key: 'needLock',
+    value: function needLock(event) {
+      var keyCodeC = 67,
+          metaKey = 91,
+          onlyCtrl = event.metaKey && event.keyCode == metaKey,
+          copying = event.metaKey && event.keyCode == keyCodeC;
+
+      return onlyCtrl || copying;
+    }
+  }]);
+
+  return MouseSelection;
+}();
+
+exports.default = MouseSelection;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
  * Two fingers swipe detection class
  */
 var SwipeDetector = function () {
@@ -3091,7 +3178,7 @@ var SwipeDetector = function () {
 exports.default = SwipeDetector;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3155,7 +3242,7 @@ var Clipboard = function () {
 exports.default = Clipboard;
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

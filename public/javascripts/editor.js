@@ -127,5 +127,4 @@ export default class Editor {
   disableAutosave() {
     codex.editor.nodes.redactor.removeEventListener('keyup', this.autosave.bind(this));
   }
-
 }
