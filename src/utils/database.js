@@ -165,8 +165,7 @@ class Database {
           if (err) {
             reject(err);
           }
-
-          console.log(docs);
+          
           resolve(docs);
         })
     });
