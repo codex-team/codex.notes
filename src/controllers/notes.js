@@ -105,6 +105,8 @@ class NotesController {
       let list = new NotesList(folderId);
       let notesInFolder = await list.get();
 
+      await this.sortNotesList(notesInFolder);
+
       let returnValue = {
         notes: notesInFolder,
         isRootFolder: !folderId
@@ -117,6 +119,19 @@ class NotesController {
       global.logger.debug('Notes list loading failed because of ', err);
       event.returnValue = false;
     }
+  }
+
+  /**
+   * Sort notes in current folder in the dtModify order
+   *
+   * @param {Object} notesList - list of notes
+   *
+   * @returns {Object} sorted list of notes
+   */
+  async sortNotesList(notesList) {
+    notesList.sort(function(leftValue, rightValue) {
+      return leftValue.dtModify - rightValue.dtModify;
+    })
   }
 
   /**
