@@ -3,7 +3,7 @@ let vars = {
 
   LOG_LEVEL: 'debug',
 
-  DEBUG: true,
+  // DEBUG: true,
 
   GOOGLE_CLIENT_ID: '',
 
