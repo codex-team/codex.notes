@@ -96,7 +96,7 @@ class Channel {
     });
 
     this.ws.on('error', (error) => {
-      console.log('Sockets Channel error: ', error);
+      global.logger.debug('Sockets Channel error: ', error);
     });
   }
 
@@ -104,14 +104,14 @@ class Channel {
    * Channel opening handler
    */
   opened() {
-    console.log('listening channel ' + this.url);
+    global.logger.debug('listening channel ' + this.url);
   }
 
   /**
    * Channel closing handler
    */
   closed() {
-    console.log('disconnected from ' + this.url);
+    global.logger.debug('disconnected from ' + this.url);
   }
 
   /**
@@ -124,7 +124,7 @@ class Channel {
       data = JSON.parse(data);
       this.callback(data.message);
     } catch (error) {
-      console.log('Sockets Channel: unsupported response format. JSON with "message" expected.', error);
+      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected.', error);
     }
 
   }

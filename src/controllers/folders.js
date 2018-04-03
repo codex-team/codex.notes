@@ -61,7 +61,7 @@ class FoldersController {
     try {
       event.returnValue = await Folder.get(folderId);
     } catch (err) {
-      console.log('Cannot load Folder data because of: ', err);
+      global.logger.debug('Cannot load Folder data because of: ', err);
       event.returnValue = false;
     }
   }
@@ -79,7 +79,7 @@ class FoldersController {
 
       event.sender.send('update folders list', {userFolders});
     } catch (err) {
-      console.log('Folders list loading failed because of ', err);
+      global.logger.debug('Folders list loading failed because of ', err);
     }
   }
 
@@ -107,7 +107,7 @@ class FoldersController {
 
       event.returnValue = savedFolder;
     } catch (err) {
-      console.log('Folder addition failed because of ', err);
+      global.logger.debug('Folder addition failed because of ', err);
     }
   }
 
@@ -128,7 +128,7 @@ class FoldersController {
 
       event.returnValue = !!folderRemovingResult.isRemoved;
     } catch (err) {
-      console.log('Folder removing failed because of ',  err);
+      global.logger.debug('Folder removing failed because of ',  err);
       event.returnValue = false;
     }
   }
@@ -153,7 +153,7 @@ class FoldersController {
        */
       global.app.cloudSyncObserver.sync();
     } catch (err) {
-      console.log('Folder renaming failed because of ', err);
+      global.logger.debug('Folder renaming failed because of ', err);
       event.returnValue = false;
     }
   }
@@ -173,7 +173,7 @@ class FoldersController {
 
       event.returnValue = await folder.addCollaborator(email);
     } catch (err) {
-      console.log('Collaborator invitation failed because of ', err);
+      global.logger.debug('Collaborator invitation failed because of ', err);
       event.returnValue = {
         success: false,
         message: err.message
@@ -198,7 +198,7 @@ class FoldersController {
 
       event.sender.send('folder - collaborators list', {collaborators});
     } catch (err) {
-      console.log('Collaborators list loading failed because of ', err);
+      global.logger.debug('Collaborators list loading failed because of ', err);
     }
   }
 
@@ -214,7 +214,7 @@ class FoldersController {
   //     //     let folder = new Folder(folderData);
   //     //     await folder.save();
   //     //   } catch (error) {
-  //     //     console.log('Folder saving error:', error);
+  //     //     global.logger.debug('Folder saving error:', error);
   //     //   }
   //     // });
   //
@@ -223,7 +223,7 @@ class FoldersController {
   //
   //     global.app.mainWindow.webContents.send('update folders list', {userFolders});
   //   } catch (err){
-  //     console.log('Can not renew Folder because of:', err);
+  //     global.logger.debug('Can not renew Folder because of:', err);
   //   }
   // }
 }

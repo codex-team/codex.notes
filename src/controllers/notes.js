@@ -88,7 +88,7 @@ class NotesController {
       global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
-      console.log('Note saving failed because of ', err);
+      global.logger.debug('Note saving failed because of ', err);
     }
   }
 
@@ -114,7 +114,7 @@ class NotesController {
 
       event.sender.send('notes list - update', returnValue);
     } catch (err) {
-      console.log('Notes list loading failed because of ', err);
+      global.logger.debug('Notes list loading failed because of ', err);
       event.returnValue = false;
     }
   }
@@ -134,7 +134,7 @@ class NotesController {
 
       event.returnValue = note;
     } catch (err) {
-      console.log('Note\'s data loading failed because of', err);
+      global.logger.debug('Note\'s data loading failed because of', err);
       event.returnValue = false;
     }
   }
@@ -157,7 +157,7 @@ class NotesController {
 
       event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
-      console.log('Note failed because of', err);
+      global.logger.debug('Note failed because of', err);
       event.returnValue = false;
     }
   }
@@ -174,7 +174,7 @@ class NotesController {
 
       event.sender.send('notes - set unread state', unreadStates);
     } catch (err){
-      console.log('Cannot collect notes visit time:', err);
+      global.logger.debug('Cannot collect notes visit time:', err);
     }
   }
 }

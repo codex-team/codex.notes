@@ -8,7 +8,6 @@ const Validate = require('./utils/validate').default;
  * @property {Boolean} opened - state
  */
 export default class FolderSettings {
-
   /**
    * @constructor
    */
@@ -267,5 +266,4 @@ export default class FolderSettings {
     this.loginButton.classList.remove('hide');
     this.newMemberInput.classList.add('hide');
   }
-
 }

@@ -2,7 +2,6 @@
  * Two fingers swipe detection class
  */
 export default class SwipeDetector {
-
   /**
   * @constructor
   *

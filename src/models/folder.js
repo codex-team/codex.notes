@@ -282,7 +282,7 @@ class Folder {
         note.dtModify = Time.now;
         return await note.save();
       } catch (e) {
-        console.log('Error while moving notes to the new Root Folder:', e);
+        global.logger.debug('Error while moving notes to the new Root Folder:', e);
       }
     }));
 

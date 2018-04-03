@@ -14,7 +14,6 @@ import Dialog from './dialog';
  * @property {Object} userData — current user`s data
  */
 export default class User {
-
   /**
    * @constructor
    */

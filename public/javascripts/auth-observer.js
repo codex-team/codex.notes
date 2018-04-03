@@ -11,7 +11,6 @@
  * authObserver.loggedIn === true
  */
 export default class AuthObserver {
-
   /**
    * @constructor
    *
@@ -61,5 +60,4 @@ export default class AuthObserver {
   get loggedIn() {
     return this._loggedIn;
   }
-
 }

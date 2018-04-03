@@ -30,7 +30,7 @@ class AuthController {
     try {
       event.returnValue = await this.googleAuth();
     } catch (e) {
-      console.log('Auth failed ', e);
+      global.logger.debug('Auth failed ', e);
       event.returnValue = false;
     }
   }
@@ -97,7 +97,7 @@ class AuthController {
        */
       authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
         if (httpResponseCode !== 200) {
-          console.log(`-------------------------------\nAuthorisation failed: code ${httpResponseCode} \n-------------------------------`);
+          global.logger.debug(`-------------------------------\nAuthorisation failed: code ${httpResponseCode} \n-------------------------------`);
           authWindow.close();
         }
       });
@@ -215,7 +215,7 @@ class AuthController {
         return this.dropSession();
       }
     } catch (e) {
-      console.log('Error occured while logging out due to the: ', e);
+      global.logger.debug('Error occured while logging out due to the: ', e);
     }
   }
 
