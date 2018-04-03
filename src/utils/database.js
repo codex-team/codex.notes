@@ -141,6 +141,17 @@ class Database {
     });
   }
 
+  /**
+   * Find records in target collection
+   *
+   * @param {String} collection - collection in which search for
+   * @param {Object} query - is a query object to find records
+   * @param {Object} sort
+   * @param {String} sort.field - sort field
+   * @param {Number} sort.order - sort order
+   *
+   * @return {Promise<Object[]>} - found records
+   */
   find(collection, query, sort = {field: null, order: 1}) {
     let sortingRule = {};
 
