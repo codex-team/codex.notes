@@ -141,15 +141,26 @@ class Database {
     });
   }
 
-  find(collection, query) {
-    return new Promise((resolve, reject) => {
-      collection.find(query, function (err, docs) {
-        if (err) {
-          reject(err);
-        }
+  find(collection, query, sort = {field: null, order: 1}) {
+    let sortingRule = {
+    };
 
-        resolve(docs);
-      });
+    sortingRule[sort.field] = sort.order;
+
+    return new Promise((resolve, reject) => {
+      collection
+        .find(query)
+        .sort(
+          sortingRule
+        )
+        .exec(function (err, docs) {
+          if (err) {
+            reject(err);
+          }
+
+          console.log(docs);
+          resolve(docs);
+        })
     });
   }
 

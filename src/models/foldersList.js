@@ -21,7 +21,7 @@ class FoldersList {
    * @return {Promise.<Folder[]>}
    */
   async get() {
-    let foldersList = await db.find(db.FOLDERS, this.query);
+    let foldersList = await db.find(db.FOLDERS, this.query, {field: 'dtModify', order: 1});
 
     return foldersList.map( folder => new Folder(folder));
   }

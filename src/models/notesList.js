@@ -29,7 +29,7 @@ class NotesList {
       isRemoved: {
         $ne: true
       }
-    });
+    }, {field: 'dtModify', order: 1});
 
     return notesList.map( note => new Note(note));
   }
