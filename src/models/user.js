@@ -15,6 +15,7 @@ const db = require('../utils/database'),
  * @property {string} photo – avatar string URL
  * @property {string} token – user's authorization JWT
  * @property {number} dt_sync – last synchronization timestamp
+ * @property {string} channel – personal sockets channel
  */
 class User {
 
@@ -31,6 +32,7 @@ class User {
     this.dtModify = null;
     this.googleId = null;
     this.token = null;
+    this.channel = null;
     this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
 
     this.data = userData;
@@ -59,7 +61,8 @@ class User {
           dt_reg: this.dt_reg,
           dtModify: this.dtModify,
           googleId: this.googleId,
-          token: this.token
+          token: this.token,
+          cahnnel: this.channel
         });
 
         this.id = insertedRow._id;
@@ -96,7 +99,8 @@ class User {
         googleId: this.googleId,
         dt_sync: this.dt_sync,
         dt_reg: this.dt_reg,
-        dtModify: this.dtModify
+        dtModify: this.dtModify,
+        channel: this.channel
       };
 
       let currentUser = await this.get();
@@ -221,11 +225,12 @@ class User {
    * @property {string} photo – avatar string URL
    * @property {string} token – user's authorization JWT
    * @property {number} dt_sync – user's last synchronization time
+   * @property {string} channel – user's sockets channel
    *
    * @param {UserData} userData
    */
   set data(userData) {
-    let {id, name, photo, email, token, googleId, dt_sync, dt_reg, dtModify} = userData;
+    let {id, name, photo, email, token, googleId, dt_sync, dt_reg, dtModify, channel} = userData;
 
     this.id = id || this.id || null;
     this.name = name || this.name || null;
@@ -236,6 +241,7 @@ class User {
     this.dt_sync = dt_sync || this.dt_sync || 0;
     this.dt_reg = dt_reg || this.dt_reg || 0;
     this.dtModify = dtModify || this.dtModify || 0;
+    this.channel = channel || this.channel || null;
   }
 
 }

@@ -345,13 +345,49 @@
         font-size: 13.8px;
         list-style: none;
         margin-bottom: 10px;
+        display: flex;
 
         &--waiting {
             opacity: 0.6;
         }
 
+        &-name {
+            position: absolute;
+            transition: transform 300ms ease;
+            will-change: transform;
+
+            &-wrapper {
+                position: relative;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                height: 1.1em;
+                width: 100%;
+
+                &--scrollable::after {
+                    content: '';
+                    right: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 20px;
+                    background: linear-gradient(to right, rgba(41, 43, 55, 0) 0, #292b37 90%);
+                    position: absolute;
+                }
+            }
+        }
+
+        &:hover &-name-wrapper--scrollable &-name {
+            transform: translateX(calc(175px - 100%));
+        }
+
+        &:hover &-name-wrapper--scrollable {
+            &::after {
+                visibility: hidden;
+            }
+        }
+
         &-photo {
-             margin-right: 9px;
+             margin: auto 9px auto 0;
              width: 12px;
              height: 12px;
              vertical-align: middle;

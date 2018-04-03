@@ -29,26 +29,23 @@ class SeenStateObserver {
    * @return {Promise.<Object>} - {dqO9tu5vY2aSC582: true, ...} - Note Id -> Unread state
    */
   async getNotesUndreadState(noteIds) {
-
-
     /**
      * 1. Get visits time for notes that will be opened anytime
      */
     let notesVisited = await Visits.findByIds(noteIds);
-
 
     /**
      * 2. Check unread state for passed notes
      *
      * @type {Promise.<{noteId: string, isUnread: boolean}[]>}
      */
-    let unreadStates = await Promise.all(notesVisited.map( async ({noteId, lastSeenDate}) => {
+    let unreadStates = await Promise.all(notesVisited.map( async ({noteId, lastSeen}) => {
       let note = await Note.get(noteId);
 
       return {
         noteId: note._id,
-        isUnread: note.dtModify > lastSeenDate // unread: modification time > last visit time
-      }
+        isUnread: note.dtModify > lastSeen // unread: modification time > last visit time
+      };
     }));
 
     /**
@@ -60,7 +57,7 @@ class SeenStateObserver {
 
     noteIds.forEach( noteId => {
       let noteUnreadState = unreadStates.find(state => state.noteId === noteId),
-        isUnread = true;
+          isUnread = true;
 
       if (noteUnreadState) {
         isUnread = noteUnreadState.isUnread;

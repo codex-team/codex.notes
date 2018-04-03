@@ -9,6 +9,7 @@ const User = require('../models/user');
  * @type {Time}
  */
 const Time = require('../utils/time');
+const _ = require('../utils/utils');
 
 /**
  * Simple GraphQL requests provider
@@ -37,7 +38,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 10 * 1000 ); // every 10 sec
+    }, 20 * 1000 ); // every 20 sec
   }
 
   /**
@@ -54,6 +55,53 @@ class CloudSyncObserver {
         Authorization: 'Bearer ' + global.user.token,
       }
     });
+
+    if (global.user.channel) {
+      this.openUserChannel();
+    }
+  }
+
+  /**
+   * Open user's notifications channel
+   */
+  openUserChannel() {
+    global.app.sockets.listenChannel(global.user.channel, (message) => {
+      this.gotNotify(message);
+    });
+  }
+
+  /**
+   * Notify got from the Socket
+   *
+   * @param {object} message
+   * @param {string} message.event - notify event ('folder updated', 'collaborator invited');
+   * @param {object} message.data - payload
+   *
+   * @return {void}
+   */
+  gotNotify(message = {}) {
+    if (!message.event) {
+      console.log('WARN: got notification in incorrect format', message);
+      return;
+    }
+
+    console.log(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
+
+    switch (message.event) {
+      case 'folder updated':
+        this.saveFolder(message.data);
+        break;
+      case 'note updated':
+        let folderId = message.data.folderId;
+
+        this.saveNote(message.data, {_id: folderId});
+        break;
+      case 'collaborator invited':
+        this.saveCollaborator(message.data, message.data.folderId);
+        global.app.clientSyncObserver.sendCollaborator(message.data);
+        break;
+      default:
+    }
   }
 
   /**
@@ -153,75 +201,112 @@ class CloudSyncObserver {
 
     let folders = dataFromCloud.user.folders;
 
-    folders = await Promise.all(folders.map( async folder => {
-      folder._id = folder.id;
-
-      /**
-       * Create Folder model
-       *
-       * @type {Folder}
-       */
-      let localFolder = new Folder(folder);
-
-      /**
-       * Save Folder's data
-       */
-      localFolder = await localFolder.save();
-
-      /**
-       * Get Folder's Notes
-       *
-       * @type {*|Array|NotesController}
-       */
-      localFolder.notes = await Promise.all(folder.notes.map( async note => {
-        note._id = note.id;
-
-        /**
-         * Create Note model
-         *
-         * @type {Note}
-         */
-        let localNote = new Note(note);
-
-        /**
-         * We does not receive note.folderId from the Sync Query
-         */
-        localNote.folderId = folder._id;
-
-        /**
-         * Save Note's data
-         */
-        return await localNote.save();
-      }));
-
-      /**
-       * Get Folder's Collaborators
-       *
-       * @type {Array}
-       */
-      localFolder.collaborators = await Promise.all(folder.collaborators.map( async collaborator => {
-        collaborator._id = collaborator.id;
-
-        /**
-         * Create Collaborator model
-         *
-         * @type {Collaborator}
-         */
-        let localCollaborator = new Collaborator(collaborator);
-
-        localCollaborator.folderId = folder._id;
-        localCollaborator.ownerId = folder.owner.id;
-
-        /**
-         * Save Collaborator's data
-         */
-        return await localCollaborator.save();
-      }));
-
-      return localFolder;
+    return Promise.all(folders.map( async folder => {
+      return await this.saveFolder(folder);
     }));
+  }
 
-    return folders;
+  /**
+   * Save a Folder got from the Cloud
+   *
+   * @param {FolderData} folderData - Folder data from Cloud
+   *
+   * @return {Promise<Folder>}
+   */
+  async saveFolder(folderData) {
+    folderData._id = folderData.id;
+
+    /**
+     * Create Folder model
+     *
+     * @type {Folder}
+     */
+    let localFolder = new Folder(folderData);
+
+    /**
+     * Save Folder's data
+     */
+    localFolder = await localFolder.save();
+
+    /**
+     * Get Folder's Notes
+     *
+     * @type {*|Array|NotesController}
+     */
+    if (folderData.notes) {
+      localFolder.notes = await Promise.all(folderData.notes.map(async note => {
+        return await this.saveNote(note, folderData);
+      }));
+    }
+
+    /**
+     * Get Folder's Collaborators
+     *
+     * @type {Array}
+     */
+    if (folderData.collaborators) {
+      localFolder.collaborators = await Promise.all(folderData.collaborators.map( async collaborator => {
+        return await this.saveCollaborator(collaborator, folderData);
+      }));
+    }
+
+    return localFolder;
+  }
+
+  /**
+   * Save a Note got from the Cloud
+   *
+   * @param {NoteData} noteData - Note data from Cloud
+   * @param {Folder} folder - Folder contains a Note
+   *
+   * @return {NoteData}
+   */
+  async saveNote(noteData, folder){
+    noteData._id = noteData.id;
+
+    /**
+     * Create Note model
+     *
+     * @type {Note}
+     */
+    let note = new Note(noteData);
+
+    /**
+     * We does not receive note.folderId from the Sync Query
+     */
+    note.folderId = folder._id;
+
+    /**
+     * Save Note's data
+     */
+    return await note.save();
+  }
+
+  /**
+   * Save Folder's Collaborator got from the Cloud
+   *
+   * @param {CollaboratorData} collaborator - Collaborator data from Cloud
+   * @param {FolderData} folder - Folder contains a Collaborator
+   *
+   * @return {Promise<void>}
+   */
+  async saveCollaborator(collaborator, folder) {
+    collaborator._id = collaborator.id;
+
+    /**
+     * Create Collaborator model
+     *
+     * @type {Collaborator}
+     */
+    let localCollaborator = new Collaborator(collaborator);
+
+    localCollaborator.folderId = folder._id;
+    localCollaborator.ownerId = folder.ownerId;
+
+    /**
+     * Save Collaborator's data
+     */
+    return await localCollaborator.save();
   }
 
   /**
@@ -324,7 +409,7 @@ class CloudSyncObserver {
    *
    * @param {UserData} user
    *
-   * @return {Promise<object}
+   * @return {Promise<object>}
    */
   sendUser(user) {
     let query = require('../graphql/mutations/user');
