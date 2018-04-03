@@ -142,17 +142,14 @@ class Database {
   }
 
   find(collection, query, sort = {field: null, order: 1}) {
-    let sortingRule = {
-    };
+    let sortingRule = {};
 
     sortingRule[sort.field] = sort.order;
 
     return new Promise((resolve, reject) => {
       collection
         .find(query)
-        .sort(
-          sortingRule
-        )
+        .sort(sortingRule)
         .exec(function (err, docs) {
           if (err) {
             reject(err);
