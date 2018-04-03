@@ -8,7 +8,6 @@ import $ from './dom';
  * @property {Element} statusBar - Status Bar Element
  */
 export default class StatusBar {
-
   /**
    * @constructor
    * Find status bar Element, init all stuff

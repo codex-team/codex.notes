@@ -68,7 +68,7 @@ class User {
         this.id = insertedRow._id;
       }
     } catch (err) {
-      console.log('User register error: ', err);
+      global.logger.debug('User register error: ', err);
     }
   }
 
@@ -77,7 +77,7 @@ class User {
    */
   async deleteAvatar() {
     fs.unlink(this.localPhoto, err => {
-      console.log('Failed to remove avatar because ', err);
+      global.logger.debug('Failed to remove avatar because ', err);
     });
   }
 
@@ -139,7 +139,7 @@ class User {
         }
       }
     } catch (e) {
-      console.log('Error while updating user data:', e);
+      global.logger.debug('Error while updating user data:', e);
     }
   }
 

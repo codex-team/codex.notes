@@ -27,14 +27,14 @@ class Database {
    * @returns {Promise.<void>}
    */
   async makeInitialSettings(appFolder) {
-    console.log('Making initial database settings...');
+    global.logger.debug('Making initial database settings...');
 
     this.appFolder = appFolder;
 
     if (!fs.existsSync(this.appFolder)) {
       fs.mkdirSync(this.appFolder);
     }
-    console.log(`Local data storage is in "${this.appFolder}" directory`);
+    global.logger.debug(`Local data storage is in "${this.appFolder}" directory`);
 
     // create database instances
     this.refresh();
@@ -44,10 +44,10 @@ class Database {
 
     this.getRootFolderId()
       .then(rootFolderId => {
-        console.log('\nRoot Folder found: ', rootFolderId);
+        global.logger.debug('\nRoot Folder found: ', rootFolderId);
       })
       .catch(err => {
-        console.log('\nCan not find the Root Folder\'s id because of: ', err);
+        global.logger.debug('\nCan not find the Root Folder\'s id because of: ', err);
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
@@ -57,9 +57,9 @@ class Database {
           'dtCreate': Time.now,
           'dtModify': Time.now
         }).then(rootFolderCreated => {
-          console.log('\nRoot Folder created: ', rootFolderCreated._id);
+          global.logger.debug('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {
-          console.log('\nCan not create the Rood Folder because of: ', err);
+          global.logger.debug('\nCan not create the Rood Folder because of: ', err);
         });
       });
   }
@@ -74,18 +74,18 @@ class Database {
     }
 
     this.FOLDERS.find({}, {multi: true}, (err, docs) => {
-      console.log('Folders in the DB: \n');
+      global.logger.debug('Folders in the DB: \n');
       docs.forEach( doc => {
-        console.log(doc);
-        console.log('\n');
+        global.logger.debug(doc);
+        global.logger.debug('\n');
       });
     });
 
     this.NOTES.find({}, {multi: true}, (err, docs) => {
-      console.log('Notes in the DB: \n');
+      global.logger.debug('Notes in the DB: \n');
       docs.forEach( doc => {
-        console.log(doc);
-        console.log('\n');
+        global.logger.debug(doc);
+        global.logger.debug('\n');
       });
     });
   }
@@ -104,9 +104,9 @@ class Database {
     let sequence = [];
 
     [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS].forEach( collection => {
-      console.log('\n\n Drop ', collection.filename, '\n\n');
+      global.logger.debug('\n\n Drop ', collection.filename, '\n\n');
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
-        console.log(collection.filename, ': ', removedRows, ' docs removed');
+        global.logger.debug(collection.filename, ': ', removedRows, ' docs removed');
       }));
     });
 
@@ -135,7 +135,7 @@ class Database {
 
         reject('Root Folder was not found');
       }).catch( err => {
-        console.log('Database#getRootFolderId: Can not find Root Folder because: ', err);
+        global.logger.debug('Database#getRootFolderId: Can not find Root Folder because: ', err);
         reject(err);
       });
     });

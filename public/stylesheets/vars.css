@@ -2,7 +2,7 @@
     /** Aside */
     --aside-color: #bac3db;
     --aside-color-light: #dee6fc;
-    --label-color: color(var(--aside-color) alpha(50%));
+    --label-color: color(#bac3db alpha(50%));
     --aside-bg: #292b37;
 
     /**

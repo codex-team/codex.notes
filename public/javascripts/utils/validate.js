@@ -2,7 +2,6 @@
  * Validate module
  */
 export default class Validate {
-
   /**
    * Check for email validness
    *
@@ -14,5 +13,4 @@ export default class Validate {
 
     return re.test(email);
   }
-
 }

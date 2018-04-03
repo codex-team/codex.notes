@@ -23,7 +23,6 @@ const menuItemTitleMaxLength = 68;
  * @property {FolderSettings}  this.folderSettings          Folder Settings Panel instance
  */
 export default class Aside {
-
   /**
    * Make CSS dictionary
    * @type {Object}
@@ -220,7 +219,7 @@ export default class Aside {
     input.focus();
   }
 
-   /**
+  /**
    * New Folder input keydown handler
    * @param {KeyboardEvent} event
    */

@@ -372,7 +372,7 @@ class Note {
           name = sanitizeHtml(titleFromText, {allowedTags: []});
         }
       } catch (error){
-        console.log('Failed to compose intro text for the Note', this);
+        global.logger.debug('Failed to compose intro text for the Note', this);
       }
     } else {
       name = this.title;

@@ -4,7 +4,6 @@ let $ = require('./dom').default;
  * CodeX Editor module
  */
 export default class Editor {
-
   /**
   * @constructor
   * @property {String}  path          - CodeX Editor library path
@@ -18,8 +17,8 @@ export default class Editor {
     this.autosaveTimer = null;
 
     this.loadEditor()
-        .then(() => this.loadPlugins())
-        .then(() => this.init());
+      .then(() => this.loadPlugins())
+      .then(() => this.init());
   }
 
   /**
@@ -31,7 +30,7 @@ export default class Editor {
       $.loadResource('JS', this.path + 'codex-editor.js', 'codex-editor'),
       $.loadResource('CSS', this.path + 'codex-editor.css', 'codex-editor')
     ]).catch( err => console.warn('Cannot load Codex Editor sources: ', err))
-    .then( () => console.log('CodeX Editor loaded') );
+      .then( () => console.log('CodeX Editor loaded') );
   }
 
   /**

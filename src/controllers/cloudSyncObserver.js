@@ -81,11 +81,11 @@ class CloudSyncObserver {
    */
   gotNotify(message = {}) {
     if (!message.event) {
-      console.log('WARN: got notification in incorrect format', message);
+      global.logger.debug('WARN: got notification in incorrect format', message);
       return;
     }
 
-    console.log(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
+    global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
 
     switch (message.event) {
       case 'folder updated':
@@ -158,7 +158,7 @@ class CloudSyncObserver {
 
       return dataFromCloud;
     } catch(e) {
-      console.log('[cloudSyncObserver] Error:', e);
+      global.logger.debug('[cloudSyncObserver] Error:', e);
       return false;
     }
   }
@@ -169,7 +169,7 @@ class CloudSyncObserver {
    * @return {Promise<object>}
    */
   getDataFromCloud() {
-    console.log('[cloudSyncObserver] Get data from the Cloud');
+    global.logger.debug('[cloudSyncObserver] Get data from the Cloud');
 
     /**
      * Sync Query
@@ -184,7 +184,7 @@ class CloudSyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        console.log('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
+        global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
         return data;
       });
   }
@@ -197,7 +197,7 @@ class CloudSyncObserver {
    * @returns {object}
    */
   async saveDataFromCloud(dataFromCloud) {
-    console.log('[cloudSyncObserver] Update local data');
+    global.logger.debug('[cloudSyncObserver] Update local data');
 
     let folders = dataFromCloud.user.folders;
 
@@ -315,7 +315,7 @@ class CloudSyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async getLocalUpdates() {
-    console.log('[cloudSyncObserver] Prepare local updates');
+    global.logger.debug('[cloudSyncObserver] Prepare local updates');
 
     /**
      * Get last sync date
@@ -354,7 +354,7 @@ class CloudSyncObserver {
    * @returns {Promise[]}
    */
   async syncMutationsSequence(updates) {
-    console.log('[cloudSyncObserver] Create Sync Mutations Sequence');
+    global.logger.debug('[cloudSyncObserver] Create Sync Mutations Sequence');
 
     /**
      * Sequence of mutations requests
@@ -396,7 +396,7 @@ class CloudSyncObserver {
    * @returns {Object}
    */
   async updateUserLastSyncDate() {
-    console.log('[cloudSyncObserver] Update user\'s last sync date');
+    global.logger.debug('[cloudSyncObserver] Update user\'s last sync date');
 
     /** Update user's last sync date */
     let currentTime = Time.now;
@@ -425,10 +425,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
-        console.log('[!] User Mutation failed because of ', error);
+        global.logger.debug('[!] User Mutation failed because of ', error);
       });
   }
 
@@ -461,10 +461,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
-        console.log('[!] Folder Mutation failed because of ', error);
+        global.logger.debug('[!] Folder Mutation failed because of ', error);
       });
   }
 
@@ -488,10 +488,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        console.log('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
       })
       .catch(error => {
-        console.log('[!] InviteCollaborator Mutation failed because of ', error);
+        global.logger.debug('[!] InviteCollaborator Mutation failed because of ', error);
         throw new Error(error);
       });
   }
@@ -517,10 +517,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        console.log('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
       })
       .catch(error => {
-        console.log('[!] CollaboratorJoin Mutation failed because of ', error);
+        global.logger.debug('[!] CollaboratorJoin Mutation failed because of ', error);
       });
   }
 
@@ -547,10 +547,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        console.log('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
-        console.log('[!] Note Mutation failed because of ', error);
+        global.logger.debug('[!] Note Mutation failed because of ', error);
       });
   }
 }

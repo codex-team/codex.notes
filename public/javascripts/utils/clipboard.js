@@ -2,7 +2,6 @@
  * Clipboard module
  */
 export default class Clipboard {
-
   /**
    * copy to clipboards passed text
    *
@@ -33,5 +32,4 @@ export default class Clipboard {
 
     return success;
   }
-
 }

@@ -3,7 +3,7 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
-const MouseSelection = require('./mouseSelection').default;
+const CrossBlockSelection = require('./crossBlockSelection').default;
 
 /**
  * @typedef {Object} NoteData
@@ -30,7 +30,6 @@ const MouseSelection = require('./mouseSelection').default;
  * @property {ShortCut[]} shortcut
  */
 export default class Note {
-
   /**
    * @constructor
    */
@@ -64,80 +63,8 @@ export default class Note {
    * Enable editor mouse selection to be able to copy whole editor content
    */
   enableMouseSelection() {
-    let mouseSelection = new MouseSelection(),
-        crossBlockSelection = false,
-        selectionStarted = false;
-
-    let stopAllPropagations = (event) => {
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-    };
-
-    let lock = (event) => {
-      if (this.editor.contentEditable && crossBlockSelection) {
-        let needLock = mouseSelection.needLock(event);
-
-        if (needLock) {
-          crossBlockSelection = false;
-          selectionStarted = false;
-          this.editor.contentEditable = false;
-        }
-      }
-    };
-
-    /**
-     * This listener defines "crossBlockSelection" from current selection
-     */
-    this.editor.addEventListener('mousemove', (event) => {
-      crossBlockSelection  = mouseSelection.detectCrossBlockSelection(event);
-    }, false);
-
-    /**
-     * This listener handle editor inline toolbar
-     * In case of "non-crossBlockSelection" we allow the inline toolbar to appear
-     */
-    this.editor.addEventListener('mouseup', (event) => {
-      if (crossBlockSelection) {
-        stopAllPropagations(event);
-      }
-    }, true);
-
-    /**
-     * Prevent editor click behaviour when several blocks selected
-     */
-    this.editor.addEventListener('click', (event) => {
-      this.editor.contentEditable = mouseSelection.selectionStarted(event);
-
-      if (crossBlockSelection) {
-        stopAllPropagations(event);
-      }
-    }, true);
-
-    /**
-     * Check current selection and make wrapper editable
-     */
-    this.editor.addEventListener('selectstart', (event) => {
-      if ( !selectionStarted ) {
-        this.editor.contentEditable = true;
-        selectionStarted = true;
-      }
-    }, false);
-
-    /**
-     * Keydown on mouse selection
-     *
-     * handle keydown separately because we made wrapper content editable that can breaks whole editor
-     * Allow only CMD+C
-     */
-    this.editor.addEventListener('keydown', (event) => {
-      lock(event);
-    });
-
-    /**
-     * Also prevent paste
-     */
-    this.editor.addEventListener('paste', (event) => {
-      lock(event);
+    new CrossBlockSelection({
+      wrapper: this.editor
     });
   }
 
