@@ -47,6 +47,8 @@ export default class CrossBlockSelection {
    */
   activate() {
     this.wrapper.contentEditable = true;
+
+    console.info('SELECTED');
   }
 
   /**
@@ -89,6 +91,16 @@ export default class CrossBlockSelection {
      * Prevent editor click behaviour when several blocks selected
      */
     this.wrapper.addEventListener('click', (event) => {
+      let selectionIsEmpty = this.isSomethingSelected();
+
+      console.log('selectionIsEmpty', selectionIsEmpty);
+      if (!selectionIsEmpty) {
+        this.deactivate();
+        return;
+      }
+
+      this.crossBlockSelectionMode = this.detectCrossBlockSelection(event);
+
       if (this.isActive) {
         this.lockEvents(event);
       }
@@ -163,11 +175,16 @@ export default class CrossBlockSelection {
   detectCrossBlockSelection(event) {
     let selection = window.getSelection();
 
+    // console.log('selection', selection);
+    // console.log('selection.rangeCount', selection.rangeCount);
+
     if (selection.rangeCount === 0) {
       return false;
     }
 
     let range = selection.getRangeAt(0);
+
+    // console.log('range', range);
 
     /**
      * Common wrapper that contains Start Node and End Node
@@ -175,9 +192,42 @@ export default class CrossBlockSelection {
      */
     let commonContainer = range.commonAncestorContainer;
 
+    // console.log('commonContainer', commonContainer);
+    // console.log('cbs', commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor'));
     /**
      * @todo unhardcode ce-editor
      */
     return commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor');
+  }
+
+  /**
+   * Check Selection's content
+   * @return {Boolean}
+   */
+  isSomethingSelected() {
+    let selection = window.getSelection();
+
+    if (selection.isCollapsed) {
+      return false;
+    }
+
+    if (selection.rangeCount === 0) {
+      return false;
+    }
+
+    let range = selection.getRangeAt(0);
+
+    let selectionContent = range.cloneContents();
+
+    let editorBlocks = selectionContent.querySelectorAll('.ce-block');
+
+    let isEmpty =  Array.prototype.slice.call(editorBlocks).some( block => {
+      console.log('block', block, block.textContent.trim());
+      return block.textContent.trim().length !== 0;
+    });
+
+    console.log('isEmpty', isEmpty);
+
+    return !isEmpty;
   }
 }
