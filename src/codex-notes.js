@@ -240,6 +240,10 @@ class CodexNotes {
          * @type {PushNotifications}
          */
         this.pushNotifications = new PushNotifications();
+        this.pushNotifications.send({
+            title : "Hey",
+            message : "You"
+        });
 
       })
       .catch(function (err) {

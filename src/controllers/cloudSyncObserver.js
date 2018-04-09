@@ -90,9 +90,19 @@ class CloudSyncObserver {
     switch (message.event) {
       case 'folder updated':
         this.saveFolder(message.data);
+
+        global.app.pushNotifications.send({
+          title: message.data.folder,
+          message : 'Folder updated'
+        });
         break;
       case 'note updated':
         let folderId = message.data.folderId;
+
+        global.app.pushNotifications.send({
+          title: message.data.folderId,
+          message : 'Petr Savchenko edited the note' + 'Note'
+        });
 
         this.saveNote(message.data, {_id: folderId});
         break;
