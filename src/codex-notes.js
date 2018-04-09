@@ -90,6 +90,11 @@ const User = require('./models/user');
 const SocketsController = require('./controllers/sockets');
 
 /**
+ * PushNotification Controller
+ */
+const PushNotifications = require('./controllers/pushNotifications');
+
+/**
  * Database setup
  */
 const db = require('./utils/database');
@@ -230,6 +235,12 @@ class CodexNotes {
          * @type {Sockets}
          */
         this.sockets = new SocketsController();
+
+        /**
+         * @type {PushNotifications}
+         */
+        this.pushNotifications = new PushNotifications();
+
       })
       .catch(function (err) {
         global.logger.debug('Initialization error', err);
