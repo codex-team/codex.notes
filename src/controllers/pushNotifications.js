@@ -49,12 +49,9 @@ const path = require('path');
  */
 
 /**
- * @typedef {Object} PushCallbacks - push notification callbacks list
+ * @typedef {Object<PushCallback>} PushCallbacks - push notification callbacks list
  */
 
-/**
- * @typedef {Object} PushNotifications
- */
 class PushNotifications {
 
     /**
