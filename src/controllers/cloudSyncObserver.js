@@ -100,8 +100,8 @@ class CloudSyncObserver {
         let folderId = message.data.folderId;
 
         global.app.pushNotifications.send({
-          title: message.data.folderId,
-          message : 'Petr Savchenko edited the note' + 'Note'
+          title: message.data.title,
+          message : message.data.author.name + ' edited the note ' + message.data.title
         });
 
         this.saveNote(message.data, {_id: folderId});
