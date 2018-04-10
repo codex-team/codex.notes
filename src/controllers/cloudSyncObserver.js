@@ -85,25 +85,38 @@ class CloudSyncObserver {
       return;
     }
 
+    let notification;
+
     global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
 
     switch (message.event) {
       case 'folder updated':
+        notification = {
+          title : message.data.folder.name,
+          message : message.data.author.name + ' renamed the folder\'s name'
+        };
+        this.sendNotification(notification);
         this.saveFolder(message.data);
         break;
       case 'note updated':
         let folderId = message.data.folderId;
-
-        global.app.pushNotifications.send({
+        notification = {
           title: message.data.title,
           message : message.data.author.name + ' edited the note ' + message.data.title
-        });
-
+        };
+        this.sendNotification(notification);
         this.saveNote(message.data, {_id: folderId});
         break;
       case 'collaborator invited':
         this.saveCollaborator(message.data, message.data.folderId);
         global.app.clientSyncObserver.sendCollaborator(message.data);
+        break;
+      case 'collaborator joined':
+        notification = {
+          title : message.data.folder.name,
+          message : message.data.collaborator.name + ' joined the folder'
+        };
+        this.sendNotification(notification);
         break;
       default:
     }
@@ -557,6 +570,14 @@ class CloudSyncObserver {
       .catch( error => {
         global.logger.debug('[!] Note Mutation failed because of ', error);
       });
+  }
+
+  /**
+   * Send notification
+   * @param {PushOptions} options
+   */
+  sendNotification(options) {
+    global.app.pushNotifications.send(options);
   }
 }
 

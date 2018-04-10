@@ -11,6 +11,17 @@
 const notifier = require('node-notifier');
 
 /**
+ * In case of OS X we decided to use native Electron notifications due to the terminal-notifier icon on title
+ * https://electronjs.org/docs/api/notification
+ */
+const { Notification } = require('electron');
+
+/**
+ * OS library
+ * @type {"os"}
+ */
+const os = require('os');
+/**
  * Path library
  * @type {"path"}
  */
@@ -69,6 +80,37 @@ class PushNotifications {
      */
     send(options, callbacks = {}) {
 
+        if ( os.type() === 'Darwin' ) {
+            this.sendOSXNotificaion(options, callbacks);
+        } else {
+            this.sendDefaultNotification(options, callbacks);
+        }
+    }
+
+    /**
+     * @param {PushOptions} options
+     * @param {PushCallbacks} callbacks
+     */
+    sendOSXNotificaion(options, callbacks) {
+
+        let notificationOptions = {
+            title : options.title,
+            subtitle : options.subtitle,
+            icon  : options.image || this.icon,
+            body  : options.message
+        },
+        notification = new Notification(notificationOptions);
+        notification.show();
+    }
+
+    /**
+     * Here we use node-notifier module to send notifications on Linus, Windows and others
+     *
+     * @param {PushOptions} options
+     * @param {PushCallbacks} callbacks
+     */
+    sendDefaultNotification(options, callbacks) {
+
         /**
          * Assemble data from passed options
          * @type {NotifierOptions}
@@ -88,16 +130,14 @@ class PushNotifications {
             notifierOption.wait = true;
         }
 
-
         if ( typeof callbacks['click'] === 'function' ) {
             notifier.once('click', callbacks['click']);
         }
 
         // send notification only when window is visible
-        // if ( !global.app.mainWindow.isVisible() ) {
+        if ( !global.app.mainWindow.isVisible() ) {
             notifier.notify(notifierOption);
-        // }
-
+        }
     }
 
 }
