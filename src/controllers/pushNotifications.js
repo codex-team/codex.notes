@@ -5,7 +5,7 @@
  */
 
 /**
- * Using node-notifier library to support all Windows, Linus and others
+ * Using node-notifier library to support all Windows versions, Linux, BSD and others
  * https://github.com/mikaelbr/node-notifier/blob/master/DECISION_FLOW.md
  */
 const notifier = require('node-notifier');
@@ -131,10 +131,7 @@ class PushNotifications {
             notifier.once('click', callbacks['click']);
         }
 
-        // send notification only when window is visible
-        if ( !global.app.mainWindow.isVisible() ) {
-            notifier.notify(notifierOption);
-        }
+        notifier.notify(notifierOption);
     }
 
 }
