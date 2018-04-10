@@ -100,17 +100,18 @@ class CloudSyncObserver {
         break;
       case 'note updated':
         let folderId = message.data.folderId;
-        notification = {
-          title: message.data.title,
-          message : message.data.author.name + ' edited the note'
-        };
+        this.saveNote(message.data, {_id: folderId})
+          .then( (note) => {
+            notification = {
+              title   : note.title || note.titleLabel,
+              message : message.data.author.name + ' edited the note'
+            };
 
-        if ( message.data.folder && message.data.folder.title ) {
-          notification.message += 'at ' + message.data.folder.title
-        }
-
-        this.sendNotification(notification);
-        this.saveNote(message.data, {_id: folderId});
+            if ( message.data.folder && message.data.folder.title ) {
+              notification.message += 'at ' + message.data.folder.title
+            }
+            this.sendNotification(notification);
+          });
         break;
       case 'collaborator invited':
         this.saveCollaborator(message.data, message.data.folderId);
