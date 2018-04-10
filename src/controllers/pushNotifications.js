@@ -94,9 +94,9 @@ class PushNotifications {
         }
 
         // send notification only when window is visible
-        if ( !global.app.mainWindow.isVisible() ) {
+        // if ( !global.app.mainWindow.isVisible() ) {
             notifier.notify(notifierOption);
-        }
+        // }
 
     }
 
