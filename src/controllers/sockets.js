@@ -133,11 +133,25 @@ class Channel {
    * Destroys the Channel, terminate Socket connection
    */
   destroy() {
-    this.ws.terminate();
+    /**
+     * Workaround error "WebSocket is closed before the connection is established"
+     * Don't try to close socket if it is not connected yet
+     */
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.terminate();
+      this.ws = null;
+    } else {
+      global.logger.debug('Can not destroy channel at the moment, because it is not opened yet. It will be closed immediately after opening.');
+      this.ws.once('open', function channelOpened() {
+        global.logger.debug('Channel is opened, now we can destroy it');
+        this.ws.terminate();
+        this.ws = null;
+      });
+    }
+
     this.name = null;
     this.callback = null;
     this.url = null;
-    this.ws = null;
   }
 }
 
