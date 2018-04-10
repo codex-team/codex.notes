@@ -69,8 +69,6 @@ class PushNotifications {
      * @constructor
      */
     constructor() {
-        this.title = "CodeX Notes";
-        this.icon = path.join(__dirname, '/../../assets/icons/png/icon-white512.png');
     }
 
     /**
@@ -96,7 +94,7 @@ class PushNotifications {
         let notificationOptions = {
             title : options.title,
             subtitle : options.subtitle,
-            icon  : options.image || this.icon,
+            icon  : options.image,
             body  : options.message
         },
         notification = new Notification(notificationOptions);
@@ -118,7 +116,6 @@ class PushNotifications {
         let notifierOption = {
             appIcon : this.icon,
             title   : options.title || this.title,
-            icon : this.icon,
             subtitle : options.subtitle,
             contentImage : options.image,
             message : options.message,

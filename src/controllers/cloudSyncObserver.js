@@ -92,8 +92,8 @@ class CloudSyncObserver {
     switch (message.event) {
       case 'folder updated':
         notification = {
-          title : message.data.folder.name,
-          message : message.data.author.name + ' renamed the folder\'s name'
+          title : message.data.folder.title,
+          message : message.data.author.name + ' renamed the folder'
         };
         this.sendNotification(notification);
         this.saveFolder(message.data);
@@ -102,8 +102,13 @@ class CloudSyncObserver {
         let folderId = message.data.folderId;
         notification = {
           title: message.data.title,
-          message : message.data.author.name + ' edited the note ' + message.data.title
+          message : message.data.author.name + ' edited the note'
         };
+
+        if ( message.data.folder && message.data.folder.title ) {
+          notification.message += 'at ' + message.data.folder.title
+        }
+
         this.sendNotification(notification);
         this.saveNote(message.data, {_id: folderId});
         break;
@@ -113,7 +118,7 @@ class CloudSyncObserver {
         break;
       case 'collaborator joined':
         notification = {
-          title : message.data.folder.name,
+          title : message.data.folder.title,
           message : message.data.collaborator.name + ' joined the folder'
         };
         this.sendNotification(notification);
