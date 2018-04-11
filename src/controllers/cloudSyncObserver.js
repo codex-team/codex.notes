@@ -76,6 +76,7 @@ class CloudSyncObserver {
    * @param {object} message
    * @param {string} message.event - notify event ('folder updated', 'collaborator invited');
    * @param {object} message.data - payload
+   * @param {object} message.sender
    *
    * @return {void}
    */
@@ -93,7 +94,7 @@ class CloudSyncObserver {
       case 'folder updated':
         notification = {
           title : message.data.folder.title,
-          message : message.data.author.name + ' renamed the folder'
+          message : message.sender.name + ' renamed the folder'
         };
         this.sendNotification(notification);
         this.saveFolder(message.data);
@@ -104,11 +105,11 @@ class CloudSyncObserver {
           .then( (note) => {
             notification = {
               title   : note.title || note.titleLabel,
-              message : message.data.author.name + ' edited the note'
+              message : message.sender.name + ' edited the note'
             };
 
             if ( message.data.folder && message.data.folder.title ) {
-              notification.message += 'at ' + message.data.folder.title
+              notification.message += ' at ' + message.data.folder.title;
             }
             this.sendNotification(notification);
           });
@@ -120,7 +121,7 @@ class CloudSyncObserver {
       case 'collaborator joined':
         notification = {
           title : message.data.folder.title,
-          message : message.data.collaborator.name + ' joined the folder'
+          message : message.data.user.name + ' joined the folder'
         };
         this.sendNotification(notification);
         break;
