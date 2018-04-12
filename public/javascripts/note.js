@@ -140,9 +140,11 @@ export default class Note {
     this.deleteButton.classList.remove('hide');
 
     /**
-     * If folder is opened, pass id. Otherwise pass false
+     * If folder is opened, pass id. Otherwise pass null
      */
-    if (!this.folderId) this.folderId = codex.notes.aside.currentFolder? codex.notes.aside.currentFolder.id: null;
+    if (!this.folderId) {
+      this.folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+    }
     
     let folderId = this.folderId;
 
