@@ -53,6 +53,7 @@ export default class Note {
     }
 
     this.shortcuts = [];
+    this.folderId = null;
 
     this.enableShortcuts();
   }
@@ -141,19 +142,22 @@ export default class Note {
     /**
      * If folder is opened, pass id. Otherwise pass false
      */
-    let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
+    if (!this.folderId) this.folderId = codex.notes.aside.currentFolder? codex.notes.aside.currentFolder.id: null;
+    let folderId = this.folderId;
 
     codex.editor.saver.save()
       .then(noteData => {
         this.validate(noteData);
         return noteData;
       })
-      .then( noteData => {
+      .then(noteData => {
         let note = {
           data: noteData,
           title: this.titleEl.value.trim(),
           folderId
         };
+
+        console.log(note);
 
         let saveIndicator = document.getElementById('save-indicator');
 
@@ -207,6 +211,7 @@ export default class Note {
   render(note) {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
+    this.folderId = note.folderId;
 
     /**
      * We store all times in a Seconds to correspond server-format
@@ -250,6 +255,8 @@ export default class Note {
     codex.editor.ui.addInitialBlock();
     this.deleteButton.classList.add('hide');
 
+    this.folderId = null;
+
     // destroy autoresizer
     this.autoresizedTitle.destroy();
 
@@ -283,6 +290,7 @@ export default class Note {
       }
 
       codex.notes.aside.removeMenuItem(id);
+      this.folderId = null;
       this.clear();
     }
   }
