@@ -143,6 +143,7 @@ export default class Note {
      * If folder is opened, pass id. Otherwise pass false
      */
     if (!this.folderId) this.folderId = codex.notes.aside.currentFolder? codex.notes.aside.currentFolder.id: null;
+    
     let folderId = this.folderId;
 
     codex.editor.saver.save()
@@ -156,8 +157,6 @@ export default class Note {
           title: this.titleEl.value.trim(),
           folderId
         };
-
-        console.log(note);
 
         let saveIndicator = document.getElementById('save-indicator');
 
