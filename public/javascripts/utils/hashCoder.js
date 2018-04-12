@@ -3,35 +3,39 @@
  */
 let memoizedHashes = {};
 
+/**
+ * HashCoder class
+ *
+ * Util that have hashing methods
+ */
 export default class hashCoder {
-
+  /**
+   * Simple hash method
+   * @param {String} text
+   */
+  static simpleHash(text) {
     /**
-     * Simple hash method
+     * Returns hash from cache
      */
-    static simpleHash(string) {
-
-        /**
-         * Returns hash from cache
-         */
-        if (string && memoizedHashes[string]) {
-            return memoizedHashes[string]
-        }
-
-        let hash = 0;
-
-        if (string.length == 0) {
-            return hash;
-        }
-
-        for (let i = 0; i < string.length; i++) {
-            let char = string.charCodeAt(i);
-            hash = ( (hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-
-        // save to cache
-        memoizedHashes[string] = hash;
-        return hash;
+    if (text && memoizedHashes[text]) {
+      return memoizedHashes[text];
     }
 
+    let hash = 0;
+
+    if (text.length == 0) {
+      return hash;
+    }
+
+    for (let i = 0; i < text.length; i++) {
+      let char = text.charCodeAt(i);
+
+      hash = ( (hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+
+    // save to cache
+    memoizedHashes[text] = hash;
+    return hash;
+  }
 }

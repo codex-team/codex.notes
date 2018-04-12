@@ -3,6 +3,7 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
+const hashCoder = require('./utils/hashCoder').default;
 
 /**
  * @typedef {Object} NoteData
@@ -33,6 +34,8 @@ export default class Note {
    * @constructor
    */
   constructor() {
+    this.hashedNote = null;
+
     this.deleteButton = $.get('delete-button');
 
     this.titleEl = document.getElementById('note-title');
@@ -143,12 +146,25 @@ export default class Note {
      */
     let folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
 
+
     codex.editor.saver.save()
       .then(noteData => {
         this.validate(noteData);
         return noteData;
       })
       .then( noteData => {
+        let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
+            currentHashedNote = hashCoder.simpleHash(currentNoteContent);
+
+        if (currentHashedNote === this.hashedNote) {
+          return;
+        }
+
+        // update saved hash
+        this.hashedNote = currentHashedNote;
+
+        // save client performed JSON stringify
+        noteData.content = JSON.stringify(noteData.items);
         let note = {
           data: noteData,
           title: this.titleEl.value.trim(),
@@ -167,6 +183,7 @@ export default class Note {
           saveIndicator.classList.remove('saved');
         }, 500);
 
+        console.log('saving', note);
         window.ipcRenderer.send('note - save', {note});
       })
       .catch( err => {
@@ -214,6 +231,11 @@ export default class Note {
      */
     let dtModify = new Date(note.dtModify * 1000);
 
+    /**
+     * hash note content with title
+     */
+    this.hashedNote = hashCoder.simpleHash(note.title + note.content);
+
     this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
@@ -225,6 +247,7 @@ export default class Note {
       id: note._id,
       items: JSON.parse(note.content),
       time: note.dtModify,
+      created: note.dtCreate,
       version: note.editorVersion,
     });
     this.deleteButton.classList.remove('hide');
@@ -254,6 +277,7 @@ export default class Note {
     this.autoresizedTitle.destroy();
 
     this.editorContentSelected = false;
+    this.hashedNote = null;
   }
 
   /**
