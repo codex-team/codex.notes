@@ -73,7 +73,7 @@ class Note {
     this.folderId = noteData.folderId || null;
     this.title = noteData.title || null;
     this.content = noteData.content || null;
-    this.dtCreate = noteData.dtCreate || null;
+    this.dtCreate = noteData.dtCreate || Time.now;
     this.dtModify = noteData.dtModify || null;
     this.isRemoved = noteData.isRemoved || false;
     this.editorVersion = noteData.editorVersion || null;

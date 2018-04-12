@@ -160,7 +160,7 @@ export default class Note {
           return;
         }
 
-        // update saved hash
+        // update saved hash if note changed
         this.hashedNote = currentHashedNote;
 
         // save client performed JSON stringify
@@ -183,7 +183,6 @@ export default class Note {
           saveIndicator.classList.remove('saved');
         }, 500);
 
-        console.log('saving', note);
         window.ipcRenderer.send('note - save', {note});
       })
       .catch( err => {
