@@ -38,7 +38,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 60 * 1000 ); // every 20 sec
+    }, 20 * 1000 ); // every 20 sec
   }
 
   /**
@@ -158,7 +158,7 @@ class CloudSyncObserver {
 
       return dataFromCloud;
     } catch(e) {
-      // global.logger.debug('[cloudSyncObserver] Error:', e);
+      global.logger.debug('[cloudSyncObserver] Error:', e);
       return false;
     }
   }
@@ -169,7 +169,7 @@ class CloudSyncObserver {
    * @return {Promise<object>}
    */
   getDataFromCloud() {
-    // // global.logger.debug('[cloudSyncObserver] Get data from the Cloud');
+    global.logger.debug('[cloudSyncObserver] Get data from the Cloud');
 
     /**
      * Sync Query
@@ -184,7 +184,7 @@ class CloudSyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        // global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
+        global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
         return data;
       });
   }
@@ -197,7 +197,7 @@ class CloudSyncObserver {
    * @returns {object}
    */
   async saveDataFromCloud(dataFromCloud) {
-    // global.logger.debug('[cloudSyncObserver] Update local data');
+    global.logger.debug('[cloudSyncObserver] Update local data');
 
     let folders = dataFromCloud.user.folders;
 
