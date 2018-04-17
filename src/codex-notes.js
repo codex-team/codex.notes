@@ -80,6 +80,11 @@ const AppProtocol = require('./controllers/app-protocol');
 const SeenStateObserver = require('./controllers/SeenStateObserver');
 
 /**
+ * SyncQueueObserver
+ */
+const SyncQueueObserver = require('./controllers/SyncQueueObserver');
+
+/**
  * User model
  */
 const User = require('./models/user');
@@ -225,6 +230,11 @@ class CodexNotes {
          * @type {SeenStateObserver}
          */
         this.seenStateObserver = new SeenStateObserver();
+
+        /**
+         * @type {SyncQueueObserver}
+         */
+        this.syncQueueObserver = new SyncQueueObserver();
 
         /**
          * @type {Sockets}

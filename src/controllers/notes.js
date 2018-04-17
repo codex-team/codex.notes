@@ -76,7 +76,12 @@ class NotesController {
 
       let newNote = await note.save();
 
-      global.app.cloudSyncObserver.sync();
+      global.app.syncQueueObserver.push( {
+        type : Note.EntityType,
+        entityId : note._id
+      });
+
+      // global.app.cloudSyncObserver.sync();
 
       event.sender.send('note saved', {
         note: newNote,

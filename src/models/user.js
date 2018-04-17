@@ -198,7 +198,6 @@ class User {
 
   /**
    * Prepare updates for target time
-   *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}

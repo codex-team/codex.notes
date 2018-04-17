@@ -57,8 +57,10 @@ class SyncQueue {
    * Returns queue state
    * @return {Promise.<Array[SyncQueueData]>}
    */
-  async getAll() {
-    return await db.find(db.SyncQueue, {});
+  static async getAll( entityType ) {
+    return await db.find(db.SyncQueue, {
+      type : entityType
+    });
   }
 
   /**

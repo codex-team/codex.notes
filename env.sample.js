@@ -5,7 +5,7 @@ let vars = {
 
   // DEBUG: true,
 
-  GOOGLE_CLIENT_ID: '',
+  GOOGLE_CLIENT_ID: '1077384071053-megl4qg2i3fpdkmt92inkj3jjea6vpkc.apps.googleusercontent.com',
 
   GOOGLE_REDIRECT_URI: 'https://api.notes.ifmo.su/oauth/code',
   API_ENDPOINT: 'https://api.notes.ifmo.su/graphql',

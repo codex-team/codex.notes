@@ -25,6 +25,13 @@ class syncQueueObserver {
     return await queueObject.save();
   }
 
+  /**
+   * @param entityType
+   * @return {Promise.<Array, SyncQueueData[]>}
+   */
+  getEntityQueue( entityType ) {
+    return SyncQueue.getAll( entityType )
+  }
 }
 
 module.exports = syncQueueObserver;

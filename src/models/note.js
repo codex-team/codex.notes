@@ -64,6 +64,13 @@ class Note {
   }
 
   /**
+   * @return {number}
+   */
+  static get EntityType() {
+    return 1;
+  }
+
+  /**
    * Note data setter
    * @param {NoteData} noteData
    */
@@ -322,19 +329,32 @@ class Note {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
    *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedItems = await db.find(db.NOTES, {
       dtModify: {$gt: lastSyncTimestamp}
     });
 
     return notSyncedItems;
   }
+
+  /**
+   * Get from queue updated Notes
+   * @return {Promise.<void>}
+   */
+  static async prepareUpdates() {
+    let NotesInQueue = await db.find(db.SyncQueue, {
+      type : EntityType
+    });
+
+    console.log("NotesInQueue", NotesInQueue);
+  };
 
   /**
    * Delete Note
