@@ -18,6 +18,7 @@ class Database {
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
     this.COLLABORATORS = new Datastore({ filename: path.join(this.appFolder, 'collaborators.db'), autoload: true });
     this.VISITS = new Datastore({ filename: path.join(this.appFolder, 'visits.db'), autoload: true });
+    this.SyncQueue = new Datastore({ filename: path.join(this.appFolder, 'syncQueue.db'), autoload: true});
   }
 
   /**
@@ -103,7 +104,7 @@ class Database {
 
     let sequence = [];
 
-    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS].forEach( collection => {
+    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS, this.SyncQueue].forEach( collection => {
       global.logger.debug('\n\n Drop ', collection.filename, '\n\n');
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
         global.logger.debug(collection.filename, ': ', removedRows, ' docs removed');
@@ -115,6 +116,7 @@ class Database {
     this.NOTES = null;
     this.COLLABORATORS = null;
     this.VISITS = null;
+    this.SyncQueue = null;
 
     return Promise.all(sequence)
         .catch((err) => {
