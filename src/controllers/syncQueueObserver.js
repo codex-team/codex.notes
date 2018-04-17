@@ -8,12 +8,18 @@
 
 const SyncQueue = require('../models/syncQueue');
 
+/**
+ * @class SeenStateObserver
+ * Class creates pull of entity queue to send to the cloud
+ */
 class syncQueueObserver {
 
   /**
    * @constructor
    */
-  constructor() { }
+  constructor() {
+
+  }
 
   /**
    * Push to the queue

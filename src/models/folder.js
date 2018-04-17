@@ -11,6 +11,12 @@ const NotesList = require('./notesList');
 const Time = require('../utils/time.js');
 
 /**
+ * Abstract class Entity
+ * @type {Entity}
+ */
+const Entity = require('./entity');
+
+/**
  * Collaborator Model
  */
 const Collaborator = require('../models/collaborator');
@@ -44,7 +50,7 @@ const Collaborator = require('../models/collaborator');
  * @property {Boolean} isRemoved
  *
  */
-class Folder {
+class Folder extends Entity {
 
   /**
    * @constructor
@@ -52,6 +58,8 @@ class Folder {
    * @param {FolderData} folderData
    */
   constructor(folderData = {}) {
+    super();
+
     this._id = null;
     this.title = null;
     this.dtModify = null;
@@ -63,6 +71,13 @@ class Folder {
     this.isRemoved = false;
 
     this.data = folderData;
+  }
+
+  /**
+   * @return {number}
+   */
+  static get EntityType() {
+    return 2;
   }
 
   /**
@@ -359,18 +374,26 @@ class Folder {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
-   *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedItems = await db.find(db.FOLDERS, {
       dtModify: {$gt: lastSyncTimestamp}
     });
 
     return notSyncedItems;
+  }
+
+  /**
+   * Prepare updates
+   * @return {Promise.<void>}
+   */
+  static async prepareUpdates() {
+    return super.prepareUpdates();
   }
 
   /**

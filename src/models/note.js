@@ -19,6 +19,12 @@ const utils = require('../utils/utils');
 const Time = require('../utils/time.js');
 
 /**
+ * Abstract class Entity
+ * @type {Entity}
+ */
+const Entity = require('./entity');
+
+/**
  * Max length for intro text
  */
 const INTRO_TEXT_MAX_LENGTH = 150;
@@ -42,7 +48,7 @@ const INTRO_TEXT_MAX_LENGTH = 150;
 /**
  * Notes model.
  */
-class Note {
+class Note extends Entity {
   /**
    * @constructor
    * Makes new Note example
@@ -50,6 +56,8 @@ class Note {
    * @param {NoteData} noteData  - Note's data to fill the Model
    */
   constructor(noteData = {}) {
+    super();
+
     this._id = null;
     this.title = null;
     this.titleLabel = null;
@@ -345,16 +353,12 @@ class Note {
   }
 
   /**
-   * Get from queue updated Notes
+   * Prepare updates for target time
    * @return {Promise.<void>}
    */
   static async prepareUpdates() {
-    let NotesInQueue = await db.find(db.SyncQueue, {
-      type : EntityType
-    });
-
-    console.log("NotesInQueue", NotesInQueue);
-  };
+    return super.prepareUpdates();
+  }
 
   /**
    * Delete Note

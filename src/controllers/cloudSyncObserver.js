@@ -1,7 +1,6 @@
 const Folder = require('../models/folder');
 const Note = require('../models/note');
 const Collaborator = require('../models/collaborator');
-const SyncQueueObserver = require('./syncQueueObserver');
 const User = require('../models/user');
 
 /**
@@ -39,7 +38,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 20 * 1000 ); // every 20 sec
+    }, 60 * 1000 ); // every 20 sec
   }
 
   /**
@@ -141,11 +140,6 @@ class CloudSyncObserver {
        *    dtModify is greater than local.
        */
       let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
-
-      let syncQueueObserver = new SyncQueueObserver();
-      let noteQueue = await syncQueueObserver.getEntityQueue( 1 );
-
-      console.log("queue", noteQueue);
 
       /**
        * Prepare local updates for this moment
@@ -321,29 +315,29 @@ class CloudSyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async getLocalUpdates() {
-    // global.logger.debug('[cloudSyncObserver] Prepare local updates');
+    global.logger.debug('[cloudSyncObserver] Prepare local updates');
 
     /**
      * Get last sync date
      *
      * @type {Number}
      */
-    let lastSyncTimestamp = await global.user.getSyncDate();
+    // let lastSyncTimestamp = await global.user.getSyncDate();
 
     /**
      * Get not synced User
      */
-    let changedUser = await User.prepareUpdates(lastSyncTimestamp);
+    let changedUser = await User.prepareUpdates();
 
     /**
      * Get not synced Folders
      */
-    let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
+    let changedFolders = await Folder.prepareUpdates();
 
     /**
      * Get not synced Notes
      */
-    let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
+    let changedNotes = await Note.prepareUpdates();
 
     return {
       user: changedUser,
