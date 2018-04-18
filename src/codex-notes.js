@@ -22,7 +22,6 @@ if (process.env.HAWK_TOKEN) {
  * @example global.logger.info('Hey yo');
  */
 global.logger = require('./utils/logger');
-global.logger.setLevel(process.env.LOG_LEVEL || 'debug');
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
@@ -77,7 +76,7 @@ const AppProtocol = require('./controllers/app-protocol');
 /**
  * Note unread (unseed) state observer
  */
-const SeenStateObserver = require('./controllers/SeenStateObserver');
+const SeenStateObserver = require('./controllers/seenStateObserver');
 
 /**
  * User model
