@@ -93,6 +93,7 @@
         "app": true,
         "process": true,
         "__dirname": true,
-        "Buffer": true
+        "Buffer": true,
+        "setInterval": true
     }
 }

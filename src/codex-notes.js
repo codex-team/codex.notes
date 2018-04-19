@@ -15,6 +15,7 @@ if (process.env.HAWK_TOKEN) {
   });
 
   hawkCatcher.initGlobalCatcher();
+  global.catchException = hawkCatcher.catchException;
 }
 
 /**
@@ -37,6 +38,8 @@ const pug = require('electron-pug')({
   // debug: true,
   // compileDebug: true
 }, locals);
+
+const updater = require('./updater');
 
 /**
  * Cloud-Synchronization controller
@@ -276,7 +279,7 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    hawkCatcher.catchException(error);
+    global.catchException(error);
     global.logger.error(`\n
       \n
       ...........................\n
