@@ -8,7 +8,7 @@
     "start": "electron .",
     "build": "webpack --progress --display-error-details --mode development",
     "dist": "electron-builder",
-    "dist:all": "electron-builder -mwl --x64 --ia32 -p always"
+    "ship": "electron-builder -mwl --x64 --ia32 -p always"
   },
   "author": {
     "name": "CodeX",

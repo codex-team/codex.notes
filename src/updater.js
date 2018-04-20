@@ -18,12 +18,12 @@ const showLog = (message) => {
 /**
  * @typedef {object} info
  * @property {string} version - "2.0.1"
- * @param {installer[]} files
- * @param {string} path - "codex.notes-2.0.1-mac.zip"
- * @param {string} sha512 - "vxFl4T...AAvakk/w=="
- * @param {string} releaseDate - "2018-04-19T17:32:22.107Z"
- * @param {string} releaseName - "CodeX Notes 2"
- * @param {string} releaseNotes - "<p>We have fixed a few bugs</p>"
+ * @property {installer[]} files
+ * @property {string} path - "codex.notes-2.0.1-mac.zip"
+ * @property {string} sha512 - "vxFl4T...AAvakk/w=="
+ * @property {string} releaseDate - "2018-04-19T17:32:22.107Z"
+ * @property {string} releaseName - "CodeX Notes 2"
+ * @property {string} releaseNotes - "<p>We have fixed a few bugs</p>"
  */
 
 /**
@@ -84,19 +84,21 @@ autoUpdater.on('download-progress', (progressObj) => {
 /**
  * Update was downloaded
  */
-autoUpdater.on('update-downloaded', (info) => {
-  showLog('Update is downloaded');
-  showLog(info);
-
-  /**
-   * Restart app
-   */
-  autoUpdater.quitAndInstall();
-});
+// autoUpdater.on('update-downloaded', (info) => {
+//   showLog('Update is downloaded');
+//   showLog(info);
+//
+//   /**
+//    * Restart app
+//    */
+//   autoUpdater.quitAndInstall();
+// });
 
 /**
  * Call "check for updates" function
  */
-app.on('ready', () => {
-  autoUpdater.checkForUpdates();
-});
+// app.on('ready', () => {
+//   autoUpdater.checkForUpdates();
+// });
+
+module.exports = autoUpdater;

@@ -1,7 +1,6 @@
 'use strict';
 
-const electron = require('electron');
-const app = electron.app;
+const {app, dialog, BrowserWindow, Menu} = require('electron');
 
 require('../env.js');
 
@@ -24,7 +23,6 @@ if (process.env.HAWK_TOKEN) {
  */
 global.logger = require('./utils/logger');
 
-const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
 
 /**
@@ -126,12 +124,10 @@ class CodexNotes {
 
     let windowParams = {
       title: pkg.productName,
-      icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,
       minWidth: 1070,
       minHeight: 600,
       height: 700,
-      // vibrancy: 'ultra-dark',
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
@@ -183,8 +179,12 @@ class CodexNotes {
       .then(() => {
         this.setAppProtocol();
       })
+      .then(() => {
+        this.checkForUpdates();
+      })
       .catch((e) => {
         global.logger.debug('App initialization failed because of ', e);
+        global.catchException(e);
       });
   }
 
@@ -244,14 +244,12 @@ class CodexNotes {
    * @author @guryn
    */
   makeMenu() {
-    const menu = electron.Menu;
-
     let createMenuTemplate = require('./menu'),
         menues = createMenuTemplate(app),
-        menuBar = menu.buildFromTemplate(menues.menuBar),
-        menuDock = menu.buildFromTemplate(menues.menuDock);
+        menuBar = Menu.buildFromTemplate(menues.menuBar),
+        menuDock = Menu.buildFromTemplate(menues.menuDock);
 
-    menu.setApplicationMenu(menuBar);
+    Menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
   }
 
@@ -270,6 +268,47 @@ class CodexNotes {
     this.mainWindow = null;
   }
 
+  checkForUpdates() {
+    let updateIsDownloaded = false;
+
+    /**
+     * Call "check for updates" function
+     */
+    updater.checkForUpdates();
+
+    /**
+     * Update was downloaded
+     */
+    updater.on('update-downloaded', (info) => {
+      global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
+      updateIsDownloaded = true;
+
+      let index = dialog.showMessageBox(this.mainWindow, {
+        type: 'info',
+        buttons: ['Restart', 'Later'],
+        // title: 'New version',
+        message: `CodeX Notes v${info.version} has been downloaded. Restart the application to apply the updates.`,
+        // detail: info.releaseNotes
+      });
+
+      if (index === 0) {
+        /**
+         * Restart app
+         */
+        updater.quitAndInstall();
+      }
+    });
+
+    /**
+     * Check updates hourly
+     */
+    setInterval(() => {
+      if (!updateIsDownloaded) {
+        global.logger.debug('[updater] check....');
+        updater.checkForUpdates();
+      }
+    }, 60 * 60 * 1000);
+  }
 }
 
 /**
