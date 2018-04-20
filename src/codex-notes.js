@@ -1,8 +1,21 @@
 'use strict';
 
 const {app, dialog, BrowserWindow, Menu} = require('electron');
+const fs = require('fs');
 
+/**
+ * Load env params
+ */
 require('../env.js');
+
+/**
+ * Set and create app folder
+ */
+global.appFolder = app.getPath('userData');
+
+if (!fs.existsSync(global.appFolder)) {
+  fs.mkdirSync(global.appFolder);
+}
 
 /**
  * Enable errors handling
@@ -93,8 +106,7 @@ const SocketsController = require('./controllers/sockets');
  * Database setup
  */
 const db = require('./utils/database');
-
-db.makeInitialSettings(app.getPath('userData'));
+db.makeInitialSettings(global.appFolder);
 
 /**
  * All windows is closed
@@ -269,45 +281,49 @@ class CodexNotes {
   }
 
   checkForUpdates() {
-    let updateIsDownloaded = false;
+    try {
+      let updateIsDownloaded = false;
 
-    /**
-     * Call "check for updates" function
-     */
-    updater.checkForUpdates();
+      /**
+       * Call "check for updates" function
+       */
+      updater.checkForUpdates();
 
-    /**
-     * Update was downloaded
-     */
-    updater.on('update-downloaded', (info) => {
-      global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
-      updateIsDownloaded = true;
+      /**
+       * Update was downloaded
+       */
+      updater.on('update-downloaded', (info) => {
+        global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
+        updateIsDownloaded = true;
 
-      let index = dialog.showMessageBox(this.mainWindow, {
-        type: 'info',
-        buttons: ['Restart', 'Later'],
-        // title: 'New version',
-        message: `CodeX Notes v${info.version} has been downloaded. Restart the application to apply the updates.`,
-        // detail: info.releaseNotes
+        let index = dialog.showMessageBox(this.mainWindow, {
+          type: 'info',
+          buttons: ['Restart', 'Later'],
+          // title: 'New version',
+          message: `CodeX Notes v${info.version} has been downloaded. Restart the application to apply the updates.`,
+          // detail: info.releaseNotes
+        });
+
+        if (index === 0) {
+          /**
+           * Restart app
+           */
+          updater.quitAndInstall();
+        }
       });
 
-      if (index === 0) {
-        /**
-         * Restart app
-         */
-        updater.quitAndInstall();
-      }
-    });
-
-    /**
-     * Check updates hourly
-     */
-    setInterval(() => {
-      if (!updateIsDownloaded) {
-        global.logger.debug('[updater] check....');
-        updater.checkForUpdates();
-      }
-    }, 60 * 60 * 1000);
+      /**
+       * Check updates hourly
+       */
+      setInterval(() => {
+        if (!updateIsDownloaded) {
+          global.logger.debug('[updater] check....');
+          updater.checkForUpdates();
+        }
+      }, 60 * 60 * 1000);
+    } catch (e) {
+      global.logger.debug('Cannot run updates checker cause %s', e.message);
+    }
   }
 }
 

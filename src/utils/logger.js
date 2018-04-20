@@ -11,16 +11,15 @@
  * @example logger.fatal('my log');
  */
 const fs = require('fs');
-const {app} = require('electron');
 const path = require('path');
 
 /**
  * Logs will be stored in the app-data/logs
  * @type {string}
  */
-const logsDirPath = path.join(app.getPath('userData'), 'logs');
+const logsDirPath = path.join(global.appFolder, 'logs');
 
-if (!fs.existsSync(logsDirPath)){
+if (!fs.existsSync(logsDirPath)) {
   fs.mkdirSync(logsDirPath);
 }
 

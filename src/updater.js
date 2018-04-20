@@ -66,7 +66,9 @@ autoUpdater.on('error', (err) => {
   showLog('Error while checking for updates');
   showLog(err.message);
 
-  global.catchException(err);
+  if (!process.env.DEBUG) {
+    global.catchException(err);
+  }
 });
 
 /**
