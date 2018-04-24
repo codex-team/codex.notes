@@ -17,9 +17,7 @@ class syncQueueObserver {
   /**
    * @constructor
    */
-  constructor() {
-
-  }
+  constructor() { }
 
   /**
    * Push to the queue

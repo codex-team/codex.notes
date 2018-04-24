@@ -157,7 +157,7 @@ class CloudSyncObserver {
       let updatedUser = await this.updateUserLastSyncDate();
 
       /**
-       * Flush Queue
+       * Flush Queue after we sent mutations
        */
       await global.app.syncQueueObserver.flushAll();
 
@@ -322,13 +322,6 @@ class CloudSyncObserver {
    */
   async getLocalUpdates() {
     global.logger.debug('[cloudSyncObserver] Prepare local updates');
-
-    /**
-     * Get last sync date
-     *
-     * @type {Number}
-     */
-    // let lastSyncTimestamp = await global.user.getSyncDate();
 
     /**
      * Get not synced User

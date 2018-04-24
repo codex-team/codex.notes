@@ -11,7 +11,7 @@ const NotesList = require('./notesList');
 const Time = require('../utils/time.js');
 
 /**
- * Abstract class Entity
+ * Abstract Syncable class
  * @type {Syncable}
  */
 const Syncable = require('./syncable');

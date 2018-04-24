@@ -81,8 +81,6 @@ class NotesController {
         entityId : note._id
       });
 
-      // global.app.cloudSyncObserver.sync();
-
       event.sender.send('note saved', {
         note: newNote,
         isRootFolder: !noteData.folderId
