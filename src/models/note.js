@@ -19,10 +19,10 @@ const utils = require('../utils/utils');
 const Time = require('../utils/time.js');
 
 /**
- * Abstract class Entity
- * @type {Entity}
+ * Abstract class Syncable
+ * @type {Syncable}
  */
-const Entity = require('./entity');
+const Syncable = require('./syncable');
 
 /**
  * Max length for intro text
@@ -48,7 +48,7 @@ const INTRO_TEXT_MAX_LENGTH = 150;
 /**
  * Notes model.
  */
-class Note extends Entity {
+class Note extends Syncable {
   /**
    * @constructor
    * Makes new Note example
@@ -74,7 +74,7 @@ class Note extends Entity {
   /**
    * @return {number}
    */
-  static get EntityType() {
+  static get syncModelType() {
     return 1;
   }
 

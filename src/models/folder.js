@@ -12,9 +12,9 @@ const Time = require('../utils/time.js');
 
 /**
  * Abstract class Entity
- * @type {Entity}
+ * @type {Syncable}
  */
-const Entity = require('./entity');
+const Syncable = require('./syncable');
 
 /**
  * Collaborator Model
@@ -50,7 +50,7 @@ const Collaborator = require('../models/collaborator');
  * @property {Boolean} isRemoved
  *
  */
-class Folder extends Entity {
+class Folder extends Syncable {
 
   /**
    * @constructor
@@ -76,7 +76,7 @@ class Folder extends Entity {
   /**
    * @return {number}
    */
-  static get EntityType() {
+  static get syncModelType() {
     return 2;
   }
 

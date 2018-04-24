@@ -6,7 +6,7 @@ const db = require('../utils/database'),
     request = require('request'),
     path = require('path');
 
-const Entity = require('./entity');
+const Syncable = require('./syncable');
 
 /**
  * Model for current user representation.
@@ -19,7 +19,7 @@ const Entity = require('./entity');
  * @property {number} dt_sync – last synchronization timestamp
  * @property {string} channel – personal sockets channel
  */
-class User extends Entity {
+class User extends Syncable {
 
   /**
    * @param {UserData} userData
@@ -45,7 +45,7 @@ class User extends Entity {
   /**
    * @return {number}
    */
-  static get EntityType() {
+  static get syncModelType() {
     return 3;
   }
 

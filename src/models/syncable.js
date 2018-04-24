@@ -1,12 +1,12 @@
 /**
- * @module Entity
- * Abstract class for all entities
+ * @module Syncable
+ * Abstract class for all entities that need to be synchronized
  *
  * For example Note, Folder, User are Entites so that they need to be extended by this class
  * Prepares changed data to send to the cloud
  */
 
-class Entity {
+class Syncable {
 
   /**
    * @constructor
@@ -20,21 +20,21 @@ class Entity {
   static async prepareUpdates() {
 
     /** Here we getting Entity Ids from Queue */
-    let entityInfo = await global.app.syncQueueObserver.getEntityQueue( this.EntityType );
+    let syncingData = await global.app.syncQueueObserver.getEntityQueue( this.syncModelType );
 
     /** Getting Entity models */
-    return Promise.all(entityInfo.map( ( entity ) => {
-      return this.get( entity.entityId );
+    return Promise.all(syncingData.map( ( data ) => {
+      return this.get( data.entityId );
     }))
-      .then( entities => {
+      .then( models => {
 
         /** Returning Only Data */
-        return entities.map( entity => {
-          return entity.data;
+        return models.map( model => {
+          return model.data;
         });
       });
 
   };
 }
 
-module.exports = Entity;
+module.exports = Syncable;
