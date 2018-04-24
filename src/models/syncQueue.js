@@ -66,8 +66,8 @@ class SyncQueue {
   /**
    * Remove queue state
    */
-  flush() {
-
+  static async flush() {
+    return await db.remove(db.SYNCQUEUE, {}, {multi: true});
   }
 
 }

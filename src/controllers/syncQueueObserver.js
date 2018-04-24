@@ -38,6 +38,14 @@ class syncQueueObserver {
   async getSyncableQueue( modelType ) {
     return await SyncQueue.getAll( modelType )
   }
+
+  /**
+   * Flush Queue state
+   * @return {Promise}
+   */
+  async flushAll() {
+    return await SyncQueue.flush();
+  }
 }
 
 module.exports = syncQueueObserver;

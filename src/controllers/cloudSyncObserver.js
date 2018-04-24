@@ -156,7 +156,13 @@ class CloudSyncObserver {
        */
       let updatedUser = await this.updateUserLastSyncDate();
 
+      /**
+       * Flush Queue
+       */
+      await global.app.syncQueueObserver.flushAll();
+
       return dataFromCloud;
+
     } catch(e) {
       global.logger.debug('[cloudSyncObserver] Error:', e);
       return false;
