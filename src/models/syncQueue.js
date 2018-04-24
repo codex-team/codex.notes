@@ -49,7 +49,7 @@ class SyncQueue {
       returnUpdatedDocs: true
     };
 
-    let updateResponse = await db.update(db.SyncQueue, query, dataToSave, options);
+    let updateResponse = await db.update(db.SYNCQUEUE, query, dataToSave, options);
     return updateResponse.affectedDocuments;
   }
 

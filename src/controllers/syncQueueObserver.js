@@ -32,11 +32,11 @@ class syncQueueObserver {
   }
 
   /**
-   * @param entityType
+   * @param modelType
    * @return {Promise.<Array, SyncQueueData[]>}
    */
-  getEntityQueue( entityType ) {
-    return SyncQueue.getAll( entityType )
+  async getSyncableQueue( modelType ) {
+    return await SyncQueue.getAll( modelType )
   }
 }
 

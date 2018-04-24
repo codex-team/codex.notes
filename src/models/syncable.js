@@ -2,7 +2,7 @@
  * @module Syncable
  * Abstract class for all entities that need to be synchronized
  *
- * For example Note, Folder, User are Entites so that they need to be extended by this class
+ * For example Note, Folder, User are Syncable Entities so that they need to be extended by this class
  * Prepares changed data to send to the cloud
  */
 
@@ -20,7 +20,7 @@ class Syncable {
   static async prepareUpdates() {
 
     /** Here we getting Entity Ids from Queue */
-    let syncingData = await global.app.syncQueueObserver.getEntityQueue( this.syncModelType );
+    let syncingData = await global.app.syncQueueObserver.getSyncableQueue( this.syncModelType );
 
     /** Getting Entity models */
     return Promise.all(syncingData.map( ( data ) => {
