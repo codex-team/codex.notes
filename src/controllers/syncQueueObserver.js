@@ -1,5 +1,5 @@
 /**
- * @module SyncQueueObserver
+ * @module syncQueueObserver
  * Manipulates with entity Queue
  * Resolves problem with syncing the updated entities — which Note or Folder was changed and need to be updated in the cloud
  */
@@ -9,7 +9,7 @@
 const SyncQueue = require('../models/syncQueue');
 
 /**
- * @class SeenStateObserver
+ * @class syncQueueObserver
  * Class creates pull of entity queue to send to the cloud
  */
 class syncQueueObserver {

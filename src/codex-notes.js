@@ -81,7 +81,7 @@ const SeenStateObserver = require('./controllers/seenStateObserver');
 /**
  * SyncQueueObserver
  */
-const SyncQueueObserver = require('./controllers/SyncQueueObserver');
+const SyncQueueObserver = require('./controllers/syncQueueObserver');
 
 /**
  * User model
