@@ -45,7 +45,7 @@ class Database {
 
     this.getRootFolderId()
       .then(rootFolderId => {
-        global.logger.debug('\nRoot Folder found: ', rootFolderId);
+        global.logger.debug('\nRoot Folder found: %s', rootFolderId);
       })
       .catch(err => {
         global.logger.debug('\nCan not find the Root Folder\'s id because of: ', err);
@@ -167,7 +167,7 @@ class Database {
           if (err) {
             reject(err);
           }
-          
+
           resolve(docs);
         })
     });

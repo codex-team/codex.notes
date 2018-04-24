@@ -5,7 +5,7 @@ module.exports = function (app) {
     bugReportUrl: pkg.bugs,
     landingPage: pkg.homepage,
     githubRepo: pkg.repository.url,
-    iconPath: __dirname + '/assets/icons/png/icon-white1024.png',
+    iconPath: __dirname + '/build/icon.png',
     description: pkg.description,
     name: pkg.productName
   };
