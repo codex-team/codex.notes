@@ -321,7 +321,6 @@ class CloudSyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async getLocalUpdates() {
-    global.logger.debug('[cloudSyncObserver] Prepare local updates');
 
     /**
      * Get not synced User
@@ -337,6 +336,8 @@ class CloudSyncObserver {
      * Get not synced Notes
      */
     let changedNotes = await Note.prepareUpdates();
+
+    global.logger.debug('[cloudSyncObserver] Prepare local updates', changedUser, changedNotes, changedFolders);
 
     return {
       user: changedUser,
