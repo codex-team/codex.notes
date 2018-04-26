@@ -35,9 +35,6 @@ const Collaborator = require('../models/collaborator');
  */
 
 /**
- * @class Folder
- * @classdesc Folder's model type
- *
  * @typedef {Folder} Folder
  * @property {String} _id
  * @property {String|null} title
@@ -48,7 +45,12 @@ const Collaborator = require('../models/collaborator');
  * @property {Collaborator[]} collaborators
  * @property {Boolean} isRoot
  * @property {Boolean} isRemoved
+ */
+
+/**
+ * @classdesc Folder's model type
  *
+ * @augments Syncable
  */
 class Folder extends Syncable {
 
@@ -76,7 +78,7 @@ class Folder extends Syncable {
   /**
    * @return {number}
    */
-  static get syncModelType() {
+  static get syncableType() {
     return 2;
   }
 
@@ -386,14 +388,6 @@ class Folder extends Syncable {
     });
 
     return notSyncedItems;
-  }
-
-  /**
-   * Prepare updates
-   * @return {Promise.<void>}
-   */
-  static async prepareUpdates() {
-    return super.prepareUpdates();
   }
 
   /**

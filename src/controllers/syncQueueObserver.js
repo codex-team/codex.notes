@@ -30,7 +30,7 @@ class syncQueueObserver {
   }
 
   /**
-   * @param modelType
+   * @param {Number} modelType - Entity type. To see the examples, look at models that are syncable. Model Folder has type of 2
    * @return {Promise.<Array, SyncQueueData[]>}
    */
   async getSyncableQueue( modelType ) {

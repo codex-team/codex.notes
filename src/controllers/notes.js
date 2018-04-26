@@ -77,7 +77,7 @@ class NotesController {
       let newNote = await note.save();
 
       global.app.syncQueueObserver.push( {
-        type : Note.syncModelType,
+        type : Note.syncableType,
         entityId : note._id
       });
 

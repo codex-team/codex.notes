@@ -74,7 +74,7 @@ class Note extends Syncable {
   /**
    * @return {number}
    */
-  static get syncModelType() {
+  static get syncableType() {
     return 1;
   }
 
@@ -350,14 +350,6 @@ class Note extends Syncable {
     });
 
     return notSyncedItems;
-  }
-
-  /**
-   * Prepare updates for target time
-   * @return {Promise.<void>}
-   */
-  static async prepareUpdates() {
-    return super.prepareUpdates();
   }
 
   /**

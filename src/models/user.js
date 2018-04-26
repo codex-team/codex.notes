@@ -45,7 +45,7 @@ class User extends Syncable {
   /**
    * @return {number}
    */
-  static get syncModelType() {
+  static get syncableType() {
     return 3;
   }
 
@@ -224,14 +224,6 @@ class User extends Syncable {
     }
 
     return notSyncedUserModel;
-  }
-
-  /**
-   * Prepare updates
-   * @return {Promise.<void>}
-   */
-  static async prepareUpdates() {
-    return super.prepareUpdates();
   }
 
   /**

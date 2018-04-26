@@ -4,8 +4,10 @@
  *
  * For example Note, Folder, User are Syncable Entities so that they need to be extended by this class
  * Prepares changed data to send to the cloud
+ *
+ * Models must be getters "data" that returns object with syncable data.
+ * See an example from Models: User, Folder, Note.
  */
-
 class Syncable {
 
   /**
@@ -14,13 +16,14 @@ class Syncable {
   constructor() { }
 
   /**
+   * @abstract
    * Get from queue updated Entities
    * @return {Promise.<void>}
    */
   static async prepareUpdates() {
 
     /** Here we getting Entity Ids from Queue */
-    let syncingData = await global.app.syncQueueObserver.getSyncableQueue( this.syncModelType );
+    let syncingData = await global.app.syncQueueObserver.getSyncableQueue( this.syncableType );
 
     /** Getting Entity models */
     return Promise.all(syncingData.map( ( data ) => {
@@ -35,6 +38,29 @@ class Syncable {
       });
 
   };
+
+  /**
+   * Return syncable entity's data by id.
+   * Method should be implemented by inheritor.
+   *
+   * @abstract
+   * @param {string} id - syncable entity's id
+   * @return {object}
+   */
+  static async get(id){
+    throw new Error('Syncable data loader must be implemented by subclass');
+  }
+
+  /**
+   * Return entity's data.
+   * Method should be implemented by inheritor.
+   *
+   * @abstract
+   * @return {object}
+   */
+  static get data() {
+    throw new Error('Syncable data loader must be implemented by subclass');
+  }
 }
 
 module.exports = Syncable;
