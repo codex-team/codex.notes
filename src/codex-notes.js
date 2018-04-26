@@ -79,7 +79,7 @@ const AppProtocol = require('./controllers/app-protocol');
 const SeenStateObserver = require('./controllers/seenStateObserver');
 
 /**
- * SyncQueueObserver
+ * SyncQueue
  */
 const SyncQueue = require('./controllers/syncQueue');
 
