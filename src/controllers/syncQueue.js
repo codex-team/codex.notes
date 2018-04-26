@@ -14,7 +14,7 @@ const db = require('../utils/database');
  * @class syncQueue
  * Class creates pull of entity queue to send to the cloud
  */
-class syncQueueObserver {
+class syncQueue {
 
   /**
    * @constructor
@@ -25,7 +25,7 @@ class syncQueueObserver {
    * Push to the queue if data is valid
    * @param {SyncQueueData} queueData
    */
-  static async add( queueData ) {
+  async add( queueData ) {
 
     let queueObject = new SyncableItem( queueData );
 
@@ -57,7 +57,7 @@ class syncQueueObserver {
    * @param {Number} entityType - Entity type. To see the examples, look at models that are syncable. Model Folder has type of 2
    * @return {Promise.<Array[SyncQueueData[]]>}
    */
-  static async getAll( entityType ) {
+  async getAll( entityType ) {
     return await db.find(db.SYNCQUEUE, {
       type : entityType
     });
@@ -66,10 +66,10 @@ class syncQueueObserver {
   /**
    * Remove queue state
    */
-  static async flushAll() {
+  async flushAll() {
     return await db.remove(db.SYNCQUEUE, {}, {multi: true});
   }
 
 }
 
-module.exports = syncQueueObserver;
+module.exports = syncQueue;
