@@ -81,7 +81,7 @@ const SeenStateObserver = require('./controllers/seenStateObserver');
 /**
  * SyncQueueObserver
  */
-const SyncQueueObserver = require('./controllers/syncQueueObserver');
+const SyncQueue = require('./controllers/syncQueue');
 
 /**
  * User model
@@ -231,9 +231,9 @@ class CodexNotes {
         this.seenStateObserver = new SeenStateObserver();
 
         /**
-         * @type {SyncQueueObserver}
+         * @type {SyncQueue}
          */
-        this.syncQueueObserver = new SyncQueueObserver();
+        this.syncQueue = new SyncQueue();
 
         /**
          * @type {Sockets}

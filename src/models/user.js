@@ -43,6 +43,8 @@ class User extends Syncable {
   }
 
   /**
+   * Syncable type:
+   * this is a unique Model identifier. Queue defines entity from passed type
    * @return {number}
    */
   static get syncableType() {

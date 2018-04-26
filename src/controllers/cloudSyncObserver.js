@@ -159,7 +159,7 @@ class CloudSyncObserver {
       /**
        * Flush Queue after we sent mutations
        */
-      await global.app.syncQueueObserver.flushAll();
+      await global.app.syncQueue.flushAll();
 
       return dataFromCloud;
 
