@@ -60,7 +60,7 @@ class syncQueue {
   /**
    * Returns all items in queue with given entity type
    * @param {Number} entityType - Entity type. To see the examples, look at models that are syncable. Model Folder has type of 2
-   * @return {Promise.<Array[SyncQueueData]>}
+   * @return {Promise.<SyncQueueData[]>}
    */
   async getAll( entityType ) {
     return await db.find(db.SYNCQUEUE, {

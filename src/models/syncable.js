@@ -44,7 +44,7 @@ class Syncable {
   };
 
   static async syncableType() {
-    throw new Error('Syncable data loader must be implemented by subclass');
+    throw new Error('SyncableType must be implemented by subclass');
   }
 
   /**
@@ -56,7 +56,7 @@ class Syncable {
    * @return {object}
    */
   static async get(id){
-    throw new Error('Syncable data loader must be implemented by subclass');
+    throw new Error('Syncable get function must be implemented by subclass');
   }
 
   /**
@@ -67,7 +67,7 @@ class Syncable {
    * @return {object}
    */
   static get data() {
-    throw new Error('Syncable data loader must be implemented by subclass');
+    throw new Error('Syncable getter data must be implemented by subclass');
   }
 }
 
