@@ -36,9 +36,9 @@ class CloudSyncObserver {
 
     this.refreshClient();
 
-    this.syncingInterval = setInterval(() => {
-      this.sync();
-    }, 20 * 1000 ); // every 20 sec
+    // this.syncingInterval = setInterval(() => {
+    //   this.sync();
+    // }, 20 * 1000 ); // every 20 sec
   }
 
   /**

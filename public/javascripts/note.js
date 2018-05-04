@@ -145,7 +145,7 @@ export default class Note {
     if (!this.folderId) {
       this.folderId = codex.notes.aside.currentFolder ? codex.notes.aside.currentFolder.id : null;
     }
-    
+
     let folderId = this.folderId;
 
     codex.editor.saver.save()

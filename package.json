@@ -6,7 +6,7 @@
   "main": "./src/codex-notes.js",
   "scripts": {
     "start": "electron .",
-    "build": "webpack --progress --display-error-details --mode development",
+    "build": "webpack --progress --display-error-details --mode development --watch",
     "dist": "electron-builder",
     "ship": "electron-builder -mwl --x64 --ia32 -p always"
   },

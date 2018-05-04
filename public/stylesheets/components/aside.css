@@ -271,6 +271,25 @@
             opacity: 0.2;
         }
     }
+
+    &__update-notification {
+         position: absolute;
+         bottom: 0;
+         width: 100%;
+         margin-left: -15px;
+         background: #23242E;
+
+        &--text-action {
+            color: #14C063;
+            font-weight: bold;
+            font-size: 13.1px;
+            letter-spacing: -0.03px;
+        }
+
+        &--text-description {
+
+        }
+    }
 }
 
 .authorization-button {

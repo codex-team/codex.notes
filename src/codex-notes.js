@@ -50,6 +50,9 @@ const pug = require('electron-pug')({
   // compileDebug: true
 }, locals);
 
+/**
+ * Enable autoupdates
+ */
 const updater = require('./updater');
 
 /**
@@ -123,7 +126,6 @@ app.on('window-all-closed', function () {
  * @property {BrowserWindow} mainWindow
  */
 class CodexNotes {
-
   /**
    * Initializes an application
    */
@@ -280,6 +282,9 @@ class CodexNotes {
     this.mainWindow = null;
   }
 
+  /**
+   * Enable updates checker. When
+   */
   checkForUpdates() {
     try {
       let updateIsDownloaded = false;
@@ -300,7 +305,7 @@ class CodexNotes {
           type: 'info',
           buttons: ['Restart', 'Later'],
           // title: 'New version',
-          message: `CodeX Notes v${info.version} has been downloaded. Restart the application to apply the updates.`,
+          message: `The new version is available. Restart ${pkg.productName} to enjoy a new experience.`,
           // detail: info.releaseNotes
         });
 
