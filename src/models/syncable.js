@@ -6,6 +6,11 @@
  *
  * Models must implement getters data according to the syncableType that returns object with syncable data.
  * See an example from Models: User, Folder, Note.
+ *
+ * Implementation example list:
+ *  1. static getter syncableType
+ *  2. getter data
+ *  3. method get()
  */
 class Syncable {
 
@@ -16,7 +21,7 @@ class Syncable {
 
   /**
    * @abstract
-   * Get from queue updated Entities
+   * Get changed items from the Sync Queue
    * Make model instance with entity id and returns an array with Model's data
    * @return {Array[]}
    */
@@ -37,6 +42,10 @@ class Syncable {
       });
 
   };
+
+  static async syncableType() {
+    throw new Error('Syncable data loader must be implemented by subclass');
+  }
 
   /**
    * Return syncable entity's data by id.

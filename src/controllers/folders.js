@@ -148,6 +148,11 @@ class FoldersController {
 
       event.returnValue = await folder.save();
 
+      global.app.syncQueue.add( {
+        type : Folder.syncableType,
+        entityId : folder._id
+      });
+
       /**
        * Sync with an API
        */
