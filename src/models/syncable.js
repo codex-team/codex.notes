@@ -43,6 +43,12 @@ class Syncable {
 
   };
 
+  /**
+   * @abstract
+   * 
+   * Entity's unique type
+   * @return {Promise.<void>}
+   */
   static async syncableType() {
     throw new Error('SyncableType must be implemented by subclass');
   }
