@@ -76,10 +76,12 @@ class NotesController {
 
       let newNote = await note.save();
 
-      global.app.syncQueue.add( {
+      await global.app.syncQueue.add( {
         type : Note.syncableType,
         entityId : note._id
       });
+
+      global.app.cloudSyncObserver.sync();
 
       event.sender.send('note saved', {
         note: newNote,
@@ -155,6 +157,11 @@ class NotesController {
       let note = await Note.get(noteId);
 
       let noteRemovingResult = await note.delete();
+
+      await global.app.syncQueue.add( {
+        type : Note.syncableType,
+        entityId : noteRemovingResult._id
+      });
 
       global.app.cloudSyncObserver.sync();
 

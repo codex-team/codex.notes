@@ -172,6 +172,9 @@ class AuthController {
 
     await global.app.cloudSyncObserver.sendVerifyCollaborator(ownerId, folderId, token);
 
+    /**
+     * @todo add to queue
+     */
     global.app.cloudSyncObserver.sync();
 
     dialog.showMessageBox({
