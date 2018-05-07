@@ -11,6 +11,12 @@ const NotesList = require('./notesList');
 const Time = require('../utils/time.js');
 
 /**
+ * Abstract Syncable class
+ * @type {Syncable}
+ */
+const Syncable = require('./syncable');
+
+/**
  * Collaborator Model
  */
 const Collaborator = require('../models/collaborator');
@@ -29,9 +35,6 @@ const Collaborator = require('../models/collaborator');
  */
 
 /**
- * @class Folder
- * @classdesc Folder's model type
- *
  * @typedef {Folder} Folder
  * @property {String} _id
  * @property {String|null} title
@@ -42,9 +45,14 @@ const Collaborator = require('../models/collaborator');
  * @property {Collaborator[]} collaborators
  * @property {Boolean} isRoot
  * @property {Boolean} isRemoved
- *
  */
-class Folder {
+
+/**
+ * @classdesc Folder's model type
+ *
+ * @augments Syncable
+ */
+class Folder extends Syncable {
 
   /**
    * @constructor
@@ -52,6 +60,8 @@ class Folder {
    * @param {FolderData} folderData
    */
   constructor(folderData = {}) {
+    super();
+
     this._id = null;
     this.title = null;
     this.dtModify = null;
@@ -63,6 +73,15 @@ class Folder {
     this.isRemoved = false;
 
     this.data = folderData;
+  }
+
+  /**
+   * Syncable type:
+   * this is a unique Model identifier. Queue defines entity from passed type
+   * @return {number}
+   */
+  static get syncableType() {
+    return 2;
   }
 
   /**
@@ -359,13 +378,13 @@ class Folder {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
-   *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedItems = await db.find(db.FOLDERS, {
       dtModify: {$gt: lastSyncTimestamp}
     });

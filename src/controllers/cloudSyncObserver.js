@@ -38,7 +38,7 @@ class CloudSyncObserver {
 
     this.syncingInterval = setInterval(() => {
       this.sync();
-    }, 20 * 1000 ); // every 20 sec
+    }, 60 * 1000 ); // every 60 sec
   }
 
   /**
@@ -156,7 +156,13 @@ class CloudSyncObserver {
        */
       let updatedUser = await this.updateUserLastSyncDate();
 
+      /**
+       * Flush Queue after we sent mutations
+       */
+      await global.app.syncQueue.flushAll();
+
       return dataFromCloud;
+
     } catch(e) {
       global.logger.debug('[cloudSyncObserver] Error:', e);
       return false;
@@ -315,29 +321,23 @@ class CloudSyncObserver {
    * @return {{folders: []|null, notes: []|null}}
    */
   async getLocalUpdates() {
-    global.logger.debug('[cloudSyncObserver] Prepare local updates');
-
-    /**
-     * Get last sync date
-     *
-     * @type {Number}
-     */
-    let lastSyncTimestamp = await global.user.getSyncDate();
 
     /**
      * Get not synced User
      */
-    let changedUser = await User.prepareUpdates(lastSyncTimestamp);
+    let changedUser = await User.prepareUpdates();
 
     /**
      * Get not synced Folders
      */
-    let changedFolders = await Folder.prepareUpdates(lastSyncTimestamp);
+    let changedFolders = await Folder.prepareUpdates();
 
     /**
      * Get not synced Notes
      */
-    let changedNotes = await Note.prepareUpdates(lastSyncTimestamp);
+    let changedNotes = await Note.prepareUpdates();
+
+    global.logger.debug('[cloudSyncObserver] Prepare local updates', changedUser, changedNotes, changedFolders);
 
     return {
       user: changedUser,
@@ -372,7 +372,7 @@ class CloudSyncObserver {
     /**
      * Push Folders mutations to the Sync Mutations Sequence
      */
-    if (updates.folders.length) {
+    if (updates.folders && updates.folders.length) {
       syncMutationsSequence.push(...updates.folders.map( folder => {
         return this.sendFolder(folder);
       }));
@@ -381,7 +381,7 @@ class CloudSyncObserver {
     /**
      * Push Notes mutations to the Sync Mutations Sequence
      */
-    if (updates.notes.length) {
+    if (updates.notes && updates.notes.length) {
       syncMutationsSequence.push(...updates.notes.map( note => {
         return this.sendNote(note);
       }));

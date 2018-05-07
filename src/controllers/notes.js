@@ -74,7 +74,15 @@ class NotesController {
 
       note.dtModify = Time.now;
 
+      // mark edited Note as seen
+      global.app.seenStateObserver.touch(noteData.data.id);
+
       let newNote = await note.save();
+
+      await global.app.syncQueue.add( {
+        type : Note.syncableType,
+        entityId : note._id
+      });
 
       global.app.cloudSyncObserver.sync();
 
@@ -82,10 +90,6 @@ class NotesController {
         note: newNote,
         isRootFolder: !noteData.folderId
       });
-
-      // mark edited Note as seen
-
-      global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
       global.logger.debug('Note saving failed because of ', err);
@@ -152,6 +156,11 @@ class NotesController {
       let note = await Note.get(noteId);
 
       let noteRemovingResult = await note.delete();
+
+      await global.app.syncQueue.add( {
+        type : Note.syncableType,
+        entityId : noteRemovingResult._id
+      });
 
       global.app.cloudSyncObserver.sync();
 
