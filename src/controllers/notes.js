@@ -74,6 +74,9 @@ class NotesController {
 
       note.dtModify = Time.now;
 
+      // mark edited Note as seen
+      global.app.seenStateObserver.touch(noteData.data.id);
+
       let newNote = await note.save();
 
       await global.app.syncQueue.add( {
@@ -87,10 +90,6 @@ class NotesController {
         note: newNote,
         isRootFolder: !noteData.folderId
       });
-
-      // mark edited Note as seen
-
-      global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
       global.logger.debug('Note saving failed because of ', err);
