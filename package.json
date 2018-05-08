@@ -1,37 +1,23 @@
 {
   "name": "codex.notes",
   "version": "2.0.0",
-  "productName": "codex.notes",
-  "productIconICNS": "assets/icons/mac/icon-white1024.icns",
-  "productIconICO": "assets/icons/ico/icon-white1024.ico",
-  "productIconPNG": "assets/icons/png/icon-white1024.png",
+  "productName": "CodeX Notes",
   "description": "Simple, fast and useful crossplatform notes application based on CodeX Editor and Electron.",
-  "private": true,
   "main": "./src/codex-notes.js",
   "scripts": {
     "start": "electron .",
-    "build": "webpack --progress --display-error-details --mode development",
-    "package-all": "npm run package-mac; npm run package-linux; npm run package-win",
-    "package-mac": "electron-packager . \"$npm_package_productName\" --platform=darwin --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconICNS --overwrite --out=release-builds",
-    "package-linux": "electron-packager . \"$npm_package_productName\" --platform=linux --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconPNG --overwrite --out=release-builds",
-    "package-win": "electron-packager . \"$npm_package_productName\" --platform=win32 --arch=x64 --app-version=$npm_package_version --icon=$npm_package_productIconICO --overwrite --out=release-builds --version-string.FileDescription=\"$npm_package_productName\" --version-string.ProductName=\"$npm_package_productName\"",
-    "create-installer-all": "npm run create-installer-mac; npm run create-installer-linux",
-    "create-installer-mac": "DMG=\"./release-builds/CodeX Notes.dmg\"; rm \"$DMG\"; appdmg ./assets/dmg/appdmg.json \"$DMG\"",
-    "create-installer-linux": "electron-installer-debian --config ./assets/deb/config.json",
-    "create-installer-win": "node assets/exe/create-installer.js",
-    "release-all": "npm run release-mac; npm run release-linux; npm run release-win",
-    "release-mac": "npm run package-mac; npm run create-installer-mac",
-    "release-linux": "npm run package-linux; npm run create-installer-linux",
-    "release-win": "npm run package-win; npm run create-installer-win"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist-all": "electron-builder -mwl --x64 --ia32",
+    "build": "webpack --progress --display-error-details --mode development"
   },
   "author": {
-    "name": "CodeX Team",
+    "name": "CodeX",
     "email": "team@ifmo.su"
   },
   "license": "MIT",
   "homepage": "https://ifmo.su/notes",
   "repository": {
-    "type": "git",
     "url": "https://github.com/codex-team/codex.notes"
   },
   "bugs": "https://github.com/codex-team/codex.notes/issues/new",
@@ -44,10 +30,13 @@
     "is-online": "^7.0.0",
     "nedb": "^1.8.0",
     "node-notifier": "^5.2.1",
+    "npm": "^5.8.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sanitize-html": "^1.18.2",
-    "simple-node-logger": "^0.93.37",
+    "tapable": "^1.0.0",
+    "winston": "^3.0.0-rc4",
+    "winston-daily-rotate-file": "^3.1.2",
     "ws": "^5.1.0"
   },
   "devDependencies": {
@@ -56,10 +45,8 @@
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.11",
-    "electron": "^2.0.0-beta.6",
-    "electron-installer-debian": "^0.8.1",
-    "electron-packager": "^11.2.0",
-    "electron-winstaller": "^2.6.4",
+    "electron": "^2.0.0-beta.7",
+    "electron-builder": "^20.9.0",
     "eslint": "^4.19.1",
     "eslint-loader": "^2.0.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
@@ -75,16 +62,52 @@
     "postcss-custom-selectors": "^4.0.1",
     "postcss-font-family-system-ui": "^3.0.0",
     "postcss-font-variant": "^3.0.0",
-    "postcss-loader": "^2.1.3",
+    "postcss-loader": "^2.1.4",
     "postcss-media-minmax": "^3.0.0",
     "postcss-nested": "^3.0.0",
     "postcss-nested-ancestors": "^2.0.0",
     "postcss-nesting": "^4.2.1",
     "postcss-smart-import": "^0.7.6",
-    "webpack": "^4.4.1",
-    "webpack-cli": "^2.0.13"
+    "source-list-map": "^2.0.0",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.14"
   },
-  "optionalDependencies": {
-    "appdmg": "^0.5.2"
+  "optionalDependencies": {},
+  "build": {
+    "appId": "su.ifmo.notes",
+    "files": [
+      "src/**",
+      "public/**",
+      "package.json",
+      "env.js"
+    ],
+    "dmg": {
+      "title": "${productName} v${version}",
+      "icon": "build/dmg/logo-disk.icns",
+      "background": "build/dmg/background.png",
+      "iconSize": 128,
+      "window": {
+        "width": 600,
+        "height": 360
+      },
+      "contents": [
+        {
+          "x": 172,
+          "y": 180
+        },
+        {
+          "x": 428,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }

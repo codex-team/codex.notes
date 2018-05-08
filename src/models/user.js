@@ -6,6 +6,8 @@ const db = require('../utils/database'),
     request = require('request'),
     path = require('path');
 
+const Syncable = require('./syncable');
+
 /**
  * Model for current user representation.
  * @typedef {User} User
@@ -17,12 +19,14 @@ const db = require('../utils/database'),
  * @property {number} dt_sync – last synchronization timestamp
  * @property {string} channel – personal sockets channel
  */
-class User {
+class User extends Syncable {
 
   /**
    * @param {UserData} userData
    */
   constructor(userData = {}) {
+    super();
+
     this.id = null;
     this.name = null;
     this.photo = null;
@@ -36,6 +40,15 @@ class User {
     this.localPhoto = path.join(db.appFolder, 'avatar.jpeg');
 
     this.data = userData;
+  }
+
+  /**
+   * Syncable type:
+   * this is a unique Model identifier. Queue defines entity from passed type
+   * @return {number}
+   */
+  static get syncableType() {
+    return 3;
   }
 
   /**
@@ -197,13 +210,13 @@ class User {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
-   *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedUserModel = await db.findOne(db.USER, {
       dtModify: {$gt: lastSyncTimestamp}
     });

@@ -1,5 +1,6 @@
 public/notes/*
 release-builds/*
+dist/*
 data/*
 
 .idea/*

@@ -4,11 +4,7 @@
  * @usage enable logger
  * global.logger = require('./utils/logger');
  *
- * @usage set level
- * global.logger.setLevel(process.env.LOG_LEVEL || 'warn');
- *
- * @example logger.trace('my log');
- * @example logger.debug('my log');
+ * @example logger.debug('my log %s', variable);
  * @example logger.info('my log');
  * @example logger.warn('my log');
  * @example logger.error('my log');
@@ -28,16 +24,24 @@ if (!fs.existsSync(logsDirPath)){
   fs.mkdirSync(logsDirPath);
 }
 
-/** create a log manager */
-const manager = require('simple-node-logger').createLogManager();
+const winston = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
 
-manager.createRollingFileAppender({
-  errorEventName: 'error',
-  logDirectory: logsDirPath,
-  dateFormat: 'YYYY-MM-DD',
-  fileNamePattern: '<DATE>.log',
-  timestampFormat: 'HH:mm:ss'
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'debug',
+  format: winston.format.combine(
+    winston.format.splat(),
+    winston.format.simple()
+  ),
+  transports: [
+    new winston.transports.Console({
+    }),
+    new DailyRotateFile({
+      dirname: logsDirPath,
+      filename: '%DATE%.log'
+    })
+  ]
 });
 
-module.exports = manager.createLogger();
 
+module.exports = logger;

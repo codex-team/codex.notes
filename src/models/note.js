@@ -19,6 +19,12 @@ const utils = require('../utils/utils');
 const Time = require('../utils/time.js');
 
 /**
+ * Abstract class Syncable
+ * @type {Syncable}
+ */
+const Syncable = require('./syncable');
+
+/**
  * Max length for intro text
  */
 const INTRO_TEXT_MAX_LENGTH = 150;
@@ -42,7 +48,7 @@ const INTRO_TEXT_MAX_LENGTH = 150;
 /**
  * Notes model.
  */
-class Note {
+class Note extends Syncable {
   /**
    * @constructor
    * Makes new Note example
@@ -50,6 +56,8 @@ class Note {
    * @param {NoteData} noteData  - Note's data to fill the Model
    */
   constructor(noteData = {}) {
+    super();
+
     this._id = null;
     this.title = null;
     this.titleLabel = null;
@@ -61,6 +69,15 @@ class Note {
     this.isRemoved = false;
     this.editorVersion = null;
     this.data = noteData;
+  }
+
+  /**
+   * Syncable type:
+   * this is a unique Model identifier. Queue defines entity from passed type
+   * @return {number}
+   */
+  static get syncableType() {
+    return 1;
   }
 
   /**
@@ -322,13 +339,14 @@ class Note {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
    *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedItems = await db.find(db.NOTES, {
       dtModify: {$gt: lastSyncTimestamp}
     });
