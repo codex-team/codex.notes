@@ -3,7 +3,7 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
-const hashCoder = require('./utils/hashCoder').default;
+const HashCoder = require('./utils/hashCoder').default;
 const CommonUtils = require('./utils/common').default;
 
 /**
@@ -24,6 +24,7 @@ const CommonUtils = require('./utils/common').default;
  *
  * @typedef {Note} Note
  * @property {Element} deleteButton
+ * @property {String} hashedNote - hash of last saved note
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
@@ -160,16 +161,22 @@ export default class Note {
       })
       .then( noteData => {
         let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
-            currentHashedNote = hashCoder.simpleHash(currentNoteContent);
+            currentHashedNote = HashCoder.simpleHash(currentNoteContent);
 
+        /** note is saved because hashes are similar */
         if (currentHashedNote === this.hashedNote) {
           return;
         }
 
-        // update saved hash if note changed
+        /**
+         * If current note changes is not similar to the last saved, than we save new changes and make new hash as current
+         * We do so that to match always match current changes with last saved
+         */
         this.hashedNote = currentHashedNote;
 
-        // save client performed JSON stringify
+        /**
+         * JSON.stringify is not saving the order of objects so on backend side content might be different
+         */
         noteData.content = JSON.stringify(noteData.items);
 
         let note = {
@@ -239,7 +246,7 @@ export default class Note {
     let dtModify = new Date(note.dtModify * 1000);
 
     /**
-     * hash note content with title
+     * hash note content with title so match with new versions
      */
     this.hashedNote = hashCoder.simpleHash(note.title + note.content);
 

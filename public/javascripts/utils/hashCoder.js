@@ -1,24 +1,25 @@
 /**
  * HashCoder util
  */
-let memoizedHashes = {};
+let cachedHashes = {};
 
 /**
  * HashCoder class
- *
  * Util that have hashing methods
  */
-export default class hashCoder {
+export default class HashCoder {
+
   /**
    * Simple hash method
    * @param {String} text
    */
   static simpleHash(text) {
+
     /**
      * Returns hash from cache
      */
-    if (text && memoizedHashes[text]) {
-      return memoizedHashes[text];
+    if (text && cachedHashes[text]) {
+      return cachedHashes[text];
     }
 
     let hash = 0;
@@ -35,7 +36,7 @@ export default class hashCoder {
     }
 
     // save to cache
-    memoizedHashes[text] = hash;
+    cachedHashes[text] = hash;
     return hash;
   }
 }

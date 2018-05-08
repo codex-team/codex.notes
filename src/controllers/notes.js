@@ -66,7 +66,7 @@ class NotesController {
       let note = new Note({
         _id: noteData.data.id || null,
         title: noteData.title,
-        content: noteData.data.content || JSON.stringify(noteData.data.items),
+        content: noteData.data.content,
         editorVersion: noteData.data.version,
         authorId: global.user && global.user.token ? global.user.id : null,
         folderId: noteData.folderId,

@@ -76,7 +76,7 @@ class CloudSyncObserver {
    * @param {object} message
    * @param {string} message.event - notify event ('folder updated', 'collaborator invited');
    * @param {object} message.data - payload
-   * @param {object} message.sender
+   * @param {User}   message.sender - sender information. This is a user that made changes
    *
    * @return {void}
    */
@@ -86,6 +86,10 @@ class CloudSyncObserver {
       return;
     }
 
+    /**
+     * this variable contains notification data
+     * @type {NotifierOptions}
+     */
     let notification;
 
     global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
