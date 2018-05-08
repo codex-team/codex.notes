@@ -4,6 +4,7 @@ const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
 const hashCoder = require('./utils/hashCoder').default;
+const CommonUtils = require('./utils/common').default;
 
 /**
  * @typedef {Object} NoteData
