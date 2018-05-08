@@ -163,7 +163,7 @@ export default class Note {
         let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
             currentHashedNote = HashCoder.simpleHash(currentNoteContent);
 
-        /** note is saved because hashes are similar */
+        /** note is not saved because hashes are similar */
         if (currentHashedNote === this.hashedNote) {
           return;
         }
