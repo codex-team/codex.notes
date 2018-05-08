@@ -246,9 +246,15 @@ export default class Note {
     let dtModify = new Date(note.dtModify * 1000);
 
     /**
+     * Reset cache if new or old note is rendered
+     * we don't need longer the old cache because we match always tha last saved note
+     */
+    HashCoder.resetCache();
+
+    /**
      * hash note content with title so match with new versions
      */
-    this.hashedNote = hashCoder.simpleHash(note.title + note.content);
+    this.hashedNote = HashCoder.simpleHash(note.title + note.content);
 
     this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',

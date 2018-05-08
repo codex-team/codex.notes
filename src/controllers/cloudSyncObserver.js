@@ -115,7 +115,7 @@ class CloudSyncObserver {
             if ( message.data.folder && message.data.folder.title ) {
               notification.message += ' at ' + message.data.folder.title;
             }
-            
+
             /**
              * Do not send push notification if sender is you
              * We handle this case because user may have several devices and we must get updates by sockets but without notification

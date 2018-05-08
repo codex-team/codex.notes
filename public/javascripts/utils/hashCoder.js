@@ -8,13 +8,18 @@ let cachedHashes = {};
  * Util that have hashing methods
  */
 export default class HashCoder {
+  /**
+   * Flushes cached hashes
+   */
+  static resetCache() {
+    cachedHashes = {};
+  }
 
   /**
    * Simple hash method
    * @param {String} text
    */
   static simpleHash(text) {
-
     /**
      * Returns hash from cache
      */
