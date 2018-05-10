@@ -4,7 +4,6 @@ const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
 const HashCoder = require('./utils/hashCoder').default;
-const CommonUtils = require('./utils/common').default;
 
 /**
  * @typedef {Object} NoteData
@@ -23,6 +22,8 @@ const CommonUtils = require('./utils/common').default;
  * Note section module
  *
  * @typedef {Note} Note
+ * @property {number} currentNoteId - id of opened note
+ * @property {number} folderId - id of opened folder
  * @property {Element} deleteButton
  * @property {String} hashedNote - hash of last saved note
  * @property {Element} titleEl
@@ -164,7 +165,7 @@ export default class Note {
         let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
             currentHashedNote = HashCoder.simpleHash(currentNoteContent);
 
-        /** note is not saved because hashes are similar */
+        /** Note wont be saved because hashes are similar */
         if (currentHashedNote === this.hashedNote) {
           return;
         }
@@ -176,7 +177,9 @@ export default class Note {
         this.hashedNote = currentHashedNote;
 
         /**
-         * JSON.stringify is not saving the order of objects so on backend side content might be different
+         * We should use client-side stringifying
+         * because on the server-side it can generate different string
+         * caused of unmatched order of object properties
          */
         noteData.content = JSON.stringify(noteData.items);
 

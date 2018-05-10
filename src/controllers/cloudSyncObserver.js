@@ -35,7 +35,7 @@ class CloudSyncObserver {
     this.refreshClient();
 
     this.syncingInterval = setInterval(() => {
-      this.sync(true);
+      this.sync({direction: 'both'});
     }, 60 * 1000 ); // every 60 sec
   }
 
@@ -182,18 +182,20 @@ class CloudSyncObserver {
    *
    * 5. Update user's last sync date
    *
-   * @param {boolean} getDataFromCloud
-   *
-   // * @returns {bool}
+   * @param {string} direction - 'send|get|both' - need load updated send or just send
+   * @return {void}
    */
-  async sync(getDataFromCloud = false) {
+  async sync({direction} = {direction: 'send'}) {
     try {
       // if user is not authorized
       if (!global.user.token) {
         return;
       }
 
-      if (getDataFromCloud) {
+      let isNeedGet = direction === 'both' || direction === 'get',
+          isNeedSend = direction === 'both' || direction === 'send';
+
+      if (isNeedGet) {
         /**
          * Get data from the Cloud
          *
@@ -205,34 +207,34 @@ class CloudSyncObserver {
          * Update local data if Cloud item's
          *    dtModify is greater than local.
          */
-        let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
+        await this.saveDataFromCloud(dataFromCloud);
       }
 
-      /**
-       * Prepare local updates for this moment
-       */
-      let preparedLocalUpdates = await this.getLocalUpdates();
+      if (isNeedSend) {
+        /**
+         * Prepare local updates for this moment
+         */
+        let preparedLocalUpdates = await this.getLocalUpdates();
 
-      /**
-       * Create Sync Mutations Sequence
-       */
-      let syncMutations = await this.syncMutationsSequence(preparedLocalUpdates);
+        /**
+         * Create Sync Mutations Sequence
+         */
+        await this.syncMutationsSequence(preparedLocalUpdates);
 
-      /**
-       * Update user's last sync date
-       */
-      let updatedUser = await this.updateUserLastSyncDate();
+        /**
+         * Update user's last sync date
+         */
+        // let updatedUser = await this.updateUserLastSyncDate();
 
-      /**
-       * Flush Queue after we sent mutations
-       */
-      await global.app.syncQueue.flushAll();
+        /**
+         * Flush Queue after we sent mutations
+         */
+        await global.app.syncQueue.flushAll();
+      }
 
-      // return dataFromCloud;
 
     } catch(e) {
       global.logger.debug('[cloudSyncObserver] Error: %s', e);
-      return false;
     }
   }
 
@@ -412,7 +414,6 @@ class CloudSyncObserver {
     let changedNotes = await Note.prepareUpdates();
 
     global.logger.debug('[cloudSyncObserver] Prepare local updates');
-    // global.logger.debug('[cloudSyncObserver] Prepare local updates', changedUser, changedNotes, changedFolders);
 
     return {
       user: changedUser,

@@ -142,6 +142,9 @@ export default class Aside {
         this.removeMenuItem(note._id);
       }
 
+      /**
+       * Reload current opened note with the new data
+       */
       if (note._id === codex.notes.note.currentNoteId) {
         codex.notes.note.render(note);
       }
@@ -160,16 +163,12 @@ export default class Aside {
         this.removeFolderFromMenu(folder._id);
       }
     });
-
-    // window.ipcRenderer.on('open note', (event, {note}) => {
-    //   this.renderNote(note);
-    // });
   }
 
   /**
    * Loads notes list from the server
    *
-   * Can be used async with subscribtion
+   * Can be used async with subscription
    * on window.ipcRenderer.on('notes list - update', (event, {notes, folder}) => {})
    *
    * or synchronously like loadNotes().then( notes => {})
