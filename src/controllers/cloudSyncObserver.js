@@ -133,6 +133,8 @@ class CloudSyncObserver {
             if (global.user.id != message.sender.id) {
               global.app.pushNotifications.send(notification);
             }
+
+
           });
         break;
       case 'collaborator invited':

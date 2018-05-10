@@ -141,6 +141,9 @@ export default class Aside {
       } else {
         this.removeMenuItem(note._id);
       }
+
+      this.renderNote(note);
+      console.log(note);
     });
 
     window.ipcRenderer.on('folder updated', (event, folder) => {
@@ -156,6 +159,10 @@ export default class Aside {
         this.removeFolderFromMenu(folder._id);
       }
     });
+
+    // window.ipcRenderer.on('open note', (event, {note}) => {
+    //   this.renderNote(note);
+    // });
   }
 
   /**
@@ -423,9 +430,22 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
-    // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
+    this.renderNote(noteData);
+
+    /**
+     * Remove unread badge
+     */
+    this.markNoteAsRead(id);
+  }
+
+  /**
+   * Render note in Editor
+   *
+   * @param {object} noteData
+   */
+  renderNote(noteData) {
     codex.notes.note.render(noteData);
 
     /**
@@ -434,11 +454,6 @@ export default class Aside {
     let editorView = document.querySelector('[name="editor-view"]');
 
     editorView.scrollIntoView();
-
-    /**
-     * Remove unread badge
-     */
-    this.markNoteAsRead(id);
   }
 
   /**
