@@ -72,9 +72,6 @@ class CloudSyncObserver {
       let message = data.message,
           deviceId = data['device-id'];
 
-      global.utils.webhookDebug(deviceId);
-      global.utils.webhookDebug(global.deviceId);
-
       /**
        * If this is message from yourself then do nothing
        */
