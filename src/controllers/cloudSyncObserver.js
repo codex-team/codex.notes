@@ -84,12 +84,6 @@ class CloudSyncObserver {
       return;
     }
 
-    /**
-     * this variable contains notification data
-     * @type {NotifierOptions}
-     */
-    let notification;
-
     global.logger.debug(`\n\nNew message in channel: ${message.event} => ${global.utils.print(message.data)}\n\n\n`);
 
     switch (message.event) {
