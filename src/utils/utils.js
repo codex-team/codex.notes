@@ -70,6 +70,10 @@ class Utils {
    */
   static async webhookDebug(...args) {
     try {
+      if (!process.env.WEBHOOK_DEBUG) {
+        return;
+      }
+
       let message = '';
 
       args.forEach(arg => {
