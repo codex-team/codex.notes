@@ -64,76 +64,72 @@ const path = require('path');
  */
 
 class PushNotifications {
+  /**
+   * @constructor
+   */
+  constructor() {
+  }
 
-    /**
-     * @constructor
-     */
-    constructor() {
+  /**
+   * sends push notification to the main process
+   * @param {PushOptions} options
+   * @param {PushCallbacks} callbacks
+   */
+  send(options, callbacks = {}) {
+    if ( os.type() === 'Darwin' ) {
+      this.sendOSXNotificaion(options, callbacks);
+    } else {
+      this.sendDefaultNotification(options, callbacks);
     }
+  }
 
-    /**
-     * sends push notification to the main process
-     * @param {PushOptions} options
-     * @param {PushCallbacks} callbacks
-     */
-    send(options, callbacks = {}) {
-
-        if ( os.type() === 'Darwin' ) {
-            this.sendOSXNotificaion(options, callbacks);
-        } else {
-            this.sendDefaultNotification(options, callbacks);
-        }
-    }
-
-    /**
-     * @param {PushOptions} options
-     * @param {PushCallbacks} callbacks
-     */
-    sendOSXNotificaion(options, callbacks) {
-
-        let notificationOptions = {
-            title : options.title,
-            subtitle : options.subtitle,
-            icon  : options.image,
-            body  : options.message
+  /**
+   * @param {PushOptions} options
+   * @param {PushCallbacks} callbacks
+   */
+  sendOSXNotificaion(options, callbacks) {
+    let notificationOptions = {
+          title : options.title,
+          subtitle : options.subtitle,
+          icon  : options.image,
+          body  : options.message
         },
         notification = new Notification(notificationOptions);
-        notification.show();
-    }
 
+    notification.show();
+  }
+
+  /**
+   * Here we use node-notifier module to send notifications on Linus, Windows and others
+   *
+   * @param {PushOptions} options
+   * @param {PushCallbacks} callbacks
+   */
+  sendDefaultNotification(options, callbacks) {
     /**
-     * Here we use node-notifier module to send notifications on Linus, Windows and others
-     *
-     * @param {PushOptions} options
-     * @param {PushCallbacks} callbacks
+     * Assemble data from passed options
+     * @type {NotifierOptions}
      */
-    sendDefaultNotification(options, callbacks) {
+    let notifierOption = {
+      appIcon : this.icon,
+      title   : options.title || this.title,
+      subtitle : options.subtitle,
+      contentImage : options.image,
+      message : options.message,
 
-        /**
-         * Assemble data from passed options
-         * @type {NotifierOptions}
-         */
-        let notifierOption = {
-            appIcon : this.icon,
-            title   : options.title || this.title,
-            subtitle : options.subtitle,
-            contentImage : options.image,
-            message : options.message,
+      timeout : 10
+    };
 
-            timeout : 10
-        };
-
-        if ( callbacks.length > 0 ) {
-            notifierOption.wait = true;
-        }
-
-        if ( typeof callbacks['click'] === 'function' ) {
-            notifier.once('click', callbacks['click']);
-        }
-
-        notifier.notify(notifierOption);
+    if ( callbacks.length > 0 ) {
+      notifierOption.wait = true;
     }
 
+    if ( typeof callbacks['click'] === 'function' ) {
+      notifier.once('click', callbacks['click']);
+    }
+
+    notifier.notify(notifierOption);
+  }
 }
 
 module.exports = PushNotifications;
