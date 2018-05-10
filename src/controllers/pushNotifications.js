@@ -30,10 +30,10 @@ const path = require('path');
 /**
  * @typedef {Object} PushOptions
  * @property {String} title - Message title.
- * @property {String} subtitle - Message subtitle.
  * @property {String} message - notification content
- * @property {Boolean} silent - need sound or not
- * @property {String} image - notification icon. Using CodeX Notes logo as default
+ * @property {String} [subtitle] - Message subtitle.
+ * @property {Boolean} [silent] - need sound or not
+ * @property {String} [image] - notification icon. Using CodeX Notes logo as default
  *
  */
 

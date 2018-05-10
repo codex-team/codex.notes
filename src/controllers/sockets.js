@@ -96,7 +96,7 @@ class Channel {
     });
 
     this.ws.on('error', (error) => {
-      global.logger.debug('Sockets Channel error: ', error);
+      global.logger.debug('Sockets Channel error: %s', error);
     });
   }
 
@@ -119,14 +119,17 @@ class Channel {
    * @param {string} data - JSON-answer given. Contain "message" property with data
    */
   onMessage(data) {
-
     try {
-      data = JSON.parse(data);
-      this.callback(data.message);
+      let parsedData = JSON.parse(data),
+          message = parsedData.message;
+      try {
+        this.callback(message);
+      } catch (error) {
+        global.logger.debug('Error while handling socket message: \n%s, \nError: %s', data, error);
+      }
     } catch (error) {
-      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected.', error);
+      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected. \nError: %s, \nSocket %s', error, data);
     }
-
   }
 
   /**

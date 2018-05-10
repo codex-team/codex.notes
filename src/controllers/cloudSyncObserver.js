@@ -86,28 +86,29 @@ class CloudSyncObserver {
       return;
     }
 
-    /**
-     * this variable contains notification data
-     * @type {NotifierOptions}
-     */
-    let notification;
-
     global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
 
     switch (message.event) {
       case 'folder updated':
-        notification = {
-          title : message.data.folder.title,
-          message : message.sender.name + ' renamed the folder'
-        };
-        this.sendNotification(notification);
+
+        /**
+         * @todo Move to the separated handler
+         */
+        let updatedFolder = message.data;
+
+        global.app.pushNotifications.send({
+          title: updatedFolder.title,
+          message: message.sender.name + ' updated folder'
+        });
+
         this.saveFolder(message.data);
+
         break;
       case 'note updated':
         let folderId = message.data.folderId;
         this.saveNote(message.data, {_id: folderId})
           .then( (note) => {
-            notification = {
+            let notification = {
               title   : note.title || note.titleLabel,
               message : message.sender.name + ' edited the note'
             };
@@ -121,7 +122,7 @@ class CloudSyncObserver {
              * We handle this case because user may have several devices and we must get updates by sockets but without notification
              */
             if (global.user.id != message.sender.id) {
-              this.sendNotification(notification);
+              global.app.pushNotifications.send(notification);
             }
           });
         break;
@@ -130,11 +131,11 @@ class CloudSyncObserver {
         global.app.clientSyncObserver.sendCollaborator(message.data);
         break;
       case 'collaborator joined':
-        notification = {
+        let notification = {
           title : message.data.folder.title,
           message : message.data.user.name + ' joined the folder'
         };
-        this.sendNotification(notification);
+        global.app.pushNotifications.send(notification);
         break;
       default:
     }
@@ -590,13 +591,6 @@ class CloudSyncObserver {
       });
   }
 
-  /**
-   * Send notification
-   * @param {PushOptions} options
-   */
-  sendNotification(options) {
-    global.app.pushNotifications.send(options);
-  }
 }
 
 module.exports = CloudSyncObserver;
