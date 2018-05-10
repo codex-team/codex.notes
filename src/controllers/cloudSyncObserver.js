@@ -51,6 +51,11 @@ class CloudSyncObserver {
          *  as 'give access to the bearer of this token'
          */
         Authorization: 'Bearer ' + global.user.token,
+
+        /**
+         * Device-Id header uses to identify client's app
+         */
+        'Device-Id': global.deviceId
       }
     });
 

@@ -104,7 +104,6 @@ class Channel {
    */
   opened() {
     global.logger.debug('listening channel ' + this.url);
-    global.utils.webhookDebug('listening channel ' + this.url);
   }
 
   /**
@@ -121,7 +120,16 @@ class Channel {
   onMessage(data) {
     try {
       let parsedData = JSON.parse(data),
-          message = parsedData.message;
+          message = parsedData.message,
+          deviceId = parsedData['device-id'];
+
+      /**
+       * If this is message from yourself then do nothing
+       */
+      if (deviceId === global.deviceId) {
+        return;
+      }
+
       try {
         this.callback(message);
       } catch (error) {

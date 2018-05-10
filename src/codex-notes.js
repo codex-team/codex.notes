@@ -24,6 +24,10 @@ if (process.env.HAWK_TOKEN) {
 global.logger = require('./utils/logger');
 global.utils = require('./utils/utils');
 
+/** Get deviceId */
+const machineIdSync = require('node-machine-id').machineIdSync;
+global.deviceId = machineIdSync({original: true});
+
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
 
