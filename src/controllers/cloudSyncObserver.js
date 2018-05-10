@@ -102,6 +102,17 @@ class CloudSyncObserver {
         this.saveFolder(message.data);
 
         break;
+      case 'folder renamed':
+        let renamedFolder = message.data;
+
+        global.app.pushNotifications.send({
+          title: renamedFolder.title,
+          message: message.sender.name + ' renamed folder'
+        });
+
+        this.saveFolder(message.data);
+
+        break;
       case 'note updated':
         let folderId = message.data.folderId;
         this.saveNote(message.data, {_id: folderId})
