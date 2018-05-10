@@ -79,8 +79,6 @@ class CloudSyncObserver {
         return;
       }
 
-
-      global.utils.webhookDebug('after');
       this.gotNotify(message);
     });
   }
