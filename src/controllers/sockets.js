@@ -119,19 +119,10 @@ class Channel {
    */
   onMessage(data) {
     try {
-      let parsedData = JSON.parse(data),
-          message = parsedData.message,
-          deviceId = parsedData['device-id'];
-
-      /**
-       * If this is message from yourself then do nothing
-       */
-      if (deviceId === global.deviceId) {
-        return;
-      }
+      let parsedData = JSON.parse(data);
 
       try {
-        this.callback(message);
+        this.callback(parsedData);
       } catch (error) {
         global.logger.debug('Error while handling socket message: \n%s, \nError: %s', data, error);
       }

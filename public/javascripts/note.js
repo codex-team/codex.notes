@@ -283,6 +283,13 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+
+    /**
+     * Scroll to top
+     */
+    let editorView = document.querySelector('[name="editor-view"]');
+
+    editorView.scrollIntoView();
   }
 
   /**

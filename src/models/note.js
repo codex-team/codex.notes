@@ -245,11 +245,11 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send created Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send created Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     /**
      * Return Note's data
@@ -284,11 +284,11 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send updated Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send updated Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     return this.data;
   }

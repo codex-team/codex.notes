@@ -143,7 +143,7 @@ export default class Aside {
       }
 
       if (note._id === codex.notes.note.currentNoteId) {
-        this.renderNote(note);
+        codex.notes.note.render(note);
       }
     });
 
@@ -433,28 +433,12 @@ export default class Aside {
 
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
-    this.renderNote(noteData);
+    codex.notes.note.render(noteData);
 
     /**
      * Remove unread badge
      */
     this.markNoteAsRead(id);
-  }
-
-  /**
-   * Render note in Editor
-   *
-   * @param {object} noteData
-   */
-  renderNote(noteData) {
-    codex.notes.note.render(noteData);
-
-    /**
-     * Scroll to top
-     */
-    let editorView = document.querySelector('[name="editor-view"]');
-
-    editorView.scrollIntoView();
   }
 
   /**

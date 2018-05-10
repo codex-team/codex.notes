@@ -68,7 +68,22 @@ class CloudSyncObserver {
    * Open user's notifications channel
    */
   openUserChannel() {
-    global.app.sockets.listenChannel(global.user.channel, (message) => {
+    global.app.sockets.listenChannel(global.user.channel, data => {
+      let message = data.message,
+          deviceId = data['device-id'];
+
+      global.utils.webhookDebug(deviceId);
+      global.utils.webhookDebug(global.deviceId);
+
+      /**
+       * If this is message from yourself then do nothing
+       */
+      if (deviceId === global.deviceId) {
+        return;
+      }
+
+
+      global.utils.webhookDebug('after');
       this.gotNotify(message);
     });
   }
@@ -342,7 +357,14 @@ class CloudSyncObserver {
     /**
      * Save Note's data
      */
-    return await note.save();
+    let savedNote = await note.save();
+
+    /**
+     * Send created Note to the Client
+     */
+    global.app.clientSyncObserver.sendNote(savedNote);
+
+    return savedNote;
   }
 
   /**
