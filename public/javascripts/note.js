@@ -59,6 +59,7 @@ export default class Note {
 
     this.shortcuts = [];
     this.folderId = null;
+    this.currentNoteId = null;
 
     this.enableShortcuts();
   }
@@ -238,6 +239,7 @@ export default class Note {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
+    this.currentNoteId = note._id;
 
     /**
      * We store all times in a Seconds to correspond server-format

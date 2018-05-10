@@ -142,8 +142,9 @@ export default class Aside {
         this.removeMenuItem(note._id);
       }
 
-      this.renderNote(note);
-      console.log(note);
+      if (note._id === codex.notes.note.currentNoteId) {
+        this.renderNote(note);
+      }
     });
 
     window.ipcRenderer.on('folder updated', (event, folder) => {

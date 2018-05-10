@@ -21,7 +21,6 @@ class ClientSyncObserver {
       note,
       isRootFolder: note.folderId === rootFolderId
     });
-    global.utils.webhookDebug(note);
   }
 
   /**
