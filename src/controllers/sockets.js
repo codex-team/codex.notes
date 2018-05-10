@@ -11,7 +11,6 @@ const WebSocket = require('ws');
  * @property {array} channels - list of active channels
  */
 class Sockets {
-
   /**
    * @constructor
    */
@@ -105,6 +104,7 @@ class Channel {
    */
   opened() {
     global.logger.debug('listening channel ' + this.url);
+    global.utils.webhookDebug('listening channel ' + this.url);
   }
 
   /**

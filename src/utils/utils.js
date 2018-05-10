@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const request = require('request-promise');
 
 /**
  * Helpers
@@ -62,6 +63,31 @@ class Utils {
     });
   }
 
+  /**
+   *
+   * @param args
+   * @return {Promise<*>}
+   */
+  static async webhookDebug(...args) {
+    try {
+      let message = '';
+
+      args.forEach(arg => {
+        message += JSON.stringify(arg) + ' ';
+      });
+
+      return await request({
+        url: process.env.WEBHOOK_DEBUG,
+        method: 'POST',
+        body: {
+          message
+        },
+        json: true
+      });
+    } catch (e) {
+      global.logger.debug('Error while sending webhook debug message: %s', e);
+    }
+  }
 }
 
 module.exports = Utils;

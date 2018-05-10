@@ -9,7 +9,6 @@ const User = require('../models/user');
  * @type {Time}
  */
 const Time = require('../utils/time');
-const _ = require('../utils/utils');
 
 /**
  * Simple GraphQL requests provider
@@ -27,7 +26,6 @@ const { GraphQLClient } = require('graphql-request');
  * @property {GraphQLClient} api    - GraphQL API client
  */
 class CloudSyncObserver {
-
   /**
    * Initialize params for the API
    */
@@ -92,7 +90,7 @@ class CloudSyncObserver {
      */
     let notification;
 
-    global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
+    global.logger.debug(`\n\nNew message in channel: ${message.event} => ${global.utils.print(message.data)}\n\n\n`);
 
     switch (message.event) {
       case 'folder updated':
@@ -226,7 +224,7 @@ class CloudSyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
+        // global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
         return data;
       });
   }

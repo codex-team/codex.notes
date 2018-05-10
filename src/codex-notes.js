@@ -22,6 +22,7 @@ if (process.env.HAWK_TOKEN) {
  * @example global.logger.info('Hey yo');
  */
 global.logger = require('./utils/logger');
+global.utils = require('./utils/utils');
 
 const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');

@@ -8,7 +8,7 @@ let db = require('../utils/database');
  * Class in responsible for sending updates to the Client
  */
 class ClientSyncObserver {
-  constructor(){
+  constructor() {
   }
 
   /**

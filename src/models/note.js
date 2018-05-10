@@ -11,7 +11,6 @@ const sanitizeHtml = require('sanitize-html');
  * @type {Database}
  */
 const db = require('../utils/database');
-const utils = require('../utils/utils');
 
 /**
  * Time helper
