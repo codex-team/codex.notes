@@ -34,7 +34,6 @@ const path = require('path');
  * @property {String} [subtitle] - Message subtitle.
  * @property {Boolean} [silent] - need sound or not
  * @property {String} [image] - notification icon. Using CodeX Notes logo as default
- *
  */
 
 /**
@@ -95,6 +94,7 @@ class PushNotifications {
           body  : options.message
         },
         notification = new Notification(notificationOptions);
+        notification.on('click', callbacks['click']);
 
     notification.show();
   }

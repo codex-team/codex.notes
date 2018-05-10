@@ -145,8 +145,10 @@ class CloudSyncObserver {
              * Do not send push notification if sender is you
              * We handle this case because user may have several devices and we must get updates by sockets but without notification
              */
-            if (global.user.id != message.sender.id) {
-              global.app.pushNotifications.send(notification);
+            if (global.user.id !== message.sender.id) {
+              global.app.pushNotifications.send(notification, {
+                click: () => global.app.clientSyncObserver.openNote(note)
+              });
             }
 
 

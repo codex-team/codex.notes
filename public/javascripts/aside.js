@@ -163,6 +163,13 @@ export default class Aside {
         this.removeFolderFromMenu(folder._id);
       }
     });
+
+    /**
+     * Force open target note
+     */
+    window.ipcRenderer.on('open note', (event, {note}) => {
+      codex.notes.note.render(note);
+    });
   }
 
   /**

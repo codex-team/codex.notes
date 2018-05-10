@@ -24,6 +24,17 @@ class ClientSyncObserver {
   }
 
   /**
+   * Force open target note
+   *
+   * @param {Note} note
+   */
+  openNote(note){
+    global.app.mainWindow.webContents.send('open note', {
+      note
+    });
+  }
+
+  /**
    * Sends updated or added Folder to the client
    * @param {Folder} folder - changed Folder
    */
