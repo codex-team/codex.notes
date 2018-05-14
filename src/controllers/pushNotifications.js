@@ -94,7 +94,9 @@ class PushNotifications {
           body  : options.message
         },
         notification = new Notification(notificationOptions);
-        notification.on('click', callbacks['click']);
+    if ( typeof callbacks['click'] === 'function' ) {
+      notification.on('click', callbacks['click']);
+    }
 
     notification.show();
   }
