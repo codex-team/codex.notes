@@ -75,7 +75,7 @@ class User extends Syncable {
           dtModify: this.dtModify,
           googleId: this.googleId,
           token: this.token,
-          cahnnel: this.channel
+          channel: this.channel
         });
 
         this.id = insertedRow._id;

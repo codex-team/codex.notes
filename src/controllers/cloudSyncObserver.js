@@ -9,7 +9,6 @@ const User = require('../models/user');
  * @type {Time}
  */
 const Time = require('../utils/time');
-const _ = require('../utils/utils');
 
 /**
  * Simple GraphQL requests provider
@@ -27,7 +26,6 @@ const { GraphQLClient } = require('graphql-request');
  * @property {GraphQLClient} api    - GraphQL API client
  */
 class CloudSyncObserver {
-
   /**
    * Initialize params for the API
    */
@@ -37,7 +35,7 @@ class CloudSyncObserver {
     this.refreshClient();
 
     this.syncingInterval = setInterval(() => {
-      this.sync();
+      this.sync({direction: 'both'});
     }, 60 * 1000 ); // every 60 sec
   }
 
@@ -53,6 +51,11 @@ class CloudSyncObserver {
          *  as 'give access to the bearer of this token'
          */
         Authorization: 'Bearer ' + global.user.token,
+
+        /**
+         * Device-Id header uses to identify client's app
+         */
+        'Device-Id': global.deviceId
       }
     });
 
@@ -65,7 +68,17 @@ class CloudSyncObserver {
    * Open user's notifications channel
    */
   openUserChannel() {
-    global.app.sockets.listenChannel(global.user.channel, (message) => {
+    global.app.sockets.listenChannel(global.user.channel, data => {
+      let message = data.message,
+          deviceId = data['device-id'];
+
+      /**
+       * If this is message from yourself then do nothing
+       */
+      if (deviceId === global.deviceId) {
+        return;
+      }
+
       this.gotNotify(message);
     });
   }
@@ -76,6 +89,7 @@ class CloudSyncObserver {
    * @param {object} message
    * @param {string} message.event - notify event ('folder updated', 'collaborator invited');
    * @param {object} message.data - payload
+   * @param {User}   message.sender - sender information. This is a user that made changes
    *
    * @return {void}
    */
@@ -85,20 +99,71 @@ class CloudSyncObserver {
       return;
     }
 
-    global.logger.debug(`\n\nNew message in channel: ${message.event} => ${_.print(message.data)}\n\n\n`);
+    global.logger.debug(`\n\nNew message in channel: ${message.event} => ${global.utils.print(message.data)}\n\n\n`);
 
     switch (message.event) {
       case 'folder updated':
+
+        /**
+         * @todo Move to the separated handler
+         */
+        let updatedFolder = message.data;
+
+        global.app.pushNotifications.send({
+          title: updatedFolder.title,
+          message: message.sender.name + ' updated folder'
+        });
+
         this.saveFolder(message.data);
+
+        break;
+      case 'folder renamed':
+        let renamedFolder = message.data;
+
+        global.app.pushNotifications.send({
+          title: renamedFolder.title,
+          message: message.sender.name + ' renamed folder'
+        });
+
+        this.saveFolder(message.data);
+
         break;
       case 'note updated':
         let folderId = message.data.folderId;
+        this.saveNote(message.data, {_id: folderId})
+          .then( (note) => {
+            let notification = {
+              title   : note.title || note.titleLabel,
+              message : message.sender.name + ' edited the note'
+            };
 
-        this.saveNote(message.data, {_id: folderId});
+            if ( message.data.folder && message.data.folder.title ) {
+              notification.message += ' at ' + message.data.folder.title;
+            }
+
+            /**
+             * Do not send push notification if sender is you
+             * We handle this case because user may have several devices and we must get updates by sockets but without notification
+             */
+            if (global.user.id !== message.sender.id) {
+              global.app.pushNotifications.send(notification, {
+                click: () => global.app.clientSyncObserver.openNote(note)
+              });
+            }
+
+
+          });
         break;
       case 'collaborator invited':
         this.saveCollaborator(message.data, message.data.folderId);
         global.app.clientSyncObserver.sendCollaborator(message.data);
+        break;
+      case 'collaborator joined':
+        let notification = {
+          title : message.data.folder.title,
+          message : message.data.user.name + ' joined the folder'
+        };
+        global.app.pushNotifications.send(notification);
         break;
       default:
     }
@@ -119,53 +184,59 @@ class CloudSyncObserver {
    *
    * 5. Update user's last sync date
    *
-   * @returns {bool}
+   * @param {string} direction - 'send|get|both' - need load updated send or just send
+   * @return {void}
    */
-  async sync() {
+  async sync({direction} = {direction: 'send'}) {
     try {
       // if user is not authorized
       if (!global.user.token) {
         return;
       }
 
-      /**
-       * Get data from the Cloud
-       *
-       * @type {Object}
-       */
-      let dataFromCloud = await this.getDataFromCloud();
+      let isNeedGet = direction === 'both' || direction === 'get',
+          isNeedSend = direction === 'both' || direction === 'send';
 
-      /**
-       * Update local data if Cloud item's
-       *    dtModify is greater than local.
-       */
-      let updatedLocalItems = await this.saveDataFromCloud(dataFromCloud);
+      if (isNeedGet) {
+        /**
+         * Get data from the Cloud
+         *
+         * @type {Object}
+         */
+        let dataFromCloud = await this.getDataFromCloud();
 
-      /**
-       * Prepare local updates for this moment
-       */
-      let preparedLocalUpdates = await this.getLocalUpdates();
+        /**
+         * Update local data if Cloud item's
+         *    dtModify is greater than local.
+         */
+        await this.saveDataFromCloud(dataFromCloud);
+      }
 
-      /**
-       * Create Sync Mutations Sequence
-       */
-      let syncMutations = await this.syncMutationsSequence(preparedLocalUpdates);
+      if (isNeedSend) {
+        /**
+         * Prepare local updates for this moment
+         */
+        let preparedLocalUpdates = await this.getLocalUpdates();
 
-      /**
-       * Update user's last sync date
-       */
-      let updatedUser = await this.updateUserLastSyncDate();
+        /**
+         * Create Sync Mutations Sequence
+         */
+        await this.syncMutationsSequence(preparedLocalUpdates);
 
-      /**
-       * Flush Queue after we sent mutations
-       */
-      await global.app.syncQueue.flushAll();
+        /**
+         * Update user's last sync date
+         */
+        // let updatedUser = await this.updateUserLastSyncDate();
 
-      return dataFromCloud;
+        /**
+         * Flush Queue after we sent mutations
+         */
+        await global.app.syncQueue.flushAll();
+      }
+
 
     } catch(e) {
-      global.logger.debug('[cloudSyncObserver] Error:', e);
-      return false;
+      global.logger.debug('[cloudSyncObserver] Error: %s', e);
     }
   }
 
@@ -190,7 +261,7 @@ class CloudSyncObserver {
 
     return this.api.request(query, syncVariables)
       .then( data => {
-        global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
+        // global.logger.debug('( ͡° ͜ʖ ͡°) CloudSyncObserver received data:', (data), '\n');
         return data;
       });
   }
@@ -285,7 +356,14 @@ class CloudSyncObserver {
     /**
      * Save Note's data
      */
-    return await note.save();
+    let savedNote = await note.save();
+
+    /**
+     * Send created Note to the Client
+     */
+    global.app.clientSyncObserver.sendNote(savedNote);
+
+    return savedNote;
   }
 
   /**
@@ -337,7 +415,7 @@ class CloudSyncObserver {
      */
     let changedNotes = await Note.prepareUpdates();
 
-    global.logger.debug('[cloudSyncObserver] Prepare local updates', changedUser, changedNotes, changedFolders);
+    global.logger.debug('[cloudSyncObserver] Prepare local updates');
 
     return {
       user: changedUser,
@@ -428,7 +506,7 @@ class CloudSyncObserver {
         global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
       })
       .catch( error => {
-        global.logger.debug('[!] User Mutation failed because of ', error);
+        global.logger.debug('[!] User Mutation failed because of %s', error);
       });
   }
 
@@ -461,10 +539,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation ', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation %s and received a data: %s', variables, data);
       })
       .catch( error => {
-        global.logger.debug('[!] Folder Mutation failed because of ', error);
+        global.logger.debug('[!] Folder Mutation failed because of %e', error);
       });
   }
 
@@ -488,10 +566,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: \n\n', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: %s', data);
       })
       .catch(error => {
-        global.logger.debug('[!] InviteCollaborator Mutation failed because of ', error);
+        global.logger.debug('[!] InviteCollaborator Mutation failed because of %s', error);
         throw new Error(error);
       });
   }
@@ -517,10 +595,10 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: \n\n', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: %s', data);
       })
       .catch(error => {
-        global.logger.debug('[!] CollaboratorJoin Mutation failed because of ', error);
+        global.logger.debug('[!] CollaboratorJoin Mutation failed because of %s', error);
       });
   }
 
@@ -547,12 +625,13 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation %s and received a data: %s', variables, data);
       })
       .catch( error => {
-        global.logger.debug('[!] Note Mutation failed because of ', error);
+        global.logger.debug('[!] Note Mutation failed because of %s', error);
       });
   }
+
 }
 
 module.exports = CloudSyncObserver;

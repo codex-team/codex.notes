@@ -11,7 +11,6 @@ const sanitizeHtml = require('sanitize-html');
  * @type {Database}
  */
 const db = require('../utils/database');
-const utils = require('../utils/utils');
 
 /**
  * Time helper
@@ -90,7 +89,7 @@ class Note extends Syncable {
     this.folderId = noteData.folderId || null;
     this.title = noteData.title || null;
     this.content = noteData.content || null;
-    this.dtCreate = noteData.dtCreate || null;
+    this.dtCreate = noteData.dtCreate || Time.now;
     this.dtModify = noteData.dtModify || null;
     this.isRemoved = noteData.isRemoved || false;
     this.editorVersion = noteData.editorVersion || null;
@@ -246,11 +245,11 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send created Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send created Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     /**
      * Return Note's data
@@ -285,11 +284,11 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send updated Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send updated Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     return this.data;
   }
