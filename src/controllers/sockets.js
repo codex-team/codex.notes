@@ -11,7 +11,6 @@ const WebSocket = require('ws');
  * @property {array} channels - list of active channels
  */
 class Sockets {
-
   /**
    * @constructor
    */
@@ -96,7 +95,7 @@ class Channel {
     });
 
     this.ws.on('error', (error) => {
-      global.logger.debug('Sockets Channel error: ', error);
+      global.logger.debug('Sockets Channel error: %s', error);
     });
   }
 
@@ -119,25 +118,42 @@ class Channel {
    * @param {string} data - JSON-answer given. Contain "message" property with data
    */
   onMessage(data) {
-
     try {
-      data = JSON.parse(data);
-      this.callback(data.message);
-    } catch (error) {
-      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected.', error);
-    }
+      let parsedData = JSON.parse(data);
 
+      try {
+        this.callback(parsedData);
+      } catch (error) {
+        global.logger.debug('Error while handling socket message: \n%s, \nError: %s', data, error);
+      }
+    } catch (error) {
+      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected. \nError: %s, \nSocket %s', error, data);
+    }
   }
 
   /**
    * Destroys the Channel, terminate Socket connection
    */
   destroy() {
-    this.ws.terminate();
+    /**
+     * Workaround error "WebSocket is closed before the connection is established"
+     * Don't try to close socket if it is not connected yet
+     */
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.terminate();
+      this.ws = null;
+    } else {
+      global.logger.debug('Can not destroy channel at the moment, because it is not opened yet. It will be closed immediately after opening.');
+      this.ws.once('open', function channelOpened() {
+        global.logger.debug('Channel is opened, now we can destroy it');
+        this.ws.terminate();
+        this.ws = null;
+      });
+    }
+
     this.name = null;
     this.callback = null;
     this.url = null;
-    this.ws = null;
   }
 }
 

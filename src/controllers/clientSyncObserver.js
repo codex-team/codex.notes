@@ -8,7 +8,7 @@ let db = require('../utils/database');
  * Class in responsible for sending updates to the Client
  */
 class ClientSyncObserver {
-  constructor(){
+  constructor() {
   }
 
   /**
@@ -20,6 +20,17 @@ class ClientSyncObserver {
     global.app.mainWindow.webContents.send('note updated', {
       note,
       isRootFolder: note.folderId === rootFolderId
+    });
+  }
+
+  /**
+   * Force open target note
+   *
+   * @param {Note} note
+   */
+  openNote(note){
+    global.app.mainWindow.webContents.send('open note', {
+      note
     });
   }
 

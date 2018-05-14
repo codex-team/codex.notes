@@ -18,6 +18,7 @@ class Database {
     this.NOTES = new Datastore({ filename: path.join(this.appFolder, 'notes.db'), autoload: true});
     this.COLLABORATORS = new Datastore({ filename: path.join(this.appFolder, 'collaborators.db'), autoload: true });
     this.VISITS = new Datastore({ filename: path.join(this.appFolder, 'visits.db'), autoload: true });
+    this.SYNCQUEUE = new Datastore({ filename: path.join(this.appFolder, 'syncQueue.db'), autoload: true});
   }
 
   /**
@@ -44,7 +45,7 @@ class Database {
 
     this.getRootFolderId()
       .then(rootFolderId => {
-        global.logger.debug('\nRoot Folder found: ', rootFolderId);
+        global.logger.debug('\nRoot Folder found: %s', rootFolderId);
       })
       .catch(err => {
         global.logger.debug('\nCan not find the Root Folder\'s id because of: ', err);
@@ -103,7 +104,7 @@ class Database {
 
     let sequence = [];
 
-    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS].forEach( collection => {
+    [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS, this.SYNCQUEUE].forEach( collection => {
       global.logger.debug('\n\n Drop ', collection.filename, '\n\n');
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
         global.logger.debug(collection.filename, ': ', removedRows, ' docs removed');
@@ -115,6 +116,7 @@ class Database {
     this.NOTES = null;
     this.COLLABORATORS = null;
     this.VISITS = null;
+    this.SYNCQUEUE = null;
 
     return Promise.all(sequence)
         .catch((err) => {
@@ -141,15 +143,33 @@ class Database {
     });
   }
 
-  find(collection, query) {
-    return new Promise((resolve, reject) => {
-      collection.find(query, function (err, docs) {
-        if (err) {
-          reject(err);
-        }
+  /**
+   * Find records in target collection
+   *
+   * @param {String} collection - collection in which search for
+   * @param {Object} query - is a query object to find records
+   * @param {Object} sort
+   * @param {String} sort.field - sort field
+   * @param {Number} sort.order - sort order
+   *
+   * @return {Promise<Object[]>} - found records
+   */
+  find(collection, query, sort = {field: null, order: 1}) {
+    let sortingRule = {};
 
-        resolve(docs);
-      });
+    sortingRule[sort.field] = sort.order;
+
+    return new Promise((resolve, reject) => {
+      collection
+        .find(query)
+        .sort(sortingRule)
+        .exec(function (err, docs) {
+          if (err) {
+            reject(err);
+          }
+
+          resolve(docs);
+        })
     });
   }
 

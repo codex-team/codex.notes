@@ -17,7 +17,6 @@ const FoldersList = require('../models/foldersList');
 const Time = require('../utils/time.js');
 
 class FoldersController {
-
   /**
    * Setup event handlers
    */
@@ -103,6 +102,10 @@ class FoldersController {
       /**
        * Sync with an API
        */
+      await global.app.syncQueue.add( {
+        type : Folder.syncableType,
+        entityId : savedFolder._id
+      });
       global.app.cloudSyncObserver.sync();
 
       event.returnValue = savedFolder;
@@ -123,6 +126,11 @@ class FoldersController {
       let folder = await Folder.get(folderId);
 
       let folderRemovingResult = await folder.delete();
+
+      await global.app.syncQueue.add( {
+        type : Folder.syncableType,
+        entityId : folderRemovingResult._id
+      });
 
       global.app.cloudSyncObserver.sync();
 
@@ -151,7 +159,13 @@ class FoldersController {
       /**
        * Sync with an API
        */
+      await global.app.syncQueue.add( {
+        type : Folder.syncableType,
+        entityId : folder._id
+      });
+
       global.app.cloudSyncObserver.sync();
+
     } catch (err) {
       global.logger.debug('Folder renaming failed because of ', err);
       event.returnValue = false;

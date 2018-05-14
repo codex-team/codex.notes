@@ -11,12 +11,17 @@ const sanitizeHtml = require('sanitize-html');
  * @type {Database}
  */
 const db = require('../utils/database');
-const utils = require('../utils/utils');
 
 /**
  * Time helper
  */
 const Time = require('../utils/time.js');
+
+/**
+ * Abstract class Syncable
+ * @type {Syncable}
+ */
+const Syncable = require('./syncable');
 
 /**
  * Max length for intro text
@@ -42,7 +47,7 @@ const INTRO_TEXT_MAX_LENGTH = 150;
 /**
  * Notes model.
  */
-class Note {
+class Note extends Syncable {
   /**
    * @constructor
    * Makes new Note example
@@ -50,6 +55,8 @@ class Note {
    * @param {NoteData} noteData  - Note's data to fill the Model
    */
   constructor(noteData = {}) {
+    super();
+
     this._id = null;
     this.title = null;
     this.titleLabel = null;
@@ -64,6 +71,15 @@ class Note {
   }
 
   /**
+   * Syncable type:
+   * this is a unique Model identifier. Queue defines entity from passed type
+   * @return {number}
+   */
+  static get syncableType() {
+    return 1;
+  }
+
+  /**
    * Note data setter
    * @param {NoteData} noteData
    */
@@ -73,7 +89,7 @@ class Note {
     this.folderId = noteData.folderId || null;
     this.title = noteData.title || null;
     this.content = noteData.content || null;
-    this.dtCreate = noteData.dtCreate || null;
+    this.dtCreate = noteData.dtCreate || Time.now;
     this.dtModify = noteData.dtModify || null;
     this.isRemoved = noteData.isRemoved || false;
     this.editorVersion = noteData.editorVersion || null;
@@ -229,11 +245,11 @@ class Note {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send created Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send created Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     /**
      * Return Note's data
@@ -268,11 +284,11 @@ class Note {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-
-    /**
-     * Send updated Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(this);
+    //
+    // /**
+    //  * Send updated Note to the Client
+    //  */
+    // global.app.clientSyncObserver.sendNote(this);
 
     return this.data;
   }
@@ -322,13 +338,14 @@ class Note {
   }
 
   /**
+   * @deprecated
    * Prepare updates for target time
    *
    * @param lastSyncTimestamp
    *
    * @returns {Promise.<Array>}
    */
-  static async prepareUpdates(lastSyncTimestamp) {
+  static async _prepareUpdates(lastSyncTimestamp) {
     let notSyncedItems = await db.find(db.NOTES, {
       dtModify: {$gt: lastSyncTimestamp}
     });

@@ -66,7 +66,7 @@ class NotesController {
       let note = new Note({
         _id: noteData.data.id || null,
         title: noteData.title,
-        content: JSON.stringify(noteData.data.items),
+        content: noteData.data.content,
         editorVersion: noteData.data.version,
         authorId: global.user && global.user.token ? global.user.id : null,
         folderId: noteData.folderId,
@@ -74,7 +74,15 @@ class NotesController {
 
       note.dtModify = Time.now;
 
+      // mark edited Note as seen
+      global.app.seenStateObserver.touch(noteData.data.id);
+
       let newNote = await note.save();
+
+      await global.app.syncQueue.add( {
+        type : Note.syncableType,
+        entityId : note._id
+      });
 
       global.app.cloudSyncObserver.sync();
 
@@ -84,7 +92,6 @@ class NotesController {
       });
 
       // mark edited Note as seen
-
       global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
@@ -152,6 +159,11 @@ class NotesController {
       let note = await Note.get(noteId);
 
       let noteRemovingResult = await note.delete();
+
+      await global.app.syncQueue.add( {
+        type : Note.syncableType,
+        entityId : noteRemovingResult._id
+      });
 
       global.app.cloudSyncObserver.sync();
 

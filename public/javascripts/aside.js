@@ -141,6 +141,13 @@ export default class Aside {
       } else {
         this.removeMenuItem(note._id);
       }
+
+      /**
+       * Reload current opened note with the new data
+       */
+      if (note._id === codex.notes.note.currentNoteId) {
+        codex.notes.note.render(note);
+      }
     });
 
     window.ipcRenderer.on('folder updated', (event, folder) => {
@@ -156,12 +163,19 @@ export default class Aside {
         this.removeFolderFromMenu(folder._id);
       }
     });
+
+    /**
+     * Force open target note
+     */
+    window.ipcRenderer.on('open note', (event, {note}) => {
+      codex.notes.note.render(note);
+    });
   }
 
   /**
    * Loads notes list from the server
    *
-   * Can be used async with subscribtion
+   * Can be used async with subscription
    * on window.ipcRenderer.on('notes list - update', (event, {notes, folder}) => {})
    *
    * or synchronously like loadNotes().then( notes => {})
@@ -423,17 +437,9 @@ export default class Aside {
     let menuItem = event.target,
         id = menuItem.dataset.id;
 
-    // send "note - get" event
     let noteData = window.ipcRenderer.sendSync('note - get', {id});
 
     codex.notes.note.render(noteData);
-
-    /**
-     * Scroll to top
-     */
-    let editorView = document.querySelector('[name="editor-view"]');
-
-    editorView.scrollIntoView();
 
     /**
      * Remove unread badge

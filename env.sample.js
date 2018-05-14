@@ -5,6 +5,9 @@ let vars = {
 
   // DEBUG: true,
 
+  /** Webhook link from t.me/codex_bot */
+  // WEBHOOK_DEBUG: '',
+
   GOOGLE_CLIENT_ID: '',
 
   GOOGLE_REDIRECT_URI: 'https://api.notes.ifmo.su/oauth/code',
