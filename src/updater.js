@@ -1,4 +1,4 @@
-const {app} = require('electron');
+const {app, ipcMain} = require('electron');
 
 /**
  * Read more about auto-updater events on this page
@@ -14,6 +14,8 @@ const {autoUpdater} = require('electron-updater');
 const showLog = (message) => {
   global.logger.debug('[updater] %s', JSON.stringify(message));
 };
+
+let updateIsDownloaded = false;
 
 /**
  * @typedef {object} info
@@ -96,11 +98,42 @@ autoUpdater.on('download-progress', (progressObj) => {
 //   autoUpdater.quitAndInstall();
 // });
 
+
+
+/**
+ * Update was downloaded
+ */
+autoUpdater.on('update-downloaded', (info) => {
+  global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
+
+  /**
+   * Show update button
+   */
+  global.app.clientSyncObserver.showUpdateButton();
+
+  /**
+   * Add event listener
+   */
+  ipcMain.on('quit and install update', () => {
+    autoUpdater.quitAndInstall();
+  });
+});
+
 /**
  * Call "check for updates" function
  */
-// app.on('ready', () => {
-//   autoUpdater.checkForUpdates();
-// });
+app.on('ready', () => {
+  autoUpdater.checkForUpdates();
+});
+
+/**
+ * Check updates every 60 minutes
+ */
+setInterval(() => {
+  if (!updateIsDownloaded) {
+    global.logger.debug('[updater] check....');
+    autoUpdater.checkForUpdates();
+  }
+}, 60 * 60 * 1000);
 
 module.exports = autoUpdater;

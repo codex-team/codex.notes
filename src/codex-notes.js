@@ -208,9 +208,6 @@ class CodexNotes {
       .then(() => {
         this.setAppProtocol();
       })
-      .then(() => {
-        this.checkForUpdates();
-      })
       .catch((e) => {
         global.logger.debug('App initialization failed because of ', e);
         global.catchException(e);
@@ -271,7 +268,6 @@ class CodexNotes {
          * @type {PushNotifications}
          */
         this.pushNotifications = new PushNotifications();
-
       })
       .catch(function (err) {
         global.logger.debug('Initialization error', err);
@@ -308,51 +304,31 @@ class CodexNotes {
     this.mainWindow = null;
   }
 
-  /**
-   * Enable updates checker. When
-   */
-  checkForUpdates() {
-    try {
-      let updateIsDownloaded = false;
-
-      /**
-       * Call "check for updates" function
-       */
-      updater.checkForUpdates();
-
-      /**
-       * Update was downloaded
-       */
-      updater.on('update-downloaded', (info) => {
-        global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
-        updateIsDownloaded = true;
-
-        /**
-         * Show update button
-         */
-        global.app.clientSyncObserver.showUpdateButton();
-
-        /**
-         * Add event listener
-         */
-        ipcMain.on('quit and install update', (event) => {
-          updater.quitAndInstall();
-        });
-      });
-
-      /**
-       * Check updates hourly
-       */
-      setInterval(() => {
-        if (!updateIsDownloaded) {
-          global.logger.debug('[updater] check....');
-          updater.checkForUpdates();
-        }
-      }, 60 * 60 * 1000);
-    } catch (e) {
-      global.logger.debug('Cannot run updates checker cause %s', e.message);
-    }
-  }
+  // /**
+  //  * Enable updates checker. When
+  //  */
+  // checkForUpdates() {
+  //   try {
+  //     // let updateIsDownloaded = false;
+  //
+  //     // /**
+  //     //  * Call "check for updates" function
+  //     //  */
+  //     // updater.checkForUpdates();
+  //
+  //     // /**
+  //     //  * Check updates hourly
+  //     //  */
+  //     // setInterval(() => {
+  //     //   if (!updateIsDownloaded) {
+  //     //     global.logger.debug('[updater] check....');
+  //     //     updater.checkForUpdates();
+  //     //   }
+  //     // }, 60 * 60 * 1000);
+  //   } catch (e) {
+  //     global.logger.debug('Cannot run updates checker cause %s', e.message);
+  //   }
+  // }
 }
 
 /**
