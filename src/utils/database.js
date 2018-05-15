@@ -31,10 +31,6 @@ class Database {
     global.logger.debug('Making initial database settings...');
 
     this.appFolder = appFolder;
-
-    if (!fs.existsSync(this.appFolder)) {
-      fs.mkdirSync(this.appFolder);
-    }
     global.logger.debug(`Local data storage is in "${this.appFolder}" directory`);
 
     // create database instances

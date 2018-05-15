@@ -33,7 +33,6 @@ class CloudSyncObserver {
     this.api = null;
 
     this.refreshClient();
-
     this.syncingInterval = setInterval(() => {
       this.sync({direction: 'both'});
     }, 60 * 1000 ); // every 60 sec

@@ -1,9 +1,21 @@
 'use strict';
 
-const electron = require('electron');
-const app = electron.app;
+const {app, BrowserWindow, Menu} = require('electron');
+const fs = require('fs');
 
+/**
+ * Load env params
+ */
 require('../env.js');
+
+/**
+ * Set and create app folder
+ */
+global.appFolder = app.getPath('userData');
+
+if (!fs.existsSync(global.appFolder)) {
+  fs.mkdirSync(global.appFolder);
+}
 
 /**
  * Enable errors handling
@@ -15,6 +27,7 @@ if (process.env.HAWK_TOKEN) {
   });
 
   hawkCatcher.initGlobalCatcher();
+  global.catchException = hawkCatcher.catchException;
 }
 
 /**
@@ -28,7 +41,6 @@ global.utils = require('./utils/utils');
 const machineIdSync = require('node-machine-id').machineIdSync;
 global.deviceId = machineIdSync({original: true});
 
-const BrowserWindow = electron.BrowserWindow;
 let pkg = require('./../package.json');
 
 /**
@@ -42,6 +54,11 @@ const pug = require('electron-pug')({
   // debug: true,
   // compileDebug: true
 }, locals);
+
+/**
+ * Enable autoupdates
+ */
+const updater = require('./updater');
 
 /**
  * Cloud-Synchronization controller
@@ -108,7 +125,7 @@ const PushNotifications = require('./controllers/pushNotifications');
  */
 const db = require('./utils/database');
 
-db.makeInitialSettings(app.getPath('userData'));
+db.makeInitialSettings(global.appFolder);
 
 /**
  * All windows is closed
@@ -125,7 +142,6 @@ app.on('window-all-closed', function () {
  * @property {BrowserWindow} mainWindow
  */
 class CodexNotes {
-
   /**
    * Initializes an application
    */
@@ -138,12 +154,10 @@ class CodexNotes {
 
     let windowParams = {
       title: pkg.productName,
-      icon: __dirname + '/' + pkg.productIconPNG,
       width: 1200,
       minWidth: 1070,
       minHeight: 600,
       height: 700,
-      // vibrancy: 'ultra-dark',
       backgroundColor: '#fff',
       titleBarStyle: 'hiddenInset',
       show: false
@@ -197,6 +211,7 @@ class CodexNotes {
       })
       .catch((e) => {
         global.logger.debug('App initialization failed because of ', e);
+        global.catchException(e);
       });
   }
 
@@ -254,7 +269,6 @@ class CodexNotes {
          * @type {PushNotifications}
          */
         this.pushNotifications = new PushNotifications();
-
       })
       .catch(function (err) {
         global.logger.debug('Initialization error', err);
@@ -267,14 +281,12 @@ class CodexNotes {
    * @author @guryn
    */
   makeMenu() {
-    const menu = electron.Menu;
-
     let createMenuTemplate = require('./menu'),
         menues = createMenuTemplate(app),
-        menuBar = menu.buildFromTemplate(menues.menuBar),
-        menuDock = menu.buildFromTemplate(menues.menuDock);
+        menuBar = Menu.buildFromTemplate(menues.menuBar),
+        menuDock = Menu.buildFromTemplate(menues.menuDock);
 
-    menu.setApplicationMenu(menuBar);
+    Menu.setApplicationMenu(menuBar);
     app.dock.setMenu(menuDock);
   }
 
@@ -292,7 +304,6 @@ class CodexNotes {
   destroy() {
     this.mainWindow = null;
   }
-
 }
 
 /**
@@ -302,7 +313,7 @@ app.on('ready', function () {
   try {
     global.app = new CodexNotes();
   } catch(error) {
-    hawkCatcher.catchException(error);
+    global.catchException(error);
     global.logger.error(`\n
       \n
       ...........................\n

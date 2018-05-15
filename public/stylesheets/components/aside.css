@@ -232,8 +232,37 @@
             color: #fff;
         }
     }
+}
 
+.update-notification {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin-left: -15px;
+    background: #23242e;
+    padding: 14px 0;
+    cursor: pointer;
+    display: none;
 
+    &__text-main {
+        color: #14C063;
+        font-weight: bold;
+        font-size: 13.1px;
+        letter-spacing: -0.03px;
+        text-align: center
+    }
+
+    &__text-description {
+        text-align: center;
+    }
+
+    &--showed {
+        display: block;
+    }
+
+    &:hover {
+        background: #1d1e27;
+    }
 }
 
 /**
