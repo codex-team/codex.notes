@@ -303,32 +303,6 @@ class CodexNotes {
   destroy() {
     this.mainWindow = null;
   }
-
-  // /**
-  //  * Enable updates checker. When
-  //  */
-  // checkForUpdates() {
-  //   try {
-  //     // let updateIsDownloaded = false;
-  //
-  //     // /**
-  //     //  * Call "check for updates" function
-  //     //  */
-  //     // updater.checkForUpdates();
-  //
-  //     // /**
-  //     //  * Check updates hourly
-  //     //  */
-  //     // setInterval(() => {
-  //     //   if (!updateIsDownloaded) {
-  //     //     global.logger.debug('[updater] check....');
-  //     //     updater.checkForUpdates();
-  //     //   }
-  //     // }, 60 * 60 * 1000);
-  //   } catch (e) {
-  //     global.logger.debug('Cannot run updates checker cause %s', e.message);
-  //   }
-  // }
 }
 
 /**
