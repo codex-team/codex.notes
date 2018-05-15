@@ -174,8 +174,8 @@ export default class Aside {
     /**
      * Show update button
      */
-    window.ipcRenderer.on('show update button', (event) => {
-      this.showUpdateAppButton(callback);
+    window.ipcRenderer.on('show update button', () => {
+      this.showUpdateAppButton();
     });
   }
 
