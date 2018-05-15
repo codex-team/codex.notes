@@ -104,21 +104,24 @@ autoUpdater.on('update-downloaded', (info) => {
   });
 });
 
-/**
- * Call "check for updates" function
- */
-app.on('ready', () => {
-  autoUpdater.checkForUpdates();
-});
 
-/**
- * Check updates every 60 minutes
- */
-setInterval(() => {
-  if (!updateIsDownloaded) {
-    global.logger.debug('[updater] check....');
+if (process.env.PRODUCTION) {
+  /**
+   * Call "check for updates" function
+   */
+  app.on('ready', () => {
     autoUpdater.checkForUpdates();
-  }
-}, 60 * 60 * 1000);
+  });
+
+  /**
+   * Check updates every 60 minutes
+   */
+  setInterval(() => {
+    if (!updateIsDownloaded) {
+      global.logger.debug('[updater] check....');
+      autoUpdater.checkForUpdates();
+    }
+  }, 60 * 60 * 1000);
+}
 
 module.exports = autoUpdater;

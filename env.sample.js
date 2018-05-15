@@ -1,4 +1,6 @@
 let vars = {
+  PRODUCTION: true,
+
   HAWK_TOKEN: '',
 
   LOG_LEVEL: 'debug',

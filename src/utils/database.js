@@ -29,6 +29,8 @@ class Database {
    */
   async makeInitialSettings(appFolder) {
     global.logger.debug('Making initial database settings...');
+
+    this.appFolder = appFolder;
     global.logger.debug(`Local data storage is in "${this.appFolder}" directory`);
 
     // create database instances

@@ -1,6 +1,6 @@
 'use strict';
 
-const {app, dialog, BrowserWindow, Menu, ipcMain} = require('electron');
+const {app, BrowserWindow, Menu} = require('electron');
 const fs = require('fs');
 
 /**
@@ -124,6 +124,7 @@ const PushNotifications = require('./controllers/pushNotifications');
  * Database setup
  */
 const db = require('./utils/database');
+
 db.makeInitialSettings(global.appFolder);
 
 /**
