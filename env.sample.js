@@ -1,5 +1,5 @@
 let vars = {
-  PRODUCTION: true,
+  // PRODUCTION: true,
 
   HAWK_TOKEN: '',
 

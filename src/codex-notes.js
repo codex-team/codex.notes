@@ -41,14 +41,12 @@ global.utils = require('./utils/utils');
 const machineIdSync = require('node-machine-id').machineIdSync;
 global.deviceId = machineIdSync({original: true});
 
-let pkg = require('./../package.json');
+
 
 /**
  * Enable Pug
  */
-const locals = {
-  title: 'CodeX Notes',
-};
+const locals = process.env;
 const pug = require('electron-pug')({
   cache: false,
   // debug: true,
@@ -153,7 +151,7 @@ class CodexNotes {
     this.appProtocol = 'codex';
 
     let windowParams = {
-      title: pkg.productName,
+      title: process.env.npm_package_productName,
       width: 1200,
       minWidth: 1070,
       minHeight: 600,

@@ -3,7 +3,8 @@ doctype html
 html(lang="en")
     head
        meta(charset="utf-8")
-       title= title
+       title= npm_package_productName
+       script(src="../../public/javascripts/hawk.js", onload="hawk.init('"+HAWK_TOKEN+"')")
        script(src="../../public/build/bundle.js")
        link(href="../../public/build/bundle.css", rel="stylesheet")
        meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
