@@ -46,9 +46,7 @@ let pkg = require('./../package.json');
 /**
  * Enable Pug
  */
-const locals = {
-  title: 'CodeX Notes',
-};
+const locals = process.env;
 const pug = require('electron-pug')({
   cache: false,
   // debug: true,
