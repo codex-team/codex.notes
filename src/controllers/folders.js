@@ -17,7 +17,6 @@ const FoldersList = require('../models/foldersList');
 const Time = require('../utils/time.js');
 
 class FoldersController {
-
   /**
    * Setup event handlers
    */

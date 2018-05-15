@@ -66,7 +66,7 @@ class NotesController {
       let note = new Note({
         _id: noteData.data.id || null,
         title: noteData.title,
-        content: JSON.stringify(noteData.data.items),
+        content: noteData.data.content,
         editorVersion: noteData.data.version,
         authorId: global.user && global.user.token ? global.user.id : null,
         folderId: noteData.folderId,
@@ -90,6 +90,9 @@ class NotesController {
         note: newNote,
         isRootFolder: !noteData.folderId
       });
+
+      // mark edited Note as seen
+      global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
       global.logger.debug('Note saving failed because of ', err);

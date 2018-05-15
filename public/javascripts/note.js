@@ -3,6 +3,7 @@ const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
 const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
+const HashCoder = require('./utils/hashCoder').default;
 
 /**
  * @typedef {Object} NoteData
@@ -21,7 +22,10 @@ const clipboardUtil = require('./utils/clipboard').default;
  * Note section module
  *
  * @typedef {Note} Note
+ * @property {number} currentNoteId - id of opened note
+ * @property {number} folderId - id of opened folder
  * @property {Element} deleteButton
+ * @property {String} hashedNote - hash of last saved note
  * @property {Element} titleEl
  * @property {Element} dateEl
  * @property {Timer} showSavedIndicatorTimer
@@ -33,6 +37,8 @@ export default class Note {
    * @constructor
    */
   constructor() {
+    this.hashedNote = null;
+
     this.deleteButton = $.get('delete-button');
 
     this.titleEl = document.getElementById('note-title');
@@ -54,6 +60,7 @@ export default class Note {
 
     this.shortcuts = [];
     this.folderId = null;
+    this.currentNoteId = null;
 
     this.enableShortcuts();
   }
@@ -148,12 +155,34 @@ export default class Note {
 
     let folderId = this.folderId;
 
+
     codex.editor.saver.save()
       .then(noteData => {
         this.validate(noteData);
         return noteData;
       })
-      .then(noteData => {
+      .then( noteData => {
+        let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
+            currentHashedNote = HashCoder.simpleHash(currentNoteContent);
+
+        /** Note wont be saved because hashes are similar */
+        if (currentHashedNote === this.hashedNote) {
+          return;
+        }
+
+        /**
+         * If current note changes is not similar to the last saved, than we save new changes and make new hash as current
+         * We do so that to match always match current changes with last saved
+         */
+        this.hashedNote = currentHashedNote;
+
+        /**
+         * We should use client-side stringifying
+         * because on the server-side it can generate different string
+         * caused of unmatched order of object properties
+         */
+        noteData.content = JSON.stringify(noteData.items);
+
         let note = {
           data: noteData,
           title: this.titleEl.value.trim(),
@@ -213,12 +242,24 @@ export default class Note {
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
+    this.currentNoteId = note._id;
 
     /**
      * We store all times in a Seconds to correspond server-format
      * @type {Date}
      */
     let dtModify = new Date(note.dtModify * 1000);
+
+    /**
+     * Reset cache if new or old note is rendered
+     * we don't need longer the old cache because we match always tha last saved note
+     */
+    HashCoder.resetCache();
+
+    /**
+     * hash note content with title so match with new versions
+     */
+    this.hashedNote = HashCoder.simpleHash(note.title + note.content);
 
     this.dateEl.textContent = dtModify.toLocaleDateString('en-US', {
       day: 'numeric',
@@ -231,6 +272,7 @@ export default class Note {
       id: note._id,
       items: JSON.parse(note.content),
       time: note.dtModify,
+      created: note.dtCreate,
       version: note.editorVersion,
     });
     this.deleteButton.classList.remove('hide');
@@ -244,6 +286,13 @@ export default class Note {
     }
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
+
+    /**
+     * Scroll to top
+     */
+    let editorView = document.querySelector('[name="editor-view"]');
+
+    editorView.scrollIntoView();
   }
 
   /**
@@ -262,6 +311,7 @@ export default class Note {
     this.autoresizedTitle.destroy();
 
     this.editorContentSelected = false;
+    this.hashedNote = null;
   }
 
   /**

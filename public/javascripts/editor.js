@@ -107,7 +107,7 @@ export default class Editor {
 
     this.autosaveTimer = window.setTimeout( () => {
       codex.notes.note.save();
-    }, 500);
+    }, 200);
   }
 
   /**

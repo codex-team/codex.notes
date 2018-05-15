@@ -29,10 +29,13 @@
     "graphql-request": "^1.5.1",
     "is-online": "^7.0.0",
     "nedb": "^1.8.0",
+    "node-machine-id": "^1.1.10",
+    "node-notifier": "^5.2.1",
     "npm": "^5.8.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sanitize-html": "^1.18.2",
+    "tapable": "^1.0.0",
     "winston": "^3.0.0-rc4",
     "winston-daily-rotate-file": "^3.1.2",
     "ws": "^5.1.0"
@@ -66,17 +69,20 @@
     "postcss-nested-ancestors": "^2.0.0",
     "postcss-nesting": "^4.2.1",
     "postcss-smart-import": "^0.7.6",
+    "source-list-map": "^2.0.0",
     "webpack": "^4.6.0",
     "webpack-cli": "^2.0.14"
   },
   "optionalDependencies": {},
   "build": {
     "appId": "su.ifmo.notes",
-    "publish": [{
-      "provider": "github",
-      "owner": "codex-team",
-      "repo": "codex.notes"
-    }],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "codex-team",
+        "repo": "codex.notes"
+      }
+    ],
     "files": [
       "src/**",
       "public/**",

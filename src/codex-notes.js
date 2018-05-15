@@ -35,6 +35,11 @@ if (process.env.HAWK_TOKEN) {
  * @example global.logger.info('Hey yo');
  */
 global.logger = require('./utils/logger');
+global.utils = require('./utils/utils');
+
+/** Get deviceId */
+const machineIdSync = require('node-machine-id').machineIdSync;
+global.deviceId = machineIdSync({original: true});
 
 let pkg = require('./../package.json');
 
@@ -109,6 +114,11 @@ const User = require('./models/user');
  * Sockets Controller
  */
 const SocketsController = require('./controllers/sockets');
+
+/**
+ * PushNotification Controller
+ */
+const PushNotifications = require('./controllers/pushNotifications');
 
 /**
  * Database setup
@@ -256,6 +266,12 @@ class CodexNotes {
          * @type {Sockets}
          */
         this.sockets = new SocketsController();
+
+        /**
+         * @type {PushNotifications}
+         */
+        this.pushNotifications = new PushNotifications();
+
       })
       .catch(function (err) {
         global.logger.debug('Initialization error', err);
