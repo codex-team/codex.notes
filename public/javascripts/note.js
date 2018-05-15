@@ -63,7 +63,7 @@ export default class Note {
     this.folderId = null;
     this.currentNoteId = null;
 
-    this.enableShortcuts();
+    // this.enableShortcuts();
     this.enableMouseSelection();
   }
 

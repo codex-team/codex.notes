@@ -47,8 +47,6 @@ export default class CrossBlockSelection {
    */
   activate() {
     this.wrapper.contentEditable = true;
-
-    console.info('SELECTED');
   }
 
   /**
@@ -74,6 +72,7 @@ export default class CrossBlockSelection {
   lockEvents(event) {
     event.stopPropagation();
     event.stopImmediatePropagation();
+    console.log('events locked');
   }
 
   /**
@@ -87,14 +86,14 @@ export default class CrossBlockSelection {
       this.activate();
     }, false);
 
+
     /**
      * Prevent editor click behaviour when several blocks selected
      */
     this.wrapper.addEventListener('click', (event) => {
-      let selectionIsEmpty = this.isSomethingSelected();
+      let somethingSelected = this.isSomethingSelected();
 
-      console.log('selectionIsEmpty', selectionIsEmpty);
-      if (!selectionIsEmpty) {
+      if (!somethingSelected) {
         this.deactivate();
         return;
       }
@@ -113,9 +112,17 @@ export default class CrossBlockSelection {
      * Allow only CMD+C
      */
     this.wrapper.addEventListener('keydown', (event) => {
+      console.log('keydown');
       if (this.isActive) {
         this.lockChanges(event);
       }
+
+      // window.setTimeout(() => {
+      //   if (this.isSelectionExceededAvailableZone()) {
+      //     console.log('Selection have exceeded available zone, so it will be cleared');
+      //     this.deactivate();
+      //   }
+      // }, 100);
     }, true);
 
     /**
@@ -133,6 +140,9 @@ export default class CrossBlockSelection {
      */
     this.wrapper.addEventListener('mouseup', (event) => {
       this.crossBlockSelectionMode = this.detectCrossBlockSelection(event);
+
+      console.log('this.crossBlockSelectionMode', this.crossBlockSelectionMode);
+      console.log('this.isActive', this.isActive);
       /**
        * Block external events (CodeX Editor or others)
        */
@@ -175,16 +185,11 @@ export default class CrossBlockSelection {
   detectCrossBlockSelection(event) {
     let selection = window.getSelection();
 
-    // console.log('selection', selection);
-    // console.log('selection.rangeCount', selection.rangeCount);
-
     if (selection.rangeCount === 0) {
       return false;
     }
 
     let range = selection.getRangeAt(0);
-
-    // console.log('range', range);
 
     /**
      * Common wrapper that contains Start Node and End Node
@@ -192,8 +197,6 @@ export default class CrossBlockSelection {
      */
     let commonContainer = range.commonAncestorContainer;
 
-    // console.log('commonContainer', commonContainer);
-    // console.log('cbs', commonContainer.nodeType === Node.ELEMENT_NODE && commonContainer.classList.contains('ce-redactor'));
     /**
      * @todo unhardcode ce-editor
      */
@@ -222,12 +225,30 @@ export default class CrossBlockSelection {
     let editorBlocks = selectionContent.querySelectorAll('.ce-block');
 
     let isEmpty =  Array.prototype.slice.call(editorBlocks).some( block => {
-      console.log('block', block, block.textContent.trim());
       return block.textContent.trim().length !== 0;
     });
 
-    console.log('isEmpty', isEmpty);
-
     return !isEmpty;
+  }
+
+  /**
+   * Check if selection is exceeded available zone: over title and editor
+   *
+   * In this case user can delete
+   */
+  isSelectionExceededAvailableZone() {
+    let selection = window.getSelection();
+
+    if (selection.rangeCount === 0) {
+      return false;
+    }
+
+    let range = selection.getRangeAt(0);
+    let selectionContent = range.cloneContents();
+
+    let titleInput = selectionContent.querySelector('.note-title'),
+        editorHolder = selectionContent.querySelector('.codex-editor');
+
+    return Boolean(titleInput || editorHolder);
   }
 }
