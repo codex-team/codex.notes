@@ -88,21 +88,6 @@ autoUpdater.on('download-progress', (progressObj) => {
 /**
  * Update was downloaded
  */
-// autoUpdater.on('update-downloaded', (info) => {
-//   showLog('Update is downloaded');
-//   showLog(info);
-//
-//   /**
-//    * Restart app
-//    */
-//   autoUpdater.quitAndInstall();
-// });
-
-
-
-/**
- * Update was downloaded
- */
 autoUpdater.on('update-downloaded', (info) => {
   global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
 
