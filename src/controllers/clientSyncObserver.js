@@ -52,6 +52,13 @@ class ClientSyncObserver {
   sendCollaborator(collaborator) {
     global.app.mainWindow.webContents.send('folder - add collaborator', collaborator);
   }
+
+  /**
+   * Show update button
+   */
+  showUpdateButton() {
+    global.app.mainWindow.webContents.send('show update button');
+  }
 }
 
 module.exports = ClientSyncObserver;

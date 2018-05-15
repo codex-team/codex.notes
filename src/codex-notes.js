@@ -1,6 +1,6 @@
 'use strict';
 
-const {app, dialog, BrowserWindow, Menu} = require('electron');
+const {app, dialog, BrowserWindow, Menu, ipcMain} = require('electron');
 const fs = require('fs');
 
 /**
@@ -327,20 +327,17 @@ class CodexNotes {
         global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
         updateIsDownloaded = true;
 
-        let index = dialog.showMessageBox(this.mainWindow, {
-          type: 'info',
-          buttons: ['Restart', 'Later'],
-          // title: 'New version',
-          message: `The new version is available. Restart ${pkg.productName} to enjoy a new experience.`,
-          // detail: info.releaseNotes
-        });
+        /**
+         * Show update button
+         */
+        global.app.clientSyncObserver.showUpdateButton();
 
-        if (index === 0) {
-          /**
-           * Restart app
-           */
+        /**
+         * Add event listener
+         */
+        ipcMain.on('quit and install update', (event) => {
           updater.quitAndInstall();
-        }
+        });
       });
 
       /**

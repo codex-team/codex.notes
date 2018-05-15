@@ -170,6 +170,13 @@ export default class Aside {
     window.ipcRenderer.on('open note', (event, {note}) => {
       codex.notes.note.render(note);
     });
+
+    /**
+     * Show update button
+     */
+    window.ipcRenderer.on('show update button', (event) => {
+      this.showUpdateAppButton(callback);
+    });
   }
 
   /**
@@ -603,5 +610,39 @@ export default class Aside {
     if (noteInAside) {
       noteInAside.classList.add(Aside.CSS.notSeenState);
     }
+  }
+
+  /**
+   * Show "restart to update" button
+   */
+  showUpdateAppButton() {
+    const idShowButton = 'update-app-button';
+    const classShowButton = 'update-notification--showed';
+
+    /**
+     * Update app button
+     */
+    let updateAppButton = document.getElementById(idShowButton);
+
+    /**
+     * Return null if element was not found
+     */
+    if (!updateAppButton) {
+      console.log('Can not get updateAppButton');
+      return;
+    }
+
+    /**
+     * Add click listener
+     */
+    updateAppButton.addEventListener('click', () => {
+      updateAppButton.classList.remove(classShowButton);
+      window.ipcRenderer.send('quit and install update');
+    });
+
+    /**
+     * Show button
+     */
+    updateAppButton.classList.add(classShowButton);
   }
 }
