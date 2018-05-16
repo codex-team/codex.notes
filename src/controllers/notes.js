@@ -77,7 +77,8 @@ class NotesController {
       // mark edited Note as seen
       global.app.seenStateObserver.touch(noteData.data.id);
 
-      let newNote = await note.save();
+      let newNoteResponse = await note.save();
+      let newNote = newNoteResponse.data;
 
       await global.app.syncQueue.add( {
         type : Note.syncableType,
