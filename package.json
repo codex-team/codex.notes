@@ -1,6 +1,6 @@
 {
   "name": "codex.notes",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "productName": "CodeX Notes",
   "description": "Simple, fast and useful crossplatform notes application based on CodeX Editor and Electron.",
   "main": "./src/codex-notes.js",
