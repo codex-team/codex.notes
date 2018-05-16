@@ -67,10 +67,7 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
   showLog('Error while checking for updates');
   showLog(err.message);
-
-  if (!process.env.DEBUG) {
-    global.catchException(err);
-  }
+  global.catchException(err);
 });
 
 /**

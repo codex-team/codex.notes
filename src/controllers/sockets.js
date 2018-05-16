@@ -96,6 +96,7 @@ class Channel {
 
     this.ws.on('error', (error) => {
       global.logger.debug('Sockets Channel error: %s', error);
+      global.catchException(error);
     });
   }
 
@@ -125,9 +126,11 @@ class Channel {
         this.callback(parsedData);
       } catch (error) {
         global.logger.debug('Error while handling socket message: \n%s, \nError: %s', data, error);
+        global.catchException(error);
       }
     } catch (error) {
       global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected. \nError: %s, \nSocket %s', error, data);
+      global.catchException(error);
     }
   }
 

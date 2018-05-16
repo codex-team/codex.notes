@@ -31,6 +31,7 @@ class AuthController {
       event.returnValue = await this.googleAuth();
     } catch (e) {
       global.logger.debug('Auth failed ', e);
+      global.catchException(e);
       event.returnValue = false;
     }
   }
@@ -219,6 +220,7 @@ class AuthController {
       }
     } catch (e) {
       global.logger.debug('Error occured while logging out due to the: ', e);
+      global.catchException(e);
     }
   }
 

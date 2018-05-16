@@ -510,6 +510,7 @@ class CloudSyncObserver {
       })
       .catch( error => {
         global.logger.debug('[!] User Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 
@@ -546,6 +547,7 @@ class CloudSyncObserver {
       })
       .catch( error => {
         global.logger.debug('[!] Folder Mutation failed because of %e', error);
+        global.catchException(error);
       });
   }
 
@@ -573,6 +575,7 @@ class CloudSyncObserver {
       })
       .catch(error => {
         global.logger.debug('[!] InviteCollaborator Mutation failed because of %s', error);
+        global.catchException(error);
         throw new Error(error);
       });
   }
@@ -602,6 +605,7 @@ class CloudSyncObserver {
       })
       .catch(error => {
         global.logger.debug('[!] CollaboratorJoin Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 
@@ -632,6 +636,7 @@ class CloudSyncObserver {
       })
       .catch( error => {
         global.logger.debug('[!] Note Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 

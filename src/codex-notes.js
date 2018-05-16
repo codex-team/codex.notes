@@ -270,6 +270,7 @@ class CodexNotes {
       })
       .catch(function (err) {
         global.logger.debug('Initialization error', err);
+        global.catchException(err);
       });
   }
 

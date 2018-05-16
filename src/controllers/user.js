@@ -43,6 +43,7 @@ class UserController {
       event.sender.send('sync finished', {result : true, data: updatesFromCloud});
     } catch(e) {
       event.sender.send('sync finished', {result : false, error: e});
+      global.catchException(e);
     }
   }
 }

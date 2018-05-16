@@ -82,6 +82,7 @@ class User extends Syncable {
       }
     } catch (err) {
       global.logger.debug('User register error: ', err);
+      global.catchException(err);
     }
   }
 
@@ -153,6 +154,7 @@ class User extends Syncable {
       }
     } catch (e) {
       global.logger.debug('Error while updating user data:', e);
+      global.catchException(e);
     }
   }
 
@@ -167,6 +169,7 @@ class User extends Syncable {
         .pipe(fs.createWriteStream(this.localPhoto))
         .on('error', err => {
           reject(err);
+          global.catchException(err);
         })
         .on('close', () => {
           resolve(this.localPhoto);

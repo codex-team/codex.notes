@@ -56,6 +56,7 @@ class Database {
         }).then(rootFolderCreated => {
           global.logger.debug('\nRoot Folder created: ', rootFolderCreated._id);
         }).catch(err => {
+          global.catchException(err);
           global.logger.debug('\nCan not create the Rood Folder because of: ', err);
         });
       });
@@ -116,6 +117,7 @@ class Database {
 
     return Promise.all(sequence)
         .catch((err) => {
+            global.catchException(err);
             throw Error('Couldn\'t drop the database', err);
         });
   }
@@ -133,6 +135,7 @@ class Database {
 
         reject('Root Folder was not found');
       }).catch( err => {
+        global.catchException(err);
         global.logger.debug('Database#getRootFolderId: Can not find Root Folder because: ', err);
         reject(err);
       });

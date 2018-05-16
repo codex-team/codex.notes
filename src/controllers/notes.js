@@ -97,6 +97,7 @@ class NotesController {
 
     } catch (err) {
       global.logger.debug('Note saving failed because of ', err);
+      global.catchException(err);
     }
   }
 
@@ -123,7 +124,9 @@ class NotesController {
       event.sender.send('notes list - update', returnValue);
     } catch (err) {
       global.logger.debug('Notes list loading failed because of ', err);
+      global.catchException(err);
       event.returnValue = false;
+
     }
   }
 
@@ -143,6 +146,7 @@ class NotesController {
       event.returnValue = note;
     } catch (err) {
       global.logger.debug('Note\'s data loading failed because of', err);
+      global.catchException(err);
       event.returnValue = false;
     }
   }
@@ -171,6 +175,7 @@ class NotesController {
       event.returnValue = !!noteRemovingResult.isRemoved;
     } catch (err) {
       global.logger.debug('Note failed because of', err);
+      global.catchException(err);
       event.returnValue = false;
     }
   }
@@ -188,6 +193,7 @@ class NotesController {
       event.sender.send('notes - set unread state', unreadStates);
     } catch (err){
       global.logger.debug('Cannot collect notes visit time:', err);
+      global.catchException(err);
     }
   }
 }
