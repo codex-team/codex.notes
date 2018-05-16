@@ -238,9 +238,18 @@ export default class Note {
    * Render the Note
    *
    * @param {NoteData} note
-   * @param {number} scrollY - set scroll position
+   * @param {boolean} saveScrollPosition
    */
-  render(note, scrollY = 50) {
+  render(note, saveScrollPosition = false) {
+    let scrollPositionY = 0;
+
+    /**
+     * Save scroll position before rendering
+     */
+    if (saveScrollPosition) {
+      scrollPositionY = window.scrollY;
+    }
+
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
@@ -289,7 +298,10 @@ export default class Note {
 
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
 
-    window.scroll(0, scrollY);
+    /**
+     * Scroll down scrollPositionY pixels
+     */
+    window.scroll(0, scrollPositionY);
   }
 
   /**
