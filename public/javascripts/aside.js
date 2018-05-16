@@ -146,7 +146,9 @@ export default class Aside {
        * Reload current opened note with the new data
        */
       if (note._id === codex.notes.note.currentNoteId) {
-        codex.notes.note.render(note);
+        let scrollY = window.scrollY;
+
+        codex.notes.note.render(note, scrollY);
       }
     });
 
