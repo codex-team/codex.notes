@@ -164,15 +164,16 @@ class NotesController {
       let note = await Note.get(noteId);
 
       let noteRemovingResult = await note.delete();
+      let noteRemoving = noteRemovingResult.data;
 
       await global.app.syncQueue.add( {
         type : Note.syncableType,
-        entityId : noteRemovingResult._id
+        entityId : noteRemoving._id
       });
 
       global.app.cloudSyncObserver.sync();
 
-      event.returnValue = !!noteRemovingResult.isRemoved;
+      event.returnValue = !!noteRemoving.isRemoved;
     } catch (err) {
       global.logger.debug('Note failed because of', err);
       global.catchException(err);
