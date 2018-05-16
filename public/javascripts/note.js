@@ -236,9 +236,20 @@ export default class Note {
 
   /**
    * Render the Note
+   *
    * @param {NoteData} note
+   * @param {boolean} saveScrollPosition
    */
-  render(note) {
+  render(note, saveScrollPosition = false) {
+    let scrollPositionY = 0;
+
+    /**
+     * Save scroll position before rendering
+     */
+    if (saveScrollPosition) {
+      scrollPositionY = window.scrollY;
+    }
+
     codex.editor.content.clear(true);
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
@@ -288,11 +299,9 @@ export default class Note {
     this.autoresizedTitle = new AutoResizer([ this.titleEl ]);
 
     /**
-     * Scroll to top
+     * Scroll down scrollPositionY pixels
      */
-    let editorView = document.querySelector('[name="editor-view"]');
-
-    editorView.scrollIntoView();
+    window.scroll(0, scrollPositionY);
   }
 
   /**

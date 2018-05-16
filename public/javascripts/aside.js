@@ -146,7 +146,7 @@ export default class Aside {
        * Reload current opened note with the new data
        */
       if (note._id === codex.notes.note.currentNoteId) {
-        codex.notes.note.render(note);
+        codex.notes.note.render(note, true);
       }
     });
 

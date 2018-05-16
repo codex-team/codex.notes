@@ -1,4 +1,5 @@
 let $ = require('./dom').default;
+let common = require('./utils/common').default;
 
 /**
  * CodeX Editor module
@@ -94,20 +95,21 @@ export default class Editor {
 
     codex.editor.start(config);
 
+    /**
+     * Wait some time and init autosave function
+     */
     window.setTimeout(() => {
+      /**
+       * Create a wrapper with debouncing for codex.notes.note.save()
+       *
+       * @type {Function|*}
+       */
+      this.saveNoteDebouncedFunction = common.debounce(() => {
+        codex.notes.note.save();
+      }, 500);
+
       this.enableAutosave();
     }, 500);
-  }
-
-  /**
-   * Keyup event on editor zone fires timeout to autosave note
-   */
-  autosave() {
-    if (this.autosaveTimer) window.clearTimeout(this.autosaveTimer);
-
-    this.autosaveTimer = window.setTimeout( () => {
-      codex.notes.note.save();
-    }, 200);
   }
 
   /**
@@ -116,14 +118,17 @@ export default class Editor {
   enableAutosave() {
     let noteTitle = document.getElementById('note-title');
 
-    noteTitle.addEventListener('keyup', this.autosave.bind(this));
-    codex.editor.nodes.redactor.addEventListener('keyup', this.autosave.bind(this));
+    noteTitle.addEventListener('keyup', this.saveNoteDebouncedFunction);
+    codex.editor.nodes.redactor.addEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 
   /**
    * Remove keyup listener to editor zone
    */
   disableAutosave() {
-    codex.editor.nodes.redactor.removeEventListener('keyup', this.autosave.bind(this));
+    let noteTitle = document.getElementById('note-title');
+
+    noteTitle.removeEventListener('keyup', this.saveNoteDebouncedFunction);
+    codex.editor.nodes.redactor.removeEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 }

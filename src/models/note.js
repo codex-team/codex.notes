@@ -45,6 +45,12 @@ const INTRO_TEXT_MAX_LENGTH = 150;
  */
 
 /**
+ * @typedef {object} SavingResponse
+ * @property {NoteData} data
+ * @property {number} result - flag for save note event name
+ */
+
+/**
  * Notes model.
  */
 class Note extends Syncable {
@@ -68,6 +74,16 @@ class Note extends Syncable {
     this.isRemoved = false;
     this.editorVersion = null;
     this.data = noteData;
+
+    /**
+     * Define result flags for saved note
+     */
+    this.dbResults = {
+      NO_CHANGES: 0,
+      CREATED_LOCALLY: 1,
+      CREATED_FROM_CLOUD: 2,
+      UPDATED: 4
+    }
   }
 
   /**
@@ -145,7 +161,7 @@ class Note extends Syncable {
    *    Note has been modified after lately
    * ---> do nothing
    *
-   * @returns {Promise.<NoteData>}
+   * @returns {SavingResponse}
    */
   async save() {
     /**
@@ -159,7 +175,10 @@ class Note extends Syncable {
      * 1. Note has no _id then we should insert it
      */
     if (!this._id) {
-      return await this.createNewItem();
+      return {
+        data: await this.createNewItem(),
+        result: this.dbResults.CREATED_LOCALLY
+      };
     }
 
     /**
@@ -173,7 +192,10 @@ class Note extends Syncable {
      * 2. If we do not have this Note in local DB
      */
     if (!noteFromLocalDB) {
-      return await this.createItemFromCloud();
+      return {
+        data: await this.createItemFromCloud(),
+        result: this.dbResults.CREATED_FROM_CLOUD
+      };
     }
 
     /**
@@ -181,13 +203,19 @@ class Note extends Syncable {
      *    is greater than item's dtModify from DB
      */
     if (noteFromLocalDB.dtModify < this.dtModify) {
-      return await this.saveUpdatedItem();
+      return {
+        data: await this.saveUpdatedItem(),
+        result: this.dbResults.UPDATED
+      };
     }
 
     /**
      * Return Note's data
      */
-    return this.data;
+    return {
+      data: this.data,
+      result: this.dbResults.NO_CHANGES
+    };
   }
 
   /**
@@ -245,11 +273,6 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-    //
-    // /**
-    //  * Send created Note to the Client
-    //  */
-    // global.app.clientSyncObserver.sendNote(this);
 
     /**
      * Return Note's data
@@ -284,11 +307,6 @@ class Note extends Syncable {
      * Update Folder's dtModify
      */
     await this.updateFolderModifyDate(this.dtModify);
-    //
-    // /**
-    //  * Send updated Note to the Client
-    //  */
-    // global.app.clientSyncObserver.sendNote(this);
 
     return this.data;
   }

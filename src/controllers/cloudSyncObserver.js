@@ -355,12 +355,16 @@ class CloudSyncObserver {
     /**
      * Save Note's data
      */
-    let savedNote = await note.save();
+    let savedNoteResponse = await note.save();
+    let savedNote = savedNoteResponse.data;
 
-    /**
-     * Send created Note to the Client
-     */
-    global.app.clientSyncObserver.sendNote(savedNote);
+    if (savedNoteResponse.result === note.dbResults.CREATED_FROM_CLOUD ||
+      savedNoteResponse.result === note.dbResults.UPDATED) {
+      /**
+       * Send created Note to the Client
+       */
+      global.app.clientSyncObserver.sendNote(savedNote);
+    }
 
     return savedNote;
   }
