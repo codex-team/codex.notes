@@ -94,7 +94,7 @@ class CloudSyncObserver {
    */
   gotNotify(message = {}) {
     if (!message.event) {
-      global.logger.debug('WARN: got notification in incorrect format', message);
+      global.logger.debug('WARN: got notification in incorrect format %s', message);
       return;
     }
 
@@ -506,10 +506,11 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation ', variables, ' and received a data:', data, '\n');
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends User Mutation %O and received a data %O\n', variables, data);
       })
       .catch( error => {
         global.logger.debug('[!] User Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 
@@ -542,10 +543,11 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation %s and received a data: %s', variables, data);
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Folder Mutation %O and received a data: %O', variables, data);
       })
       .catch( error => {
         global.logger.debug('[!] Folder Mutation failed because of %e', error);
+        global.catchException(error);
       });
   }
 
@@ -569,10 +571,11 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: %s', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends InviteCollaborator Mutation and received a data: %O', data);
       })
       .catch(error => {
         global.logger.debug('[!] InviteCollaborator Mutation failed because of %s', error);
+        global.catchException(error);
         throw new Error(error);
       });
   }
@@ -598,10 +601,11 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then(data => {
-        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: %s', data);
+        global.logger.debug('\n(ღ˘⌣˘ღ) CloudSyncObserver sends CollaboratorJoin Mutation and received a data: %O', data);
       })
       .catch(error => {
         global.logger.debug('[!] CollaboratorJoin Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 
@@ -628,10 +632,11 @@ class CloudSyncObserver {
 
     return this.api.request(query, variables)
       .then( data => {
-        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation %s and received a data: %s', variables, data);
+        global.logger.debug('(ღ˘⌣˘ღ) CloudSyncObserver sends Note Mutation %O and received a data: %O', variables, data);
       })
       .catch( error => {
         global.logger.debug('[!] Note Mutation failed because of %s', error);
+        global.catchException(error);
       });
   }
 

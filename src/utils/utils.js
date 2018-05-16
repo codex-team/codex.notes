@@ -90,6 +90,7 @@ class Utils {
       });
     } catch (e) {
       global.logger.debug('Error while sending webhook debug message: %s', e);
+      global.catchException(e);
     }
   }
 }

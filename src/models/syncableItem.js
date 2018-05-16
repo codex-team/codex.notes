@@ -13,12 +13,11 @@
  * @property {String} entityId - entity id. Unified entity identifier
  */
 class SyncableItem {
-
   /**
    * Constructor get's entity
    * @param {SyncQueueData} data
    */
-  constructor( data ) {
+  constructor(data) {
     this._id = null;
     this.type = data.type || null;
     this.entityId = data.entityId || null;
@@ -31,7 +30,7 @@ class SyncableItem {
     return {
       type : this.type,
       entityId : this.entityId
-    }
+    };
   }
 
   /**
@@ -41,7 +40,6 @@ class SyncableItem {
   isValid() {
     return !!(this.data.type && this.data.entityId);
   }
-
 }
 
 module.exports = SyncableItem;

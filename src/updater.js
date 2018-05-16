@@ -12,7 +12,7 @@ const {autoUpdater} = require('electron-updater');
  * @param message
  */
 const showLog = (message) => {
-  global.logger.debug('[updater] %s', JSON.stringify(message));
+  global.logger.debug('[updater] %O', message);
 };
 
 let updateIsDownloaded = false;
@@ -67,10 +67,7 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
   showLog('Error while checking for updates');
   showLog(err.message);
-
-  if (!process.env.DEBUG) {
-    global.catchException(err);
-  }
+  global.catchException(err);
 });
 
 /**
@@ -89,7 +86,7 @@ autoUpdater.on('download-progress', (progressObj) => {
  * Update was downloaded
  */
 autoUpdater.on('update-downloaded', (info) => {
-  global.logger.debug('[updater] Update is downloaded: %s', JSON.stringify(info));
+  global.logger.debug('[updater] Update is downloaded: %O', info);
 
   /**
    * Show update button

@@ -374,7 +374,7 @@ class Note extends Syncable {
   /**
    * Delete Note
    *
-   * @returns {Promise.<NoteData>}
+   * @returns {Promise.<SavingResponse>}
    */
   async delete() {
     this.isRemoved = true;
@@ -407,7 +407,7 @@ class Note extends Syncable {
           name = sanitizeHtml(titleFromText, {allowedTags: []});
         }
       } catch (error){
-        global.logger.debug('Failed to compose intro text for the Note', this);
+        global.logger.debug('Failed to compose intro text for the Note %O', this);
       }
     } else {
       name = this.title;

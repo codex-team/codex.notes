@@ -301,7 +301,7 @@ class Folder extends Syncable {
         note.dtModify = Time.now;
         return await note.save();
       } catch (e) {
-        global.logger.debug('Error while moving notes to the new Root Folder:', e);
+        global.logger.debug('Error while moving notes to the new Root Folder: %s', e);
       }
     }));
 

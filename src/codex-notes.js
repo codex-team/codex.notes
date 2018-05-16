@@ -208,7 +208,7 @@ class CodexNotes {
         this.setAppProtocol();
       })
       .catch((e) => {
-        global.logger.debug('App initialization failed because of ', e);
+        global.logger.debug('App initialization failed because of %s', e);
         global.catchException(e);
       });
   }
@@ -221,7 +221,7 @@ class CodexNotes {
 
     return this.user.init()
       .then(() => {
-        global.logger.debug('Current user data is: ', this.user);
+        global.logger.debug('Current user data is: %O', this.user);
 
         /**
          * @type {User}
@@ -269,7 +269,8 @@ class CodexNotes {
         this.pushNotifications = new PushNotifications();
       })
       .catch(function (err) {
-        global.logger.debug('Initialization error', err);
+        global.logger.debug('Initialization error %s', err);
+        global.catchException(err);
       });
   }
 

@@ -15,7 +15,6 @@ const db = require('../utils/database');
  * Class creates pull of entity queue to send to the cloud
  */
 class syncQueue {
-
   /**
    * @constructor
    */
@@ -25,17 +24,15 @@ class syncQueue {
    * Push to the queue if data is valid
    * @param {SyncQueueData} queueData
    */
-  async add( queueData ) {
-
+  async add(queueData) {
     /**
      * @type {SyncableItem}
      *
      * Each queue data must satisfy SyncableItem structure
      */
-    let queueObject = new SyncableItem( queueData );
+    let queueObject = new SyncableItem(queueData);
 
-    if  ( queueObject.isValid() ) {
-
+    if (queueObject.isValid()) {
       let query = {
         type : queueObject.data.type,
         entityId : queueObject.data.entityId
@@ -51,9 +48,10 @@ class syncQueue {
       };
 
       let updateResponse = await db.update(db.SYNCQUEUE, query, dataToSave, options);
+
       return updateResponse.affectedDocuments;
     } else {
-      throw new Error("Data is not valid");
+      throw new Error('Data is not valid');
     }
   }
 
@@ -62,7 +60,7 @@ class syncQueue {
    * @param {Number} entityType - Entity type. To see the examples, look at models that are syncable. Model Folder has type of 2
    * @return {Promise.<SyncQueueData[]>}
    */
-  async getAll( entityType ) {
+  async getAll(entityType) {
     return await db.find(db.SYNCQUEUE, {
       type : entityType
     });
@@ -74,7 +72,6 @@ class syncQueue {
   async flushAll() {
     return await db.remove(db.SYNCQUEUE, {}, {multi: true});
   }
-
 }
 
 module.exports = syncQueue;

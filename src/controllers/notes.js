@@ -96,7 +96,8 @@ class NotesController {
       global.app.seenStateObserver.touch(noteData.data.id);
 
     } catch (err) {
-      global.logger.debug('Note saving failed because of ', err);
+      global.logger.debug('Note saving failed because of %s', err);
+      global.catchException(err);
     }
   }
 
@@ -122,8 +123,10 @@ class NotesController {
 
       event.sender.send('notes list - update', returnValue);
     } catch (err) {
-      global.logger.debug('Notes list loading failed because of ', err);
+      global.logger.debug('Notes list loading failed because of %s', err);
+      global.catchException(err);
       event.returnValue = false;
+
     }
   }
 
@@ -142,7 +145,8 @@ class NotesController {
 
       event.returnValue = note;
     } catch (err) {
-      global.logger.debug('Note\'s data loading failed because of', err);
+      global.logger.debug('Note\'s data loading failed because of %s', err);
+      global.catchException(err);
       event.returnValue = false;
     }
   }
@@ -160,17 +164,19 @@ class NotesController {
       let note = await Note.get(noteId);
 
       let noteRemovingResult = await note.delete();
+      let noteRemoving = noteRemovingResult.data;
 
       await global.app.syncQueue.add( {
         type : Note.syncableType,
-        entityId : noteRemovingResult._id
+        entityId : noteRemoving._id
       });
 
       global.app.cloudSyncObserver.sync();
 
-      event.returnValue = !!noteRemovingResult.isRemoved;
+      event.returnValue = !!noteRemoving.isRemoved;
     } catch (err) {
-      global.logger.debug('Note failed because of', err);
+      global.logger.debug('Note failed because of %s', err);
+      global.catchException(err);
       event.returnValue = false;
     }
   }
@@ -187,7 +193,8 @@ class NotesController {
 
       event.sender.send('notes - set unread state', unreadStates);
     } catch (err){
-      global.logger.debug('Cannot collect notes visit time:', err);
+      global.logger.debug('Cannot collect notes visit time: %s', err);
+      global.catchException(err);
     }
   }
 }

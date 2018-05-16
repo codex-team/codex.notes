@@ -44,7 +44,7 @@ class Database {
         global.logger.debug('\nRoot Folder found: %s', rootFolderId);
       })
       .catch(err => {
-        global.logger.debug('\nCan not find the Root Folder\'s id because of: ', err);
+        global.logger.debug('\nCan not find the Root Folder\'s id because of: %s', err);
 
         this.insert(this.FOLDERS, {
           'isRoot': true,
@@ -54,9 +54,10 @@ class Database {
           'dtCreate': Time.now,
           'dtModify': Time.now
         }).then(rootFolderCreated => {
-          global.logger.debug('\nRoot Folder created: ', rootFolderCreated._id);
+          global.logger.debug('\nRoot Folder created: %s', rootFolderCreated._id);
         }).catch(err => {
-          global.logger.debug('\nCan not create the Rood Folder because of: ', err);
+          global.catchException(err);
+          global.logger.debug('\nCan not create the Rood Folder because of: %s', err);
         });
       });
   }
@@ -101,9 +102,9 @@ class Database {
     let sequence = [];
 
     [this.USER, this.FOLDERS, this.NOTES, this.COLLABORATORS, this.VISITS, this.SYNCQUEUE].forEach( collection => {
-      global.logger.debug('\n\n Drop ', collection.filename, '\n\n');
+      global.logger.debug('\n\n Drop %s \n\n', collection.filename);
       sequence.push(this.remove(collection, {}, {multi: true}, (removedRows) => {
-        global.logger.debug(collection.filename, ': ', removedRows, ' docs removed');
+        global.logger.debug('%s: %s docs removed', collection.filename, removedRows);
       }));
     });
 
@@ -116,6 +117,7 @@ class Database {
 
     return Promise.all(sequence)
         .catch((err) => {
+            global.catchException(err);
             throw Error('Couldn\'t drop the database', err);
         });
   }
@@ -133,7 +135,8 @@ class Database {
 
         reject('Root Folder was not found');
       }).catch( err => {
-        global.logger.debug('Database#getRootFolderId: Can not find Root Folder because: ', err);
+        global.catchException(err);
+        global.logger.debug('Database#getRootFolderId: Can not find Root Folder because: %s', err);
         reject(err);
       });
     });
