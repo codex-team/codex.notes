@@ -374,7 +374,7 @@ class Note extends Syncable {
   /**
    * Delete Note
    *
-   * @returns {Promise.<NoteData>}
+   * @returns {Promise.<SavingResponse>}
    */
   async delete() {
     this.isRemoved = true;
