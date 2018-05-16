@@ -30,7 +30,7 @@ class AuthController {
     try {
       event.returnValue = await this.googleAuth();
     } catch (e) {
-      global.logger.debug('Auth failed ', e);
+      global.logger.debug('Auth failed %s', e);
       global.catchException(e);
       event.returnValue = false;
     }
@@ -219,7 +219,7 @@ class AuthController {
         return this.dropSession();
       }
     } catch (e) {
-      global.logger.debug('Error occured while logging out due to the: ', e);
+      global.logger.debug('Error occured while logging out due to the: %s', e);
       global.catchException(e);
     }
   }

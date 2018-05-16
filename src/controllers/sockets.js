@@ -104,14 +104,14 @@ class Channel {
    * Channel opening handler
    */
   opened() {
-    global.logger.debug('listening channel ' + this.url);
+    global.logger.debug('listening channel %s', this.url);
   }
 
   /**
    * Channel closing handler
    */
   closed() {
-    global.logger.debug('disconnected from ' + this.url);
+    global.logger.debug('disconnected from %s', this.url);
   }
 
   /**
@@ -125,11 +125,11 @@ class Channel {
       try {
         this.callback(parsedData);
       } catch (error) {
-        global.logger.debug('Error while handling socket message: \n%s, \nError: %s', data, error);
+        global.logger.debug('Error while handling socket message: \n%O, \nError: %s', data, error);
         global.catchException(error);
       }
     } catch (error) {
-      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected. \nError: %s, \nSocket %s', error, data);
+      global.logger.debug('Sockets Channel: unsupported response format. JSON with "message" expected. \nError: %s, \nSocket %O', error, data);
       global.catchException(error);
     }
   }

@@ -81,7 +81,7 @@ class User extends Syncable {
         this.id = insertedRow._id;
       }
     } catch (err) {
-      global.logger.debug('User register error: ', err);
+      global.logger.debug('User register error: %s', err);
       global.catchException(err);
     }
   }
@@ -91,7 +91,7 @@ class User extends Syncable {
    */
   async deleteAvatar() {
     fs.unlink(this.localPhoto, err => {
-      global.logger.debug('Failed to remove avatar because ', err);
+      global.logger.debug('Failed to remove avatar because %s', err);
     });
   }
 
@@ -153,7 +153,7 @@ class User extends Syncable {
         }
       }
     } catch (e) {
-      global.logger.debug('Error while updating user data:', e);
+      global.logger.debug('Error while updating user data: %s', e);
       global.catchException(e);
     }
   }
