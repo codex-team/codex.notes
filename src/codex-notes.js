@@ -19,8 +19,9 @@ if (!fs.existsSync(global.appFolder)) {
 
 /**
  * Enable errors handling
- * @type {hawkCatcher}
  */
+global.catchException = () => {};
+
 if (process.env.HAWK_TOKEN) {
   let hawkCatcher = require('@codexteam/hawk.nodejs')({
     accessToken: process.env.HAWK_TOKEN
