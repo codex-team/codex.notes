@@ -180,18 +180,29 @@ class CodexNotes {
       this.makeMenu();
     }
 
+    /**
+     * Render editor.pug
+     */
     this.mainWindow.loadURL('file://' + __dirname + '/views/editor.pug');
 
+    /**
+     * Show window if app is ready
+     */
     this.mainWindow.once('ready-to-show', () => {
       global.logger.debug('\nMain Window is ready to show. Let\'s go \n');
       this.mainWindow.show();
     });
 
-    /** Open the DevTools. */
+    /**
+     * Open the DevTools
+     */
     if (process.env.DEBUG === 'true') {
       this.mainWindow.webContents.openDevTools();
     }
 
+    /**
+     * Destroy app if window was closed
+     */
     this.mainWindow.on('closed', () => {
       this.destroy();
     });
@@ -313,12 +324,7 @@ app.on('ready', function () {
     global.app = new CodexNotes();
   } catch(error) {
     global.catchException(error);
-    global.logger.error(`\n
-      \n
-      ...........................\n
-      \n
-      CodeX Notes runtime error:`, error, `\n
-      \n
-      ...........................`);
+    global.logger.error('CodeX Notes runtime error: %s', error);
+    process.exit(1);
   }
 });
