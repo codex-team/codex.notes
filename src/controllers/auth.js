@@ -177,7 +177,7 @@ class AuthController {
     await global.app.cloudSyncObserver.sendVerifyCollaborator(ownerId, folderId, token);
 
     /**
-     * @todo add to queue
+     * Run sync to get the new folder and its notes (and add them to client)
      */
     global.app.cloudSyncObserver.sync({direction: 'get'});
 
