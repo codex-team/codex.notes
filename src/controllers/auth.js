@@ -179,7 +179,7 @@ class AuthController {
     /**
      * @todo add to queue
      */
-    global.app.cloudSyncObserver.sync();
+    global.app.cloudSyncObserver.sync({direction: 'get'});
 
     dialog.showMessageBox({
       type: 'none',
