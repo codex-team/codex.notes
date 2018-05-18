@@ -11,7 +11,6 @@ const db = require('../utils/database');
  * @classdesc Work with user`s authentication
  */
 class AuthController {
-
   /**
    * @constructor
    *
@@ -110,14 +109,18 @@ class AuthController {
       global.app.sockets.listenChannel(channel,
         /**
          * User data got from the Cloud
-         * @param {object} authData
-         * @param {string} authData.jwt - JWT for authentication
-         * @param {string} authData.photo
-         * @param {string} authData.name
-         * @param {number} authData.dtModify
-         * @param {string} authData.channel - personal user's channel
+         *
+         * @param {object} socketMessage
+         * @param {object} socketMessage.message
+         * @param {string} socketMessage.message.jwt - JWT for authentication
+         * @param {string} socketMessage.message.photo
+         * @param {string} socketMessage.message.name
+         * @param {number} socketMessage.message.dtModify
+         * @param {string} socketMessage.message.channel - personal user's channel
          */
-        async authData => {
+        async socketMessage => {
+          let authData = socketMessage.message;
+
           let jwt = authData.jwt;
 
           /** Decode JWT payload */
