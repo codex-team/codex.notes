@@ -500,7 +500,6 @@ class CloudSyncObserver {
       name: user.name,
       photo: user.photo,
       email: user.email,
-      dtReg: user.dt_reg,
       dtModify: user.dtModify,
     };
 

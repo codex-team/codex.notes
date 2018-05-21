@@ -7,7 +7,6 @@ module.exports = `mutation User(
     $name: String!,
     $photo: String!,
     $email: String!,
-    $dtReg: Int!,
     $dtModify: Int!,
   ){
   user(
@@ -15,7 +14,6 @@ module.exports = `mutation User(
     name: $name,
     photo: $photo,
     email: $email,
-    dtReg: $dtReg,
     dtModify: $dtModify,
    ){
     id,
