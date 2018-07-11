@@ -94,6 +94,10 @@
         "process": true,
         "__dirname": true,
         "Buffer": true,
-        "setInterval": true
+        "setInterval": true,
+
+        "CodexEditor": true,
+        "Text": true,
+        "Term": true
     }
 }

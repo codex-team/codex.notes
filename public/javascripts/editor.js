@@ -1,5 +1,6 @@
-let $ = require('./dom').default;
-let common = require('./utils/common').default;
+const $ = require('./dom').default;
+const common = require('./utils/common').default;
+
 
 /**
  * CodeX Editor module
@@ -12,26 +13,48 @@ export default class Editor {
   * @property {TimerId} autosaveTimer - autosave debounce timer
   */
   constructor() {
+    /**
+     * Path to Editor sources dir
+     */
     this.path = '../../public/codex.editor/';
-    this.plugins = ['paragraph', 'header'];
+
+    /**
+     * List of plugins
+     */
+    this.plugins = [
+      'text'
+    ];
+
+    /**
+     * List of inline-tools
+     */
+    this.inlineTools = [
+      'term'
+    ];
+
+
+    this.editorZoneId = 'codex-editor';
 
     this.autosaveTimer = null;
+
+    this.editor = null;
 
     this.loadEditor()
       .then(() => this.loadPlugins())
       .then(() => this.init());
+
+    // this.loadPlugins()
+    //   .then(() => this.init());
   }
+
+
 
   /**
    * Loads CodeX Editor sources
    * @return {Promise}
    */
   loadEditor() {
-    return Promise.all([
-      $.loadResource('JS', this.path + 'codex-editor.js', 'codex-editor'),
-      $.loadResource('CSS', this.path + 'codex-editor.css', 'codex-editor')
-    ]).catch( err => console.warn('Cannot load Codex Editor sources: ', err))
-      .then( () => console.log('CodeX Editor loaded') );
+    return $.loadResource('JS', this.path + 'build/codex-editor.js', 'codex-editor');
   }
 
   /**
@@ -43,8 +66,15 @@ export default class Editor {
 
     this.plugins.forEach( name => {
       pluginsQuery.push(...[
-        $.loadResource('JS', this.path + 'plugins/' + name + '/' + name + '.js', name),
-        $.loadResource('CSS', this.path + 'plugins/' + name + '/' + name + '.css', name)
+        $.loadResource('JS', this.path + 'example/plugins/' + name + '/' + name + '.js', name),
+        $.loadResource('CSS', this.path + 'example/plugins/' + name + '/' + name + '.css', name)
+      ]);
+    });
+
+    this.inlineTools.forEach( name => {
+      pluginsQuery.push(...[
+        $.loadResource('JS', this.path + 'example/tools-inline/' + name + '/' + name + '.js', name),
+        $.loadResource('CSS', this.path + 'example/tools-inline/' + name + '/' + name + '.css', name)
       ]);
     });
 
@@ -58,42 +88,84 @@ export default class Editor {
    * @return {[type]} [description]
    */
   init() {
-    let config = {
-      holderId : 'codex-editor',
-      initialBlockPlugin : 'paragraph',
-      hideToolbar: false,
+    // let config = {
+    //   holderId : 'codex-editor',
+    //   initialBlockPlugin : 'paragraph',
+    //   hideToolbar: false,
+    //   placeholder: 'Your story',
+    //   tools : {}
+    // };
+    //
+    // this.plugins.forEach( name => {
+    //   if (!window[name]) {
+    //     console.warn('Plugin ' + name + ' does not ready');
+    //     return;
+    //   }
+    //
+    //   config.tools[name] = {
+    //     type: name,
+    //     iconClassname: 'ce-icon-' + name,
+    //     render: window[name].render,
+    //     validate: window[name].validate,
+    //     save: window[name].save,
+    //     destroy: window[name].destroy,
+    //     makeSettings: window[name].makeSettings,
+    //   };
+    // });
+    //
+    // if (config.tools.paragraph) {
+    //   config.tools.paragraph.allowedToPaste = true;
+    //   config.tools.paragraph.showInlineToolbar = true;
+    //   config.tools.paragraph.allowRenderOnPaste = true;
+    // }
+    //
+    // if (config.tools.header) {
+    //   config.tools.header.displayInToolbox = true;
+    // }
+
+    // codex.editor.start(config);
+
+    this.editor = new CodexEditor({
+      holderId : this.editorZoneId,
+      initialBlock : 'text',
       placeholder: 'Your story',
-      tools : {}
-    };
-
-    this.plugins.forEach( name => {
-      if (!window[name]) {
-        console.warn('Plugin ' + name + ' does not ready');
-        return;
+      tools: {
+        text: Text,
+        term: Term
+      },
+      toolsConfig: {
+        text: {
+          inlineToolbar : true,
+        },
+        quote: {
+          enableLineBreaks : true
+        }
+      },
+      data: {
+        items: [
+          {
+            type : 'text',
+            data : {
+              text : 'Привет от CodeX'
+            }
+          },
+          {
+            type : 'text',
+            data : {
+              text : 'В <b>JavaScript</b> <a href="https://ifmo.su/ts-classes">нет возможности</a> назначить свойства при объявлении класса — все необходимые значения нужно определять в конструкторе или других методах. При таком подходе объявление свойств неявное, не всегда ясно какие свойства имеет класс. TS решает эту проблему: здесь можно не только объявить свойства класса, но и назначить им начальные значения'
+            }
+          },
+          {
+            type : 'text',
+            data : {
+              text : 'Одним из недостатков ES6 классов является невозможность сделать методы и свойства приватными. В TS есть привычные модификаторы: <span class="marked">public</span>, <span class="marked">private</span> и <span class="marked">protected</span>, которые можно использовать как для методов, так и для свойств. По умолчанию, как и в других языках, все свойства имеют модификатор <span class="marked">public</span>.'
+            }
+          }
+        ]
       }
-
-      config.tools[name] = {
-        type: name,
-        iconClassname: 'ce-icon-' + name,
-        render: window[name].render,
-        validate: window[name].validate,
-        save: window[name].save,
-        destroy: window[name].destroy,
-        makeSettings: window[name].makeSettings,
-      };
     });
 
-    if (config.tools.paragraph) {
-      config.tools.paragraph.allowedToPaste = true;
-      config.tools.paragraph.showInlineToolbar = true;
-      config.tools.paragraph.allowRenderOnPaste = true;
-    }
-
-    if (config.tools.header) {
-      config.tools.header.displayInToolbox = true;
-    }
-
-    codex.editor.start(config);
+    console.log('Editor instance:', this.editor);
 
     /**
      * Wait some time and init autosave function
@@ -105,7 +177,12 @@ export default class Editor {
        * @type {Function|*}
        */
       this.saveNoteDebouncedFunction = common.debounce(() => {
-        codex.notes.note.save();
+        // codex.notes.note.save();
+
+        console.log('Saving... 🤪');
+
+        this.editor.saver.save()
+          .then(console.log);
       }, 500);
 
       this.enableAutosave();
@@ -116,19 +193,21 @@ export default class Editor {
    * Add keyup listener to editor zone
    */
   enableAutosave() {
-    let noteTitle = document.getElementById('note-title');
+    let noteTitle = document.getElementById('note-title'),
+        editorZone = document.getElementById(this.editorZoneId);
 
     noteTitle.addEventListener('keyup', this.saveNoteDebouncedFunction);
-    codex.editor.nodes.redactor.addEventListener('keyup', this.saveNoteDebouncedFunction);
+    editorZone.addEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 
   /**
    * Remove keyup listener to editor zone
    */
   disableAutosave() {
-    let noteTitle = document.getElementById('note-title');
+    let noteTitle = document.getElementById('note-title'),
+        editorZone = document.getElementById(this.editorZoneId);
 
     noteTitle.removeEventListener('keyup', this.saveNoteDebouncedFunction);
-    codex.editor.nodes.redactor.removeEventListener('keyup', this.saveNoteDebouncedFunction);
+    editorZone.removeEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 }
