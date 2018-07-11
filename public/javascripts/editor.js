@@ -32,7 +32,6 @@ export default class Editor {
       'term'
     ];
 
-
     this.editorZoneId = 'codex-editor';
 
     this.autosaveTimer = null;

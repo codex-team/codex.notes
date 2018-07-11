@@ -250,7 +250,9 @@ export default class Note {
       scrollPositionY = window.scrollY;
     }
 
-    codex.editor.content.clear(true);
+    console.log('EDTR', codex.notes.editor);
+
+    codex.notes.editor.editor.api.blocks.clear();
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
     this.currentNoteId = note._id;
