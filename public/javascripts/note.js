@@ -280,14 +280,16 @@ export default class Note {
       minute: 'numeric',
       hour12: false
     });
-    /** @todo use editor 2.0 */
-    codex.editor.content.load({
+
+    const renderData = {
       id: note._id,
       items: JSON.parse(note.content),
       time: note.dtModify,
       created: note.dtCreate,
       version: note.editorVersion,
-    });
+    };
+
+    codex.notes.editor.instance.blocks.render(renderData);
     this.deleteButton.classList.remove('hide');
 
     /**
@@ -310,12 +312,9 @@ export default class Note {
    * Clears editor
    */
   clear() {
-    /** @todo use editor 2.0 */
-    codex.editor.content.clear(true);
+    codex.notes.editor.instance.blocks.clear();
     this.titleEl.value = '';
     this.dateEl.textContent = '';
-    /** @todo use editor 2.0 */
-    codex.editor.ui.addInitialBlock();
     this.deleteButton.classList.add('hide');
 
     this.folderId = null;

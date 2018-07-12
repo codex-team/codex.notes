@@ -126,14 +126,14 @@ export default class Editor {
 
     this.instance = new CodexEditor({
       holderId : this.editorZoneId,
-      initialBlock : 'text',
+      initialBlock : 'paragraph',
       placeholder: 'Your story',
       tools: {
-        text: Text,
+        paragraph: Text,
         term: Term
       },
       toolsConfig: {
-        text: {
+        paragraph: {
           inlineToolbar : true,
         },
         quote: {
@@ -142,24 +142,6 @@ export default class Editor {
       },
       data: {
         items: [
-          {
-            type : 'text',
-            data : {
-              text : 'Привет от CodeX'
-            }
-          },
-          {
-            type : 'text',
-            data : {
-              text : 'В <b>JavaScript</b> <a href="https://ifmo.su/ts-classes">нет возможности</a> назначить свойства при объявлении класса — все необходимые значения нужно определять в конструкторе или других методах. При таком подходе объявление свойств неявное, не всегда ясно какие свойства имеет класс. TS решает эту проблему: здесь можно не только объявить свойства класса, но и назначить им начальные значения'
-            }
-          },
-          {
-            type : 'text',
-            data : {
-              text : 'Одним из недостатков ES6 классов является невозможность сделать методы и свойства приватными. В TS есть привычные модификаторы: <span class="marked">public</span>, <span class="marked">private</span> и <span class="marked">protected</span>, которые можно использовать как для методов, так и для свойств. По умолчанию, как и в других языках, все свойства имеют модификатор <span class="marked">public</span>.'
-            }
-          }
         ]
       }
     });
