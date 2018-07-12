@@ -155,8 +155,7 @@ export default class Note {
 
     let folderId = this.folderId;
 
-    /** @todo use editor 2.0 */
-    codex.editor.saver.save()
+    codex.notes.editor.instance.saver.save()
       .then(noteData => {
         this.validate(noteData);
         return noteData;
@@ -230,8 +229,8 @@ export default class Note {
    * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
    */
   addToMenu({note, isRootFolder}) {
-    /** @todo use editor 2.0 */
-    codex.editor.state.blocks.id = note._id;
+    this.currentNoteId = note._id;
+
     codex.notes.aside.addMenuItem(note, isRootFolder);
   }
 
@@ -341,8 +340,7 @@ export default class Note {
    * Delete article
    */
   delete() {
-    /** @todo use editor 2.0 */
-    let id = codex.editor.state.blocks.id;
+    let id = this.currentNoteId;
 
     if (!id) {
       return;

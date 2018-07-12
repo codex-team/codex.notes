@@ -146,7 +146,8 @@ export default class Editor {
       }
     });
 
-    console.log('Editor instance:', this.instance);
+    window.editor = this.instance;
+    console.log('Editor instance:', window.editor);
 
     /**
      * Wait some time and init autosave function
@@ -158,7 +159,7 @@ export default class Editor {
        * @type {Function|*}
        */
       this.saveNoteDebouncedFunction = common.debounce(() => {
-        // codex.notes.note.save();
+        codex.notes.note.save();
 
         console.log('Saving... 🤪');
 
