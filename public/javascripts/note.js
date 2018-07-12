@@ -155,7 +155,7 @@ export default class Note {
 
     let folderId = this.folderId;
 
-
+    /** @todo use editor 2.0 */
     codex.editor.saver.save()
       .then(noteData => {
         this.validate(noteData);
@@ -230,6 +230,7 @@ export default class Note {
    * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
    */
   addToMenu({note, isRootFolder}) {
+    /** @todo use editor 2.0 */
     codex.editor.state.blocks.id = note._id;
     codex.notes.aside.addMenuItem(note, isRootFolder);
   }
@@ -250,9 +251,7 @@ export default class Note {
       scrollPositionY = window.scrollY;
     }
 
-    console.log('EDTR', codex.notes.editor);
-
-    codex.notes.editor.editor.api.blocks.clear();
+    codex.notes.editor.instance.blocks.clear();
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
     this.currentNoteId = note._id;
@@ -281,6 +280,7 @@ export default class Note {
       minute: 'numeric',
       hour12: false
     });
+    /** @todo use editor 2.0 */
     codex.editor.content.load({
       id: note._id,
       items: JSON.parse(note.content),
@@ -310,9 +310,11 @@ export default class Note {
    * Clears editor
    */
   clear() {
+    /** @todo use editor 2.0 */
     codex.editor.content.clear(true);
     this.titleEl.value = '';
     this.dateEl.textContent = '';
+    /** @todo use editor 2.0 */
     codex.editor.ui.addInitialBlock();
     this.deleteButton.classList.add('hide');
 
@@ -340,6 +342,7 @@ export default class Note {
    * Delete article
    */
   delete() {
+    /** @todo use editor 2.0 */
     let id = codex.editor.state.blocks.id;
 
     if (!id) {

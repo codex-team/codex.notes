@@ -36,7 +36,7 @@ export default class Editor {
 
     this.autosaveTimer = null;
 
-    this.editor = null;
+    this.instance = null;
 
     this.loadEditor()
       .then(() => this.loadPlugins())
@@ -124,7 +124,7 @@ export default class Editor {
 
     // codex.editor.start(config);
 
-    this.editor = new CodexEditor({
+    this.instance = new CodexEditor({
       holderId : this.editorZoneId,
       initialBlock : 'text',
       placeholder: 'Your story',
@@ -164,7 +164,7 @@ export default class Editor {
       }
     });
 
-    console.log('Editor instance:', this.editor);
+    console.log('Editor instance:', this.instance);
 
     /**
      * Wait some time and init autosave function
@@ -180,7 +180,7 @@ export default class Editor {
 
         console.log('Saving... 🤪');
 
-        this.editor.saver.save()
+        this.instance.saver.save()
           .then(console.log);
       }, 500);
 
