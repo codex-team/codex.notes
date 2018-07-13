@@ -135,14 +135,10 @@ export default class Editor {
       toolsConfig: {
         paragraph: {
           inlineToolbar : true,
-        },
-        quote: {
-          enableLineBreaks : true
         }
       },
       data: {
-        items: [
-        ]
+        items: []
       }
     });
 

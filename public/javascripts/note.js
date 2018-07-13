@@ -182,6 +182,8 @@ export default class Note {
          */
         noteData.content = JSON.stringify(noteData.items);
 
+        noteData.id = this.currentNoteId;
+
         let note = {
           data: noteData,
           title: this.titleEl.value.trim(),
@@ -315,6 +317,7 @@ export default class Note {
     this.titleEl.value = '';
     this.dateEl.textContent = '';
     this.deleteButton.classList.add('hide');
+    this.currentNoteId = null;
 
     this.folderId = null;
 
@@ -352,7 +355,7 @@ export default class Note {
       }
 
       codex.notes.aside.removeMenuItem(id);
-      this.folderId = null;
+      this.folderId = null; // todo is it necessary?
       this.clear();
     }
   }
