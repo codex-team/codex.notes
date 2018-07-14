@@ -41,9 +41,6 @@ export default class Editor {
     this.loadEditor()
       .then(() => this.loadPlugins())
       .then(() => this.init());
-
-    // this.loadPlugins()
-    //   .then(() => this.init());
   }
 
 
@@ -63,6 +60,9 @@ export default class Editor {
   loadPlugins() {
     let pluginsQuery = [];
 
+    /**
+     * Load plugins
+     */
     this.plugins.forEach( name => {
       pluginsQuery.push(...[
         $.loadResource('JS', this.path + 'example/plugins/' + name + '/' + name + '.js', name),
@@ -70,6 +70,9 @@ export default class Editor {
       ]);
     });
 
+    /**
+     * Load inline-tools
+     */
     this.inlineTools.forEach( name => {
       pluginsQuery.push(...[
         $.loadResource('JS', this.path + 'example/tools-inline/' + name + '/' + name + '.js', name),
@@ -87,42 +90,6 @@ export default class Editor {
    * @return {[type]} [description]
    */
   init() {
-    // let config = {
-    //   holderId : 'codex-editor',
-    //   initialBlockPlugin : 'paragraph',
-    //   hideToolbar: false,
-    //   placeholder: 'Your story',
-    //   tools : {}
-    // };
-    //
-    // this.plugins.forEach( name => {
-    //   if (!window[name]) {
-    //     console.warn('Plugin ' + name + ' does not ready');
-    //     return;
-    //   }
-    //
-    //   config.tools[name] = {
-    //     type: name,
-    //     iconClassname: 'ce-icon-' + name,
-    //     render: window[name].render,
-    //     validate: window[name].validate,
-    //     save: window[name].save,
-    //     destroy: window[name].destroy,
-    //     makeSettings: window[name].makeSettings,
-    //   };
-    // });
-    //
-    // if (config.tools.paragraph) {
-    //   config.tools.paragraph.allowedToPaste = true;
-    //   config.tools.paragraph.showInlineToolbar = true;
-    //   config.tools.paragraph.allowRenderOnPaste = true;
-    // }
-    //
-    // if (config.tools.header) {
-    //   config.tools.header.displayInToolbox = true;
-    // }
-
-    // codex.editor.start(config);
 
     this.instance = new CodexEditor({
       holderId : this.editorZoneId,
@@ -142,6 +109,9 @@ export default class Editor {
       }
     });
 
+    /**
+     * For development
+     */
     window.editor = this.instance;
     console.log('Editor instance:', window.editor);
 
@@ -156,11 +126,6 @@ export default class Editor {
        */
       this.saveNoteDebouncedFunction = common.debounce(() => {
         codex.notes.note.save();
-
-        console.log('Saving... 🤪');
-
-        this.instance.saver.save()
-          .then(console.log);
       }, 500);
 
       this.enableAutosave();
