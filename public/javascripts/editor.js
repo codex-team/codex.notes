@@ -32,10 +32,14 @@ export default class Editor {
       'term'
     ];
 
+    /**
+     * Element to be wrapper for an Editor
+     */
     this.editorZoneId = 'codex-editor';
 
-    this.autosaveTimer = null;
-
+    /**
+     * Editor's instance
+     */
     this.instance = null;
 
     this.loadEditor()
@@ -107,12 +111,6 @@ export default class Editor {
         items: []
       }
     });
-
-    /**
-     * For development
-     */
-    window.editor = this.instance;
-    console.log('Editor instance:', window.editor);
 
     /**
      * Wait some time and init autosave function
