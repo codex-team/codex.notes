@@ -155,8 +155,7 @@ export default class Note {
 
     let folderId = this.folderId;
 
-
-    codex.editor.saver.save()
+    codex.notes.editor.instance.saver.save()
       .then(noteData => {
         this.validate(noteData);
         return noteData;
@@ -182,6 +181,8 @@ export default class Note {
          * caused of unmatched order of object properties
          */
         noteData.content = JSON.stringify(noteData.items);
+
+        noteData.id = this.currentNoteId;
 
         let note = {
           data: noteData,
@@ -230,7 +231,8 @@ export default class Note {
    * @param {Boolean} data.isRootFolder - true if Note included in the Root Folder
    */
   addToMenu({note, isRootFolder}) {
-    codex.editor.state.blocks.id = note._id;
+    this.currentNoteId = note._id;
+
     codex.notes.aside.addMenuItem(note, isRootFolder);
   }
 
@@ -250,7 +252,7 @@ export default class Note {
       scrollPositionY = window.scrollY;
     }
 
-    codex.editor.content.clear(true);
+    codex.notes.editor.instance.blocks.clear();
     this.titleEl.value = note.title;
     this.folderId = note.folderId;
     this.currentNoteId = note._id;
@@ -279,13 +281,16 @@ export default class Note {
       minute: 'numeric',
       hour12: false
     });
-    codex.editor.content.load({
+
+    const renderData = {
       id: note._id,
       items: JSON.parse(note.content),
       time: note.dtModify,
       created: note.dtCreate,
       version: note.editorVersion,
-    });
+    };
+
+    codex.notes.editor.instance.blocks.render(renderData);
     this.deleteButton.classList.remove('hide');
 
     /**
@@ -308,11 +313,11 @@ export default class Note {
    * Clears editor
    */
   clear() {
-    codex.editor.content.clear(true);
+    codex.notes.editor.instance.blocks.clear();
     this.titleEl.value = '';
     this.dateEl.textContent = '';
-    codex.editor.ui.addInitialBlock();
     this.deleteButton.classList.add('hide');
+    this.currentNoteId = null;
 
     this.folderId = null;
 
@@ -328,7 +333,7 @@ export default class Note {
    */
   static focusEditor() {
     window.setTimeout(function () {
-      let editor = document.querySelector('.ce-redactor');
+      let editor = document.querySelector('.codex-editor__redactor');
 
       editor.click();
     }, 10);
@@ -338,7 +343,7 @@ export default class Note {
    * Delete article
    */
   delete() {
-    let id = codex.editor.state.blocks.id;
+    let id = this.currentNoteId;
 
     if (!id) {
       return;
@@ -350,7 +355,7 @@ export default class Note {
       }
 
       codex.notes.aside.removeMenuItem(id);
-      this.folderId = null;
+      this.folderId = null; // todo is it necessary?
       this.clear();
     }
   }

@@ -1,5 +1,6 @@
-let $ = require('./dom').default;
-let common = require('./utils/common').default;
+const $ = require('./dom').default;
+const common = require('./utils/common').default;
+
 
 /**
  * CodeX Editor module
@@ -12,26 +13,48 @@ export default class Editor {
   * @property {TimerId} autosaveTimer - autosave debounce timer
   */
   constructor() {
+    /**
+     * Path to Editor sources dir
+     */
     this.path = '../../public/codex.editor/';
-    this.plugins = ['paragraph', 'header'];
 
-    this.autosaveTimer = null;
+    /**
+     * List of plugins
+     */
+    this.plugins = [
+      'text'
+    ];
+
+    /**
+     * List of inline-tools
+     */
+    this.inlineTools = [
+      'term'
+    ];
+
+    /**
+     * Element to be wrapper for an Editor
+     */
+    this.editorZoneId = 'codex-editor';
+
+    /**
+     * Editor's instance
+     */
+    this.instance = null;
 
     this.loadEditor()
       .then(() => this.loadPlugins())
       .then(() => this.init());
   }
 
+
+
   /**
    * Loads CodeX Editor sources
    * @return {Promise}
    */
   loadEditor() {
-    return Promise.all([
-      $.loadResource('JS', this.path + 'codex-editor.js', 'codex-editor'),
-      $.loadResource('CSS', this.path + 'codex-editor.css', 'codex-editor')
-    ]).catch( err => console.warn('Cannot load Codex Editor sources: ', err))
-      .then( () => console.log('CodeX Editor loaded') );
+    return $.loadResource('JS', this.path + 'build/codex-editor.js', 'codex-editor');
   }
 
   /**
@@ -41,10 +64,23 @@ export default class Editor {
   loadPlugins() {
     let pluginsQuery = [];
 
+    /**
+     * Load plugins
+     */
     this.plugins.forEach( name => {
       pluginsQuery.push(...[
-        $.loadResource('JS', this.path + 'plugins/' + name + '/' + name + '.js', name),
-        $.loadResource('CSS', this.path + 'plugins/' + name + '/' + name + '.css', name)
+        $.loadResource('JS', this.path + 'example/plugins/' + name + '/' + name + '.js', name),
+        $.loadResource('CSS', this.path + 'example/plugins/' + name + '/' + name + '.css', name)
+      ]);
+    });
+
+    /**
+     * Load inline-tools
+     */
+    this.inlineTools.forEach( name => {
+      pluginsQuery.push(...[
+        $.loadResource('JS', this.path + 'example/tools-inline/' + name + '/' + name + '.js', name),
+        $.loadResource('CSS', this.path + 'example/tools-inline/' + name + '/' + name + '.css', name)
       ]);
     });
 
@@ -58,42 +94,23 @@ export default class Editor {
    * @return {[type]} [description]
    */
   init() {
-    let config = {
-      holderId : 'codex-editor',
-      initialBlockPlugin : 'paragraph',
-      hideToolbar: false,
+    this.instance = new CodexEditor({
+      holderId : this.editorZoneId,
+      initialBlock : 'paragraph',
       placeholder: 'Your story',
-      tools : {}
-    };
-
-    this.plugins.forEach( name => {
-      if (!window[name]) {
-        console.warn('Plugin ' + name + ' does not ready');
-        return;
+      tools: {
+        paragraph: Text,
+        term: Term
+      },
+      toolsConfig: {
+        paragraph: {
+          inlineToolbar : true,
+        }
+      },
+      data: {
+        items: []
       }
-
-      config.tools[name] = {
-        type: name,
-        iconClassname: 'ce-icon-' + name,
-        render: window[name].render,
-        validate: window[name].validate,
-        save: window[name].save,
-        destroy: window[name].destroy,
-        makeSettings: window[name].makeSettings,
-      };
     });
-
-    if (config.tools.paragraph) {
-      config.tools.paragraph.allowedToPaste = true;
-      config.tools.paragraph.showInlineToolbar = true;
-      config.tools.paragraph.allowRenderOnPaste = true;
-    }
-
-    if (config.tools.header) {
-      config.tools.header.displayInToolbox = true;
-    }
-
-    codex.editor.start(config);
 
     /**
      * Wait some time and init autosave function
@@ -116,19 +133,21 @@ export default class Editor {
    * Add keyup listener to editor zone
    */
   enableAutosave() {
-    let noteTitle = document.getElementById('note-title');
+    let noteTitle = document.getElementById('note-title'),
+        editorZone = document.getElementById(this.editorZoneId);
 
     noteTitle.addEventListener('keyup', this.saveNoteDebouncedFunction);
-    codex.editor.nodes.redactor.addEventListener('keyup', this.saveNoteDebouncedFunction);
+    editorZone.addEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 
   /**
    * Remove keyup listener to editor zone
    */
   disableAutosave() {
-    let noteTitle = document.getElementById('note-title');
+    let noteTitle = document.getElementById('note-title'),
+        editorZone = document.getElementById(this.editorZoneId);
 
     noteTitle.removeEventListener('keyup', this.saveNoteDebouncedFunction);
-    codex.editor.nodes.redactor.removeEventListener('keyup', this.saveNoteDebouncedFunction);
+    editorZone.removeEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 }
