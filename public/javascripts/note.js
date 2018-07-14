@@ -333,7 +333,7 @@ export default class Note {
    */
   static focusEditor() {
     window.setTimeout(function () {
-      let editor = document.querySelector('.ce-redactor');
+      let editor = document.querySelector('.codex-editor__redactor');
 
       editor.click();
     }, 10);

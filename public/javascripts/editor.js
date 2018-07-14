@@ -90,7 +90,6 @@ export default class Editor {
    * @return {[type]} [description]
    */
   init() {
-
     this.instance = new CodexEditor({
       holderId : this.editorZoneId,
       initialBlock : 'paragraph',
