@@ -22,7 +22,8 @@ export default class Editor {
      * List of plugins
      */
     this.plugins = [
-      'text'
+      'text',
+      'header'
     ];
 
     /**
@@ -100,6 +101,7 @@ export default class Editor {
       placeholder: 'Your story',
       tools: {
         paragraph: Text,
+        header: Header,
         term: Term
       },
       toolsConfig: {
