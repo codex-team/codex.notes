@@ -1,4 +1,0 @@
-[submodule "public/codex.editor"]
-	path = public/codex.editor
-	url = https://github.com/codex-team/codex.editor.git
-	branch = master
