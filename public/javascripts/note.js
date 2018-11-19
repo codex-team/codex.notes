@@ -1,7 +1,7 @@
 const $ = require('./dom').default;
 const AutoResizer = require('./autoresizer').default;
 const Dialog = require('./dialog').default;
-const Shortcut = require('@codexteam/shortcuts').default;
+// const Shortcut = require('@codexteam/shortcuts').default;
 const clipboardUtil = require('./utils/clipboard').default;
 const HashCoder = require('./utils/hashCoder').default;
 
@@ -83,31 +83,31 @@ export default class Note {
       this.editor.removeEventListener('copy', preventDefaultExecution);
     }, false);
 
-    /**
-     * Select all document by CMD+A
-     */
-    let selectAllShortcut = new Shortcut({
-      name: 'CMD+A',
-      on: this.editor,
-      callback: event => {
-        this.cmdA(event);
-        this.editor.addEventListener('copy', preventDefaultExecution);
-      }
-    });
-
-    /**
-     * Copy selected document by CMD+C
-     */
-    let copySelectedShortcut = new Shortcut({
-      name: 'CMD+C',
-      on: this.editor,
-      callback: () => {
-        this.cmdC();
-      }
-    });
-
-    this.shortcuts.push(selectAllShortcut);
-    this.shortcuts.push(copySelectedShortcut);
+    // /**
+    //  * Select all document by CMD+A
+    //  */
+    // let selectAllShortcut = new Shortcut({
+    //   name: 'CMD+A',
+    //   on: this.editor,
+    //   callback: event => {
+    //     this.cmdA(event);
+    //     this.editor.addEventListener('copy', preventDefaultExecution);
+    //   }
+    // });
+    //
+    // /**
+    //  * Copy selected document by CMD+C
+    //  */
+    // let copySelectedShortcut = new Shortcut({
+    //   name: 'CMD+C',
+    //   on: this.editor,
+    //   callback: () => {
+    //     this.cmdC();
+    //   }
+    // });
+    //
+    // this.shortcuts.push(selectAllShortcut);
+    // this.shortcuts.push(copySelectedShortcut);
   }
 
   /**
@@ -161,7 +161,7 @@ export default class Note {
         return noteData;
       })
       .then( noteData => {
-        let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.items),
+        let currentNoteContent = this.titleEl.value + JSON.stringify(noteData.blocks),
             currentHashedNote = HashCoder.simpleHash(currentNoteContent);
 
         /** Note wont be saved because hashes are similar */
@@ -180,7 +180,7 @@ export default class Note {
          * because on the server-side it can generate different string
          * caused of unmatched order of object properties
          */
-        noteData.content = JSON.stringify(noteData.items);
+        noteData.content = JSON.stringify(noteData.blocks);
 
         noteData.id = this.currentNoteId;
 
@@ -215,7 +215,7 @@ export default class Note {
    * @throws {Error}
    */
   validate(noteData) {
-    if (!noteData.items.length) {
+    if (!noteData.blocks.length) {
       throw Error('Article is empty');
     }
   }
@@ -284,7 +284,7 @@ export default class Note {
 
     const renderData = {
       id: note._id,
-      items: JSON.parse(note.content),
+      blocks: JSON.parse(note.content),
       time: note.dtModify,
       created: note.dtCreate,
       version: note.editorVersion,

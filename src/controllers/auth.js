@@ -98,7 +98,10 @@ class AuthController {
       authWindow.webContents.on('did-get-response-details', (event, status, newURL, originalURL, httpResponseCode) => {
         if (httpResponseCode !== 200) {
           global.logger.debug(`-------------------------------\nAuthorisation failed: code ${httpResponseCode} \n-------------------------------`);
-          authWindow.close();
+
+          // if (!process.env.DEBUG) {
+          //   authWindow.close();
+          // }
         }
       });
 
