@@ -1,6 +1,22 @@
-const $ = require('./dom').default;
 const common = require('./utils/common').default;
 
+/**
+ * CodeX Editor core
+ */
+const CodexEditor = require('codex.editor');
+
+/**
+ * Tools for the Editor
+ */
+const Header = require('codex.editor.header');
+const Quote = require('codex.editor.quote');
+const Marker = require('codex.editor.marker');
+const CodeTool = require('codex.editor.code');
+const Delimiter = require('codex.editor.delimiter');
+const InlineCode = require('codex.editor.inline-code');
+const List = require('codex.editor.list');
+const RawTool = require('codex.editor.raw');
+const SimpleImageTool = require('codex.editor.simple-image');
 
 /**
  * CodeX Editor module
@@ -8,31 +24,8 @@ const common = require('./utils/common').default;
 export default class Editor {
   /**
   * @constructor
-  * @property {String}  path          - CodeX Editor library path
-  * @property {Array}   plugins       - plugins names
-  * @property {TimerId} autosaveTimer - autosave debounce timer
   */
   constructor() {
-    /**
-     * Path to Editor sources dir
-     */
-    this.path = '../../public/codex.editor/';
-
-    /**
-     * List of plugins
-     */
-    this.plugins = [
-      'text',
-      'header'
-    ];
-
-    /**
-     * List of inline-tools
-     */
-    this.inlineTools = [
-      'term'
-    ];
-
     /**
      * Element to be wrapper for an Editor
      */
@@ -43,113 +36,72 @@ export default class Editor {
      */
     this.instance = null;
 
-    this.loadEditor()
-      .then(() => this.loadPlugins())
-      .then(() => this.init());
-  }
-
-
-
-  /**
-   * Loads CodeX Editor sources
-   * @return {Promise}
-   */
-  loadEditor() {
-    return $.loadResource('JS', this.path + 'build/codex-editor.js', 'codex-editor');
-  }
-
-  /**
-   * Loads CodeX Editor plugins
-   * @return {Promise}
-   */
-  loadPlugins() {
-    let pluginsQuery = [];
+    /**
+     * Wrapper with a debounce to save note
+     */
+    this.saveNoteDebouncedFunction = common.debounce(() => {
+      codex.notes.note.save();
+    }, 500);
 
     /**
-     * Load plugins
+     * Listen title changes and save note
      */
-    this.plugins.forEach( name => {
-      pluginsQuery.push(...[
-        $.loadResource('JS', this.path + 'example/plugins/' + name + '/' + name + '.js', name),
-        $.loadResource('CSS', this.path + 'example/plugins/' + name + '/' + name + '.css', name)
-      ]);
-    });
+    let noteTitle = document.getElementById('note-title');
+
+    noteTitle.addEventListener('keyup', this.saveNoteDebouncedFunction);
 
     /**
-     * Load inline-tools
+     * Start Editor
      */
-    this.inlineTools.forEach( name => {
-      pluginsQuery.push(...[
-        $.loadResource('JS', this.path + 'example/tools-inline/' + name + '/' + name + '.js', name),
-        $.loadResource('CSS', this.path + 'example/tools-inline/' + name + '/' + name + '.css', name)
-      ]);
-    });
-
-    return Promise.all(pluginsQuery)
-      .catch( err => console.warn('Cannot load plugin: ', err))
-      .then( () => console.log('Plugins loaded') );
+    this.init();
   }
 
   /**
    * Init CodeX Editor
-   * @return {[type]} [description]
    */
   init() {
     this.instance = new CodexEditor({
       holderId : this.editorZoneId,
-      initialBlock : 'paragraph',
-      placeholder: 'Your story',
       tools: {
-        paragraph: Text,
-        header: Header,
-        term: Term
-      },
-      toolsConfig: {
-        paragraph: {
-          inlineToolbar : true,
-        }
+        header: {
+          class: Header,
+          inlineToolbar: ['link', 'marker'],
+        },
+        image: {
+          class: SimpleImageTool,
+          inlineToolbar: true,
+        },
+        list: {
+          class: List,
+          inlineToolbar: true
+        },
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+        },
+        code: {
+          class: CodeTool,
+          shortcut: 'CMD+SHIFT+D'
+        },
+        inlineCode: {
+          class: InlineCode,
+          shortcut: 'CMD+SHIFT+C'
+        },
+        rawTool: {
+          class: RawTool,
+          shortcut: 'CMD+SHIFT+R'
+        },
+        marker: {
+          class: Marker,
+          shortcut: 'CMD+SHIFT+M'
+        },
+        delimiter: Delimiter,
       },
       data: {
         items: []
-      }
+      },
+
+      onChange: this.saveNoteDebouncedFunction,
     });
-
-    /**
-     * Wait some time and init autosave function
-     */
-    window.setTimeout(() => {
-      /**
-       * Create a wrapper with debouncing for codex.notes.note.save()
-       *
-       * @type {Function|*}
-       */
-      this.saveNoteDebouncedFunction = common.debounce(() => {
-        codex.notes.note.save();
-      }, 500);
-
-      this.enableAutosave();
-    }, 500);
-  }
-
-  /**
-   * Add keyup listener to editor zone
-   */
-  enableAutosave() {
-    let noteTitle = document.getElementById('note-title'),
-        editorZone = document.getElementById(this.editorZoneId);
-
-    noteTitle.addEventListener('keyup', this.saveNoteDebouncedFunction);
-    editorZone.addEventListener('keyup', this.saveNoteDebouncedFunction);
-  }
-
-  /**
-   * Remove keyup listener to editor zone
-   */
-  disableAutosave() {
-    let noteTitle = document.getElementById('note-title'),
-        editorZone = document.getElementById(this.editorZoneId);
-
-    noteTitle.removeEventListener('keyup', this.saveNoteDebouncedFunction);
-    editorZone.removeEventListener('keyup', this.saveNoteDebouncedFunction);
   }
 }
