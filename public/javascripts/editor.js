@@ -11,12 +11,13 @@ const CodexEditor = require('codex.editor');
 const Header = require('codex.editor.header');
 const Quote = require('codex.editor.quote');
 const Marker = require('codex.editor.marker');
-const CodeTool = require('codex.editor.code');
+const Code = require('codex.editor.code');
 const Delimiter = require('codex.editor.delimiter');
 const InlineCode = require('codex.editor.inline-code');
 const List = require('codex.editor.list');
-const RawTool = require('codex.editor.raw');
-const SimpleImageTool = require('codex.editor.simple-image');
+const SimpleImage = require('codex.editor.simple-image');
+const Table = require('codex.editor.table');
+const Checklist= require('codex.editor.checklist');
 
 /**
  * CodeX Editor module
@@ -63,12 +64,15 @@ export default class Editor {
     this.instance = new CodexEditor({
       holderId : this.editorZoneId,
       tools: {
+        /**
+         * Block Tools
+         */
         header: {
           class: Header,
           inlineToolbar: ['link', 'marker'],
         },
         image: {
-          class: SimpleImageTool,
+          class: SimpleImage,
           inlineToolbar: true,
         },
         list: {
@@ -80,22 +84,30 @@ export default class Editor {
           inlineToolbar: true,
         },
         code: {
-          class: CodeTool,
+          class: Code,
           shortcut: 'CMD+SHIFT+D'
         },
+        table: {
+          class: Table,
+          inlineToolbar: true
+        },
+        checklist: {
+          class: Checklist,
+          inlineToolbar: true
+        },
+        delimiter: Delimiter,
+
+        /**
+         * Inline Tools
+         */
         inlineCode: {
           class: InlineCode,
           shortcut: 'CMD+SHIFT+C'
         },
-        rawTool: {
-          class: RawTool,
-          shortcut: 'CMD+SHIFT+R'
-        },
         marker: {
           class: Marker,
           shortcut: 'CMD+SHIFT+M'
-        },
-        delimiter: Delimiter,
+        }
       },
       data: {
         items: []
