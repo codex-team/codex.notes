@@ -17,7 +17,7 @@ const InlineCode = require('codex.editor.inline-code');
 const List = require('codex.editor.list');
 const SimpleImage = require('codex.editor.simple-image');
 const Table = require('codex.editor.table');
-const Checklist= require('codex.editor.checklist');
+const Checklist = require('codex.editor.checklist');
 
 /**
  * CodeX Editor module
