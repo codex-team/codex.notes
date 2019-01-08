@@ -1825,13 +1825,20 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-codex.editor.code@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/codex.editor.code/-/codex.editor.code-2.1.0.tgz#4ba299fa7f728be3d7886c289dd4ad1279303752"
+codex.editor.checklist@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/codex.editor.checklist/-/codex.editor.checklist-1.0.0.tgz#edd995e327f47249065b283eb954971398c0e82b"
+  integrity sha512-1FLlTvDSD+Dt/vhRx4Gcd5y4c6SIZmwIiMp4jP6KXzFbrAnRF4IC3zg7g8fjURr4d5fcfb7ylPl+dMERR/0fjg==
 
-codex.editor.delimiter@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/codex.editor.delimiter/-/codex.editor.delimiter-1.0.1.tgz#a93a044bb64e14ab9563fc1ce4d4549f2c9f8394"
+codex.editor.code@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/codex.editor.code/-/codex.editor.code-2.3.0.tgz#e3090c2940b2a8c2185bd32d735ac8c60213345f"
+  integrity sha512-NclB0bkGkp07dRC7tFQO8bLXJXfxbk5JWZw3X5XF2ji5l7strXB1445J9g4XABLIGE9ycZl4ykoFRmT4hY/iGg==
+
+codex.editor.delimiter@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/codex.editor.delimiter/-/codex.editor.delimiter-1.0.2.tgz#05462b1e613026ccf3f10ce45e5f12485bbb142b"
+  integrity sha512-+fFgO3EtkCqxajNKBw6dG4h7o+2g23PGnRzBpqFyRFO6bZXH/a2FsB/6ahOMp7uHuRoAGIsU5M6TMd6aDWZZig==
 
 codex.editor.header@^2.0.5:
   version "2.0.5"
@@ -1841,29 +1848,34 @@ codex.editor.inline-code@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/codex.editor.inline-code/-/codex.editor.inline-code-1.1.0.tgz#147e2e54295d19aead28821231f3246a94fbb126"
 
-codex.editor.list@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/codex.editor.list/-/codex.editor.list-1.0.2.tgz#b00b349f684b19860d7aa766ad7b4c349971170b"
+codex.editor.list@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/codex.editor.list/-/codex.editor.list-1.2.2.tgz#e0eb9f05214eeeeaf52cdfbda3a1cc951b107450"
+  integrity sha512-HUw/kPbv2tsB/XJbg8jkfH5NJHGJ1UWkPk7J46SUX6LT8WyaY2JkWwtWhMnHX6ZUWepMDitBNaX1kXERHEkesg==
 
 codex.editor.marker@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/codex.editor.marker/-/codex.editor.marker-1.1.0.tgz#732b628766eb2e455307cdb848b95cc6610be966"
+  integrity sha512-Jqdst23W5I4BBiPHbctWOEq9uN6+R4ayoHKsSkUrbtVWODbfGdh43nHOeV95qrtpbZjmXAYpW5syeApCKRxOeA==
 
-codex.editor.quote@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/codex.editor.quote/-/codex.editor.quote-2.1.0.tgz#725313c86460704f3bcbf0e03d3973990c7c7640"
-
-codex.editor.raw@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/codex.editor.raw/-/codex.editor.raw-2.0.0.tgz#0af10fc5936483a69e901efd15d1db559357571b"
+codex.editor.quote@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/codex.editor.quote/-/codex.editor.quote-2.1.3.tgz#536a0aff7183495abefd0dd0d56b65cea5d61e25"
+  integrity sha512-dibS5zgUfhhSPOsC6yqVKnysezF/krOZBmtPzYtSkk08eklyjijwbCBb4l5aZfogW5bUOBv/93h4K4+++6WaEw==
 
 codex.editor.simple-image@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/codex.editor.simple-image/-/codex.editor.simple-image-1.0.1.tgz#697207a82c6d0a4307700871195bae337befa57f"
 
-codex.editor@^2.4.2:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/codex.editor/-/codex.editor-2.4.2.tgz#c6fbcf2d006214c7f59e1ec3202362d004bd46d9"
+codex.editor.table@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/codex.editor.table/-/codex.editor.table-1.1.2.tgz#36fabb71ea7516046fc8675ca43341bd99f788e6"
+  integrity sha512-IbP5vxC2GMPoBJJZ1+brlr6IOvH7F9uO5eYvV7d6Fk400gDPEXmcmzO26G5YxPQ7+EXHv+ca/aNR31C3nqEcig==
+
+codex.editor@^2.7.22:
+  version "2.7.22"
+  resolved "https://registry.yarnpkg.com/codex.editor/-/codex.editor-2.7.22.tgz#79ee7e5dc96e219907ee378a0c6f72a32a328115"
+  integrity sha512-6wyXQ4i00+7Yn2SgRXwr7AAugXmOTfo3Y6u4yKU32CXdszz1AnYy3jxD2Zs5/j78ePAve5RUHPmpQM8Vu5FPNg==
 
 collection-visit@^1.0.0:
   version "1.0.0"
