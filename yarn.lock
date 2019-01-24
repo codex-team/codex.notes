@@ -1825,10 +1825,10 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-codex.editor.checklist@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/codex.editor.checklist/-/codex.editor.checklist-1.0.0.tgz#edd995e327f47249065b283eb954971398c0e82b"
-  integrity sha512-1FLlTvDSD+Dt/vhRx4Gcd5y4c6SIZmwIiMp4jP6KXzFbrAnRF4IC3zg7g8fjURr4d5fcfb7ylPl+dMERR/0fjg==
+codex.editor.checklist@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/codex.editor.checklist/-/codex.editor.checklist-1.0.1.tgz#6bea9a8e8757be734c7d3b9102635756376fbc5f"
+  integrity sha512-TCAyltX1LtX3u3j0g8NQc7O8EZyADFR3L+KpAPpX8feFgrHYRsuzRQsaZ8HD9BZdQRx3hx8lWF16YGhrp4vOig==
 
 codex.editor.code@^2.3.0:
   version "2.3.0"
@@ -1840,42 +1840,45 @@ codex.editor.delimiter@^1.0.2:
   resolved "https://registry.yarnpkg.com/codex.editor.delimiter/-/codex.editor.delimiter-1.0.2.tgz#05462b1e613026ccf3f10ce45e5f12485bbb142b"
   integrity sha512-+fFgO3EtkCqxajNKBw6dG4h7o+2g23PGnRzBpqFyRFO6bZXH/a2FsB/6ahOMp7uHuRoAGIsU5M6TMd6aDWZZig==
 
-codex.editor.header@^2.0.5:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/codex.editor.header/-/codex.editor.header-2.0.5.tgz#fe0cc7d710b090e877499b7d9951ea36fddfbdc9"
+codex.editor.header@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/codex.editor.header/-/codex.editor.header-2.1.2.tgz#cfa34cc603905fc18a0df5c508f41cf3dcf74fd8"
+  integrity sha512-lLXVXnSlpLGn2ktIerLoxN/6aY/F2UCbGgj9owEW8m+jzZZ9IaqawvEmY9jw+zcZEMonOqcRU5Z8DyLBqNkoXQ==
 
-codex.editor.inline-code@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/codex.editor.inline-code/-/codex.editor.inline-code-1.1.0.tgz#147e2e54295d19aead28821231f3246a94fbb126"
+codex.editor.inline-code@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/codex.editor.inline-code/-/codex.editor.inline-code-1.2.0.tgz#f666859a50a07cb8d465b2442eb5c750c9bf7cca"
+  integrity sha512-xg2wTX7NdWsJoV25Xn7cTZnAug9jdySE9keVqssShn9phXX7SCRyTTaXL1dMvgqQUUIEwP3038SwHAuc94/fdw==
 
-codex.editor.list@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/codex.editor.list/-/codex.editor.list-1.2.2.tgz#e0eb9f05214eeeeaf52cdfbda3a1cc951b107450"
-  integrity sha512-HUw/kPbv2tsB/XJbg8jkfH5NJHGJ1UWkPk7J46SUX6LT8WyaY2JkWwtWhMnHX6ZUWepMDitBNaX1kXERHEkesg==
+codex.editor.list@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/codex.editor.list/-/codex.editor.list-1.2.3.tgz#74260413c3071182b7e0221eefe1544ee8798d28"
+  integrity sha512-URCZLjPX9o8c7Jonu6dps6ZRQr5HLuxMe1I6pqSEmbG1bEWGH2cgEMaQ+dC561xuXNVGSGmIm6JAp0gn8RnLUQ==
 
 codex.editor.marker@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/codex.editor.marker/-/codex.editor.marker-1.1.0.tgz#732b628766eb2e455307cdb848b95cc6610be966"
   integrity sha512-Jqdst23W5I4BBiPHbctWOEq9uN6+R4ayoHKsSkUrbtVWODbfGdh43nHOeV95qrtpbZjmXAYpW5syeApCKRxOeA==
 
-codex.editor.quote@^2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/codex.editor.quote/-/codex.editor.quote-2.1.3.tgz#536a0aff7183495abefd0dd0d56b65cea5d61e25"
-  integrity sha512-dibS5zgUfhhSPOsC6yqVKnysezF/krOZBmtPzYtSkk08eklyjijwbCBb4l5aZfogW5bUOBv/93h4K4+++6WaEw==
+codex.editor.quote@^2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/codex.editor.quote/-/codex.editor.quote-2.1.5.tgz#ab1e9211eb1cf9f71b7c2e5b74ea202d689eed25"
+  integrity sha512-IsoE4cFNXqq2DRGea1q4RIu6MRngLTtY4RiqflQW1plrn7FoV1fWeJ4mWXx9PeK8BCMkttvLjTQZxQF+pId0ng==
 
-codex.editor.simple-image@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/codex.editor.simple-image/-/codex.editor.simple-image-1.0.1.tgz#697207a82c6d0a4307700871195bae337befa57f"
+codex.editor.simple-image@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/codex.editor.simple-image/-/codex.editor.simple-image-1.2.1.tgz#c7a6227f2f376d6daf898fd15597e3d0951d3be5"
+  integrity sha512-uGqBK0n8GmS3vwL3QNC9d9Usr4tWbVPyUB28HstWZWQdc4u4QMlN4AoxNWbEA3XtSQqBCbci2yurenEEL6ljEQ==
 
 codex.editor.table@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/codex.editor.table/-/codex.editor.table-1.1.2.tgz#36fabb71ea7516046fc8675ca43341bd99f788e6"
   integrity sha512-IbP5vxC2GMPoBJJZ1+brlr6IOvH7F9uO5eYvV7d6Fk400gDPEXmcmzO26G5YxPQ7+EXHv+ca/aNR31C3nqEcig==
 
-codex.editor@^2.7.22:
-  version "2.7.22"
-  resolved "https://registry.yarnpkg.com/codex.editor/-/codex.editor-2.7.22.tgz#79ee7e5dc96e219907ee378a0c6f72a32a328115"
-  integrity sha512-6wyXQ4i00+7Yn2SgRXwr7AAugXmOTfo3Y6u4yKU32CXdszz1AnYy3jxD2Zs5/j78ePAve5RUHPmpQM8Vu5FPNg==
+codex.editor@^2.7.30:
+  version "2.7.30"
+  resolved "https://registry.yarnpkg.com/codex.editor/-/codex.editor-2.7.30.tgz#10f4a6b53321b5c855a435833471e23cdfe2cafb"
+  integrity sha512-HwvNofpF0e/jYWFxSDjzsnGLR9ZqwFNJ0NFGcNC7A+x4psgkjMRKbP/vmIIOqgAGEtEzfWqLiA86iiS2ZTyLlg==
 
 collection-visit@^1.0.0:
   version "1.0.0"
