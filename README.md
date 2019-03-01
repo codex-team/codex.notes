@@ -1,6 +1,6 @@
 ## CodeX Notes
 
-CodeX Notes is a crossplatform text editor, built on [Electron](https://github.com/atom/electron). It integrates [CodeX Editor](https://github.com/codex-team/editor) and supports cloud backups of your notes.
+CodeX Notes is a crossplatform text editor, built on [Electron](https://github.com/atom/electron). It integrates [Editor.js](https://github.com/codex-team/editor.js) and supports cloud backups of your notes.
 
 ### Features
 
@@ -16,11 +16,11 @@ CodeX Notes is a crossplatform text editor, built on [Electron](https://github.c
 
 ### Latest versions
 
-* [Linux](https://github.com/codex-team/codex.notes/releases/download/v1.0/codex.notes_1.0.0_amd64.deb)
-* [macOS](https://github.com/codex-team/codex.notes/releases/download/v1.0/codex.notes_1.0.0_darwin.dmg)
-* [Windows](https://github.com/codex-team/codex.notes/releases/download/v1.0/codex.notes_1.0.0_win32-x64.zip)
+* [Linux](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-2.2.3-x86_64.AppImage)
+* [macOS](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-2.2.3.dmg)
+* [Windows](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-setup-2.2.3.exe)
 
-Explore other [releases](https://github.com/codex-team/codex.notes/releases) and [sources](https://github.com/codex-team/codex.notes/archive/v1.0.zip).
+Explore other [releases](https://github.com/codex-team/codex.notes/releases) and [sources](https://github.com/codex-team/codex.notes/archive/v2.0.zip).
 
 ### License
 
