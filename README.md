@@ -16,9 +16,9 @@ CodeX Notes is a crossplatform text editor, built on [Electron](https://github.c
 
 ### Latest versions
 
-* [Linux](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes_2.2.3_amd64.deb)
-* [macOS](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes_2.2.3_darwin.dmg)
-* [Windows](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes_2.2.3_win32-x64.zip)
+* [Linux](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-2.2.3_amd64.deb)
+* [macOS](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-2.2.3.dmg)
+* [Windows](https://github.com/codex-team/codex.notes/releases/download/v2.2.3/codex.notes-setup-2.2.3.exe)
 
 Explore other [releases](https://github.com/codex-team/codex.notes/releases) and [sources](https://github.com/codex-team/codex.notes/archive/v2.0.zip).
 
