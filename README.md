@@ -1,6 +1,6 @@
 ## CodeX Notes
 
-CodeX Notes is a crossplatform text editor, built on [Electron](https://github.com/atom/electron). It integrates [CodeX Editor](https://github.com/codex-team/editor) and supports cloud backups of your notes.
+CodeX Notes is a crossplatform text editor, built on [Electron](https://github.com/atom/electron). It integrates [Editor.js](https://github.com/codex-team/editor.js) and supports cloud backups of your notes.
 
 ### Features
 
