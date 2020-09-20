@@ -90,6 +90,7 @@ class AuthController {
         '&response_type=code' +
         '&redirect_uri=' + process.env.GOOGLE_REDIRECT_URI +
         '&state=' + channel // state parameter will be passed to the redirect_uri
+        , {userAgent: 'Chrome'}
       );
 
       /**
